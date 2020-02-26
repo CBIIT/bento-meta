@@ -2,12 +2,11 @@
 
 ## Load MDB with MDF 
 
-Create local Origin node with Origin.name = <model handle>.
+Create local Origin node with Origin.name = `<model handle>`.
 
-If multiple models have `case` node (for example), each model will have its own instance of a Node with Node.handle='case'. The equivalence of meaning among such Nodes will be represented by links from each instance to a single Concept node.
-(so a unique key for Nodes, Properties, Relationships would be (n.model, n.handle) - not just n.handle)
+If multiple models have `case` node (for example), each model will have its own instance of a Node with Node.handle='case'. The equivalence of meaning among such Nodes will be represented by links from each instance to a single Concept node. So, a unique key for Nodes, Properties, or Relationships would be (n.model, n.handle) - not just n.handle.
 
-Terms from different origins may have the same value (string or data physical representation). The unique key for Terms is (origin_id) plus Origin.name
+Terms from different origins may have the same value (string or data physical representation). The unique key for Terms is (origin_id) plus Origin.name.
 
 Create model representation from MDF (a 'model instance')
 
@@ -56,12 +55,9 @@ So adding these to the metamodel goes like:
 - find local Term node by Term.value, find linked Concept 
 - link new Term to this Concept by represents
 
-`
-    match (o:origin), (c:concept) 
-
-    where origin.name = <external origin> and (c)<--(t:Term) and t.value = <local term>
-    merge (o)<-[:has_origin]-(t:term {value:<external term>, origin_id:<external code>})-[:represents]->(c)
-`
+        match (o:origin), (c:concept) 
+        where origin.name = <external origin> and (c)<--(t:Term) and t.value = <local term>
+        merge (o)<-[:has_origin]-(t:term {value:<external term>, origin_id:<external code>})-[:represents]->(c)
 
 Curation is about deciding whether which existing Concept a Term should link to, or if a new Concept is needed.
 - Concepts are implicitly defined by the Terms that are linked to them - they need to remain abstract aggregating points
