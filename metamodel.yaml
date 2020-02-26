@@ -1,0 +1,145 @@
+Nodes:
+  node:
+    Props:
+      - handle
+      - model
+  relationship:
+    Props:
+      - handle
+      - model
+      - neo_type
+      - multiplicity
+  property:
+    Props:
+      - handle
+      - model
+      - is_required
+      - value_domain
+  value_set:
+    Props:
+      - id
+      - url
+  concept:
+    Props:
+      - id
+  term:
+    Props:
+      - id
+      - value
+      - origin_id
+      - origin_definition
+  origin:
+    Props:
+      - name
+      - url
+      - is_external
+Relationships:
+  has_concept:
+    Mul: many_to_one
+    Props: null
+    Ends:
+      - Src: node
+        Dst: concept
+        Req: true
+      - Src: property
+        Dst: concept
+        Req: true
+      - Src: relationship
+        Dst: concept
+        Mul: many_to_one
+  has_origin:
+    Mul: many_to_one
+    Props: null
+    Ends:
+      - Src: term
+        Dst: origin
+        Req: true
+      - Src: value_set
+        Dst: origin
+        Mul: one_to_one
+  has_src:
+    Mul: one_to_one
+    Props: null
+    Ends:
+      - Src: relationship
+        Dst: node
+        Req: true
+  has_dst:
+    Mul: one_to_one
+    Props: null
+    Ends:
+      - Src: relationship
+        Dst: node
+        Req: true
+  has_property:
+    Mul: one_to_many
+    Props: null
+    Ends:
+      - Src: node
+        Dst: property
+      - Src: relationship
+        Dst: property
+  has_value_set:
+    Mul: one_to_one
+    Props: null
+    Ends:
+      - Src: property
+        Dst: value_set
+  has_term:
+    Mul: one_to_many
+    Props: null
+    Ends:
+      - Src: value_set
+        Dst: term
+  represents:
+    Mul: one_to_many
+    Props: null
+    Ends:
+      - Src: term
+        Dst: concept
+        Desc: |
+          this is an interesting point in this representation- two terms could have the same value but be linked to (\"represent\")
+          different concepts. Then the terms are \"homonyms\", but not \"synonyms\". The difference is in the graph context:
+          a terms value is not its meaning, but the concept is, and the terms context is the value_set in which it is
+          grouped (or the entity, including the entity\'s home model, which is linked to the concept)
+          
+PropDefinitions:
+  handle:
+    Req: true
+    Type: string
+    Desc: the name of the entity in local vocabulary
+  id:
+    Req: true
+    Type: string
+    Desc: content-free id for a concept or value_set
+  neo_type:
+    Type: string
+    Desc: string as a neo4j relationship type for instances of the relationship entity
+  model:
+    Req: true
+    Type: string
+    Desc: model in which this entity participates
+  is_external:
+    Type: boolean
+    Desc: if this Origin represents an external (to BIDS/CTOS) standard (property missing => false)
+  url:
+    Type:
+      url
+  origin_id:
+    Type: string
+    Req: true
+    Desc: |
+      the Origin authority\'s identifier for the Term - concept code, term ID, or similar
+  origin_definition:
+    Type: string
+    Desc: |
+      The text definition of the Term as provided by the Origin authority
+  value_domain:
+    Req: true
+    Type:
+      - number
+      - integer
+      - string
+      - datetime
+      - boolean
+      - value_set
