@@ -8,7 +8,7 @@ The metamodel database (MDB) records
 
 The production instance of MDB will contain the "official" representation of a data model, in that it will record the curated external terminology mappings and official sets of valid terms for each relevant property. In this way, the MDB is an extension of the [MDF](https://github.com/CBIIT/bento-mdf) for any model it contains.
 
-As the central location for official mappings to external vocabularies, the MDC can (should) be used as part of software modules that convert between the data physically stored in the production database and external standards. For example, an API known as the Simple Terminology Service (STS)[https://github.com/CBIIT/icdc-sts], using MDB as its backend, will be used for simple queries about a given model and validation of incoming data.
+As the central location for official mappings to external vocabularies, the MDC can (should) be used as part of software modules that convert between the data physically stored in the production database and external standards. For example, an API known as the Simple Terminology Service [STS](https://github.com/CBIIT/icdc-sts), using MDB as its backend, will be used for simple queries about a given model and validation of incoming data.
 
 ## Structure
 
@@ -24,7 +24,7 @@ A node with the label "node" in the MDB represents a model node: for example, a 
 
 ### Relationship
 
-A Relationship _node_ represents a model _relationship_; for example, a model may entail a relationship `has_diagnosis` from a `Case` node to a `Diagnosis` node. To represent this in the metamodel, a Relationship node is created with `handle` = `has_diagnosis`, along with a link `has_src` to the `Case` node, and a link `has_dst` to the `Diagnosis` node. A Neo4j relationship is also created between Node nodes, with a type = underscore+<relationship handle>. In the example, `Case` and `Diagnosis` nodes would be linked by a `_has_diagnosis` relationship.
+A Relationship _node_ represents a model _relationship_; for example, a model may entail a relationship `has_diagnosis` from a `Case` node to a `Diagnosis` node. To represent this in the metamodel, a Relationship node is created with `handle` = `has_diagnosis`, along with a link `has_src` to the `Case` node, and a link `has_dst` to the `Diagnosis` node. A Neo4j relationship is also created between Node nodes, with a type = `underscore+<relationship handle>`. In the example, `Case` and `Diagnosis` nodes would be linked by a `_has_diagnosis` relationship.
 
 
 ### Property

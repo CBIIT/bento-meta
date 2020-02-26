@@ -24,7 +24,7 @@ For each instance relationship (irel) and  Src/Dst node pair
   - link Relationship to Node[handle=Src] with has\_src
   - link Relationship to Node[handle=Dst] with has\_dst
   - link Node[handle=Src] to Node[handle=Dst] with a relationship with
-    type = \_<Relationship.handle> and property of model = <model handle>
+    type = `\_<Relationship.handle>` and property of model = `<model handle>`
 
 
 For each inode property (iprop)
@@ -50,14 +50,15 @@ The mappings are generally provided in the form:
 So adding these to the metamodel goes like:
 
 - merge Origin node for external authority
-- create new Term node, set Term.value=<external term>, Term.origin\_id=<external code>, 
-   (Term.origin\_version=<external version>?)
+- create new Term node, set Term.value=`<external term>`, Term.origin\_id=`<external code>`, 
+   (Term.origin\_version=`<external version>`?)
 - link new Term to Origin node with has\_origin
 - find local Term node by Term.value, find linked Concept 
 - link new Term to this Concept by represents
 
 `
     match (o:origin), (c:concept) 
+
     where origin.name = <external origin> and (c)<--(t:Term) and t.value = <local term>
     merge (o)<-[:has_origin]-(t:term {value:<external term>, origin_id:<external code>})-[:represents]->(c)
 `
@@ -123,7 +124,7 @@ The mapping path provided by the SME is generally a shorthand: associations are 
 
 As a first pass, we associate each BRIDG mapping with a separate concept node, rather than attempt to create a synonym to an exist concept pointed to by the pragmatic model entity.
 
-The BRIDG component of the mapping is represented with a Term node, with value = <Class>\[.<Element>\]. The mapping path is stored in a mapping\_path property on the Term.
+The BRIDG component of the mapping is represented with a Term node, with a value that depends on the kind of BRIDG entity (see e.g. [this script line](https://github.com/CBIIT/bento-meta/blob/90d3abe344b7af0d5d6b4e3541d7c14f4e6d0578/loaders/pull-bridg-xls.pl#L78) . The mapping path is stored in a mapping\_path property on the Term.
 
 The origin_id is taken from the BRIDG XMI element that defines the BRIDG entity.
 
