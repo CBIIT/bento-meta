@@ -1,5 +1,7 @@
 # Bento Meta DB 
 
+[Example Queries](#Example_Queries)
+
 The metamodel database (MDB) records
 - node/relationship/property structure of models;
 - the official local vocabulary - terms that are employed in the backend data system;
@@ -59,20 +61,49 @@ A Concept Group node aggregates (i.e., links to) Concept nodes. Concept Groups m
 
 Semantic structure (for example, hierarchical groupings of concepts, or other "facts" or "predicate" relationships), besides synonymy and value set grouping, is not intended to be represented in the MDB. To the extent this information exists, it will be accessible in external services via the relevant Origins (e.g., NCI Thesaurus). Different external structures may not be concordant with an.
 
-## Mounting the MDB
-
-A snapshot of the MDB in [Neo4j dump format](https://neo4j.com/docs/operations-manual/current/tools/dump-load/) is in [the distro directory](.). To load it into Neo4j, follow the steps in the Neo4j link above.
-
-## Updating the MDB
+## Loading the MDB
 
 Notes regarding loading the MDB with model description files, and creating external mappings, are [here](./loaders/load-meta.md). See [loaders](./loaders) for a number of loading scripts.
 
+## Example Queries
 
 
+* What are the nodes in the ICDC model?
 
+        match (n:node {model:"ICDC"}) return n;
 
+* What are the nodes in the CTDC model?
 
+        match (n:node {model:"CTDC"}) return n;
 
+* What are the acceptable values for the ICDC "body_system" property?
 
+        match (p:property {handle:"body_system", model:"ICDC"})-->(:value_set)-->(t:term)
+           return t.value;
 
- 
+* Are there properties that have the same name ("handle") in both ICDC and CTDC ?
+
+        match (p:property {model:"ICDC"}), (q:property {model:"CTDC"}) where p.handle=q.handle
+          return p.handle;
+
+* How many nodes with the same handle appear in both models?
+
+        match (n:node) with count(n) as ct, n.handle as handle where (ct > 1) return handle;
+
+* Do those nodes refer to the same semantic concept, or different concepts?
+
+        match (n:node) with count(n) as ct, n.handle as handle where ct>1
+          match (n:node)-[:has_concept]->(c) where n.handle=handle return n,c;
+
+* What terms are synoymous with the ICDC term `adverse_event_grade`, and where do those terms come from?
+
+        match (:term {value:"adverse_event_grade"})-->(c:concept) with c match (c)<--(t:term)-->(o:origin) return t.value,o.name;
+
+* What's the NCIT concept code mapped to the ICDC term `ae_dose`?
+
+        match (:term {value:"ae_dose"})-->(c:concept)<--(t:term)-->(o:origin {name:"NCIT"}) return t.origin_id;
+
+* What BRIDG entities are mapped to the ICDC _relationship_ `member_of`? What are the relevant BRIDG mapping paths?
+
+        match (:relationship {handle:"member_of"})-->(c:concept)<--(t:term)-->(o:origin {name:"BRIDG"}) return t.value, t.mapping_path
+
