@@ -1,6 +1,6 @@
 # Bento Meta DB 
 
-[Example Queries](#Example_Queries)
+[Example Queries](#example-queries)
 
 The metamodel database (MDB) records
 - node/relationship/property structure of models;
