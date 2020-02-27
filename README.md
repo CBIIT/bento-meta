@@ -14,6 +14,8 @@ As the central location for official mappings to external vocabularies, the MDC 
 
 The MDB is formulated as a [graph model](https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph). This model contains more structure than will be exposed by the Simple Terminology Service (in order to keep it Simple). Other services can be built on the DB to perform translations, add terms and mappings, create visualizations, and other functions.
 
+The metamodel is described in a [Model Description File](./metamodel.yaml). Documents and tools for this format are at [bento-mdf](https://github.com/CBIIT/bento-mdf).
+
 ![metamodel graphic](./metamodel.svg)
 
 The MDB model contains the following nodes.
@@ -57,9 +59,15 @@ A Concept Group node aggregates (i.e., links to) Concept nodes. Concept Groups m
 
 Semantic structure (for example, hierarchical groupings of concepts, or other "facts" or "predicate" relationships), besides synonymy and value set grouping, is not intended to be represented in the MDB. To the extent this information exists, it will be accessible in external services via the relevant Origins (e.g., NCI Thesaurus). Different external structures may not be concordant with an.
 
-## Loading the MDB
+## Mounting the MDB
 
-Current notes regarding loading the MDB with model description files, and creating external mappings, are [here](./loaders/load-meta.md).
+A snapshot of the MDB in [Neo4j dump format](https://neo4j.com/docs/operations-manual/current/tools/dump-load/) is in [the distro directory](.). To load it into Neo4j, follow the steps in the Neo4j link above.
+
+## Updating the MDB
+
+Notes regarding loading the MDB with model description files, and creating external mappings, are [here](./loaders/load-meta.md). See [loaders](./loaders) for a number of loading scripts.
+
+
 
 
 
