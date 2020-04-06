@@ -1,0 +1,487 @@
+# ICDC model nodes and relns
+# Title case names are "reserved" (meaningful to the parser)
+# Lower case names are labels for the entities
+# document number - really a property of properties (where did this question appear)
+
+# lesions - extension
+
+# these are the built-in gen3 node categories
+# "category": "administrative",
+# "category": "biospecimen",
+# "category": "clinical",
+# "category": "data_file",
+# "category": "index_file",
+# "category": "internal",
+# "category": "metadata_file",
+# "category": "notation",
+
+Nodes:
+  program:
+    Props:
+      - program_name
+      - program_acronym
+      - program_short_description
+      - program_full_description
+      - program_external_url
+      - program_sort_order
+  study:
+    Props:
+      - clinical_study_id
+      - clinical_study_designation
+      - clinical_study_name
+      - clinical_study_description
+      - clinical_study_type
+      - date_of_iacuc_approval
+      - dates_of_conduct
+  study_site:
+    Props:
+      - site_short_name
+      - veterinary_medical_center
+      - registering_institution
+  study_arm:
+    Props:
+      - arm
+      - ctep_treatment_assignment_code
+      # arm has no example in the data, putting cohort_description in here
+      # to help define study_arm
+      - arm_description
+  agent:
+    Props:
+      - medication
+      # d/n from STUDY_MED_ADMIN/SDAD/1      
+      - document_number
+  cohort:
+    Props:
+      - cohort_description
+      # the intended or protocol dose
+      - cohort_dose
+  case:
+    Props:
+      - case_id
+      - patient_id
+      - patient_first_name
+      - crf_id
+  demographic:
+    Category: clinical
+    Props:
+      - breed
+      - patient_age_at_enrollment
+      - date_of_birth
+      - sex
+      - weight
+      - neutered_indicator
+      - crf_id
+  cycle:
+    Props:
+      - cycle_number
+      - date_of_cycle_start
+      - date_of_cycle_end
+  visit:
+    Category: clinical
+    Props: 
+      - visit_date
+      - visit_number
+  principal_investigator:
+    Props:
+      - pi_first_name
+      - pi_last_name
+      - pi_middle_initial
+  diagnosis:
+    Category: clinical
+    Props:
+      - disease_term
+      - primary_disease_site
+      - stage_of_disease
+      - date_of_diagnosis
+      - histology_cytopathology
+      - date_of_histology_confirmation
+      - histological_grade
+      - pathology_report
+      - treatment_data
+      - follow_up_data
+      - concurrent_disease
+      - concurrent_disease_type
+      - crf_id
+  enrollment:
+    Props:
+      - date_of_registration
+      - registering_institution
+      - initials
+      - date_of_informed_consent
+      - site_short_name
+      - veterinary_medical_center
+      # D/N from ENROLLMENT/ENROLL/1
+      - enrollment_document_number
+      - cohort_description
+      - patient_subgroup
+  prior_therapy:
+    Category: clinical
+    Props: 
+      - date_of_first_dose
+      - date_of_last_dose
+      - agent_name
+      - dose_schedule
+      - total_dose
+      - agent_units_of_measure
+      - best_response
+      - nonresponse_therapy_type
+      - prior_therapy_type
+      - prior_steroid_exposure
+      - number_of_prior_regimens_steroid
+      - total_number_of_doses_steroid
+      - date_of_last_dose_steroid
+      - prior_nsaid_exposure
+      - number_of_prior_regimens_nsaid
+      - total_number_of_doses_nsaid
+      - date_of_last_dose_nsaid
+      - tx_loc_geo_loc_ind_nsaid
+      - min_rsdl_dz_tx_ind_nsaids_treatment_pe
+      - therapy_type
+      - any_therapy
+      - number_of_prior_regimens_any_therapy
+      - total_number_of_doses_any_therapy
+      - date_of_last_dose_any_therapy
+      - treatment_performed_at_site
+      - treatment_performed_in_minimal_residual
+  prior_surgery:
+    Category: clinical
+    Props:
+      - date_of_surgery
+      - procedure
+      - anatomical_site_of_surgery
+      - surgical_finding
+      - residual_disease
+      - therapeutic_indicator
+      - crf_id
+  agent_administration:
+    Props:
+      # d/n from STUDY_MED_ADMIN/SDAD/1
+      - document_number
+      - medication
+      - route_of_administration
+      - medication_lot_number
+      - medication_vial_id
+      - medication_actual_units_of_measure
+      - medication_duration
+      - medication_units_of_measure
+      - medication_actual_dose
+      # what is phase?
+      - phase
+      - start_time
+      - stop_time
+      - dose_level
+      - dose_units_of_measure
+      - date_of_missed_dose
+      - medication_missed_dose
+      - missed_dose_amount
+      - missed_dose_units_of_measure
+      - medication_course_number
+      - comment
+      - crf_id
+  sample:
+    Category: biospecimen
+    Props: 
+      - sample_id
+      - sample_site
+      - sample_type
+      - general_sample_pathology
+      - tumor_sample_origin
+      - summarized_sample_type # value is generated during data transformation based upon the combination of the preceding three properties
+      - specific_sample_pathology
+      - date_of_sample_collection
+      - necropsy_sample
+      - tumor_grade
+      - length_of_tumor
+      - width_of_tumor
+      - analysis_area
+      - analysis_area_percentage_tumor
+      - analysis_area_percentage_stroma
+      - analysis_area_percentage_glass
+      - analysis_area_percentage_pigmented_tumor
+      - total_tissue_area
+      - tumor_tissue_area
+      - non_tumor_tissue_area
+      - percentage_tumor
+      - percentage_stroma
+      - sample_preservation
+      - comment
+  assay:
+    Props: null
+  file:
+    Category: data_file
+    Props:
+      - file_name
+      - file_type
+      - file_description
+      - file_format
+      - file_size
+      - md5sum
+      - file_status
+      - uuid
+      - file_location
+  image:
+    Props: null
+  physical_exam:
+    Category: clinical
+    Props:
+      - date_of_examination
+      - day_in_cycle
+      - body_system
+      - pe_finding
+      - pe_comment
+      - phase_pe
+      - assessment_timepoint
+      - crf_id
+  vital_signs:
+    Category: clinical
+    Props:
+      - date_of_vital_signs
+      - body_temperature
+      - pulse
+      - respiration_rate
+      - respiration_pattern
+      - systolic_bp
+      - pulse_ox
+      - patient_weight
+      - body_surface_area
+      - modified_ecog
+      - ecg
+      - assessment_timepoint
+      - phase
+      - crf_id
+  lab_exam:
+    Category: clinical
+    Props: null
+  adverse_event:
+    # how to link? To case and agent? Also to visit/followup?
+    Category: clinical
+    Props:
+      - ae_dose
+      - ae_agent_name
+      - day_in_cycle
+      - date_resolved
+      - adverse_event_term
+      - adverse_event_description
+      - adverse_event_grade
+      - adverse_event_grade_description
+      - attribution_to_research
+      - attribution_to_ind
+      - attribution_to_disease
+      - attribution_to_commercial
+      - attribution_to_other
+      - ae_other
+      - dose_limiting_toxicity
+      - unexpected_adverse_event
+      - crf_id
+  disease_extent:
+    Category: clinical
+    Props: 
+      - crf_id
+      - lesion_number
+      - lesion_site
+      - lesion_description
+      - previously_irradiated
+      - previously_treated
+      - measurable_lesion
+      - target_lesion
+      - date_of_evaluation
+      - measured_how
+      - longest_measurement
+      - evaluation_number
+      - evaluation_code
+  follow_up:
+    Category: clinical
+    Props:
+      # d/n from FOLLOW_UP/FLWU/1
+      - document_number
+      - date_of_last_contact
+      - patient_status
+      - explain_unknown_status
+      - contact_type
+      - treatment_since_last_contact
+      - physical_exam_performed
+      - physical_exam_changes
+      - crf_id
+  off_study:
+    # off_study, off_treatment -- how related? should be a dependency and normalize properties?
+    Category: clinical
+    Props:
+      # d/n from OFF_STUDY/OSSM/1
+      - document_number
+      - date_off_study
+      - reason_off_study
+      - date_of_disease_progression
+      - date_off_treatment
+      - best_resp_vet_tx_tp_secondary_response
+      - date_last_medication_administration
+      - best_resp_vet_tx_tp_best_response
+      - date_of_best_response
+  off_treatment:
+    Category: clinical
+    Props:
+      # d/n from OFF_TREATMENT/OTSM/1
+      - document_number
+      - date_off_treatment
+      - reason_off_treatment
+      - date_of_disease_progression
+      - best_resp_vet_tx_tp_secondary_response
+      - date_last_medication_administration
+      - best_resp_vet_tx_tp_best_response
+      - date_of_best_response
+Relationships:
+  member_of:
+    Mul: many_to_one
+    Ends:
+      - Src: case
+        Dst: cohort
+      - Src: cohort
+        Dst: study_arm
+      - Src: study_arm
+        Dst: study
+      - Src: study
+        Dst: program
+      - Src: case
+        Dst: study
+      # to accomodate Cases not maaped to any Cohrt, either due to error or by design 
+      - Src: cohort
+        Dst: study
+      # to accomodate a Study having Cases that should be grouped into Cohorts, but where Study Arms don't apply      
+    Props: null
+  of_case:
+    Mul: many_to_one
+    Ends:
+      - Src: enrollment
+        Dst: case
+        Mul: one_to_one
+      - Src: demographic
+        Dst: case
+        Mul: one_to_one
+      - Src: diagnosis
+        Dst: case
+      - Src: cycle
+        Dst: case
+      - Src: follow_up
+        Dst: case
+      - Src: sample
+        Dst: case
+    # to accommodate a Sample being directly associated with a Case, rather than being only indirectly associated with a Case through a Visit etc.
+      - Src: visit
+        Dst: case
+    # to accommodate situations in which a Visit cannot be unambiguously associated with a treatment Cycle
+      - Src: adverse_event
+        Dst: case
+    # required because adverse event observations are tied to date of onset rather than being tied to the date of the visit at which they were reported 
+    Props: null
+  of_study_arm:
+    Mul: many_to_many
+    Ends:
+      - Src: agent
+        Dst: study_arm
+    Props: null
+  of_study:
+    Mul: many_to_many
+    Ends:
+      - Src: study_site
+        Dst: study
+      - Src: principal_investigator
+        Dst: study
+      - Src: file
+        Dst: study
+        Mul: many_to_one
+    Props: null
+  of_agent:
+    Mul: many_to_one
+    Ends:
+      - Src: agent_administration
+        Dst: agent
+      - Src: adverse_event
+        Dst: agent
+    Props: null
+  had_adverse_event:
+    Mul: many_to_one
+    Ends:
+      - Src: case
+        Dst: adverse_event
+    Props: null
+  at_enrollment:
+    Mul: many_to_one
+    Ends:
+      - Src: prior_therapy
+        Dst: enrollment
+      - Src: prior_surgery
+        Dst: enrollment
+      - Src: physical_exam
+        Dst: enrollment
+    Props: null
+  of_cycle:
+    Mul: many_to_one
+    Ends:
+      - Src: visit
+        Dst: cycle
+    Props: null
+  on_visit:
+    Mul: many_to_one
+    Ends:
+      - Src: agent_administration
+        Dst: visit
+      - Src: sample
+        Dst: visit
+      - Src: physical_exam
+        Dst: visit
+      - Src: lab_exam
+        Dst: visit
+    # removed relationship between adverse event and visit because adverse events are tied to date of onset rather than being tied to the date of the visit at which they were reported 
+      - Src: disease_extent
+        Dst: visit
+      - Src: vital_signs
+        Dst: visit
+    Props: null
+  of_sample:
+    Mul: many_to_one
+    Ends:
+      - Src: assay
+        Dst: sample
+      - Src: file
+        Dst: sample
+    # added primarily to support direct association of sequence files with the primary samples to which they relate, when we have no data around the processing intermediates    
+    Props: null
+  of_assay:
+    Mul: many_to_one
+    Ends:
+      - Src: file
+        Dst: assay
+      - Src: image
+        Dst: assay
+    Props: null
+  from_diagnosis:
+    Mul: many_to_one
+    Ends:
+      - Src: file
+        Dst: diagnosis
+    Props: null
+  went_off_study:
+    Mul: one_to_one
+    Ends:
+      - Src: case
+        Dst: off_study
+    Props: null
+  went_off_treatment:
+    Mul: one_to_one
+    Ends:
+      - Src: case
+        Dst: off_treatment
+    Props: null
+  next:
+    Mul: one_to_one
+    Ends:
+      - Src: visit
+        Dst: visit
+      - Src: sample
+        Dst: sample
+      - Src: prior_therapy
+        Dst: prior_therapy
+      - Src: prior_surgery
+        Dst: prior_surgery
+      - Src: adverse_event
+        Dst: adverse_event
+    Props: null

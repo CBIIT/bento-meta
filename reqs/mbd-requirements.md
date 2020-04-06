@@ -8,6 +8,8 @@ Listing use cases and requirements here for the database and its interface.
 
 * I need to update the MDB with model changes made in YAML, so I can keep the MDB concordant with the offical YAML version.
 
+* I need to be able to obtain all the attributes (cardinality,  required, data type, etc) that can be expressed in MDF from the MBD, so I can use the MBD to drive downstream applications and processes.
+
 * I need to add acceptable values to a property value domain, so I can register those additions officially
 
 * I need to see all acceptable values for a property value domain, so  I can determine whether to add a new value.
