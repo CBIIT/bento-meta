@@ -15,8 +15,11 @@ Nodes:
       - model
       - is_required
       - value_domain
+      - units
+      - pattern
   value_set:
     Props:
+      - handle
       - id
       - url
   concept:
@@ -46,7 +49,10 @@ Relationships:
         Req: true
       - Src: relationship
         Dst: concept
-        Mul: many_to_one
+        Req: true
+      - Src: value_set
+        Dst: concept
+        Req: false
   has_origin:
     Mul: many_to_one
     Props: null
@@ -57,6 +63,7 @@ Relationships:
       - Src: value_set
         Dst: origin
         Mul: one_to_one
+        Req: false
   has_src:
     Mul: one_to_one
     Props: null
@@ -100,14 +107,14 @@ Relationships:
         Desc: |
           this is an interesting point in this representation- two terms could have the same value but be linked to (\"represent\")
           different concepts. Then the terms are \"homonyms\", but not \"synonyms\". The difference is in the graph context:
-          a terms value is not its meaning, but the concept is, and the terms context is the value_set in which it is
+          a term\'s value is not its meaning, but the concept is, and the terms context is the value_set in which it is
           grouped (or the entity, including the entity\'s home model, which is linked to the concept)
           
 PropDefinitions:
   handle:
     Req: true
     Type: string
-    Desc: the name of the entity in local vocabulary
+    Desc: the name of the entity in local vocabulary; not necessarily the term per se
   id:
     Req: true
     Type: string
@@ -118,13 +125,15 @@ PropDefinitions:
   model:
     Req: true
     Type: string
-    Desc: model in which this entity participates
+    Desc: model (handle) in which this entity participates 
   is_external:
     Type: boolean
     Desc: if this Origin represents an external (to BIDS/CTOS) standard (property missing => false)
   url:
-    Type:
-      url
+    Type: url
+  pattern:
+    Desc: A regular expression, set when value_domain = regexp
+    Type: string
   origin_id:
     Type: string
     Req: true
@@ -134,6 +143,13 @@ PropDefinitions:
     Type: string
     Desc: |
       The text definition of the Term as provided by the Origin authority
+  units:
+    Desc: |
+      For a value_domain of 'number', this property gives the units of the
+      number as a string; e.g., 'mg', 'cm','degrees'. Multiple allowable
+      units are separated by semicolons: 'um;angstrom'. Unit string tokens
+      could (should?) have their own Terms and Concepts for completeness.
+    Type: string
   value_domain:
     Req: true
     Type:
@@ -142,4 +158,7 @@ PropDefinitions:
       - string
       - datetime
       - boolean
+      - regexp
+      - url
       - value_set
+  

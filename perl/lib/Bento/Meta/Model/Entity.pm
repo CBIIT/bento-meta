@@ -1,10 +1,12 @@
 package Bento::Meta::Model::Entity;
+use UUID::Tiny qw/:std/;
 use Log::Log4perl qw/:easy/;
 
 use strict;
 our $AUTOLOAD;
 
 our @common_attr = qw/
+_desc
 _dirty
 _neoid
                      /;
@@ -14,6 +16,7 @@ sub new {
   my $self = bless $attr, $class;
   $self->{_dirty} = 1; # indicates change that has not been synced with db
   $self->{_neoid} = undef; # database id for this entity
+  $self->{_desc} = undef; # free text description for entity
 
   my @declared_atts = map { /^_(.*)/;$1 } keys %$self;
   $self->{_declared} = \@declared_atts;
@@ -36,6 +39,9 @@ sub new {
   }
   return $self;
 }
+
+# any object can poop a uuid if needed
+sub make_uuid { create_uuid_as_string(UUID_V4) };
 
 sub AUTOLOAD {
   my $self = shift;
@@ -161,6 +167,20 @@ It also provides a place for common actions that must occur for OGM bookkeeping.
 You can override anything in the subclasses and make them as complicated as 
 you want. 
 
+=head1 METHODS
+
+=over
+
+=item new($attr_hash, $init_hash)
+
+=item make_uuid()
+
+Create a new uuid (with L<Data::UUID>).
+Doesn't put it anywhere, just returns it.
+
+=item attrs()
+
+Returns list of attributes declared for this object. 
 
 =head1 AUTHOR
 

@@ -18,8 +18,7 @@ sub new {
   my $class = shift;
   my ($handle) = @_;
   unless ($handle) {
-    FATAL "Model::new() requires handle as arg1";
-    croak;
+    LOGDIE "Model::new() requires handle as arg1";
   }
   DEBUG "Creating Model object with handle '$handle'";
   my $self = $class->SUPER::new({
@@ -75,7 +74,7 @@ sub add_edge {
     WARN ref($self)."::add_edge : overwriting existing edge with handle/src/dest '".join("/",$init->handle, $init->src->handle, $init->dst->handle)."'";
   }
   $etbl->{$init->handle}{$init->src->handle}{$init->dst->handle} = $init;
-  $self->set_props( join('.', $init->handle, $init->src->handle, $init->dst->handle) => $init );
+  $self->set_edges( join('.', $init->handle, $init->src->handle, $init->dst->handle) => $init );
 }
 
 # add_prop( $node | $edge, {handle => 'newprop',...})
@@ -97,7 +96,7 @@ sub add_prop {
     die;
   }
   if (ref($init) eq 'HASH') {
-    $init = Bento::Meta::Model::Edge->new($init);
+    $init = Bento::Meta::Model::Property->new($init);
   }
   unless ($init->handle) {
     FATAL ref($self)."::add_prop - init hash (arg2) reqs 'handle' key/value";

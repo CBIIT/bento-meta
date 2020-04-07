@@ -1,4 +1,4 @@
-package Bento::Meta::Model::ValueSet
+package Bento::Meta::Model::ValueSet;
 use Log::Log4perl qw/:easy/;
 use strict;
 

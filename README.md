@@ -59,14 +59,13 @@ A Concept Group node aggregates (i.e., links to) Concept nodes. Concept Groups m
 
 ## Information NOT Captured in the MDB
 
-Semantic structure (for example, hierarchical groupings of concepts, or other "facts" or "predicate" relationships), besides synonymy and value set grouping, is not intended to be represented in the MDB. To the extent this information exists, it will be accessible in external services via the relevant Origins (e.g., NCI Thesaurus). Different external structures may not be concordant with an.
+Semantic structure (for example, hierarchical groupings of concepts, or other "facts" or "predicate" relationships), besides synonymy and value set grouping, is not intended to be represented in the MDB. To the extent this information exists, it will be accessible in external services via the relevant Origins (e.g., NCI Thesaurus). External model topologies need not be concordant with the model structure represented in the MDB.
 
 ## Loading the MDB
 
 Notes regarding loading the MDB with model description files, and creating external mappings, are [here](./loaders/load-meta.md). See [loaders](./loaders) for a number of loading scripts.
 
 ## Example Queries
-
 
 * What are the nodes in the ICDC model?
 
