@@ -12,7 +12,8 @@ $MERGER->add_behavior_spec( OVERLAY_MERGE_BEH, 'R_OVERLAY' );
 $MERGER->set_behavior('R_OVERLAY');
 
 our $DEFAULT_MULT = 'one_to_one';
-our $DEFAULT_TYPE = 'string';
+our @DEFAULT_TYPE = (value_domain => 'TBD');
+
 our $re_url = qr{^(?:https?|bolt)://};
 
 sub create_model {
@@ -50,6 +51,9 @@ sub create_model {
       ($yn->{Category} ?
          category => $yn->{Category} :
          ())
+      ($yn->{Desc} ?
+         desc => $yn->{Desc} :
+         ())        
      });
   }
 
@@ -59,7 +63,7 @@ sub create_model {
     for my $ends (@{$ye->{Ends}}) {
       $model->add_edge({
         handle => $t,
-        model => $handle,
+        model => $self->handle,
         src => $model->node($ends->{Src}),
         dst => $model->node($ends->{Dst}),
         multiplicity => $ends->{Mul} // $ye->{Mul} // $DEFAULT_MULT,
@@ -67,21 +71,45 @@ sub create_model {
         ( $ends->{Tags} // $ye->{Tags} ?
             tags => clone($ends->{Tags} // $ye->{Tags}) :
             () ),
+        ( $ends->{Desc} // $ye->{Desc} ?
+            desc => clone($ends->{Desc} // $ye->{Desc}) :
+            () )        
       });
     }
   }
 
-  # node properties
-  for my $n ($model->nodes) {
-    my @ph = @{$ynodes->{$n->handle}{Props}};
+  # create node properties
+  for my $w ($model->nodes, $model->edges) {
+    my @ph;
+    if (ref $w =~ /Node$/) {
+      @ph = @{$ynodes->{$w->handle}{Props}};
+    }
+    elsif (ref $w =~ /Edge$/) {
+      # Props elt appearing in Ends hash
+      # takes precedence over Props elt
+      # in the handle's hash
+      my ($hdl,$src,$dst) = split /:/,$w->triplet;
+      my ($ends_props) = grep
+        { ($_->{Src} eq $src) &&
+          ($_->{Dst} eq $dst) } @{$yedges->{$hdl}{Ends}};
+      @ph = @{$ends_props // $yedges->{$hdl}{Props}};
+    }
     for my $ph (@ph) {
       my $ypdef = $ypropdefs->{$ph};
-      # create value sets and terms here if nec
-      
-      $model->add_prop($n, $ypdef);
+      my %init = (
+        handle => $ph,
+        model => $self->handle,
+        ($ypdef->{Tags} ?
+           tags => clone($ypdef->{Tags}) :
+           ()),
+        ($ypdef->{Type} ?
+           ($self->_value_domain($ypdef->{Type})) :
+           @DEFAULT_TYPE),
+       );
+      my $p = Bento::Meta::Model::Property->new(\%init);
+      $model->add_prop($w, $p);
     }
   }
-
   
   #create edge properties
 
@@ -115,24 +143,24 @@ sub read_yaml {
   return $self;
 }
 
-# _value_domain( $p->{Type} )
+# _value_domain( $p->{Type} ) : returns plain even-sized array
 sub _value_domain {
   my $self = shift;
   my ($type) = @_;
   for (ref $type) {
     /^HASH$/ && do {
       if ($type->{pattern}) {
-        return { value_domain => 'regexp',
-                 pattern => $type->{pattern} };
+        return ( value_domain => 'regexp',
+                 pattern => $type->{pattern} );
       }
       elsif ($type->{units}) {
-        return { value_domain => $type->{value_type},
-                 units => join(';',@{$type->{units}} };
+        return ( value_domain => $type->{value_type},
+                 units => join(';',@{$type->{units}}) );
       }
       else {
         # punt: return JSON string of the hash
         LOGWARN "MDF type descriptor unrecognized: ".J($type);
-        return { value_domain => J($type) };
+        return ( value_domain => J($type) );
       }
       last;
     };
@@ -144,18 +172,21 @@ sub _value_domain {
         $vs->set_url($type->[0]);
       }
       else { # enum
-        my @t;
+        my %t;
         for my $val (@$type) {
-          push @t, Bento::Meta::Model::Term->new({
+          $t{$val} = Bento::Meta::Model::Term->new({
             value => $val,
+            # don't create id here
            });
         }
+        $vs->set_terms(\%t);
       }
-      return { value_domain => 'value_set' };
+      return ( value_domain => 'value_set',
+               value_set => $vs );
       last;
     };
     do { # scalar
-      return { value_domain => $type }; # type string
+      return ( value_domain => $type ); # type string
     };
   }
 }

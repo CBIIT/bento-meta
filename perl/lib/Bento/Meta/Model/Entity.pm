@@ -101,12 +101,12 @@ sub AUTOLOAD {
     }
   }
   else {
-    FATAL "Method '$method' undefined for ".ref($self);
-    die;
+    LOGDIE "Method '$method' undefined for ".ref($self);
   }
 }
 
 sub attrs { @{shift->{_declared}} }
+sub name { shift->{_handle} }
 
 sub DESTROY {
   my $self = shift;

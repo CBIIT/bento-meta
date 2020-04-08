@@ -42,11 +42,14 @@ sub add_node {
     $init = Bento::Meta::Model::Node->new($init);
   }
   unless ($init->handle) {
-    FATAL ref($self)."::add_node - init hash reqs 'handle' key/value";
-    die;
+    LOGDIE ref($self)."::add_node - init hash reqs 'handle' key/value";
   }
-  if (defined $self->nodes($init->handle)) {
-    WARN ref($self)."::add_node : overwriting existing node with handle '".$init->handle."'";
+  if (defined $self->node($init->handle)) {
+    LOGWARN ref($self)."::add_node : overwriting existing node with handle '".$init->handle."'";
+  }
+  $init->set_model($self->handle) if (!$init->model);
+  if ($init->model ne $self->handle) {
+    LOGWARN ref($self)."::add_node : model handle is '".$self->handle."', but node.model is '".$init->model."'";
   }
   $self->set_nodes($init->handle, $init);
 }
@@ -65,16 +68,16 @@ sub add_edge {
     $init = Bento::Meta::Model::Edge->new($init);
   }
   unless ( $init->handle && $init->src && $init->dst ) {
-    FATAL ref($self)."::add_edge - init hash reqs 'handle','src','dst' key/values";
-    die;
+    LOGDIE ref($self)."::add_edge - init hash reqs 'handle','src','dst' key/values";
   }
-  if ($etbl->{$init->handle} &&
-        $etbl->{$init->handle}{$init->src->handle} &&
-        $etbl->{$init->handle}{$init->src->handle}{$init->dst->handle}) {
-    WARN ref($self)."::add_edge : overwriting existing edge with handle/src/dest '".join("/",$init->handle, $init->src->handle, $init->dst->handle)."'";
+  $init->set_model($self->handle) if (!$init->model);  
+  my ($hdl,$src,$dst) = split /:/,$init->triplet;
+  if ($etbl->{$hdl} && $etbl->{$hdl}{$src} &&
+        $etbl->{$hdl}{$src}{$dst}) {
+    LOGWARN ref($self)."::add_edge : overwriting existing edge with handle/src/dest '".join("/",$hdl,$src,$dst)."'";
   }
-  $etbl->{$init->handle}{$init->src->handle}{$init->dst->handle} = $init;
-  $self->set_edges( join('.', $init->handle, $init->src->handle, $init->dst->handle) => $init );
+  $etbl->{$hdl}{$src}{$dst} = $init;
+  $self->set_edges( $init->triplet => $init );
 }
 
 # add_prop( $node | $edge, {handle => 'newprop',...})
@@ -88,27 +91,24 @@ sub add_prop {
   my $self = shift;
   my ($ent, $init) = @_;
   unless ( ref($ent) =~ /Node|Edge$/ ) {
-    FATAL ref($self)."::add_prop - arg1 must be Node or Edge object";
-    die;
+    LOGDIE ref($self)."::add_prop - arg1 must be Node or Edge object";
   }
   unless (defined $init) {
-    FATAL ref($self)."::add_prop - arg2 must be init hash or Property object";
-    die;
+    LOGDIE ref($self)."::add_prop - arg2 must be init hash or Property object";
   }
   if (ref($init) eq 'HASH') {
     $init = Bento::Meta::Model::Property->new($init);
   }
   unless ($init->handle) {
-    FATAL ref($self)."::add_prop - init hash (arg2) reqs 'handle' key/value";
-    die;
+    LOGDIE ref($self)."::add_prop - init hash (arg2) reqs 'handle' key/value";
   }
-  my $pfx = join('.', $ent->handle, $ent->can('src') ? $ent->src->handle : (),
-                 $ent->can('dst') ? $ent->dst->handle : ());
-  if ( $self->props(join('.',$pfx,$init->handle)) ) {
-    WARN ref($self)."::add_prop - overwriting existing prop '".join('.',$pfx,$init->handle)."'";
+  $init->set_model($self->handle) if (!$init->model);
+  my $pfx = $ent->can('triplet') ? $ent->triplet : $ent->handle;
+  if ( $self->prop(join(':',$pfx,$init->handle)) ) {
+    LOGWARN ref($self)."::add_prop - overwriting existing prop '".join(':',$pfx,$init->handle)."'";
   }
-  $ent->set_prop( $init->handle => $init );
-  $self->set_props( join('.',$pfx,$init->handle) => $init );
+  $ent->set_props( $init->handle => $init );
+  $self->set_props( join(':',$pfx,$init->handle) => $init );
 }
 
 # rm_node( $node_or_handle )
@@ -120,7 +120,6 @@ sub rm_prop {}
 # rm_edge( $edge_or_sth_else )
 sub rm_edge {}
 
-
 # read API
 
 sub node { $_[0]->{_nodes}{$_[1]} }
@@ -129,16 +128,21 @@ sub nodes { values %{shift->{_nodes}} }
 sub prop { $_[0]->{_props}{$_[1]} }
 sub props { values %{shift->{_props}} }
 
-sub edge_types { values %{shift->{_edge_types}} }
-sub edge_type { $_[0]->{_edge_types}{$_[1]} }
+#sub edge_types { values %{shift->{_edge_types}} }
+#sub edge_type { $_[0]->{_edge_types}{$_[1]} }
 
 sub edges {  @{shift->{_edges}} }
 sub edge {
   my $self = shift;
   my ($type,$src,$dst) = @_;
-  $type = $type->name if ref $type;
-  $src = $src->name if ref $src;
-  $dst = $dst->name if ref $dst;
+  if ($type =~ /:/) { # triplet
+    ($type,$src,$dst) = split /:/,$type;
+  }
+  else {
+    $type = $type->name if ref $type;
+    $src = $src->name if ref $src;
+    $dst = $dst->name if ref $dst;
+  }
   return $self->{_edge_table}{$type}{$src}{$dst};
 }
 
@@ -154,15 +158,13 @@ sub edge_by {
   my $self = shift;
   my ($key, $arg) = @_;
   unless ($key =~ /^src|dst|type$/) {
-    FATAL "Model::edge_by() - arg 1 must be one of src|dst|type";
-    exit 1;
+    LOGDIE "Model::edge_by() - arg 1 must be one of src|dst|type";
   }
   if (ref($arg) =~ /Model/) {
-    $arg = $arg->name;
+    $arg = $arg->handle;
   }
   elsif (ref $arg) {
-    FATAL "arg must be a ".__PACKAGE__."-related object or string, not ".ref($arg);
-    exit 1;
+    LOGDIE "arg must be a ".__PACKAGE__."-related object or string, not ".ref($arg);
   }
   my @ret;
   for ($key) {
