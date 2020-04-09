@@ -6,7 +6,7 @@ use lib '../../../lib';
 use Bento::Meta::Model::Node;
 use Bento::Meta::Model::Edge;
 use Bento::Meta::Model::Property;
-use Bento::Meta::Model::EdgeType;
+use Bento::Meta::Model::ValueSet;
 use Bento::Meta::Model::Origin;
 use Bento::Meta::Model::Concept;
 use Bento::Meta::Model::Term;
@@ -125,6 +125,53 @@ sub add_prop {
   }
   $ent->set_props( $init->handle => $init );
   $self->set_props( join(':',$pfx,$init->handle) => $init );
+}
+
+# add_terms($property, @terms_or_strings)
+# $property - Property object
+# @terms_or_strings - Terms objects or strings representing acceptable values
+# warn and return if property doesn't have value_domain eq 'value_set'
+# attach Terms to the property's ValueSet obj
+# create a ValueSet objects if one doesn't exist
+# create Term objects for plain strings
+# returns the ValueSet object
+
+sub add_terms {
+  my $self = shift;
+  my ($prop, @terms) = @_;
+  unless (ref($prop) =~ /Property$/) {
+    LOGDIE ref($self)."::add_terms : arg1 must be Property object";
+  }
+  unless (@terms) {
+    LOGDIE ref($self)."::add_terms : arg2,... required (strings and/or Term objects";
+  }
+  $prop->value_domain // $prop->set_value_domain('value_set');
+  unless ($prop->value_domain eq 'value_set') {
+    LOGWARN ref($self)."::add_terms : property '".$prop->handle."' has value domain '".$prop->value_domain."', not 'value_set'";
+    return;
+  }
+  my %terms;
+  for (@terms) {
+    if (ref =~ /Term$/) {
+      $terms{$_->value} = $_;
+      next;
+    }
+    elsif (!ref) {
+      $terms{$_} = Bento::Meta::Model::Term->new({value => $_});
+    }
+    else {
+      LOGDIE ref($self)."::add_terms : arg2,... must be strings or Term objects";
+    }
+  }
+  my $vs = $prop->value_set;
+  unless ($vs) {
+    $vs = Bento::Meta::Model::ValueSet->new();
+    $vs->set_id( $vs->make_uuid );
+    $vs->set_handle( $self->handle.substr($vs->id,0,7) );
+    $prop->set_value_set($vs)
+  }
+  $vs->set_terms(\%terms);
+  return $vs;
 }
 
 # rm_node( $node_or_handle )
