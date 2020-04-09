@@ -78,7 +78,7 @@ sub create_model {
     }
   }
 
-  # create node properties
+  # create properties
   for my $w ($model->nodes, $model->edges) {
     my @ph;
     if (ref $w =~ /Node$/) {
@@ -102,6 +102,9 @@ sub create_model {
         ($ypdef->{Tags} ?
            tags => clone($ypdef->{Tags}) :
            ()),
+        ($ypdef->{Desc} ?
+           desc => $ypdef->{Desc} :
+           ()),
         ($ypdef->{Type} ?
            ($self->_value_domain($ypdef->{Type})) :
            @DEFAULT_TYPE),
@@ -111,8 +114,6 @@ sub create_model {
     }
   }
   
-  #create edge properties
-
 }
 
 sub yaml { shift->{_yaml} }
@@ -297,6 +298,16 @@ that accepts model description files as specified at L<bento-mdf|https://github.
 
 In particular, it follows the merging protocol describes at
 L<https://github.com/CBIIT/bento-mdf#multiple-input-yaml-files-and-overlays>.
+
+=head1 METHOD
+
+=over
+
+=item create_model(@mdf_yaml_files)
+
+Returns a L<Bento::Meta::Model> object.
+
+=back
 
 =head1 AUTHOR
 

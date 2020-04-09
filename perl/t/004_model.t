@@ -66,11 +66,38 @@ ok $ret = $model->add_edge({handle => 'has_sample',
                             dst => $sample}), "add edge with init hash";
 is $ret->triplet,'has_sample:case:sample', 'correct triplet string';
 
+warnings_like { $model->add_edge({ handle => 'of_program',
+                                   src => $N->new({ handle => 'project' }),
+                                   dst => $N->new({ handle => 'program' }) }) }
+  [qr/source node 'project' is not yet/,qr/dest\S+ node 'program' is not yet/],
+  "add edge - auto add new nodes with warnings";
+is $model->node('project')->model, 'test', "project node added";
+is $model->node('program')->model, 'test', "program node added";
+
 ok $ret = $model->add_prop($of_case, { handle => 'consent_on', value_domain => 'datetime' }), 'add prop to edge';
 
 is $ret->handle, 'consent_on', 'prop handle set';
 is $of_case->props('consent_on'), $ret, 'retrieve prop from Edge obj';
 is $model->prop('of_case:sample:case:consent_on'), $ret, 'retrieve prop from Model obj';
+
+warning_like { $model->add_prop( $N->new({handle => 'diagnosis'}), {handle=>'disease'}) } qr/node 'diagnosis' is not yet/, "new node in add_prop warns";
+
+warning_like { $model->add_prop( $E->new({handle => 'of_case',
+                                          src => $model->node('diagnosis'),
+                                          dst => $model->node('case')}),
+                                 { handle => 'primary_dx',
+                                   value_domain => 'boolean' }) }
+  qr/edge 'of_case' is not yet/, "new edge in add_prop warns";
+
+is scalar $model->edges_by_type('of_case'), 2, 'edges_by_type of_case correct';
+is scalar $model->edges_by_src('sample'), 1, 'edges_by_src sample correct';
+is scalar $model->edges_by_dst('case'), 2, 'edges_by_dst case correct';
+
+# test properties with value sets
+
+
+
+  
 
 done_testing;
 

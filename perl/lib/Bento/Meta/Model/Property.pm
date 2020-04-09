@@ -20,4 +20,27 @@ sub new {
   return $self;
 }
 
+sub type { shift->{_value_domain} } # alias
+sub values {
+  my $self = shift;
+  return unless $self->value_set;
+  my @ret;
+  for ($self->value_set->terms) {
+    push @ret, $_->value;
+  }
+  return @ret;
+}
+
+sub terms {
+  my $self = shift;
+  return unless $self->value_set;
+  return $self->value_set->terms;
+}
+
+sub set_terms {
+  my $self = shift;
+  return unless $self->value_set;
+  return $self->value_set->set_terms(@_);
+}
+
 1;

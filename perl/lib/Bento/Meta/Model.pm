@@ -1,6 +1,7 @@
 package Bento::Meta::Model;
 use base Bento::Meta::Model::Entity;
 use v5.10;
+use Scalar::Util qw/blessed/;
 use lib '../../../lib';
 use Bento::Meta::Model::Node;
 use Bento::Meta::Model::Edge;
@@ -70,11 +71,19 @@ sub add_edge {
   unless ( $init->handle && $init->src && $init->dst ) {
     LOGDIE ref($self)."::add_edge - init hash reqs 'handle','src','dst' key/values";
   }
-  $init->set_model($self->handle) if (!$init->model);  
+  $init->set_model($self->handle) if (!$init->model);
   my ($hdl,$src,$dst) = split /:/,$init->triplet;
   if ($etbl->{$hdl} && $etbl->{$hdl}{$src} &&
         $etbl->{$hdl}{$src}{$dst}) {
     LOGWARN ref($self)."::add_edge : overwriting existing edge with handle/src/dest '".join("/",$hdl,$src,$dst)."'";
+  }
+  unless ($self->contains($init->src)) {
+    LOGWARN ref($self)."::add_edge : source node '".$src."' is not yet in model, adding it";
+    $self->add_node($init->src);
+  }
+  unless ($self->contains($init->dst)) {
+    LOGWARN ref($self)."::add_edge : destination node '".$dst."' is not yet in model, adding it";
+    $self->add_node($init->dst);
   }
   $etbl->{$hdl}{$src}{$dst} = $init;
   $self->set_edges( $init->triplet => $init );
@@ -96,6 +105,13 @@ sub add_prop {
   unless (defined $init) {
     LOGDIE ref($self)."::add_prop - arg2 must be init hash or Property object";
   }
+  unless ($self->contains($ent)) {
+    my ($thing) = ref($ent) =~ /::([^:]+)$/;
+    $thing = lc $thing;
+    my $thing_method = "add_$thing";
+    LOGWARN ref($self)."::add_prop : $thing '".$ent->handle."' is not yet in model, adding it";
+    $self->$thing_method($ent);
+  }
   if (ref($init) eq 'HASH') {
     $init = Bento::Meta::Model::Property->new($init);
   }
@@ -112,13 +128,52 @@ sub add_prop {
 }
 
 # rm_node( $node_or_handle )
-sub rm_node {}
+# node must participate in no edges to be able to be removed (like neo4j)
+sub rm_node {
+  
+}
 
 # rm_prop( $prop_or_handle )
-sub rm_prop {}
+sub rm_prop {
+  
+}
 
 # rm_edge( $edge_or_sth_else )
 sub rm_edge {}
+
+# contains($entity) - true if entity object appears in model
+sub contains {
+  my $self = shift;
+  my ($ent) = @_;
+  unless ( blessed($ent) && $ent->isa('Bento::Meta::Model::Entity') ) {
+    LOGWARN ref($self)."::contains - arg not an Entity object";
+    return;
+  }
+  for (ref $ent) {
+    /Node$/ && do {
+      return !! grep { $_ == $ent } $self->nodes;
+      last;
+    };
+    /Edge$/ && do {
+      return !! grep { $_ == $ent } $self->edges;      
+      last;
+    };
+    /Property$/ && do {
+      return !! grep { $_ == $ent } $self->props;      
+      last;
+    };
+    /ValueSet$/ && do {
+      last;
+    };
+    /Term$/ && do {
+      last;
+    };
+    /Concept$/ && do {
+      last;
+    };
+  }
+  return;
+}
 
 # read API
 
@@ -131,7 +186,7 @@ sub props { values %{shift->{_props}} }
 #sub edge_types { values %{shift->{_edge_types}} }
 #sub edge_type { $_[0]->{_edge_types}{$_[1]} }
 
-sub edges {  @{shift->{_edges}} }
+sub edges { values %{shift->{_edges}} }
 sub edge {
   my $self = shift;
   my ($type,$src,$dst) = @_;
@@ -158,20 +213,20 @@ sub edge_by {
   my $self = shift;
   my ($key, $arg) = @_;
   unless ($key =~ /^src|dst|type$/) {
-    LOGDIE "Model::edge_by() - arg 1 must be one of src|dst|type";
+    LOGDIE ref($self)."::edge_by : arg 1 must be one of src|dst|type";
   }
   if (ref($arg) =~ /Model/) {
     $arg = $arg->handle;
   }
   elsif (ref $arg) {
-    LOGDIE "arg must be a ".__PACKAGE__."-related object or string, not ".ref($arg);
+    LOGDIE ref($self)."::edge_by : arg must be a ".__PACKAGE__."-related object or string, not ".ref($arg);
   }
   my @ret;
   for ($key) {
     /^src$/ && do {
       for my $t (keys %{$self->{_edge_table}}) {
         for my $u (keys %{$self->{_edge_table}{$t}{$arg}}) {
-          push @ret, $self->{_edge_table}{$t}{$arg}{$u};
+          push @ret, $self->{_edge_table}{$t}{$arg}{$u} // ();
         }
       }
       last;
@@ -179,7 +234,7 @@ sub edge_by {
     /^dst$/ && do {
       for my $t (keys %{$self->{_edge_table}}) {
         for my $u (keys %{$self->{_edge_table}{$t}}) {
-          push @ret, $self->{_edge_table}{$t}{$u}{$arg};
+          push @ret, $self->{_edge_table}{$t}{$u}{$arg} // ();
         }
       }
       last;
@@ -187,7 +242,7 @@ sub edge_by {
     /^type$/ && do {
       for my $t (keys %{$self->{_edge_table}{$arg}}) {
         for my $u (keys %{$self->{_edge_table}{$arg}{$t}}) {
-          push @ret, $self->{_edge_table}{$arg}{$t}{$u};
+          push @ret, $self->{_edge_table}{$arg}{$t}{$u} // ();
         }
       }
       last;
