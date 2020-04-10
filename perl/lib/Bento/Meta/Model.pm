@@ -52,6 +52,11 @@ sub add_node {
   if ($init->model ne $self->handle) {
     LOGWARN ref($self)."::add_node : model handle is '".$self->handle."', but node.model is '".$init->model."'";
   }
+  for my $p ($init->props) { # add any props on this node to the model list
+    $p->set_parent_handle($init->handle);
+    $p->set_model($self->handle);
+    $self->set_props(join(':',$init->handle,$p->handle) => $p);
+  }
   $self->set_nodes($init->handle, $init);
 }
 
@@ -86,6 +91,11 @@ sub add_edge {
     $self->add_node($init->dst);
   }
   $etbl->{$hdl}{$src}{$dst} = $init;
+  for my $p ($init->props) { # add any props on this edge to the model list
+    $p->set_parent_handle($init->triplet);
+    $p->set_model($self->handle);
+    $self->set_props(join(':',$init->triplet,$p->handle) => $p);
+  }
   $self->set_edges( $init->triplet => $init );
 }
 
@@ -120,6 +130,7 @@ sub add_prop {
   }
   $init->set_model($self->handle) if (!$init->model);
   my $pfx = $ent->can('triplet') ? $ent->triplet : $ent->handle;
+  $init->set_parent_handle($pfx); # "whom do I belong to?"
   if ( $self->prop(join(':',$pfx,$init->handle)) ) {
     LOGWARN ref($self)."::add_prop - overwriting existing prop '".join(':',$pfx,$init->handle)."'";
   }
@@ -170,23 +181,91 @@ sub add_terms {
     $vs->set_handle( $self->handle.substr($vs->id,0,7) );
     $prop->set_value_set($vs)
   }
-  $vs->set_terms(\%terms);
+  $vs->set_terms($_ => $terms{$_}) for keys %terms;
   return $vs;
 }
 
 # rm_node( $node_or_handle )
 # node must participate in no edges to be able to be removed (like neo4j)
+# returns the node removed
+# removes the node's properties from the model list, but not
+# from the node itself
 sub rm_node {
-  
-}
-
-# rm_prop( $prop_or_handle )
-sub rm_prop {
-  
+  my $self = shift;
+  my ($node) = @_;
+  unless (ref($node) =~ /Node$/) {
+    LOGDIE ref($self)."::rm_node - arg1 must be Node object";
+  }
+  if (!$self->contains($node)) {
+    LOGWARN ref($self)."::rm_node : node '".$node->handle."' not contained in model '".$self->handle."'";
+    return;
+  }
+  if ( $self->edges_by_src($node) ||
+         $self->edge_by_dst($node) ) {
+    LOGWARN ref($self)."::rm_node : can't remove node '".$node->handle."', it is participating in edges";
+    return;
+  }
+  # remove node properties from the model list
+  for my $p ($node->props) {
+    # note, this only removes from the model list --
+    # the prop list for the node itself is not affected
+    # (i.e., the props remain attached to the deleted node)
+    $self->set_props(join(':',$p->parent_handle,$p->handle) => undef);
+  }
+  return $self->set_nodes( $node->handle => undef );
 }
 
 # rm_edge( $edge_or_sth_else )
-sub rm_edge {}
+# returns the edge removed from the model list
+# removes the edge's properties from the model list, but not
+# from the edge itself
+sub rm_edge {
+  my $self = shift;
+  my ($edge) = @_;
+  unless (ref($edge) =~ /Edge$/) {
+    LOGDIE ref($self)."::rm_edge - arg1 must be Edge object";
+  }
+  if (!$self->contains($edge)) {
+    LOGWARN ref($self)."::rm_edge : edge '".$edge->triplet."' not contained in model '".$self->handle."'";
+    return;
+  }
+  # remove node properties from the model list
+  for my $p ($edge->props) {
+    # note, this only removes props from the model list --
+    # the prop list for the edge itself is not affected
+    # (i.e., the props remain attached to the deleted edge)
+    $self->set_props(join(':',$p->parent_handle,$p->handle) => undef);
+  }
+  my ($hdl,$src,$dst) = split /:/, $edge->triplet;
+  delete $self->{_edge_table}{$hdl}{$src}{$dst};
+  return $self->set_edges( $edge->triplet => undef );
+}
+
+# rm_prop( $prop_or_handle )
+# removes the property from the entity (node, edge) that has it,
+# and from the model property list
+# returns the prop removed
+sub rm_prop {
+  my $self = shift;
+  my ($prop) = @_;
+  unless (ref($prop) =~ /Property$/) {
+    LOGDIE ref($self)."::rm_prop - arg1 must be Property object";
+  }
+  if (!$self->contains($prop)) {
+    LOGWARN ref($self)."::rm_prop : property '".$prop->handle."' not contained in model '".$self->handle."'";
+    return;
+  }
+  # following is sort of a kludge - depends on the $prop->parent_handle
+  # to determine the affected entity. Faster than searching all props over
+  # all entities to find the affected entity.
+  if ($prop->parent_handle =~ /:/) { # an edge prop
+    $self->edge($prop->parent_handle)->set_props( $prop->handle => undef );
+  }
+  else { # a node prop
+    $self->node($prop->parent_handle)->set_props( $prop->handle => undef );
+  }
+  return $self->prop( join(':',$prop->parent_handle,$prop->handle) => undef );
+}
 
 # contains($entity) - true if entity object appears in model
 sub contains {

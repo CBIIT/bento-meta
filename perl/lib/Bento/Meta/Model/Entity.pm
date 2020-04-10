@@ -86,7 +86,12 @@ sub AUTOLOAD {
           }
           elsif (!ref($args[0]) && @args > 1) {
             $self->{_dirty} = 1;
-            return $self->{"_$method"}{$args[0]} = $args[1];
+            if (defined $args[1]) {
+              return $self->{"_$method"}{$args[0]} = $args[1];
+            }
+            else { # 2nd arg is explicit undef - means delete
+              return delete $self->{"_$method"}{$args[0]}
+            }
           }
           else {
             FATAL "set_$method requires hashref as arg1, or key => value as arg1 and arg2";

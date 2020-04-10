@@ -29,8 +29,10 @@ is $case->handle, 'case', 'attr1';
 is $case->model, 'test', 'attr2';
 is_deeply [$case->tags],[qw/florp blerg/], 'attr3';
 
+ok $case->set_props( 'days_to_enrollment' => $P->new({handle => 'days_to_enrollment'})), "add a property 'by hand'";
 ok my $ret = $model->add_node($case), 'add Node obj';
 is $ret, $case, 'add_node returns the Node';
+ok $model->prop('case:days_to_enrollment'), "pre-existing property added to model";
 
 ok $ret = $model->add_node({ handle => 'sample'}), 'add node with init hash';
 is $ret->model, 'test', 'add_node sets model attr';
@@ -56,8 +58,10 @@ isa_ok($of_case,$E);
 isa_ok($of_case->src, $N);
 isa_ok($of_case->dst, $N);
 is $of_case->triplet, 'of_case:sample:case', 'edge triplet string';
+ok $of_case->set_props('operator', $P->new({handle=>'operator'})), "add prop to edge 'by hand'";
 
 ok my $ret = $model->add_edge($of_case), 'add Edge object';
+ok $model->props('of_case:sample:case:operator'), "pre-existing prop added to model list"; 
 is $ret, $of_case, 'add_edge returns Edge';
 is $model->edge('of_case',$sample,$case), $of_case, 'retrieve edge by components';
 is $model->edge('of_case','sample','case'), $of_case, 'retrieve edge by handles';
@@ -105,10 +109,44 @@ ok my $disease = $model->prop('diagnosis:disease'), 'get disease property';
 ok $ret = $model->add_terms($disease, 'CRS', 'halitosis', 'fungusamongus');
 isa_ok($ret, $V);
 is_deeply [sort $disease->values], [sort qw/CRS halitosis fungusamongus/], "terms set and values correct";
+ok $ret = $model->add_terms($disease, $T->new({value => 'rockin_pneumonia'})), "add Term object";
+is_deeply [sort $disease->values], [sort qw/CRS halitosis fungusamongus rockin_pneumonia/], "term added to existing set";
+
+my $blerg = $N->new({handle => 'blerg'});
+warning_like { $model->rm_node($blerg) } qr/'blerg' not contained/, "warn when trying to rm node already not in model";
+
+my $project = $model->node('project');
+ok $model->add_prop($project, {handle=>'short_name'}), 'add a prop';
+ok $project->props('short_name'), "there it is";
+ok $model->prop('project:short_name'), 'also in model';
+
+warning_like { $model->rm_node( $project ) } qr/can't remove node 'project'/, "warn when trying to rm node that has edges";
+my $of_program = $model->edge('of_program:project:program');
+ok $model->add_prop($of_program, {handle => 'scroob'});
+ok $of_program->props('scroob');
+ok $model->prop('of_program:project:program:scroob');
+ok $ret = $model->rm_edge( $of_program ), 'rm edge';
+isa_ok($ret, $E);
+ok !$model->edge('of_program:project:program'), 'really gone';
+ok !$model->prop('of_program:project:program:scroob'), 'prop gone from model';
+ok $of_program->props('scroob'), 'but still on edge';
 
 
+ok $ret = $model->rm_node( $model->node('project') ), 'now can remove node';
+isa_ok( $ret, $N);
+is $ret->handle, 'project', 'removed node correct';
+ok !$model->node('project'), 'really gone';
+ok !$model->prop('project:short_name'), 'prop also gone from model...';
+ok $ret->props('short_name'), 'but still lives on the node';
 
-  
+
+ok $ret = $model->rm_prop( $case_id ), "rm node prop";
+is $ret, $case_id;
+ok !$case->props('case_id'), "also gone from case";
+
+my $consent_on = $model->prop('of_case:sample:case:consent_on');
+ok $ret = $model->rm_prop($consent_on), 'rm edge prop';
+is $ret, $consent_on;
+ok !$model->edge('of_case:sample:case')->props('consent_on'), "also gone from edge";
 
 done_testing;
-
