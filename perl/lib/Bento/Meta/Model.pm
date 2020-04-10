@@ -303,16 +303,34 @@ sub contains {
 
 # read API
 
+sub edges_in {
+  my $self = shift;
+  my ($node) = @_;
+  unless (ref($node) =~ /Node$/) {
+    LOGDIE ref($self)."::rm_node - arg1 must be Node object";
+  }
+  $self->edges_by_dst($node);
+}
+
+sub edges_out {
+  my $self = shift;
+  my ($node) = @_;
+  unless (ref($node) =~ /Node$/) {
+    LOGDIE ref($self)."::rm_node - arg1 must be Node object";
+  }
+  $self->edges_by_src($node);
+}  
+
 sub node { $_[0]->{_nodes}{$_[1]} }
-sub nodes { values %{shift->{_nodes}} }
+sub nodes { LOGDIE ref($_[0])."::nodes - nodes() takes no arg" if @_ > 1; values %{shift->{_nodes}} }
 
 sub prop { $_[0]->{_props}{$_[1]} }
-sub props { values %{shift->{_props}} }
+sub props { LOGDIE ref($_[0])."::props - props() takes no arg" if @_ > 1; values %{shift->{_props}} }
 
 #sub edge_types { values %{shift->{_edge_types}} }
 #sub edge_type { $_[0]->{_edge_types}{$_[1]} }
 
-sub edges { values %{shift->{_edges}} }
+sub edges { LOGDIE ref($_[0])."::edges - edges() takes no arg" if @_ > 1; values %{shift->{_edges}} }
 sub edge {
   my $self = shift;
   my ($type,$src,$dst) = @_;
@@ -392,6 +410,30 @@ $model = Bento::Meta::Model->new();
 
 =head2 $model object
 
+=head3 Write methods
+
+=over
+
+=item new($handle)
+
+=item add_node($node_or_init)
+
+=item add_edge($edge_or_init)
+
+=item add_prop($node_or_edge, $prop_or_init)
+
+=item add_terms($prop, @terms_or_inits)
+
+=item rm_node($node)
+
+=item rm_edge($edge)
+
+=item rm_prop($prop)
+
+=back
+
+=head3 Read methods
+
 =over
 
 =item @nodes = $model->nodes()
@@ -406,6 +448,10 @@ $model = Bento::Meta::Model->new();
 
 =item @edge_types = $model->edge_types()
 
+=item @edges = $model->edges_in($node)
+
+=item @edges = $modee->edges_out($node)
+
 =item @edges = $model->edge_by_src()
 
 =item @edges = $model->edge_by_dst()
@@ -418,50 +464,15 @@ $model = Bento::Meta::Model->new();
 
 =over
 
-
 =item $node->name()
 
 =item $node->category()
 
 =item @props = $node->props()
 
-=item $prop = $node->prop($name)
+=item $prop = $node->props($name)
 
 =item @tags = $node->tags()
-
-=back
-
-=head2 $prop object
-
-=over
-
-=item $prop->name()
-
-=item $prop->is_required()
-
-=item $value_type = $prop->type()
-
-=item @acceptable_values = $prop->values()
-
-=item @tags = $prop->tags()
-
-=back
-
-=head2 $edge_type object
-
-=over
-
-=item $edge_type->name()
-
-=item $edge_type->multiplicity(), $edge_type->cardinality()
-
-=item $prop = $edge_type->prop($name)
-
-=item @props = $edge_type->props()
-
-=item @allowed_ends = $edge_type->ends()
-
-=item @tags = $edge_type->tags()
 
 =back
 
@@ -481,9 +492,25 @@ $model = Bento::Meta::Model->new();
 
 =item @props = $edge->props()
 
-=item $prop = $edge->prop($name)
+=item $prop = $edge->props($name)
 
 =item @tags = $edge->tags()
+
+=back
+
+=head2 $prop object
+
+=over
+
+=item $prop->name()
+
+=item $prop->is_required()
+
+=item $value_type = $prop->type()
+
+=item @acceptable_values = $prop->values()
+
+=item @tags = $prop->tags()
 
 =back
 

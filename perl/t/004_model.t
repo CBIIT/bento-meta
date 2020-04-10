@@ -61,7 +61,7 @@ is $of_case->triplet, 'of_case:sample:case', 'edge triplet string';
 ok $of_case->set_props('operator', $P->new({handle=>'operator'})), "add prop to edge 'by hand'";
 
 ok my $ret = $model->add_edge($of_case), 'add Edge object';
-ok $model->props('of_case:sample:case:operator'), "pre-existing prop added to model list"; 
+ok $model->prop('of_case:sample:case:operator'), "pre-existing prop added to model list"; 
 is $ret, $of_case, 'add_edge returns Edge';
 is $model->edge('of_case',$sample,$case), $of_case, 'retrieve edge by components';
 is $model->edge('of_case','sample','case'), $of_case, 'retrieve edge by handles';
@@ -98,6 +98,11 @@ warning_like { $model->add_prop( $E->new({handle => 'of_case',
 is scalar $model->edges_by_type('of_case'), 2, 'edges_by_type of_case correct';
 is scalar $model->edges_by_src('sample'), 1, 'edges_by_src sample correct';
 is scalar $model->edges_by_dst('case'), 2, 'edges_by_dst case correct';
+
+ok my @edges = $model->edges_in($case), 'edges_in';
+is_deeply [ sort map {$_->triplet} @edges], [sort qw/of_case:sample:case of_case:diagnosis:case/], 'edges_in correct';
+ok @edges = $model->edges_out($sample), 'edges_out';
+is_deeply [ sort map {$_->triplet} @edges], [qw/of_case:sample:case/], 'edges_in correct';                              
 
 # test properties with value sets
 
