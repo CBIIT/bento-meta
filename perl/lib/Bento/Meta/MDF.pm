@@ -8,7 +8,7 @@ use YAML::PP qw/LoadFile/;
 use Hash::Merge;
 
 our $MERGER = Hash::Merge->new();
-$MERGER->add_behavior_spec( OVERLAY_MERGE_BEH, 'R_OVERLAY' );
+$MERGER->add_behavior_spec( OVERLAY_MERGE_BEH(), 'R_OVERLAY' );
 $MERGER->set_behavior('R_OVERLAY');
 
 our $DEFAULT_MULT = 'one_to_one';
@@ -24,13 +24,13 @@ sub create_model {
     _handle => $handle,
    }, $class;
   unless ($handle) {
-    LOGDIE "$class::create_model : req model handle as arg1, followed by yaml files";
+    LOGDIE "${class}::create_model : req model handle as arg1, followed by yaml files";
   }
   if (-e $handle and $handle =~ /ya?ml/) {
-    LOGWARN "$class::create_model : arg1 looks like a filename (expecting model handle";
+    LOGDIE "${class}::create_model : arg1 is a yaml filename (expecting model handle)";
   }
   unless (@files) {
-    LOGDIE "$class::create_model: req list of files as args";
+    LOGDIE "${class}::create_model: req list of files as args";
   }
   $self->read_yaml(@files);
   my $ynodes = $self->yaml->{Nodes};
@@ -46,13 +46,13 @@ sub create_model {
       handle => $h,
       model => $handle,
       ($yn->{Tags} ?
-         tags => clone($yn->{Tags}) :
+         (tags => clone($yn->{Tags})) :
          ()),
       ($yn->{Category} ?
-         category => $yn->{Category} :
-         ())
+         (category => $yn->{Category}) :
+         ()),
       ($yn->{Desc} ?
-         desc => $yn->{Desc} :
+         (desc => $yn->{Desc}) :
          ())        
      });
   }
@@ -69,10 +69,10 @@ sub create_model {
         multiplicity => $ends->{Mul} // $ye->{Mul} // $DEFAULT_MULT,
         is_required => $ends->{Req} // $ye->{Req},
         ( $ends->{Tags} // $ye->{Tags} ?
-            tags => clone($ends->{Tags} // $ye->{Tags}) :
+            (tags => clone($ends->{Tags} // $ye->{Tags})) :
             () ),
         ( $ends->{Desc} // $ye->{Desc} ?
-            desc => clone($ends->{Desc} // $ye->{Desc}) :
+            (desc => clone($ends->{Desc} // $ye->{Desc})) :
             () )        
       });
     }
@@ -81,18 +81,18 @@ sub create_model {
   # create properties
   for my $w ($model->nodes, $model->edges) {
     my @ph;
-    if (ref $w =~ /Node$/) {
+    if (ref($w) =~ /Node$/) {
       @ph = @{$ynodes->{$w->handle}{Props}};
     }
-    elsif (ref $w =~ /Edge$/) {
+    elsif (ref($w) =~ /Edge$/) {
       # Props elt appearing in Ends hash
       # takes precedence over Props elt
       # in the handle's hash
       my ($hdl,$src,$dst) = split /:/,$w->triplet;
-      my ($ends_props) = grep
+      my ($end) = grep
         { ($_->{Src} eq $src) &&
           ($_->{Dst} eq $dst) } @{$yedges->{$hdl}{Ends}};
-      @ph = @{$ends_props // $yedges->{$hdl}{Props}};
+      @ph = @{$end->{Props} // $yedges->{$hdl}{Props}};
     }
     for my $ph (@ph) {
       my $ypdef = $ypropdefs->{$ph};
@@ -100,10 +100,10 @@ sub create_model {
         handle => $ph,
         model => $self->handle,
         ($ypdef->{Tags} ?
-           tags => clone($ypdef->{Tags}) :
+           (tags => clone($ypdef->{Tags})) :
            ()),
         ($ypdef->{Desc} ?
-           desc => $ypdef->{Desc} :
+           (desc => $ypdef->{Desc}) :
            ()),
         ($ypdef->{Type} ?
            ($self->_value_domain($ypdef->{Type})) :
@@ -113,7 +113,7 @@ sub create_model {
       $model->add_prop($w, $p);
     }
   }
-  
+  return $model;
 }
 
 sub yaml { shift->{_yaml} }
@@ -148,7 +148,7 @@ sub read_yaml {
 sub _value_domain {
   my $self = shift;
   my ($type) = @_;
-  for (ref $type) {
+  for (ref($type)) {
     /^HASH$/ && do {
       if ($type->{pattern}) {
         return ( value_domain => 'regexp',
@@ -201,7 +201,7 @@ sub _delete_paths {
     unless (defined $ptr) {
       return;
     }
-    if (ref $ptr eq '' or ref($ptr) =~ /^JSON::PP/) { # scalar
+    if (ref($ptr) eq '' or ref($ptr) =~ /^JSON::PP/) { # scalar
       if ($ptr =~ m|^/(.*)|) { # delete char present on value
 	push @dpths, [$adr,$1];
       }
@@ -209,7 +209,7 @@ sub _delete_paths {
 	1; # done at leaf
       }
     }
-    elsif (ref $ptr eq 'HASH') {
+    elsif (ref($ptr) eq 'HASH') {
       for my $k (keys %{$ptr}){
 	if ( $k =~ m|^/(.*)| ) { # delete char present on key
 	  push @dpths, [$adr."\{$1\}", $1]; # prune from here
@@ -219,7 +219,7 @@ sub _delete_paths {
 	}
       }
     }
-    elsif (ref $ptr eq 'ARRAY') {
+    elsif (ref($ptr) eq 'ARRAY') {
       for my $i (0..$#$ptr) {
 	$walk->($adr."\[$i\]",$ptr->[$i]);
       }
