@@ -8,7 +8,9 @@ use YAML::PP qw/LoadFile/;
 use Hash::Merge;
 
 our $MERGER = Hash::Merge->new();
-$MERGER->add_behavior_spec( OVERLAY_MERGE_BEH(), 'R_OVERLAY' );
+sub OVERLAY_MERGE_BEH();
+
+$MERGER->add_behavior_spec( OVERLAY_MERGE_BEH, 'R_OVERLAY' );
 $MERGER->set_behavior('R_OVERLAY');
 
 our $DEFAULT_MULT = 'one_to_one';
