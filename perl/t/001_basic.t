@@ -12,7 +12,7 @@ isa_ok ($met, 'Bento::Meta::Model');
 
 ok $mm = Bento::MakeModel->new(files => [File::Spec->catfile($sampdir,'icdc-model.yml'),
                                  File::Spec->catfile($sampdir,'icdc-model-props.yml')]), "load ICDC model from YAML";
-ok $met->load_mm($mm);
+
 
 
 done_testing;

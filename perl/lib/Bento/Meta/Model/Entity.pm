@@ -23,8 +23,7 @@ sub new {
 
   if (defined $init) {
     unless (ref $init eq 'HASH') {
-      FATAL "$class::new - arg1 must be hashref of initial attr values";
-      die;
+      LOGDIE "$class::new - arg1 must be hashref of initial attr values";
     }
     for my $k (keys %$init) {
       if (grep /^$k$/, @declared_atts) {
@@ -32,7 +31,7 @@ sub new {
         $self->$symb($init->{$k});
       }
       else {
-        WARN "$class::new() - attribute '$k' in init not declared in object";
+        LOGWARN "$class::new() - attribute '$k' in init not declared in object";
         $self->{"_$k"} = $init->{$k};
       }
     }

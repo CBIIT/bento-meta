@@ -54,6 +54,61 @@ Level of object - DB communication?
   * Getting or putting arbitrary objects from/to DB (need to use model object to manage?)
   * Automagical DB push/pull (need to manually commit from model)
 
+## Connecting DB with objects
+
+In the Neo4j instance of the metamodel, all entities (Node, Edge, Property, ValueSet, Concept, Term, Origin) are represented by Neo4j nodes. Collections of entities associated with another entity (e.g., Properties of a Node) are represented by Neo4j relationships connecting the elements of the collection to the associated entity (e.g., Node has_property Properties). 
+
+The Neo4j instance _also_ represents Edge/Relationship entities as Neo4j relationships between Node Neo4j nodes. These have relationship types equal to underscore+Edge.handle, with from-node set to Edge.src Neo4j node and to-node set to Edge.dst Neo4j node.
+
+Objects represent Neo4j relationships between entities by attibutes that take other objects (or collections of objects) as values. 
+
+Object represent Neo4j properties on entities by attributes that take scalar simple type values.
+
+"mapped" entity - existing object that is associated with a unique Neo4j node in the DB. If an object is mapped, its neoid property is set to the Neo4j id of the mapped Neo4j node.
+
+"equivalent" - an object and a Neo4j node are equivalent if the object entity type (Node, Edge, ...) is a member of the labels of the node, and every scalar simple attribute of the object has a corresponding node property, and the values of the corresponding object attribute and node property are equal.
+
+
+* get entity - read an equivalent node from DB into a new object, map object to entity.
+
+* put entity - write an object to DB - create a new node, even if an equivalent node exists, map object to new node.
+
+* merge entity - write an object to DB if an equivalent node does not exist, or retrieve the id of the equivalent node (this is a "merge" in the Cypher sense), map object to node.
+
+* pull entity - for an object that is mapped to a node, update scalar simple attributes in object to values of corresponding properties in node. (Remove object attributes corresponding to properties no longer present on node; add attributes to entity that are present on node but are not present on object. -?-)
+
+* push object - for an object that is mapped to a node, update corresponding properties on node to scalar simple-valued attribute values in object.
+
+Converting attributes into nodes/relationships and vice versa.
+
+Some object attributes encode properties, others encode relationships with other objects. Attributes that are collection-valued are always relationship-encoding. Scalar-valued attributes that take an object as a value are relationship-encoding. Scalar-valued attributes that take a simple type as a value are property-encoding.
+
+To pull a relationship and its end nodes into a new object:
+* identify or pull objects for both ends and map
+* set the attribute on the object corresponding to the relationship with the remaining object
+
+To push a relationship-encoding attribute from an existing object:
+* ensure both objects are mapped - (can refuse to proceed, or automatically map)
+* create relationship between the mapped nodes according to the semantics of the attribute
+
+        get - node + properties
+        get_via(attr) - load attr with nodes connected by relationship
+        put - node + properties
+        put_via(attr) - put attr values, connect to calling object with relationship
+
+Object-to-graph map:
+* object -> labelled node
+* object simple-valued attr -> node properties
+* object object-valued attr ->  to-one relationship to labelled node
+* object collection attr -> to-many relationship to labelled nodes
+
+Q. Capturing relationship properties? Later.
+
+
+
+
+
+
 
 
 

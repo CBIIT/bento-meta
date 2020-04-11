@@ -9,7 +9,7 @@ isa_ok($node, 'Bento::Meta::Model::Node');
 isa_ok($node, 'Bento::Meta::Model::Entity');
 
 is_deeply [ sort @{$node->{_declared}}],
-  [sort qw/handle tags name category props/], 'declared attrs correct';
+  [sort qw/handle model concept tags category props desc dirty neoid/], 'declared attrs correct';
 
 lives_ok { $node->handle; };
 dies_ok { $node->boog; };

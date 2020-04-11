@@ -8,7 +8,7 @@ $o = TestObject->new();
 Log::Log4perl->easy_init($DEBUG);
 
 # attr
-is_deeply [sort $o->attrs], [sort qw/my_scalar_attr my_array_attr my_hash_attr dirty neoid/], "attrs()";
+is_deeply [sort $o->attrs], [sort qw/my_scalar_attr my_array_attr my_hash_attr dirty desc neoid/], "attrs()";
 
 # setters
 $value = 'narf';
