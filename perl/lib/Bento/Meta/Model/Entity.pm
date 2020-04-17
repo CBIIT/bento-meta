@@ -1,8 +1,10 @@
 package Bento::Meta::Model::Entity;
+use Bento::Meta::Model::ObjectMap;
 use UUID::Tiny qw/:std/;
 use Log::Log4perl qw/:easy/;
 
 use strict;
+our $OBJECT_MAP;
 our $AUTOLOAD;
 
 our @common_attr = qw/
@@ -15,6 +17,8 @@ sub new {
   my ($attr,$init) = @_;
   my $self = bless $attr, $class;
   $self->{_dirty} = 1; # indicates change that has not been synced with db
+  #                      0 => fully synced with db
+  #                     -1 => simple-valued attr sync, object-valued attr not yet
   $self->{_neoid} = undef; # database id for this entity
   $self->{_desc} = undef; # free text description for entity
 
@@ -22,9 +26,10 @@ sub new {
   $self->{_declared} = \@declared_atts;
 
   if (defined $init) {
-    unless (ref $init eq 'HASH') {
-      LOGDIE "$class::new - arg1 must be hashref of initial attr values";
+    unless (ref($init) =~ /^HASH|Neo4j::Bolt::Node$/) {
+      LOGDIE "$class::new - arg1 must be a Neo4j::Bolt::Node or hashref of initial attr values";
     }
+    $init = $init->{properties} if ref($init) eq 'Neo4j::Bolt::Node';
     for my $k (keys %$init) {
       if (grep /^$k$/, @declared_atts) {
         my $symb = "set_$k";
@@ -37,6 +42,35 @@ sub new {
     }
   }
   return $self;
+}
+
+# add an object map to the (subclassed) object
+# and attach get, put as available methods to instances
+sub object_map {
+  my $class = shift;
+  unless (!ref $class) {
+    LOGDIE __PACKAGE__."::object_map : class method only";
+  }
+  my ($map) = @_;
+  return if eval "\$${class}::OBJECT_MAP;";
+
+  my $omap = Bento::Meta::Model::ObjectMap->new($class);
+  for (@{$map->{simple}}) {
+    $omap->map_simple_attr(@$_);
+  }
+  for (@{$map->{object}}) {
+    $omap->map_object_attr(@$_);
+  }
+  for (@{$map->{collection}}) {
+    $omap->map_collection_attr(@$_);
+  }
+  eval qq|
+  \$${class}::OBJECT_MAP = \$omap
+|;
+  eval qq|
+ *${class}::get = sub { \$${class}::OBJECT_MAP->get( shift, \@_ ) }
+|;
+  return $omap;
 }
 
 # any object can poop a uuid if needed
@@ -110,6 +144,7 @@ sub AUTOLOAD {
 }
 
 sub attrs { @{shift->{_declared}} }
+sub atype { ref shift->{"_".shift} }
 sub name { shift->{_handle} }
 
 sub DESTROY {
@@ -185,6 +220,10 @@ Doesn't put it anywhere, just returns it.
 =item attrs()
 
 Returns list of attributes declared for this object. 
+
+=item atype($attr)
+
+Return type (undef => scalar, 'ARRAY', or 'HASH') of the attribute $attr.
 
 =head1 AUTHOR
 

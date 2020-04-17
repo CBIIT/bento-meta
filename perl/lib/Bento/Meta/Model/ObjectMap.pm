@@ -1,12 +1,15 @@
 package Bento::Meta::Model::ObjectMap;
+use lib '../lib';
 use Scalar::Util qw/blessed/;
+use Neo4j::Bolt;
 use Neo4j::Cypher::Abstract qw/cypher ptn/;
 use Log::Log4perl qw/:easy/;
 use strict;
+our %Cache;
 
 sub new {
   my $class = shift;
-  my ($obj_class, $label) = @_;
+  my ($obj_class, $label, $bolt_cxn) = @_;
   unless ($obj_class) {
     LOGDIE "${class}::new : require an object class (string) for arg1";
   }
@@ -18,6 +21,7 @@ sub new {
   my $self = bless {
     _class => $obj_class,
     _label => $label,
+    _bolt_cxn => $bolt_cxn,
     _property_map => {},
     _relationship_map => {},
    }, $class;
@@ -28,8 +32,10 @@ sub new {
 
 sub class { shift->{_class} }
 sub label { shift->{_label} }
+sub bolt_cxn { @_ > 1 ? ($_[0]->{_bolt_cxn} = $_[1]) : $_[0]->{_bolt_cxn} }
 sub pmap { shift->{_property_map} }
 sub rmap { shift->{_relationship_map} }
+
 
 sub property_attrs {
   return keys %{ shift->pmap }
@@ -53,19 +59,118 @@ sub map_simple_attr {
 
 sub map_object_attr {
   my $self = shift;
-  my ($attr, $relationship, $end_label) = @_;
+  my ($attr, $relationship, $end_class, $end_label) = @_;
   # ck args
   $relationship = ":$relationship" unless ($relationship =~ /:/);
-  return $self->{_relationship_map}{$attr} = [$relationship,$end_label,0];
+  return $self->{_relationship_map}{$attr} =
+    { rel => $relationship,
+      lbl => $end_label,
+      cls => $end_class,
+      many => 0 };
 }1;
 
 sub map_collection_attr {
   my $self = shift;
-  my ($attr, $relationship, $end_label) = @_;
+  my ($attr, $relationship, $end_class, $end_label) = @_;
   # ck args
   $relationship = ":$relationship" unless ($relationship =~ /:/);  
-  return $self->{_relationship_map}{$attr} = [$relationship, $end_label,1];
+  return $self->{_relationship_map}{$attr} =
+    { rel => $relationship,
+      lbl => $end_label,
+      cls => $end_class,
+      many => 1};
 }1;
+
+# get - 
+
+sub get {
+  my $self = shift;
+  my ($obj) = @_;
+  my $ret;
+  unless ($self->bolt_cxn) {
+    LOGWARN ref($self)."::get - ObjectMap has no db connection set";
+    return;
+  }
+  my $rows = $self->bolt_cxn->run_query(
+    $self->get_q( $obj )
+   );
+  return _fail_query($rows) if ($rows->failure);
+  my ($n,$n_id) = $rows->fetch_next;
+  unless ($n) {
+    LOGWARN ref($self)."::get - corresponding db node not found";
+    return;
+  }
+  my $cls = $self->class;
+  unless (eval "require $cls;1") {
+    LOGDIE ref($self)."::get : unable to load class $cls: $@";
+  }  
+  $ret = $cls->new($n);
+  $ret->set_neoid($n_id);
+
+  for my $attr ($self->relationship_attrs) {
+    $rows = $self->bolt_cxn->run_query(
+      $self->get_attr_q( $ret => $attr)
+     );
+    return _fail_query($rows) if ($rows->failure);
+    my @values;
+    $cls = $self->rmap->{$attr}{cls};
+    unless (eval "require $cls;1") {
+      LOGDIE ref($self)."::get : unable to load class $cls: $@";
+    }  
+    while ( my ($a,$a_id) = $rows->fetch_next ) {
+      my $o = $cls->new($a);
+      $o->dirty(-1); # means this object has not got its object-valued attrs yet
+      $o->set_neoid($a_id);
+      push @values, $a;
+    }
+    my $set = "set_$attr";
+    if ($ret->atype($attr) eq 'ARRAY') {
+      $ret->$set(\@values);
+    }
+    elsif ($ret->atype($attr) eq 'HASH') {
+      #this is a kludge - better would be a way to configure
+      #a hash attribute to indicate which scalar attr of the value object
+      #should be the hash key
+      for my $o (@values) {
+        $ret->$set( ($o->{properties}{handle} // $o->{properties}{value}) => $o );
+      }
+    }
+    else { # scalar
+      $ret->$set($values[0]);
+    }
+  }
+  $ret->set_dirty(0);
+  return $ret;
+}
+
+sub put {
+  my $self = shift;
+  my ($obj, $attr, @values) = @_;
+  unless ($self->bolt_cxn) {
+    LOGWARN ref($self)."::get - ObjectMap has no db connection set";
+    return;
+  }
+}
+
+sub rm {
+  my $self = shift;
+  my ($obj, $attr) = @_;
+}
+
+sub _fail_query {
+  my $stream = @_;
+  my @c = caller(1);
+  if ($stream->server_errmsg) {
+    LOGWARN $c[3]." : server error: ".$stream->server_errmsg;
+  }
+  elsif ($stream->client_errmsg) {
+    LOGWARN $c[3]."::get : client error: ".$stream->client_errmsg;
+  }
+  else {
+    LOGWARN $c[3]."::get : unknown database-related error";
+  }
+  return
+}
 
 # cypher query to pull a node
 sub get_q {
@@ -78,7 +183,7 @@ sub get_q {
   if ($obj->neoid) {
     return cypher->match('n:'.$self->label)
       ->where( { 'id(n)' => $obj->neoid })
-      ->return('n');
+      ->return('n','id(n)');
   }
   # else, find equivalent node
   my $wh = {};
@@ -87,7 +192,7 @@ sub get_q {
   }
   return cypher->match('n:'.$self->label)
     ->where($wh)
-    ->return('n');
+    ->return('n','id(n)');
 }
 
 # cypher query to pull nodes via relationship
@@ -109,9 +214,9 @@ sub get_attr_q {
     $q->return( 'n.'.$self->pmap->{$att} );
   }
   elsif (grep /^$att$/, $self->relationship_attrs ) {
-    my ($reln, $end_label, $many) = @{$self->rmap->{$att}};
+    my ($reln, $end_label, $many) = @{$self->rmap->{$att}}{qw/rel lbl many/};
     $q->match(ptn->N('n')->R($reln)->N('a:'.$end_label))->
-      return('a');
+      return('a', 'id(a)');
     $q->limit(1) unless $many;
     return $q;
   }
@@ -192,7 +297,7 @@ sub put_attr_q {
       ->return('id(n)') );
   }
   elsif (grep /^$att$/, $self->relationship_attrs ) {
-    my ($reln, $end_label, $many) = @{$self->rmap->{$att}};
+    my ($reln, $end_label, $many) = @{$self->rmap->{$att}}{qw/rel lbl many/};
     my @stmts;
     for my $val (@values) {
       unless (blessed $val && $val->isa('Bento::Meta::Model::Entity')) {
@@ -257,7 +362,7 @@ sub rm_attr_q {
                ->return('id(n)') );
   }
   elsif (grep /^$att$/, $self->relationship_attrs ) {
-    my ($reln, $end_label, $many) = @{$self->rmap->{$att}};
+    my ($reln, $end_label, $many) = @{$self->rmap->{$att}}{qw/rel lbl many/};
     my $r_reln = $reln;
     $r_reln =~ s/:/r:/;
     my @stmts;
@@ -265,7 +370,8 @@ sub rm_attr_q {
       return cypher->match(ptn->N('n:'.$self->label)
                       ->R($r_reln)->N("v:$end_label"))
         ->where({ 'id(n)' => $obj->neoid })
-        ->delete('r'); # delete relationship only
+        ->delete('r')# delete relationship only
+        ->return('id(v)');
     }
     for my $val (@values) {
       unless (blessed $val && $val->isa('Bento::Meta::Model::Entity')) {
@@ -307,8 +413,10 @@ Bento::Meta::Model::ObjectMap - interface Perl objects with Neo4j database
     $map->map_simple_attr($p => $p);
   }
   #  object- or collection-valued attrs = relationships to other nodes
-  $map->map_object_attr('concept' => '<:has_concept', 'concept');
-  $map->map_collection_attr('props' => '<:has_property', 'property');
+  $map->map_object_attr('concept' => '<:has_concept', 
+                        'concept' => 'Bento::Meta::Model::Concept');
+  $map->map_collection_attr('props' => '<:has_property', 
+                            'property' => 'Bento::Meta::Model::Property');
 
   # use the map to generate canned cypher queries
 
@@ -318,7 +426,7 @@ Bento::Meta::Model::ObjectMap - interface Perl objects with Neo4j database
 
 =over 
 
-=item new($obj_class [ => $neo4j_node_label ])
+=item new($obj_class [ => $neo4j_node_label ][, $bolt_url])
 
 Create new ObjectMap object for class C($obj_class). Arg is a string.
 If $label is not provided, the Neo4j label that is mapped to the
@@ -326,11 +434,26 @@ object is set as the last token  in the class namespace, lower-cased.
 E.g., for an object of class C<Bento::Meta::Model::Node>, the label is
 'node'.
 
+$bolt_cxn is a L<Neo4j::Bolt::Cxn> object. Each map needs one to communicate
+with a database. It can be the same connection across maps.
+
+=item class()
+
+Get class mapped by this map.
+
+=item label()
+
+Get label for this map.
+
+=item bolt_cxn()
+
+Get or set bolt_cxn for this map ($map->bolt_cxn($cxn) to set).
+
 =item map_simple_attr($object_attribute => $neo4j_node_property)
 
-=item map_object_attr($object_attribute => $neo4j_node_property)
+=item map_object_attr($object_attribute => $neo4j_node_property, $fully_qualified_end_object_class => $end_neo4j_node_label)
 
-=item map_collection_attr($object_attribute => $neo4j_node_property)
+=item map_collection_attr($object_attribute => $neo4j_node_property, $fully_qualified_end_object_class => $end_neo4j_node_label)
 
 =item get_q($object)
 

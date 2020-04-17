@@ -20,8 +20,10 @@ throws_ok { $map->get_q($concept) } qr/arg1 must be an object of class/, 'get_q 
 for my $p (qw/handle model category/) {
   ok $map->map_simple_attr($p => $p), 'map simple attr';
 }
-ok $map->map_object_attr('concept' => '<:has_concept', 'concept'), 'map object attr';
-ok $map->map_collection_attr('props' => '<:has_property', 'property'), 'map collection attribute';
+ok $map->map_object_attr('concept' => '<:has_concept',
+                         'Bento::Meta::Model::Concept' => 'concept'), 'map object attr';
+ok $map->map_collection_attr('props' => '<:has_property',
+                             'Bento::Meta::Model::Concept' => 'property'), 'map collection attribute';
 
 is_deeply [sort $map->property_attrs], [ sort qw/handle model category/], 'property_attrs correct';
 
@@ -39,7 +41,7 @@ like $find_q->as_string, qr/model = 'test_model'/, "find query correct";
 
 $node->set_neoid(1);
 ok my $exact_q = $map->get_q($node);
-is $exact_q->as_string, "MATCH (n:node) WHERE (id(n) = 1) RETURN n", "exact query correct";
+is $exact_q->as_string, "MATCH (n:node) WHERE (id(n) = 1) RETURN n,id(n)", "exact query correct";
 
 throws_ok { $map->get_attr_q($node, 'frelb') } qr/not a registered attr/, "throw on unknown attr";
 
@@ -85,10 +87,30 @@ ok my @rm_attr_q = $map->rm_attr_q($node, 'concept' => $concept), 'rm_attr_q obj
 like $rm_attr_q[0]->as_string, qr"MATCH \(n:node\)<-\[r:has_concept\]-\(v:concept\) WHERE \(\(id\([nv]\) = [12]\) AND \(id\([nv]\) = [12]\)\) DELETE r RETURN id\(v\)", 'query correct';
 ok my @rm_attr_q = $map->rm_attr_q($node, props => ':all'), 'rm_attr_q collection prop/:all';
 is scalar @rm_attr_q, 1;
-is $rm_attr_q[0]->as_string, "MATCH (n:node)<-[r:has_property]-(v:property) WHERE (id(n) = 1) DELETE r", 'query correct';
+is $rm_attr_q[0]->as_string, "MATCH (n:node)<-[r:has_property]-(v:property) WHERE (id(n) = 1) DELETE r RETURN id(v)", 'query correct';
 ok @rm_attr_q = $map->rm_attr_q($node, props => @props), 'rm_attr_q object props/each';
 is scalar @rm_attr_q, 6; 
 like $rm_attr_q[0]->as_string, qr"MATCH \(n:node\)<-\[r:has_property\]-\(v:property\) WHERE \(\(id\([nv]\) = [15]\) AND \(id\([nv]\) = [15]\)\) DELETE r RETURN id\(v\)", 'query correct';
 
-$DB::single=1;
+# adding object map methods to class
+ok !$Bento::Meta::Model::Node::OBJECT_MAP;
+ok "Bento::Meta::Model::Node"->object_map(
+  {
+    simple => [
+      [model => 'model'],
+      [handle => 'handle']
+     ],
+    object => [
+      [ 'concept' => '<:has_concept',
+        'Bento::Meta::Model::Concept' => 'concept' ],
+     ],
+    collection => [
+      [ 'props' => '<:has_property',
+        'Bento::Meta::Model::Property' => 'property' ],
+     ]
+    }
+ );
+isa_ok $Bento::Meta::Model::Node::OBJECT_MAP, 'Bento::Meta::Model::ObjectMap';
+can_ok($node,'get');
+
 done_testing;

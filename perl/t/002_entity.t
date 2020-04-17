@@ -35,5 +35,7 @@ ok $o = TestObject->new({
 is $o->my_scalar_attr, 1, "init scalar attr";
 is_deeply [$o->my_array_attr], [qw/a b c/], "init array attr";
 is $o->my_hash_attr('another'), 1, "init hash attr";
-
+ok !$o->atype('my_scalar_attr'), "atype => scalar";
+is $o->atype('my_array_attr'), 'ARRAY', "atype ARRAY";
+is $o->atype('my_hash_attr'), 'HASH', "atype HASH";
 done_testing;

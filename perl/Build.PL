@@ -12,6 +12,7 @@ my $build = Module::Build->new(
   build_requires => {
     'Test::Exception' => 0,
     'Test::Warn' => 0,
+    'IPC::Run' => 0,
   },
   requires => {
     'Log::Log4perl' => 0,
@@ -20,6 +21,8 @@ my $build = Module::Build->new(
     'JSON::ize' => '>= 0.202',
     'YAML::PP' => '>= 0.018',
     'Hash::Merge' => '>= 0.300',
+    'Neo4j::Cypher::Abstract' => '>=0.1003',
+    'Neo4j::Bolt' => '>=0.12',
    },
   
  );
