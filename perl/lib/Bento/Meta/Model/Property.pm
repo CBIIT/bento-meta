@@ -13,7 +13,7 @@ sub new {
     _units => undef,
     _type => undef,
     _pattern => undef, 
-    _value_set => undef, # prop has_value_set value_set
+    _value_set => \undef, # prop has_value_set value_set
     _entities => [], # entity | entity has_property prop
     _tags => [],
     _parent_handle => undef, # 

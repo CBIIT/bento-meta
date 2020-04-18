@@ -11,7 +11,7 @@ sub new {
     _value => undef,
     _origin_id => undef,
     _origin_definition => undef,
-    _concept => undef, # term has_concept concept
+    _concept => \undef, # term has_concept concept
   }, $init);
   
   return $self;

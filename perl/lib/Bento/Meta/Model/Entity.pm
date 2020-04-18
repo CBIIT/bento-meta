@@ -95,6 +95,9 @@ sub AUTOLOAD {
             return wantarray ? values %$att : $att;
           }
         };
+        /^SCALAR$/ && do {
+          return $$att; # this picks up \undef (unset object property) and returns false
+        };
         do {
           return $att;
         };
@@ -105,8 +108,7 @@ sub AUTOLOAD {
       for (ref $att) {
         /^ARRAY$/ && do {
           unless (ref $args[0] eq 'ARRAY') {
-            FATAL "set_$method requires arrayref as arg1";
-            die;
+            LOGDIE "set_$method requires arrayref as arg1";
           }
           $self->{pvt}{_dirty} = 1;
           return $self->{"_$method"} = $args[0];
@@ -126,13 +128,19 @@ sub AUTOLOAD {
             }
           }
           else {
-            FATAL "set_$method requires hashref as arg1, or key => value as arg1 and arg2";
-            die;
+            LOGDIE "set_$method requires hashref as arg1, or key => value as arg1 and arg2";
           }
         };
         do { # scalar attribute
           $self->{pvt}{_dirty} = 1;
-          return $self->{"_$method"} = $args[0];
+          if ($args[0]) {
+            return $self->{"_$method"} = $args[0];
+          }
+          else {
+            # handle clearing an object attribute
+            $self->{"_$method"} = ref($self->{"_$method"}) ? \undef : undef;
+            return undef;
+          }
         };
       }
     }
@@ -159,7 +167,7 @@ sub set_with_node {
   }
   # note: if property is not present in node, set_with_node will
   # undef the corresponding attribute. 
-  for ($self->attrs) {
+  for (grep { !$self->atype($_) } $self->attrs) { # only scalar attrs
     my $set = "set_$_";
     $self->$set($node->{properties}{$_});
   }
@@ -189,6 +197,7 @@ Bento::Meta::Model::Entity - base class for model objects
    my ($init_hash) = @_;
    my $self = $class->SUPER::new( {
      _my_scalar_attr => undef,
+     _my_object_attr => \undef,
      _my_array_attr => [],
      _my_hash_attr => {},
      }, $init );
@@ -198,6 +207,7 @@ Bento::Meta::Model::Entity - base class for model objects
  $o = Bento::Meta::Model::Object->new({
   my_scalar_attr => 1,
   my_array_attr => [qw/ a b c /],
+  my_object_attr => $Object,
   my_hash_attr => { yet => 0, another => 1, hashref => 2},
  });
 
@@ -255,11 +265,16 @@ Returns list of attributes declared for this object.
 
 =item atype($attr)
 
-Return type (undef => scalar, 'ARRAY', or 'HASH') of the attribute $attr.
+Return type of the attribute $attr.
+  undef => scalar
+ 'SCALAR' or ref($obj) => object
+ 'ARRAY' => array, 
+ 'HASH' => hash
 
 =item set_with_node($neo4j_bolt_node)
 
-Set all simple attributes according to values in $neo4j_bolt_node-E<gt>{properties}.
+Set all simple scalar attributes according to values in 
+$neo4j_bolt_node-E<gt>{properties}.
 
 =head1 AUTHOR
 

@@ -14,7 +14,20 @@ is_deeply [ sort @{$node->{_declared}}],
 lives_ok { $node->handle; };
 dies_ok { $node->boog; };
 
-  
+is $node->set_model('CTDC'),'CTDC', "set_model";
+is $node->model,'CTDC',"set correct";
+my $neonode =  {
+  'id' => 4383,
+  'labels' => ['property'],
+   'properties' => {
+      'handle' => 'registering_institution',
+      'value_domain' => 'string'
+     }
+  };
+bless $neonode, 'Neo4j::Bolt::Node';
+ok $node->set_with_node($neonode), "set_with_node";
+is $node->handle, 'registering_institution';
+ok !$node->model, 'model undef';
   
 
 done_testing;

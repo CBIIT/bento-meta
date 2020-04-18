@@ -36,11 +36,9 @@ sub bolt_cxn { @_ > 1 ? ($_[0]->{_bolt_cxn} = $_[1]) : $_[0]->{_bolt_cxn} }
 sub pmap { shift->{_property_map} }
 sub rmap { shift->{_relationship_map} }
 
-
 sub property_attrs {
   return keys %{ shift->pmap }
 }
-
 sub relationship_attrs {
   return keys %{ shift->rmap }
 }
@@ -86,7 +84,6 @@ sub map_collection_attr {
 sub get {
   my $self = shift;
   my ($obj) = @_;
-  my $ret;
   unless ($self->bolt_cxn) {
     LOGWARN ref($self)."::get - ObjectMap has no db connection set";
     return;
@@ -104,12 +101,12 @@ sub get {
   unless (eval "require $cls;1") {
     LOGDIE ref($self)."::get : unable to load class $cls: $@";
   }  
-  $ret = $cls->new($n);
-  $ret->set_neoid($n_id);
+  $obj->set_with_node($n);
+  $obj->set_neoid($n_id);
 
   for my $attr ($self->relationship_attrs) {
     $rows = $self->bolt_cxn->run_query(
-      $self->get_attr_q( $ret => $attr)
+      $self->get_attr_q( $obj => $attr)
      );
     return _fail_query($rows) if ($rows->failure);
     my @values;
@@ -124,24 +121,29 @@ sub get {
       push @values, $a;
     }
     my $set = "set_$attr";
-    if ($ret->atype($attr) eq 'ARRAY') {
-      $ret->$set(\@values);
-    }
-    elsif ($ret->atype($attr) eq 'HASH') {
-      #this is a kludge - better would be a way to configure
-      #a hash attribute to indicate which scalar attr of the value object
-      #should be the hash key
-      for my $o (@values) {
-        $ret->$set( ($o->{properties}{handle} // $o->{properties}{value}) => $o );
-      }
-    }
-    else { # scalar
-      $ret->$set($values[0]);
+    for ($obj->atype($attr)) {
+      /^ARRAY$/ && do {
+        $obj->$set(\@values);
+        last;
+      };
+      /^HASH$/ && do {
+        #this is a kludge - better would be a way to configure
+        #a hash attribute to indicate which scalar attr of the value object
+        #should be the hash key
+        for my $o (@values) {
+          $obj->$set( ($o->{properties}{handle} // $o->{properties}{value}) => $o );
+        }
+        last;
+      };
+      do { # scalar
+        $obj->$set($values[0]);
+      };
     }
   }
-  $ret->set_dirty(0);
-  return $ret;
+  $obj->set_dirty(0);
+  return $obj;
 }
+
 
 sub put {
   my $self = shift;
@@ -158,7 +160,7 @@ sub rm {
 }
 
 sub _fail_query {
-  my $stream = @_;
+  my ($stream) = @_;
   my @c = caller(1);
   if ($stream->server_errmsg) {
     LOGWARN $c[3]." : server error: ".$stream->server_errmsg;
@@ -188,7 +190,7 @@ sub get_q {
   # else, find equivalent node
   my $wh = {};
   for ($self->property_attrs) {
-    $wh->{$self->pmap->{$_}} = $obj->$_;
+    $wh->{"n.".$self->pmap->{$_}} = $obj->$_;
   }
   return cypher->match('n:'.$self->label)
     ->where($wh)
@@ -240,7 +242,7 @@ sub put_q {
   my @null_props;
   for ($self->property_attrs) {
     if (defined $obj->$_) {
-      $props->{$self->pmap->{$_}} = $obj->$_;
+      $props->{"n.".$self->pmap->{$_}} = $obj->$_;
     }
     else {
       push @null_props, $self->pmap->{$_};

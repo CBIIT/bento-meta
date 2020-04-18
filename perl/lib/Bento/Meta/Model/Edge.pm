@@ -11,11 +11,11 @@ sub new {
     _handle => undef,
     _model => undef,
     _multiplicity => undef,
-    _src => undef,
-    _dst => undef,
+    _src => \undef,
+    _dst => \undef,
     _is_required => undef,
     _type => undef,
-    _concept => undef,
+    _concept => \undef,
     _tags => [],
     _props => {}, # prop | edge has_property prop (key: prop.handle)
   }, $init);

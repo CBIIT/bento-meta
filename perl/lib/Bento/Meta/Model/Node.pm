@@ -10,7 +10,7 @@ sub new {
   my $self = $class->SUPER::new({
     _handle => undef,
     _model => undef,
-    _concept => undef, # node has_concept concept
+    _concept => \undef, # node has_concept concept
     _category => undef,
     _tags => [],
     _props => {}, # prop | node has_property prop (key: prop.handle)
