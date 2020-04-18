@@ -56,13 +56,19 @@ SKIP : {
   isa_ok $Bento::Meta::Model::Node::OBJECT_MAP,'Bento::Meta::Model::ObjectMap';
   my $res;
   is $omap, $Bento::Meta::Model::Node::OBJECT_MAP, "pointer same";
-  $DB::single=1;
   ok $res = $cxn->run_query('match (a:node) return id(a) limit 1');
   ok my ($n_id) = $res->fetch_next;
-  my $node = Bento::Meta::Model::Node->new({neoid => $n_id});
+  my $node = Bento::Meta::Model::Node->new();
+  $node->set_neoid($n_id);
   ok $node->get(), "get node with neoid $n_id";
   is $node->dirty, 0, "node clean";
   is $node->concept->dirty, -1, "object property dirty with -1";
+  is $node->concept->id, "a5b87a02-1eb3-4ec9-881d-f4479ab917ac", "concept id correct";
+  my @p = $node->props;
+  is scalar @p, 3, "has 3 properties";
+  is $node->props('site_short_name')->dirty, -1, "prop dirty with -1";
+  is $node->props('site_short_name')->model, "ICDC", "attr of prop";
+  
   
   
 }

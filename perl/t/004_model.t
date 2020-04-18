@@ -111,7 +111,6 @@ warning_like { $model->add_terms($model->prop('of_case:diagnosis:case:primary_dx
 dies_ok { $model->add_terms($model->edge( 'of_case:diagnosis:case' ), 'boog') }
   'add_terms dies if arg1 not Prop';
 ok my $disease = $model->prop('diagnosis:disease'), 'get disease property';
-$DB::single=1;
 ok $ret = $model->add_terms($disease, 'CRS', 'halitosis', 'fungusamongus');
 isa_ok($ret, $V);
 is_deeply [sort $disease->values], [sort qw/CRS halitosis fungusamongus/], "terms set and values correct";

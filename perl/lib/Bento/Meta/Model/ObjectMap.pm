@@ -116,9 +116,9 @@ sub get {
     }  
     while ( my ($a,$a_id) = $rows->fetch_next ) {
       my $o = $cls->new($a);
-      $o->dirty(-1); # means this object has not got its object-valued attrs yet
+      $o->set_dirty(-1); # means this object has not got its object-valued attrs yet
       $o->set_neoid($a_id);
-      push @values, $a;
+      push @values, $o;
     }
     my $set = "set_$attr";
     for ($obj->atype($attr)) {
@@ -131,7 +131,9 @@ sub get {
         #a hash attribute to indicate which scalar attr of the value object
         #should be the hash key
         for my $o (@values) {
-          $obj->$set( ($o->{properties}{handle} // $o->{properties}{value}) => $o );
+          my ($k) = grep /^handle|value$/, $o->attrs;
+          LOGWARN("Hash attribute key not found on object") unless $k;
+          $obj->$set( $o->$k => $o );
         }
         last;
       };

@@ -21,7 +21,7 @@ sub new {
   $self->{pvt}{_neoid} = undef; # database id for this entity
   $self->{_desc} = undef; # free text description for entity
 
-  my @declared_atts = map { /^_(.*)/;$1 || () } keys %$self;
+  my @declared_atts = map { my ($a)=/^_(.*)/;$a || () } keys %$self;
   $self->{_declared} = \@declared_atts;
 
   if (defined $init) {
