@@ -7,8 +7,7 @@ use strict;
 our $OBJECT_MAP;
 our $AUTOLOAD;
 
-our @common_attr = qw/
-_desc
+our @private_attr = qw/
 _dirty
 _neoid
                      /;
@@ -16,13 +15,13 @@ sub new {
   my $class = shift;
   my ($attr,$init) = @_;
   my $self = bless $attr, $class;
-  $self->{_dirty} = 1; # indicates change that has not been synced with db
+  $self->{pvt}{_dirty} = 1; # indicates change that has not been synced with db
   #                      0 => fully synced with db
   #                     -1 => simple-valued attr sync, object-valued attr not yet
-  $self->{_neoid} = undef; # database id for this entity
+  $self->{pvt}{_neoid} = undef; # database id for this entity
   $self->{_desc} = undef; # free text description for entity
 
-  my @declared_atts = map { /^_(.*)/;$1 } keys %$self;
+  my @declared_atts = map { /^_(.*)/;$1 || () } keys %$self;
   $self->{_declared} = \@declared_atts;
 
   if (defined $init) {
@@ -32,8 +31,8 @@ sub new {
     $init = $init->{properties} if ref($init) eq 'Neo4j::Bolt::Node';
     for my $k (keys %$init) {
       if (grep /^$k$/, @declared_atts) {
-        my $symb = "set_$k";
-        $self->$symb($init->{$k});
+        my $set = "set_$k";
+        $self->$set($init->{$k});
       }
       else {
         LOGWARN "$class::new() - attribute '$k' in init not declared in object";
@@ -109,16 +108,16 @@ sub AUTOLOAD {
             FATAL "set_$method requires arrayref as arg1";
             die;
           }
-          $self->{_dirty} = 1;
+          $self->{pvt}{_dirty} = 1;
           return $self->{"_$method"} = $args[0];
         };
         /^HASH$/ && do {
           if (ref $args[0] eq 'HASH') {
-            $self->{_dirty} = 1;
+            $self->{pvt}{_dirty} = 1;
             return $self->{"_$method"} = $args[0];
           }
           elsif (!ref($args[0]) && @args > 1) {
-            $self->{_dirty} = 1;
+            $self->{pvt}{_dirty} = 1;
             if (defined $args[1]) {
               return $self->{"_$method"}{$args[0]} = $args[1];
             }
@@ -132,7 +131,7 @@ sub AUTOLOAD {
           }
         };
         do { # scalar attribute
-          $self->{_dirty} = 1;
+          $self->{pvt}{_dirty} = 1;
           return $self->{"_$method"} = $args[0];
         };
       }
@@ -146,6 +145,26 @@ sub AUTOLOAD {
 sub attrs { @{shift->{_declared}} }
 sub atype { ref shift->{"_".shift} }
 sub name { shift->{_handle} }
+sub neoid { shift->{pvt}{_neoid} }
+sub set_neoid { $_[0]->{pvt}{_neoid} = $_[1] }
+sub dirty { shift->{pvt}{_dirty} }
+sub set_dirty { $_[0]->{pvt}{_dirty} = $_[1] }
+
+
+sub set_with_node {
+  my $self = shift;
+  my ($node) = @_;
+  unless (ref($node) eq 'Neo4j::Bolt::Node') {
+    LOGDIE ref($self)."::set_with_node : arg1 must be a Neo4j::Bolt::Node";
+  }
+  # note: if property is not present in node, set_with_node will
+  # undef the corresponding attribute. 
+  for ($self->attrs) {
+    my $set = "set_$_";
+    $self->$set($node->{properties}{$_});
+  }
+  return $self;
+}
 
 sub DESTROY {
   my $self = shift;
@@ -206,11 +225,24 @@ It also provides a place for common actions that must occur for OGM bookkeeping.
 You can override anything in the subclasses and make them as complicated as 
 you want. 
 
+Private (undeclared) common attributes do not appear in the $obj->attrs. 
+The base class Entity has the following private attributes
+
+ neoid - the Neo4j internal id integer for the node mapped to the object 
+         (if any)
+ dirty - a flag that is set when the object has been changed but not yet pushed
+         to the database
+
+
 =head1 METHODS
 
 =over
 
 =item new($attr_hash, $init_hash)
+
+$attr_hash configures the object's declared attributes. $init_hash
+initializes the attributes' values. $init_hash can be a plain hashref
+or a L<Neo4j::Bolt::Node>.
 
 =item make_uuid()
 
@@ -224,6 +256,10 @@ Returns list of attributes declared for this object.
 =item atype($attr)
 
 Return type (undef => scalar, 'ARRAY', or 'HASH') of the attribute $attr.
+
+=item set_with_node($neo4j_bolt_node)
+
+Set all simple attributes according to values in $neo4j_bolt_node-E<gt>{properties}.
 
 =head1 AUTHOR
 

@@ -8,7 +8,7 @@ $o = TestObject->new();
 Log::Log4perl->easy_init($DEBUG);
 
 # attr
-is_deeply [sort $o->attrs], [sort qw/my_scalar_attr my_array_attr my_hash_attr dirty desc neoid/], "attrs()";
+is_deeply [sort $o->attrs], [sort qw/my_scalar_attr my_array_attr my_hash_attr desc/], "attrs()";
 
 # setters
 $value = 'narf';
@@ -38,4 +38,10 @@ is $o->my_hash_attr('another'), 1, "init hash attr";
 ok !$o->atype('my_scalar_attr'), "atype => scalar";
 is $o->atype('my_array_attr'), 'ARRAY', "atype ARRAY";
 is $o->atype('my_hash_attr'), 'HASH', "atype HASH";
+is $o->dirty, 1;
+$o->set_dirty(0);
+is $o->dirty, 0;
+ok !$o->neoid;
+$o->set_neoid(5);
+is $o->neoid, 5;
 done_testing;
