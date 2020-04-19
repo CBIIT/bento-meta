@@ -20,9 +20,9 @@ throws_ok { $map->get_q($concept) } qr/arg1 must be an object of class/, 'get_q 
 for my $p (qw/handle model category/) {
   ok $map->map_simple_attr($p => $p), 'map simple attr';
 }
-ok $map->map_object_attr('concept' => '<:has_concept',
+ok $map->map_object_attr('concept' => ':has_concept>',
                          'Bento::Meta::Model::Concept' => 'concept'), 'map object attr';
-ok $map->map_collection_attr('props' => '<:has_property',
+ok $map->map_collection_attr('props' => ':has_property>',
                              'Bento::Meta::Model::Concept' => 'property'), 'map collection attribute';
 
 is_deeply [sort $map->property_attrs], [ sort qw/handle model category/], 'property_attrs correct';
@@ -68,7 +68,7 @@ throws_ok {  $map->put_attr_q($node,'concept' => 'boog') } qr/must all be Entity
 $concept->neoid(2);
 my ($put_obj_q) = $map->put_attr_q($node,'concept' => $concept), 'put_attr_q(obj)';
 
-is $put_obj_q->as_string, "MATCH (n:node) WHERE (id(n) = 1) WITH n MERGE (n)<-[:has_concept]-(a:concept) WHERE (id(a) = 2) RETURN id(a)", "put obj attribute query correct";
+like $put_obj_q->as_string, qr"MATCH \(n:node\),\(a:concept\) WHERE \(\(id\([na]\) = [12]\) AND \(id\([na]\) = [12]\)\) MERGE \(n\)-\[:has_concept\]->\(a\) RETURN id\(a\)", "put obj attribute query correct";
 
 my @props;
 for (5..10) {
@@ -78,19 +78,19 @@ for (5..10) {
 }
 my @put_coll_q = $map->put_attr_q($node,'props' => @props),'put_attr_q(collection)';
 is scalar @put_coll_q, 6, 'correct number of queries';
-is $put_coll_q[0]->as_string, "MATCH (n:node) WHERE (id(n) = 1) WITH n MERGE (n)<-[:has_property]-(a:property) WHERE (id(a) = 5) RETURN id(a)", 'query correct';
+like $put_coll_q[0]->as_string, qr"MATCH \(n:node\),\(a:property\) WHERE \(\(id\([na]\) = [15]\) AND \(id\([na]\) = [15]\)\) MERGE \(n\)-\[:has_property\]->\(a\) RETURN id\(a\)", 'query correct';
 
 ok my $rm_q = $map->rm_q($node), "rm_q(obj)";
 is $rm_q->as_string, "MATCH (n:node) WHERE (id(n) = 1) DELETE n RETURN id(n)", 'query correct';
 
 ok my @rm_attr_q = $map->rm_attr_q($node, 'concept' => $concept), 'rm_attr_q object prop';
-like $rm_attr_q[0]->as_string, qr"MATCH \(n:node\)<-\[r:has_concept\]-\(v:concept\) WHERE \(\(id\([nv]\) = [12]\) AND \(id\([nv]\) = [12]\)\) DELETE r RETURN id\(v\)", 'query correct';
+like $rm_attr_q[0]->as_string, qr"MATCH \(n:node\)-\[r:has_concept\]->\(v:concept\) WHERE \(\(id\([nv]\) = [12]\) AND \(id\([nv]\) = [12]\)\) DELETE r RETURN id\(v\)", 'query correct';
 ok my @rm_attr_q = $map->rm_attr_q($node, props => ':all'), 'rm_attr_q collection prop/:all';
 is scalar @rm_attr_q, 1;
-is $rm_attr_q[0]->as_string, "MATCH (n:node)<-[r:has_property]-(v:property) WHERE (id(n) = 1) DELETE r RETURN id(v)", 'query correct';
+is $rm_attr_q[0]->as_string, "MATCH (n:node)-[r:has_property]->(v:property) WHERE (id(n) = 1) DELETE r RETURN id(v)", 'query correct';
 ok @rm_attr_q = $map->rm_attr_q($node, props => @props), 'rm_attr_q object props/each';
 is scalar @rm_attr_q, 6; 
-like $rm_attr_q[0]->as_string, qr"MATCH \(n:node\)<-\[r:has_property\]-\(v:property\) WHERE \(\(id\([nv]\) = [15]\) AND \(id\([nv]\) = [15]\)\) DELETE r RETURN id\(v\)", 'query correct';
+like $rm_attr_q[0]->as_string, qr"MATCH \(n:node\)-\[r:has_property\]->\(v:property\) WHERE \(\(id\([nv]\) = [15]\) AND \(id\([nv]\) = [15]\)\) DELETE r RETURN id\(v\)", 'query correct';
 
 # adding object map methods to class
 ok !$Bento::Meta::Model::Node::OBJECT_MAP;

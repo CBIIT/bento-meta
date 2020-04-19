@@ -53,7 +53,7 @@ sub object_map {
   my ($map) = @_;
   return if eval "\$${class}::OBJECT_MAP;";
 
-  my $omap = Bento::Meta::Model::ObjectMap->new($class);
+  my $omap = Bento::Meta::Model::ObjectMap->new($class, $map->{label});
   for (@{$map->{simple}}) {
     $omap->map_simple_attr(@$_);
   }
@@ -67,7 +67,9 @@ sub object_map {
   \$${class}::OBJECT_MAP = \$omap
 |;
   eval qq|
- *${class}::get = sub { \$${class}::OBJECT_MAP->get( shift, \@_ ) }
+ *${class}::get = sub { \$${class}::OBJECT_MAP->get( shift, \@_ ) };
+ *${class}::put = sub { \$${class}::OBJECT_MAP->put( shift, \@_ ) };
+ *${class}::put_q = sub { \$${class}::OBJECT_MAP->put_q( shift, \@_ ) };
 |;
   return $omap;
 }

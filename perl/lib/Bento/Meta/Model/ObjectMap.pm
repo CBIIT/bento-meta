@@ -79,7 +79,13 @@ sub map_collection_attr {
       many => 1};
 }1;
 
-# get - 
+# get - pull a node from db and populate obj
+# : reads the node having the same neoid as is set on object
+# : sets simple attrs with node properties
+# : loads approp classed objects into object, collection attr
+# :  - related objects are created and their simple attrs are set,
+# :  - but their object- and collection-valued attrs are not loaded
+# :  - this status is indicated by their dirty attr == -1
 
 sub get {
   my $self = shift;
@@ -148,12 +154,47 @@ sub get {
 
 
 sub put {
+  # all this should be in one transaction.
   my $self = shift;
-  my ($obj, $attr, @values) = @_;
+  my ($obj) = @_;
   unless ($self->bolt_cxn) {
     LOGWARN ref($self)."::get - ObjectMap has no db connection set";
     return;
   }
+  my @stmts = $self->put_q($obj);
+  my $rows;
+  for my $q (@stmts) {
+    $rows = $self->bolt_cxn->run_query($q);
+    return _fail_query($rows) if ($rows->failure);
+  }
+  my ($n_id) = $rows->fetch_next;
+  LOGWARN "No neo4j id retrieved" unless ($n_id);
+  $obj->set_neoid($n_id);
+  for my $attr ($self->relationship_attrs) {
+    my @values = $obj->$attr;
+    for my $v (@values) {
+      unless ($v->neoid) { # create unmapped subordinate nodes
+        @stmts = $v->put_q;
+        for my $q (@stmts) {
+          $rows = $self->bolt_cxn->run_query($q);
+          return _fail_query($rows) if ($rows->failure);
+        }
+        my ($v_id) = $rows->fetch_next;
+        LOGWARN "No neo4j id retrieved" unless ($v_id);
+        $v->set_neoid($v_id);
+        $v->set_dirty(-1);
+      }
+    }
+    $DB::single=1;
+    @stmts = $self->put_attr_q($obj, $attr => @values);
+    for my $q (@stmts) {
+      $rows = $self->bolt_cxn->run_query($q);
+      return _fail_query($rows) if ($rows->failure);
+    }
+  }
+  
+  $obj->set_dirty(0);
+  return $obj;
 }
 
 sub rm {
@@ -244,7 +285,7 @@ sub put_q {
   my @null_props;
   for ($self->property_attrs) {
     if (defined $obj->$_) {
-      $props->{"n.".$self->pmap->{$_}} = $obj->$_;
+      $props->{$self->pmap->{$_}} = $obj->$_;
     }
     else {
       push @null_props, $self->pmap->{$_};
@@ -310,11 +351,12 @@ sub put_attr_q {
       unless ($val->neoid) {
         LOGDIE ref($self)."::put_attr_q : arg 3,... must all be mapped objects (all must have 'neoid' set)";
       }
-      my $q = cypher->match('n:'.$self->label)
-        ->where({'id(n)' => $obj->neoid })
-        ->with('n')
-        ->merge(ptn->N('n')->R($reln)->N('a:'.$end_label)) # expect <:> in $reln
-        ->where({'id(a)' => $val->neoid})
+      my $q = cypher->match(
+        ptn->C(ptn->N('n:'.$self->label), ptn->N('a:'.$end_label))
+       )
+        ->where({'id(n)' => $obj->neoid,
+                 'id(a)' => $val->neoid})
+        ->merge(ptn->N('n')->R($reln)->N('a'))
         ->return('id(a)');
       push @stmts, $q;
       last unless $many;
@@ -350,7 +392,7 @@ sub rm_q {
 
 # rm object, collection attributes - delete relationships only, leave end nodes
 # intact
-# use rm_q to remove end nodes explicitly in 
+# use rm_q to remove end nodes explicitly in database
 sub rm_attr_q {
   my $self = shift;
   my ($obj,$att, @values) = @_;
