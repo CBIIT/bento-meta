@@ -17,5 +17,22 @@ sub new {
   },$init);
   return $self;
 }
-             
+
+sub map_defn {
+  return {
+    label => 'node',
+    simple => [
+      [handle => 'handle'],
+      [model => 'model'],
+     ],
+    object => [
+      [concept => ':has_concept>',
+       'Bento::Meta::Model::Concept' => 'concept']
+     ],
+    collection => [
+      [props => ':has_property',
+       'Bento::Meta::Model::Property' => 'property']
+     ]
+   };
+}
 1;

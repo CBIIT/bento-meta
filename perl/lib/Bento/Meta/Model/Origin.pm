@@ -16,5 +16,21 @@ sub new {
   return $self;
 }
 
+sub map_defn {
+  return {
+    label => 'origin',
+    simple => [
+      [ name => 'name'],
+      [ url => 'url'],
+      [ is_external => 'is_external'],
+     ],
+    object => [
+     ],
+    collection => [
+      [ 'entities' => ':>',
+        'Bento::Meta::Model::Entity' => '' ]
+     ]
+   };
+}
 
 1;

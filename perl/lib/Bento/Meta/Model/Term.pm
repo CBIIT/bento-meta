@@ -13,9 +13,24 @@ sub new {
     _origin_definition => undef,
     _concept => \undef, # term has_concept concept
   }, $init);
-  
   return $self;
-
 }
 
+sub map_defn {
+  return {
+    label => 'term',
+    simple => [
+      [id => 'id'],
+      [value => 'value'],
+      [origin_id => 'origin_id'],
+      [origin_definition => 'origin_definition'],
+     ],
+    object => [
+      [ 'concept' => '<:represents',
+        'Bento::Meta::Model::Concept' => 'concept' ],
+     ],
+    collection => [
+     ]
+   };
+}
 1;

@@ -50,11 +50,11 @@ sub object_map {
   unless (!ref $class) {
     LOGDIE __PACKAGE__."::object_map : class method only";
   }
-  my ($map) = @_;
+  my ($map, $bolt_cxn) = @_;
   my $omap = eval "\$${class}::OBJECT_MAP;";
   return $omap if defined $omap;
 
-  $omap = Bento::Meta::Model::ObjectMap->new($class, $map->{label});
+  $omap = Bento::Meta::Model::ObjectMap->new($class, $map->{label}, $bolt_cxn);
   for (@{$map->{simple}}) {
     $omap->map_simple_attr(@$_);
   }
@@ -191,7 +191,7 @@ sub neoid { shift->{pvt}{_neoid} }
 sub set_neoid { $_[0]->{pvt}{_neoid} = $_[1] }
 sub dirty { shift->{pvt}{_dirty} }
 sub set_dirty { $_[0]->{pvt}{_dirty} = $_[1] }
-
+sub map_defn { LOGWARN ref(shift)."::map_defn - subclass method; not defined for base class"; return; }
 
 sub set_with_node {
   my $self = shift;
@@ -280,6 +280,9 @@ The base class Entity has the following private attributes
 
 =head1 METHODS
 
+
+=head2 Class Methods
+
 =over
 
 =item new($attr_hash, $init_hash)
@@ -287,6 +290,68 @@ The base class Entity has the following private attributes
 $attr_hash configures the object's declared attributes. $init_hash
 initializes the attributes' values. $init_hash can be a plain hashref
 or a L<Neo4j::Bolt::Node>.
+
+=item object_map($map_definition_hashref, $bolt_cxn), object_map() - getter
+
+Create and attach an L<Bento::Meta::Model::ObjectMap> to the C<Entity> subclass.
+The ObjectMap defines the associations from the object class and 
+attributes to the Neo4j graph model, as well as the connection to the graph
+database. When the ObjectMap is defined, instances receive the L</get()>,
+L</put()>, L<add_E<lt>attrE<gt>>, and L<drop_E<lt>attrE<gt>> methods for
+maintaining consistency between objects and nodes in the graph.
+
+For a given subclass of C<Entity>, the map definition hash provides the 
+corresponding label for its mapped Neo4j node, the mappings of simple scalar
+attributes to mapped node properties, object-valued attributes to the mapped 
+Neo4j relationship and target node, and collection-valued attributes to their
+mapped relationship and target nodes. Example:
+
+ my $omap = "Bento::Meta::Model::Node"->object_map(
+    {
+      label => 'node',
+      simple => [
+        [model => 'model'],
+        [handle => 'handle']
+       ],
+      object => [
+        [ 'concept' => ':has_concept>',
+          'Bento::Meta::Model::Concept' => 'concept' ],
+       ],
+      collection => [
+        [ 'props' => ':has_property>',
+          'Bento::Meta::Model::Property' => 'property' ],
+       ]
+     },
+     $bolt_cxn
+   );
+
+Note that each individual attribute map is an arrayref with a single element,
+and that these are wrapped in another arrayref which is assigned to the 
+relevant hash key.
+
+The simple-valued attribute maps have this form:
+
+ [ <attribute_name> => <neo4j_property_name> ]
+
+The object-valued attribute maps have this form:
+
+ [ <attribute_name> => <neo4j_relationship_type>,
+   <target_attribute_classname> => <neo4j_target_node_label> ]
+
+The directionality of the relationship is given using an angle bracket, 
+as in L<Neo4j::Cypher::Abstract>. The direction is given relative to the the 
+subclass.
+
+The database connection of the map can set in the setter or on the map object:
+
+ $cxn = Neo4j::Bolt->connect("bolt://localhost:7687");
+ $omap->bolt_cxn($cxn);
+
+=back
+
+=head2 Instance Methods
+
+=over
 
 =item make_uuid()
 
@@ -309,6 +374,32 @@ Return type of the attribute $attr.
 
 Set all simple scalar attributes according to values in 
 $neo4j_bolt_node-E<gt>{properties}.
+
+=item map_defn()
+
+This should be defined in the subclasses. It should return a map definition 
+hashref for the subclass as described above in L</object_map>.
+
+=back
+
+=head2 Database interaction methods
+
+When the subclass has been instrumented with an L<Bento::Meta::Model::ObjectMap>,
+the following methods are available on any instance.
+
+=over
+
+=item get()
+
+=item put()
+
+=item rm()
+
+=item add_<attr>()
+
+=item drop_<attr>()
+
+=back
 
 =head1 AUTHOR
 

@@ -11,7 +11,6 @@ sub new {
     _model => undef,
     _value_domain => undef,
     _units => undef,
-    _type => undef,
     _pattern => undef, 
     _value_set => \undef, # prop has_value_set value_set
     _entities => [], # entity | entity has_property prop
@@ -20,6 +19,28 @@ sub new {
     _propdef => {}
    }, $init );
   return $self;
+}
+
+sub map_defn {
+  return {
+    label => 'property',
+    simple => [
+      [handle => 'handle'],
+      [model => 'model'],
+      [value_domain => 'value_domain'],
+      [is_required => 'is_required'],
+      [units => 'units'],
+      [pattern => 'pattern'],
+     ],
+    object => [
+      [ 'value_set' => ':has_value_set>',
+        'Bento::Meta::Model::ValueSet' => 'value_set' ],
+     ],
+    collection => [
+      [ 'entities' => '<:',
+        'Bento::Meta::Model::Entity' => ''],
+      ]
+   };
 }
 
 sub type { shift->{_value_domain} } # alias

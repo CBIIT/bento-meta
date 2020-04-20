@@ -12,10 +12,27 @@ sub new {
     _url => undef,
     _terms => {}, # term | value_set has_term term (key: term.value)
     _prop => \undef, # prop | prop has_value_set value_set
-    
   },$init);
   return $self;
 }
 
+sub map_defn {
+  return {
+    label => 'value_set',
+    simple => [
+      [handle => 'handle'],
+      [id => 'id'],
+      [url => 'url'],
+     ],
+    object => [
+      [ prop => '<:has_value_set',
+        'Bento::Meta::Model::Property' => 'property' ],
+     ],
+    collection => [
+      [ terms => ':has_term>',
+        'Bento::Meta::Model::Term' => 'term' ]
+     ]
+   };
+}
 
 1;

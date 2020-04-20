@@ -32,6 +32,31 @@ sub triplet {
                              $self->dst->handle));
 }
 
+sub map_defn {
+  return {
+    label => 'relationship',
+    simple => [
+      [handle => 'handle'],
+      [model => 'model'],
+      [type => 'neo_type'],
+      [multiplicity => 'multiplicity'],
+      [is_required => 'is_required'],
+     ],
+    object => [
+      [ src => ':has_src>',
+        'Bento::Meta::Model::Node' => 'node' ],
+      [ dst => ':has_dst>',
+        'Bento::Meta::Model::Node' => 'node' ],
+      [ concept => ':has_concept>',
+        'Bento::Meta::Model::Concept' => 'concept']
+     ],
+    collection => [
+      [ props => ':has_property>',
+        'Bento::Meta::Model::Property' => 'property' ],
+     ]
+   };
+}
+
 =head1 NAME
 
 Bento::Meta::Model::Edge - object that models an egde or relationship
