@@ -26,7 +26,7 @@ sub new {
 
   if (defined $init) {
     unless (ref($init) =~ /^HASH|Neo4j::Bolt::Node$/) {
-      LOGDIE "$class::new - arg1 must be a Neo4j::Bolt::Node or hashref of initial attr values";
+      LOGDIE "${class}::new - arg1 must be a Neo4j::Bolt::Node or hashref of initial attr values";
     }
     $init = $init->{properties} if ref($init) eq 'Neo4j::Bolt::Node';
     for my $k (keys %$init) {
@@ -35,7 +35,7 @@ sub new {
         $self->$set($init->{$k});
       }
       else {
-        LOGWARN "$class::new() - attribute '$k' in init not declared in object";
+        LOGWARN "${class}::new() - attribute '$k' in init not declared in object";
         $self->{"_$k"} = $init->{$k};
       }
     }
@@ -51,9 +51,10 @@ sub object_map {
     LOGDIE __PACKAGE__."::object_map : class method only";
   }
   my ($map) = @_;
-  return if eval "\$${class}::OBJECT_MAP;";
+  my $omap = eval "\$${class}::OBJECT_MAP;";
+  return $omap if defined $omap;
 
-  my $omap = Bento::Meta::Model::ObjectMap->new($class, $map->{label});
+  $omap = Bento::Meta::Model::ObjectMap->new($class, $map->{label});
   for (@{$map->{simple}}) {
     $omap->map_simple_attr(@$_);
   }
@@ -69,7 +70,10 @@ sub object_map {
   eval qq|
  *${class}::get = sub { \$${class}::OBJECT_MAP->get( shift, \@_ ) };
  *${class}::put = sub { \$${class}::OBJECT_MAP->put( shift, \@_ ) };
+ *${class}::rm = sub { \$${class}::OBJECT_MAP->rm( shift, \@_ ) };
  *${class}::put_q = sub { \$${class}::OBJECT_MAP->put_q( shift, \@_ ) };
+ *${class}::add = sub { \$${class}::OBJECT_MAP->add( shift, \@_ ) };
+ *${class}::drop = sub { \$${class}::OBJECT_MAP->drop( shift, \@_ ) };
 |;
   return $omap;
 }
@@ -79,12 +83,21 @@ sub make_uuid { create_uuid_as_string(UUID_V4) };
 
 sub AUTOLOAD {
   my $self = shift;
+  my $class = ref $self;
   my @args = @_;
   my $method = $AUTOLOAD =~ s/.*:://r;
-  my $set = $method =~ s/^set_//;
+  my ($action) = $method =~ /^([^_]+)_/;
+  if ($action) {
+    if (grep /^$action$/, qw/set add drop/) {
+      $method =~ s/^${action}_//;
+    }
+    else {
+      undef $action;
+    }
+  }
   if (grep /^$method$/, @{$self->{_declared}}) {
     my $att = $self->{"_$method"};
-    if (!$set) { # getter
+    if (!$action) { # getter
       for (ref $att) {
         /^ARRAY$/ && do {
           return @$att;
@@ -105,7 +118,7 @@ sub AUTOLOAD {
         };
       }
     }
-    else { #setter
+    elsif ($action eq 'set') { #setter
       return unless @args;
       for (ref $att) {
         /^ARRAY$/ && do {
@@ -145,6 +158,25 @@ sub AUTOLOAD {
           }
         };
       }
+    }
+    elsif ($action eq 'add') {
+      return unless $class->object_map;
+      unless ($self->atype($method) =~ /ARRAY|HASH/) {
+        LOGWARN ref($self)."::add_$method - add action not relevant for this attribute";
+        return;
+      }
+      return $self->add($method, $args[0]);
+    }
+    elsif ($action eq 'drop') {
+      return unless $class->object_map;
+      unless ($self->atype($method) =~ /ARRAY|HASH/) {
+        LOGWARN ref($self)."::drop_$method - drop action not relevant for this attribute";
+        return;
+      }
+      return $self->drop($method, $args[0]);
+    }
+    else {
+      LOGDIE "Method action '$action' unknown for ".ref($self);
     }
   }
   else {

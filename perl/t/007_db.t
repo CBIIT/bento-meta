@@ -4,11 +4,13 @@ use Test::Exception;
 use IPC::Run qw/run/;
 use Neo4j::Bolt;
 use lib '../lib';
+use Log::Log4perl qw/:easy/;
 use Bento::Meta::Model::ObjectMap;
 use Bento::Meta::Model::Node;
 use Bento::Meta::Model::ValueSet;
 use Bento::Meta::Model::Term;
 
+Log::Log4perl->easy_init($FATAL);
 my $ctr_name = "test$$";
 my $img = 'maj1/test-db-bento-meta';
 
@@ -58,6 +60,8 @@ SKIP : {
   isa_ok $Bento::Meta::Model::Node::OBJECT_MAP,'Bento::Meta::Model::ObjectMap';
   my $res;
   is $omap, $Bento::Meta::Model::Node::OBJECT_MAP, "pointer same";
+
+  diag "test get()";
   ok $res = $cxn->run_query('match (a:node) return id(a) limit 1');
   ok my ($n_id) = $res->fetch_next;
   my $node = Bento::Meta::Model::Node->new();
@@ -71,6 +75,8 @@ SKIP : {
   is $node->props('site_short_name')->dirty, -1, "prop dirty with -1";
   is $node->props('site_short_name')->model, "ICDC", "attr of prop";
 
+    
+  diag "test put()";
   ok "Bento::Meta::Model::ValueSet"->object_map(
     {
       label => 'value_set',
@@ -112,7 +118,7 @@ SKIP : {
   }
   $vset->set_terms(\%terms);
   is $vset->terms('quilm')->value, 'quilm', "a term";
-  $DB::single=1;
+
   $vset->put;
   ok $vset->neoid, "vset neoid set";
   for (values %terms) {
@@ -127,6 +133,61 @@ SKIP : {
     push @terms, $t->{properties}{value};
   }
   is_deeply [sort @terms], [sort qw/ quilm ferb narquit /], 'terms in db';
+  
+  diag "test rm()";
+  ok my $rm_term = $vset->set_terms(quilm => undef), 'delete term from value_set object';
+  @terms = $vset->terms;
+  is scalar @terms, 2, "deleted";
+  warning_like { $rm_term->rm } qr/server error: Cannot delete/, "warn - try to rm, but reln still present";
+  ok $res = $cxn->run_query( "match (t:term {value:'quilm'}) return id(t)" );
+  ok my ($t_id) = $res->fetch_next;
+  is $rm_term->neoid, $t_id, "term still in db";
+  ok $rm_term->rm(1), "force rm";
+  ok $res = $cxn->run_query( "match (t:term {value:'quilm'}) return id(t)" );
+  ok !$res->fetch_next, "now term gone from db";
+
+  diag "test add(), drop()";
+  ok my $new_term = Bento::Meta::Model::Term->new({ value => 'belpit' }), 'make new term';
+  ok $new_term->put, 'put into db';
+  ok $vset->add('terms', $new_term), "connect term to vset in db";
+  @terms = $vset->terms;
+  is scalar @terms, 2, "vset obj still has just 2 terms";
+  ok $vset->get, "now get() vset from db";
+  @terms = $vset->terms;
+  is scalar @terms, 3, "now vset has 3 terms";
+  ok $vset->terms('belpit'), "there it is";
+
+  ok my $old_term = $vset->terms('ferb'), "get existing term";
+  ok $res = $cxn->run_query("match (t:term {value:'ferb'})<-[r]-(v:value_set) return r"), "find reln in db";
+  ok my ($r) = $res->fetch_next;
+  isa_ok($r, 'Neo4j::Bolt::Relationship');
+  ok $vset->drop('terms', $old_term), "disconnect it";
+  ok $res = $cxn->run_query("match (t:term {value:'ferb'})<-[r]-(v:value_set) return r"), "try to find reln in db";
+  ok !$res->fetch_next, "it's gone";
+  ok $res = $cxn->run_query("match (t:term {value:'ferb'}) return t"), "try to find term in db";
+  ok (($r) = $res->fetch_next, "it's still there");
+  isa_ok($r, 'Neo4j::Bolt::Node');
+  @terms = $vset->terms;
+  is scalar @terms, 3, "vset still has 3 terms";
+  ok $vset->get, "get() vset";
+  @terms = $vset->terms;
+  is scalar @terms, 2, "vset now has 2 terms";
+  is_deeply [ sort map {$_->value} @terms ], [ qw/belpit narquit/ ], "and they're the right ones";
+
+  ok $old_term = $vset->set_terms('belpit' => undef), "delete another term on object";
+  ok $vset->drop_terms($old_term), "now use drop_terms to remove link in db";
+  ok $vset->get, "update from db";
+  @terms = $vset->terms;
+  is scalar @terms, 1, 'only one term left';
+  $new_term = Bento::Meta::Model::Term->new({value => 'goob'});
+  ok $vset->set_terms('goob' => $new_term);
+  ok $new_term->put;
+  ok $vset->add_terms($new_term);
+  ok $vset->get;
+  @terms = $vset->terms;
+  is scalar @terms, 2, 'add_terms added a term';
+  
+  
   
 }
 

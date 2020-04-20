@@ -136,10 +136,17 @@ sub get {
         #this is a kludge - better would be a way to configure
         #a hash attribute to indicate which scalar attr of the value object
         #should be the hash key
+        my @cur_k = keys %{$obj->$attr};
+        my %cur_k;
+        @cur_k{@cur_k} = @cur_k;
         for my $o (@values) {
           my ($k) = grep /^handle|value$/, $o->attrs;
+          delete $cur_k{$o->$k};
           LOGWARN("Hash attribute key not found on object") unless $k;
           $obj->$set( $o->$k => $o );
+        }
+        for (values %cur_k) { # keys on current obj with no value in db
+          $obj->$set( $_ => undef ); 
         }
         last;
       };
@@ -173,6 +180,7 @@ sub put {
   for my $attr ($self->relationship_attrs) {
     my @values = $obj->$attr;
     for my $v (@values) {
+      next unless defined $v;
       unless ($v->neoid) { # create unmapped subordinate nodes
         @stmts = $v->put_q;
         for my $q (@stmts) {
@@ -185,7 +193,6 @@ sub put {
         $v->set_dirty(-1);
       }
     }
-    $DB::single=1;
     @stmts = $self->put_attr_q($obj, $attr => @values);
     for my $q (@stmts) {
       $rows = $self->bolt_cxn->run_query($q);
@@ -199,8 +206,71 @@ sub put {
 
 sub rm {
   my $self = shift;
-  my ($obj, $attr) = @_;
+  my ($obj, $force) = @_;
+  unless ($self->bolt_cxn) {
+    LOGWARN ref($self)."::rm - ObjectMap has no db connection set";
+    return;
+  }
+  unless ($obj->neoid) {
+    LOGWARN ref($self)."::rm - Can't remove an unmapped object";
+    return;
+  }
+  if ($force) {
+    INFO "Force (detach) delete on obj ".$obj->neoid;
+  }
+  my $rows = $self->bolt_cxn->run_query(
+    $self->rm_q( $obj, $force )
+   );
+  my ($n_id) = $rows->fetch_next; # this fetch doesn't fail when the node
+  # still has relationships, but the node isn't deleted either
+  # second fetch fails correctly
+  $rows->fetch_next;
+  return _fail_query($rows) if ($rows->failure == 1);
+  unless ($n_id) {
+    LOGWARN ref($self)."::rm - corresponding db node not found";
+    return;
+  }
+  return $n_id;
 }
+
+sub add {
+  my $self = shift;
+  my ($obj, $attr, $tgt) = @_;
+  unless ($self->bolt_cxn) {
+    LOGWARN ref($self)."::add - ObjectMap has no db connection set";
+    return;
+  }
+  my $rows = $self->bolt_cxn->run_query(
+    $self->put_attr_q( $obj, $attr, $tgt )
+   );
+  return _fail_query($rows) if ($rows->failure);
+  my ($tgt_id) = $rows->fetch_next;
+  unless ($tgt_id) {
+    LOGWARN ref($self)."::add - corresponding target db node not found";
+    return;
+  }
+  return $tgt_id;
+}
+
+sub drop {
+  my $self = shift;
+  my ($obj, $attr, $tgt) = @_;
+  unless ($self->bolt_cxn) {
+    LOGWARN ref($self)."::drop - ObjectMap has no db connection set";
+    return;
+  }
+  my $rows = $self->bolt_cxn->run_query(
+    $self->rm_attr_q( $obj, $attr, $tgt )
+   );
+  return _fail_query($rows) if ($rows->failure);
+  my ($tgt_id) = $rows->fetch_next;
+  unless ($tgt_id) {
+    LOGWARN ref($self)."::drop - corresponding target db node not found";
+    return;
+  }
+  return $tgt_id;
+}
+
 
 sub _fail_query {
   my ($stream) = @_;
@@ -345,6 +415,7 @@ sub put_attr_q {
     my ($reln, $end_label, $many) = @{$self->rmap->{$att}}{qw/rel lbl many/};
     my @stmts;
     for my $val (@values) {
+      next unless defined $val;
       unless (blessed $val && $val->isa('Bento::Meta::Model::Entity')) {
         LOGDIE ref($self)."::put_attr_q : arg 3,... must all be Entity objects";
       }
@@ -420,6 +491,7 @@ sub rm_attr_q {
         ->return('id(v)');
     }
     for my $val (@values) {
+      next unless defined $val;
       unless (blessed $val && $val->isa('Bento::Meta::Model::Entity')) {
         LOGDIE ref($self)."::put_attr_q : arg 3,... must all be Entity objects";
       }
@@ -501,6 +573,18 @@ Get or set bolt_cxn for this map ($map->bolt_cxn($cxn) to set).
 
 =item map_collection_attr($object_attribute => $neo4j_node_property, $fully_qualified_end_object_class => $end_neo4j_node_label)
 
+=item get($obj)
+
+=item put($obj)
+
+=item rm($obj)
+
+=back
+
+=head2 Cypher generation methods
+
+=over
+
 =item get_q($object)
 
 If $object is mapped, query for the node having the object's Neo4j id.
@@ -554,7 +638,13 @@ participates.
 
 =item rm_attr_q($object, $object_attribute => @values)
 
-
+The $object must be mapped (have a Neo4j id). If $object_attribute is a
+simple-valued (property-mapped) attribute, the query will remove that 
+property from the mapped node. If $object_attribute is an object-valued
+(relationship-mapped) attribute, then the query will remove the _relationship
+only_ between the node corresponding to $object and the nodes corresponding to 
+@values. This query does not remove nodes themselves from the database; 
+use C<rm_q()> to get queries for that purpose.
 
 =back
 
