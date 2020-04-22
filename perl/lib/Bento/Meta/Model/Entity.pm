@@ -28,7 +28,8 @@ sub new {
     unless (ref($init) =~ /^HASH|Neo4j::Bolt::Node$/) {
       LOGDIE "${class}::new - arg1 must be a Neo4j::Bolt::Node or hashref of initial attr values";
     }
-    $init = $init->{properties} if ref($init) eq 'Neo4j::Bolt::Node';
+    return $self->set_with_node($init) if (ref($init) eq 'Neo4j::Bolt::Node');
+    # else, a plain hashref
     for my $k (keys %$init) {
       if (grep /^$k$/, @declared_atts) {
         my $set = "set_$k";
@@ -205,6 +206,7 @@ sub set_with_node {
     my $set = "set_$_";
     $self->$set($node->{properties}{$_});
   }
+  $self->set_neoid($node->{id});
   return $self;
 }
 

@@ -86,14 +86,26 @@ sub map_collection_attr {
 # :  - related objects are created and their simple attrs are set,
 # :  - but their object- and collection-valued attrs are not loaded
 # :  - this status is indicated by their dirty attr == -1
+# get will pull from cache unless obj is partially loaded, or
+# refresh is requested (arg == true)
 
 sub get {
   my $self = shift;
-  my ($obj) = @_;
+  my ($obj, $refresh) = @_;
   unless ($self->bolt_cxn) {
     LOGWARN ref($self)."::get - ObjectMap has no db connection set";
     return;
   }
+  my $c = $Cache{$obj->neoid};
+  $refresh = 1 if $c && ($c->dirty < 0); # cached obj is only partially pulled
+  if ($c && !$refresh) { # return (poss. shallow copy of) cached object
+    return $obj if ($c == $obj);
+    for (keys %{$obj}) {
+      $obj->{$_} = $c->{$_};
+    }
+    return $obj;
+  }
+  # fully pull obj
   my $rows = $self->bolt_cxn->run_query(
     $self->get_q( $obj )
    );
@@ -108,8 +120,8 @@ sub get {
     LOGDIE ref($self)."::get : unable to load class $cls: $@";
   }  
   $obj->set_with_node($n);
-  $obj->set_neoid($n_id);
-
+  # $obj->set_neoid($n_id);
+  $Cache{$obj->neoid} = $obj;
   for my $attr ($self->relationship_attrs) {
     $rows = $self->bolt_cxn->run_query(
       $self->get_attr_q( $obj => $attr)
@@ -121,9 +133,12 @@ sub get {
       LOGDIE ref($self)."::get : unable to load class $cls: $@";
     }  
     while ( my ($a,$a_id) = $rows->fetch_next ) {
-      my $o = $cls->new($a);
-      $o->set_dirty(-1); # means this object has not got its object-valued attrs yet
-      $o->set_neoid($a_id);
+      my $o = $Cache{$a->{id}};
+      unless ($o) {
+        $o = $cls->new($a);
+        $o->set_dirty(-1); # means this object has not got its object-valued attrs yet
+        $Cache{$o->neoid} = $o;
+      }
       push @values, $o;
     }
     my $set = "set_$attr";
@@ -155,7 +170,7 @@ sub get {
       };
     }
   }
-  $obj->set_dirty(0);
+  $obj->set_dirty(0); # this object up to date with db
   return $obj;
 }
 
@@ -165,7 +180,7 @@ sub put {
   my $self = shift;
   my ($obj) = @_;
   unless ($self->bolt_cxn) {
-    LOGWARN ref($self)."::get - ObjectMap has no db connection set";
+    LOGWARN ref($self)."::put - ObjectMap has no db connection set";
     return;
   }
   my @stmts = $self->put_q($obj);
@@ -190,6 +205,7 @@ sub put {
         my ($v_id) = $rows->fetch_next;
         LOGWARN "No neo4j id retrieved" unless ($v_id);
         $v->set_neoid($v_id);
+        $Cache{$v->neoid} = $v; # cache it
         $v->set_dirty(-1);
       }
     }
@@ -199,7 +215,7 @@ sub put {
       return _fail_query($rows) if ($rows->failure);
     }
   }
-  
+  $Cache{$obj->neoid} = $obj; # cache it.
   $obj->set_dirty(0);
   return $obj;
 }

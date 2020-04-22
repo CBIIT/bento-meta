@@ -10,6 +10,7 @@ use Bento::Meta::Model::ValueSet;
 use Bento::Meta::Model::Origin;
 use Bento::Meta::Model::Concept;
 use Bento::Meta::Model::Term;
+use Neo4j::Cypher::Abstract qw/cypher ptn/;
 use Carp qw/croak/;
 use Log::Log4perl qw/:easy/;
 use strict;
@@ -17,7 +18,7 @@ use strict;
 # new($handle)
 sub new {
   my $class = shift;
-  my ($handle) = @_;
+  my ($handle, $bolt_cxn) = @_;
   unless ($handle) {
     LOGDIE "Model::new() requires handle as arg1";
   }
@@ -28,8 +29,102 @@ sub new {
     _edges => {},
     _props => {},
     _edge_table => {},
-   });
+  });
+  if ($bolt_cxn) { # create object maps
+    unless (ref($bolt_cxn) eq 'Neo4j::Bolt::Cxn') {
+      LOGDIE ref($self)."::new : arg2 must be a Neo4j::Bolt::Cxn";
+    }
+    $self->{_bolt_cxn} = $bolt_cxn;
+    $self->build_maps;
+  }
   return $self;
+}
+
+sub bolt_cxn { shift->{_bolt_cxn} }
+
+sub build_maps {
+  my $self = shift;
+  for (qw/ Node Edge Property ValueSet Origin Concept Term /) {
+    my $cls = "Bento::Meta::Model::$_";
+    INFO "create $cls object map";
+    $cls->object_map($cls->map_defn, $self->bolt_cxn);
+  }
+  return 1;
+}
+
+# retrieve named model from db
+# get all the nodes, relationships and properties
+sub get {
+  my $self = shift;
+  unless ($self->bolt_cxn) {
+    LOGWARN ref($self)."::get : Can't get model; no database connection set";
+    return;
+  }
+  my $qry = cypher->match('n')
+    ->where( { 'n.model' => $self->handle } )
+    ->return('n');
+  my $rows = $self->bolt_cxn->run_query($qry);
+  return _fail_query($rows) if ($rows->failure);
+  my (@n,@e,@p);
+  while ( my ($n) = $rows->fetch_next ) {
+    for ($n->{labels}) {
+      grep(/^node$/,@$_) && do {
+        my $a = Bento::Meta::Model::Node->new($n);
+        $a->set_dirty(0);
+        push @n, $a;
+        last;
+      };
+      grep(/^relationship$/,@$_) && do {
+        my $a = Bento::Meta::Model::Edge->new($n);
+        $a->set_dirty(0);
+        push @e, $a;
+        last;
+      };
+      grep(/^property$/,@$_) && do {
+        my $a = Bento::Meta::Model::Property->new($n);
+        $a->set_dirty(0);
+        push @p, $a;
+        last;
+      };
+      LOGWARN ref($self)."::get : unhandled node type of ".join('/',@$_);
+    }
+  }
+  unless (@n) {
+    LOGWARN ref($self)."::get : no nodes returned for model '".$self->handle."'";
+  }
+  # now get() each node, which should load the object properties and
+  # create the cache...
+  $_->get() for (@n,@e,@p);
+  ($self->{_nodes}{$_->handle} = $_) for @n;
+  for (@e) {
+    $self->{_edges}{$_->triplet} = $_;
+    my ($t,$s,$d) = split /[:]/,$_->triplet;
+    $self->{_edge_table}{$t}{$s}{$d} = $_;
+  }
+  for (@p) {
+    for my $e ($_->entities) {
+      my $pfx = (ref($e) =~ /Node$/ ? $e->handle :
+                 $e->triplet);
+      $self->{_props}{join(':',$pfx,$_->handle)} = $_;
+    }
+  }
+  
+  return $self;
+}
+
+sub _fail_query {
+  my ($stream) = @_;
+  my @c = caller(1);
+  if ($stream->server_errmsg) {
+    LOGWARN $c[3]." : server error: ".$stream->server_errmsg;
+  }
+  elsif ($stream->client_errmsg) {
+    LOGWARN $c[3]."::get : client error: ".$stream->client_errmsg;
+  }
+  else {
+    LOGWARN $c[3]."::get : unknown database-related error";
+  }
+  return
 }
 
 # create/delete API
@@ -39,7 +134,7 @@ sub new {
 sub add_node {
   my $self = shift;
   my ($init) = shift;
-  if (ref($init) eq 'HASH') {
+  if (ref($init) =~ /^HASH|Neo4j::Bolt::Node$/) {
     $init = Bento::Meta::Model::Node->new($init);
   }
   unless ($init->handle) {
@@ -53,7 +148,7 @@ sub add_node {
     LOGWARN ref($self)."::add_node : model handle is '".$self->handle."', but node.model is '".$init->model."'";
   }
   for my $p ($init->props) { # add any props on this node to the model list
-    $p->set_parent_handle($init->handle);
+    $p->set_entities($init->handle => $init);
     $p->set_model($self->handle);
     $self->set_props(join(':',$init->handle,$p->handle) => $p);
   }
@@ -92,7 +187,7 @@ sub add_edge {
   }
   $etbl->{$hdl}{$src}{$dst} = $init;
   for my $p ($init->props) { # add any props on this edge to the model list
-    $p->set_parent_handle($init->triplet);
+    $p->set_entities($init->triplet => $init);
     $p->set_model($self->handle);
     $self->set_props(join(':',$init->triplet,$p->handle) => $p);
   }
@@ -130,7 +225,7 @@ sub add_prop {
   }
   $init->set_model($self->handle) if (!$init->model);
   my $pfx = $ent->can('triplet') ? $ent->triplet : $ent->handle;
-  $init->set_parent_handle($pfx); # "whom do I belong to?"
+  $init->set_entities($pfx => $ent); # "whom do I belong to?"
   if ( $self->prop(join(':',$pfx,$init->handle)) ) {
     LOGWARN ref($self)."::add_prop - overwriting existing prop '".join(':',$pfx,$init->handle)."'";
   }
@@ -210,7 +305,7 @@ sub rm_node {
     # note, this only removes from the model list --
     # the prop list for the node itself is not affected
     # (i.e., the props remain attached to the deleted node)
-    $self->set_props(join(':',$p->parent_handle,$p->handle) => undef);
+    $self->set_props(join(':',$node->handle,$p->handle) => undef);
   }
   return $self->set_nodes( $node->handle => undef );
 }
@@ -234,7 +329,7 @@ sub rm_edge {
     # note, this only removes props from the model list --
     # the prop list for the edge itself is not affected
     # (i.e., the props remain attached to the deleted edge)
-    $self->set_props(join(':',$p->parent_handle,$p->handle) => undef);
+    $self->set_props(join(':',$edge->triplet,$p->handle) => undef);
   }
   my ($hdl,$src,$dst) = split /:/, $edge->triplet;
   delete $self->{_edge_table}{$hdl}{$src}{$dst};
@@ -255,16 +350,17 @@ sub rm_prop {
     LOGWARN ref($self)."::rm_prop : property '".$prop->handle."' not contained in model '".$self->handle."'";
     return;
   }
-  # following is sort of a kludge - depends on the $prop->parent_handle
-  # to determine the affected entity. Faster than searching all props over
-  # all entities to find the affected entity.
-  if ($prop->parent_handle =~ /:/) { # an edge prop
-    $self->edge($prop->parent_handle)->set_props( $prop->handle => undef );
+  for my $e ($prop->entities) {
+    if (ref($e) =~ /Edge$/) { # an edge prop
+      $e->set_props( $prop->handle => undef );
+      $self->prop( join(':',$e->triplet,$prop->handle) => undef );
+    }
+    elsif (ref($e) =~ /Node$/) { # a node prop
+      $e->set_props( $prop->handle => undef );
+      $self->prop( join(':',$e->handle,$prop->handle) => undef );
+    }
   }
-  else { # a node prop
-    $self->node($prop->parent_handle)->set_props( $prop->handle => undef );
-  }
-  return $self->prop( join(':',$prop->parent_handle,$prop->handle) => undef );
+  return $prop; 
 }
 
 # contains($entity) - true if entity object appears in model
@@ -444,9 +540,7 @@ $model = Bento::Meta::Model->new();
 
 =item $prop = $model->prop($name)
 
-=item $edge_type = $model->edge_type($type)
-
-=item @edge_types = $model->edge_types()
+=item $edge = $model->edge($triplet)
 
 =item @edges = $model->edges_in($node)
 
