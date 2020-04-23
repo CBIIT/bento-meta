@@ -37,7 +37,8 @@ sub map_defn {
      ],
     collection => [
       [ 'entities' => '<:',
-        'Bento::Meta::Model::Entity' => ''],
+        ['Bento::Meta::Model::Node',
+         'Bento::Meta::Model::Edge'] => ''],
       ]
    };
 }

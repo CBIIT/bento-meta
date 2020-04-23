@@ -1,6 +1,7 @@
 package Bento::Meta::Model::Entity;
 use Bento::Meta::Model::ObjectMap;
 use UUID::Tiny qw/:std/;
+use Scalar::Util qw/blessed/;
 use Log::Log4perl qw/:easy/;
 
 use strict;
@@ -105,6 +106,10 @@ sub AUTOLOAD {
         };
         /^HASH$/ && do {
           if ($args[0]) {
+            if (blessed $att->{$args[0]} and
+                  $att->{$args[0]}->dirty < 0) {
+              $att->{$args[0]}->get;
+            }
             return $att->{$args[0]};
           }
           else {
@@ -115,6 +120,7 @@ sub AUTOLOAD {
           return $$att; # this picks up \undef (unset object property) and returns false
         };
         do {
+          $att->get if (blessed $att and $att->dirty < 0);
           return $att;
         };
       }
@@ -192,8 +198,7 @@ sub neoid { shift->{pvt}{_neoid} }
 sub set_neoid { $_[0]->{pvt}{_neoid} = $_[1] }
 sub dirty { shift->{pvt}{_dirty} }
 sub set_dirty { $_[0]->{pvt}{_dirty} = $_[1] }
-sub map_defn { LOGWARN ref(shift)."::map_defn - subclass method; not defined for base class"; return; }
-
+sub map_defn { LOGWARN ref(shift)."::map_defn - subclass method; not defined for base class"; return; }1;
 sub set_with_node {
   my $self = shift;
   my ($node) = @_;
@@ -209,6 +214,11 @@ sub set_with_node {
   $self->set_neoid($node->{id});
   return $self;
 }
+
+# these are replaced by working methods when an object map is set
+sub get { return }
+sub put { return }
+sub rm { return }
 
 sub DESTROY {
   my $self = shift;
@@ -391,7 +401,7 @@ the following methods are available on any instance.
 
 =over
 
-=item get()
+=item get(), get($refresh)
 
 =item put()
 

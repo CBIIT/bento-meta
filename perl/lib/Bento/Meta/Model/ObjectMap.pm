@@ -129,13 +129,30 @@ sub get {
     return _fail_query($rows) if ($rows->failure);
     my @values;
     $cls = $self->rmap->{$attr}{cls};
-    unless (eval "require $cls;1") {
-      LOGDIE ref($self)."::get : unable to load class $cls: $@";
-    }  
+    if (!ref($cls)) {
+      unless (eval "require $cls;1") {
+        LOGDIE ref($self)."::get : unable to load class $cls: $@";
+      }
+    }
+    else {
+      for my $c (@$cls) {
+        unless (eval "require $c;1") {
+          LOGDIE ref($self)."::get : unable to load class $cls: $@";
+        }
+      }
+    }
     while ( my ($a,$a_id) = $rows->fetch_next ) {
       my $o = $Cache{$a->{id}};
+      my $c;
+      if (!ref($cls)) {
+        $c = $cls;
+      }
+      else {
+        ($c) = grep { my $lbl = $_->map_defn->{label} ;
+                      grep /^$lbl$/, @{$a->{labels}} } @$cls;
+      }
       unless ($o) {
-        $o = $cls->new($a);
+        $o = $c->new($a);
         $o->set_dirty(-1); # means this object has not got its object-valued attrs yet
         $Cache{$o->neoid} = $o;
       }
@@ -156,6 +173,8 @@ sub get {
         @cur_k{@cur_k} = @cur_k;
         for my $o (@values) {
           my ($k) = grep /^handle|value$/, $o->attrs;
+          ($k) = grep (/^id$/, $o->attrs) unless length $k;
+          LOGDIE "No hashkey found for object ".ref($o) unless length $k;
           delete $cur_k{$o->$k};
           LOGWARN("Hash attribute key not found on object") unless $k;
           $obj->$set( $o->$k => $o );
@@ -174,6 +193,15 @@ sub get {
   return $obj;
 }
 
+# put - write an object and its attributes to the database
+# - if object is mapped (has a Neo4j id), overwrite the db properties
+# - with the attributes on the obj
+# - if object is unmapped, create a new node in the db
+# - for object-valued attributes, create relationships and nodes for the 
+# - target objects in the database as necessary. Don't duplicate existing
+# - relationships or target nodes.
+# put only adds items to db, doesn't remove them. Explicitly remove items
+# with rm()
 
 sub put {
   # all this should be in one transaction.
@@ -206,7 +234,7 @@ sub put {
         LOGWARN "No neo4j id retrieved" unless ($v_id);
         $v->set_neoid($v_id);
         $Cache{$v->neoid} = $v; # cache it
-        $v->set_dirty(-1);
+        $v->set_dirty(1); # not fully put - indicates that put() should be called on the object $v later
       }
     }
     @stmts = $self->put_attr_q($obj, $attr => @values);

@@ -112,6 +112,52 @@ sub get {
   return $self;
 }
 
+# put - update the db model using the object model
+
+sub put {
+  my $self = shift;
+  unless ($self->bolt_cxn) {
+    LOGWARN ref($self)."::put : Can't get model; no database connection set";
+    return;
+  }
+  # put() every dirty==1 object, belonging to the model, in the cache
+  # for every unmapped object contained in the model, put it and all of its
+  # unmapped/dirty descendants
+  # but there can be cycles, so keep track of objects already visited and
+  # short circuit in that case
+
+  my $do;
+  my %seen;
+  $do = sub {
+    my $obj = shift;
+    return if $seen{"$obj"};
+    $seen{"$obj"}++;
+    $obj->put() if $obj->dirty == 1;
+    for my $att (map { $_->[0] || () }
+                   @{$obj->map_defn->{object}},
+                 @{$obj->map_defn->{collection}}) {
+      for my $ent ($obj->$att) {
+        next unless defined $ent;
+        $do->($ent);
+      }
+    }
+    return;
+  };
+  for my $e ($self->edges) {
+    $do->($e);
+  }
+  for my $n ($self->nodes) {
+    $do->($n);
+  }
+  for my $p ($self->props) {
+    $do->($p);
+  }
+  
+  return 1;
+}
+
+
+
 sub _fail_query {
   my ($stream) = @_;
   my @c = caller(1);
@@ -165,7 +211,7 @@ sub add_edge {
   my $self = shift;
   my ($init) = shift;
   my $etbl = $self->{_edge_table};
-  if (ref($init) eq 'HASH') {
+  if (ref($init) =~ /^HASH|Neo4j::Bolt::Node$/) {
     $init = Bento::Meta::Model::Edge->new($init);
   }
   unless ( $init->handle && $init->src && $init->dst ) {

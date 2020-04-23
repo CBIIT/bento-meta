@@ -12,6 +12,7 @@ sub new {
     _url => undef,
     _terms => {}, # term | value_set has_term term (key: term.value)
     _prop => \undef, # prop | prop has_value_set value_set
+    _origin => \undef, # value_set has_origin origin
   },$init);
   return $self;
 }
@@ -27,6 +28,8 @@ sub map_defn {
     object => [
       [ prop => '<:has_value_set',
         'Bento::Meta::Model::Property' => 'property' ],
+      [ origin => ':has_origin>',
+        'Bento::Meta::Model::Origin' => 'origin' ]
      ],
     collection => [
       [ terms => ':has_term>',

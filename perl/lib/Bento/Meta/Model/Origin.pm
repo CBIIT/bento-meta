@@ -28,7 +28,8 @@ sub map_defn {
      ],
     collection => [
       [ 'entities' => ':>',
-        'Bento::Meta::Model::Entity' => '' ]
+        ['Bento::Meta::Model::ValueSet',
+         'Bento::Meta::Model::Term'] => '' ]
      ]
    };
 }

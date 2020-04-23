@@ -53,7 +53,7 @@ SKIP : {
   ok my ($dbc) = $cxn->run_query('match (n:node)-->(p:property) where n.model="ICDC" return count(p)')
     ->fetch_next,"fetch no. db props";
   is scalar $model->props, $dbc, 'number of props correct';
-
+  if (0) {
   ok my $res = $cxn->run_query(<<QRY);
     match (s:node)<-[:has_src]-(e:relationship)-[:has_dst]->(d:node)
     where (e.model = 'ICDC')
@@ -66,7 +66,7 @@ QRY
     is $model->edge($triplet)->src->handle, $s->{properties}{handle}, "edge $triplet src";
     is $model->edge($triplet)->dst->handle, $d->{properties}{handle}, "edge $triplet dst";
   }
-
+  
   ok $res = $cxn->run_query(<<QRY);
     match (n:node)-[:has_property]->(p:property)
     where (n.model = 'ICDC')
@@ -81,12 +81,47 @@ QRY
           ,$$p{id},"property '$$p{properties}{handle}' in model props";
         is $model->node($n->{properties}{handle})->props($p->{properties}{handle})->neoid, $p->{id}, "model has property '$$p{properties}{handle}' for node '$$n{properties}{handle}'";
       }
-      else {
-        push @not, [$k => $p];
-      }
     }
   }
+}
+  # test whether value sets are present in model
+  # test checks terms() on property object, auto-get of partial object (vs)
+  ok $res = $cxn->run_query(<<QRY);
+    match (t:term)<-[:has_term]-(v:value_set)<-[:has_value_set]->(p:property)
+    where (p.model = 'ICDC')
+    return p, v, collect(t);
+QRY
+  while (my ($p,$v, $t) = $res->fetch_next) {
+    my ($op) = grep {$_->handle eq $p->{properties}{handle}} ($model->props);
+    ok $op, "have property '$$p{properties}{handle}'";
+    is_deeply [ sort map {$_->value} $op->terms ],
+      [ sort map {$_->{properties}{value}} @$t ], 'all terms present on object';
+  }
 
+  # test pushing model (updates) to db
+
+  # types of changes:
+  # change obj simple attr -> db node property changed
+  # unset (undef) obj simple attr -> db node prop removed
+  # set previously undef simple attr -> db node prop created and set
+  # delete obj from obj collection attr -> db relationship between src and dst removed
+  # add obj to obj collection attr -> db relationship (and dst node) created, others unchanged
+  # unset obj object attr - db relationship removed
+  # change obj object attr - db relationship removed from original dst, new relationship (and dst node) created
+  # object removed from model - db node and attached relationships deleted (or just relationships? Yes - "soft delete")
+  # term / valueset
+
+  # put() any dirty object contained by the model (node, relationship, property)
+  # - this will include new unmapped objects which are dirty by default
+  # 
+  # What else needs to be 'put'? Any object that has been created in the object
+  # model, but is not yet represented in the db (i.e., has no neoid)
+  # for nodes, edges, props - these can be obtained directly from the 
+  # model object
+  # what about terms, valuesets, concepts? -- these can be shared among models
+  # in the metadb, for example.
+  $DB::single=1;
+  ok $model->put, "try put";
   
   1;
 }

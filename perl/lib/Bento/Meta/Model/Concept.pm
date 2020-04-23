@@ -9,6 +9,7 @@ sub new {
   my $self = $class->SUPER::new({
     _id => undef,
     _terms => {}, # term | term represents concept (key: term.value)
+    _entities => {}, # entity | entity has_concept concept (key: entity.handle)
   }, $init);
   return $self;
 }
@@ -24,7 +25,11 @@ sub map_defn {
     collection => [
       [ terms => '<:represents',
         'Bento::Meta::Model::Term' => 'term' ],
-      ]
+      [ entities => '<:has_concept',
+        ['Bento::Meta::Model::Node',
+         'Bento::Meta::Model::Edge',
+         'Bento::Meta::Model::Property'] => '' ]
+     ]
    };
 }
 
