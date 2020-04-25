@@ -58,7 +58,7 @@ sub values {
 sub terms {
   my $self = shift;
   return unless $self->value_set;
-  return $self->value_set->terms;
+  return $self->value_set->terms(@_);
 }
 
 sub set_terms {

@@ -54,6 +54,7 @@ SKIP : {
   ok my ($dbc) = $cxn->run_query('match (n:node)-->(p:property) where n.model="ICDC" return count(p)')
     ->fetch_next,"fetch no. db props";
   is scalar $model->props, $dbc, 'number of props correct';
+  diag "HEY REMOVE THIS IF(0)";
   if (0) {
   ok my $res = $cxn->run_query(<<QRY);
     match (s:node)<-[:has_src]-(e:relationship)-[:has_dst]->(d:node)
@@ -102,14 +103,14 @@ QRY
   # test pushing model (updates) to db
 
   # types of changes:
-  # change obj simple attr -> db node property changed
-  # unset (undef) obj simple attr -> db node prop removed
-  # set previously undef simple attr -> db node prop created and set
-  # delete obj from obj collection attr -> db relationship between src and dst removed
-  # add obj to obj collection attr -> db relationship (and dst node) created, others unchanged
-  # unset obj object attr - db relationship removed
-  # change obj object attr - db relationship removed from original dst, new relationship (and dst node) created
-  # object removed from model - db node and attached relationships deleted (or just relationships? Yes - "soft delete")
+  # change obj simple attr -> db node property changed *
+  # unset (undef) obj simple attr -> db node prop removed *
+  # set previously undef simple attr -> db node prop created and set 
+  # delete obj from obj collection attr -> db relationship between src and dst removed 
+  # add obj to obj collection attr -> db relationship (and dst node) created, others unchanged *
+  # unset obj object attr - db relationship removed *
+  # change obj object attr - db relationship removed from original dst, new relationship (and dst node) created *
+  # object removed from model - db node and attached relationships deleted (or just relationships? Yes - "soft delete") 
   # term / valueset
 
   # put() any dirty object contained by the model (node, relationship, property)
@@ -121,7 +122,7 @@ QRY
   # model object
   # what about terms, valuesets, concepts? -- these can be shared among models
   # in the metadb, for example.
-  $DB::single=1;
+
   diag "put model to db";
   ok $model->put, "try put (no changes, just run it)";
 
@@ -153,7 +154,44 @@ QRY
 QRY
   ok my ($n) = $res->fetch_next, "retrieved node with changed model property";
   is $n->{id}, $node->neoid, "correct node changed";
-  
+
+  ok my $term = $model->prop('demographic:sex')->terms('M'), "get existing term";
+  ok $term->concept, "it represents a concept";
+  is $term->concept->id, "337c0e4f-506a-4f4e-95f6-07c3462b81ff", "correct concept";
+  ok my $concept = $term->set_concept(undef), "remove concept";
+  ok $res = $cxn->run_query(<<'QRY', { id => $term->neoid });
+  match (t:term) where id(t) = $id return t
+QRY
+  ok my ($got_t) = $res->fetch_next, "got term";
+  ok $res = $cxn->run_query(<<'QRY', { id => $term->id });
+  match (t:term)-->(c:concept) where id(t) = $id return t
+QRY
+  ok !$res->fetch_next, "link to concept gone";
+  ok $res = $cxn->run_query(<<'QRY', { id => $concept->id });
+  match (c:concept) where c.id = $id return c
+QRY
+  ok my ($got_c) = $res->fetch_next, "but concept node still there";
+
+  ok $concept->set_id("heydude"), "set concept id attr";
+  ok $term->set_concept($concept), "set term concept back";
+  ok $prop->set_model(undef), "undef simple attribute";
+
+  ok $model->put, "put model";
+
+  ok $res = $cxn->run_query(<<'QRY', { id => $term->neoid });
+  match (t:term)--(c:concept) where id(t) = $id return c
+QRY
+  ok (($got_c) = $res->fetch_next, "got concept via relnship");
+  is $got_c->{id}, $concept->neoid, "the old concept";
+  is $got_c->{properties}{id}, "heydude", "the new id";
+  ok $res = $cxn->run_query(<<'QRY', { id => $prop->neoid });
+  match (p:property) where id(p) = $id return p
+QRY
+  ok my ($got_prop) = $res->fetch_next;
+  is $got_prop->{id}, $prop->neoid, "the old prop";
+  ok !$got_prop->{properties}{model}, "but model attr is gone";
+  $DB::single=1;
+  ok $prop->set_model('ICDC'), "set model back on prop";
   
   
   1;

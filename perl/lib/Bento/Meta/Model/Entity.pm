@@ -160,8 +160,9 @@ sub AUTOLOAD {
           }
           else {
             # handle clearing an object attribute
+            my $v = $self->{"_$method"};
             $self->{"_$method"} = ref($self->{"_$method"}) ? \undef : undef;
-            return undef;
+            return $v; # value deleted consistent with HASH handler above
           }
         };
       }

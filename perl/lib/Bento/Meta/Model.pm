@@ -464,15 +464,15 @@ sub edges_out {
 }  
 
 sub node { $_[0]->{_nodes}{$_[1]} }
-sub nodes { $_[0]->node($_[1]) if @_ > 1; values %{shift->{_nodes}} }
+sub nodes { return $_[0]->node($_[1]) if @_ > 1; values %{shift->{_nodes}} }
 
 sub prop { $_[0]->{_props}{$_[1]} }
-sub props { $_[0]->prop($_[1]) if @_ > 1; values %{shift->{_props}} }
+sub props { return $_[0]->prop($_[1]) if @_ > 1; values %{shift->{_props}} }
 
 #sub edge_types { values %{shift->{_edge_types}} }
 #sub edge_type { $_[0]->{_edge_types}{$_[1]} }
 
-sub edges { $_[0]->edge($_[1]) if @_ > 1; values %{shift->{_edges}} }
+sub edges { return $_[0]->edge($_[1]) if @_ > 1; values %{shift->{_edges}} }
 sub edge {
   my $self = shift;
   my ($type,$src,$dst) = @_;

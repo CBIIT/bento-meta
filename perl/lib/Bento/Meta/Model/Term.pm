@@ -27,7 +27,7 @@ sub map_defn {
       [origin_definition => 'origin_definition'],
      ],
     object => [
-      [ 'concept' => '<:represents',
+      [ 'concept' => ':represents>',
         'Bento::Meta::Model::Concept' => 'concept' ],
       [ 'origin' => ':has_origin>',
         'Bento::Meta::Model::Origin' => 'origin' ]      
