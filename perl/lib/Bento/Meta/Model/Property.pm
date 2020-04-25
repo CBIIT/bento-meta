@@ -11,7 +11,8 @@ sub new {
     _model => undef,
     _value_domain => undef,
     _units => undef,
-    _pattern => undef, 
+    _pattern => undef,
+    _is_required => undef,
     _value_set => \undef, # prop has_value_set value_set
     _entities => {}, # entity | entity has_property prop
     _tags => [],
@@ -36,7 +37,7 @@ sub map_defn {
         'Bento::Meta::Model::ValueSet' => 'value_set' ],
      ],
     collection => [
-      [ 'entities' => '<:',
+      [ 'entities' => '<:has_property',
         ['Bento::Meta::Model::Node',
          'Bento::Meta::Model::Edge'] => ''],
       ]

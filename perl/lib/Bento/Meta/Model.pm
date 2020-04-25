@@ -298,8 +298,8 @@ sub add_terms {
     LOGDIE ref($self)."::add_terms : arg2,... required (strings and/or Term objects";
   }
   $prop->value_domain // $prop->set_value_domain('value_set');
-  unless ($prop->value_domain eq 'value_set') {
-    LOGWARN ref($self)."::add_terms : property '".$prop->handle."' has value domain '".$prop->value_domain."', not 'value_set'";
+  unless ($prop->value_domain =~ /^value_set|enum$/) {
+    LOGWARN ref($self)."::add_terms : property '".$prop->handle."' has value domain '".$prop->value_domain."', not 'value_set' or 'enum'";
     return;
   }
   my %terms;
@@ -464,15 +464,15 @@ sub edges_out {
 }  
 
 sub node { $_[0]->{_nodes}{$_[1]} }
-sub nodes { LOGDIE ref($_[0])."::nodes - nodes() takes no arg" if @_ > 1; values %{shift->{_nodes}} }
+sub nodes { $_[0]->node($_[1]) if @_ > 1; values %{shift->{_nodes}} }
 
 sub prop { $_[0]->{_props}{$_[1]} }
-sub props { LOGDIE ref($_[0])."::props - props() takes no arg" if @_ > 1; values %{shift->{_props}} }
+sub props { $_[0]->prop($_[1]) if @_ > 1; values %{shift->{_props}} }
 
 #sub edge_types { values %{shift->{_edge_types}} }
 #sub edge_type { $_[0]->{_edge_types}{$_[1]} }
 
-sub edges { LOGDIE ref($_[0])."::edges - edges() takes no arg" if @_ > 1; values %{shift->{_edges}} }
+sub edges { $_[0]->edge($_[1]) if @_ > 1; values %{shift->{_edges}} }
 sub edge {
   my $self = shift;
   my ($type,$src,$dst) = @_;

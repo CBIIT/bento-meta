@@ -40,6 +40,7 @@ SKIP : {
   skip "Can't connect to test db: ".$cxn->errmsg, 1 unless $cxn->connected;
 
   ok my $model = Bento::Meta::Model->new('ICDC', $cxn), "create Model obj with Neo4j mapping";
+  diag "get model from db";
   ok $model->get, "load model from db";
 
   ok my ($dbc) = $cxn->run_query('match (n:node) where n.model="ICDC" return count(n)')
@@ -121,7 +122,39 @@ QRY
   # what about terms, valuesets, concepts? -- these can be shared among models
   # in the metadb, for example.
   $DB::single=1;
-  ok $model->put, "try put";
+  diag "put model to db";
+  ok $model->put, "try put (no changes, just run it)";
+
+  ok my $sample = $model->node('sample'), "get existing node";
+  ok my $edge = $model->edge('on_visit:sample:visit'), "get existing edge";
+  ok my $prop = $model->prop('sample:sample_type'), "get existing property";
+
+  is $prop->dirty, 0, "prop clean";
+  ok my $t = Bento::Meta::Model::Term->new({value => "electric_boogaloo"}), "create new term";
+  is $t->dirty, 1, "new term dirty";
+  ok $model->add_terms($prop => $t), "add term to property";
+  is $prop->dirty, 1, "prop dirty";
+  is $prop->value_set->dirty, 1, "value set dirty";
+  
+  ok my $node = $model->node('lab_exam'), "get existing other node";
+  ok $node->set_model("boog"), "change model property";
+  is $node->model, "boog", "prop set in object";
+  ok $model->put, "put changes";
+  ok $res = $cxn->run_query(<<QRY);
+  match (v:value_set)-->(t:term {value:"electric_boogaloo"})
+  return v, t
+QRY
+  ok my ($v, $m) = $res->fetch_next, "retrieved value set and new term";
+  is $v->{id}, $prop->value_set->neoid, "correct value set";
+  is $m->{id}, $t->neoid, "correct property";
+  is $m->{properties}{value},$t->value, "prop handle correct";
+  ok $res = $cxn->run_query(<<QRY);
+  match (n:node {handle:"lab_exam",model:"boog"}) return n
+QRY
+  ok my ($n) = $res->fetch_next, "retrieved node with changed model property";
+  is $n->{id}, $node->neoid, "correct node changed";
+  
+  
   
   1;
 }

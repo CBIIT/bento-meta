@@ -17,6 +17,23 @@ sub new {
   return $self;
 }
 
+sub set_terms {
+  my $self = shift;
+  my @args = @_;
+  $self->set_dirty(1);
+  $self->prop->set_dirty(1) if ($self->prop); # smudge the connected property
+  if (ref $args[0] eq 'HASH') {
+    return $self->{_terms} = $args[0];
+  } elsif (!ref($args[0]) && @args > 1) {
+    if (defined $args[1]) {
+      return $self->{_terms}{$args[0]} = $args[1];
+    } else {                # 2nd arg is explicit undef - means delete
+      return delete $self->{_terms}{$args[0]}
+    }
+  } else {
+    LOGDIE "set_terms requires hashref as arg1, or key => term_obj as arg1 and arg2";
+  }
+}
 sub map_defn {
   return {
     label => 'value_set',

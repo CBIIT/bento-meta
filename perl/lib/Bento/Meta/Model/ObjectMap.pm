@@ -222,6 +222,7 @@ sub put {
   $obj->set_neoid($n_id);
   for my $attr ($self->relationship_attrs) {
     my @values = $obj->$attr;
+    next unless @values;
     for my $v (@values) {
       next unless defined $v;
       unless ($v->neoid) { # create unmapped subordinate nodes
@@ -320,10 +321,10 @@ sub _fail_query {
   my ($stream) = @_;
   my @c = caller(1);
   if ($stream->server_errmsg) {
-    LOGWARN $c[3]." : server error: ".$stream->server_errmsg;
+    LOGCARP $c[3]." : server error: ".$stream->server_errmsg;
   }
   elsif ($stream->client_errmsg) {
-    LOGWARN $c[3]."::get : client error: ".$stream->client_errmsg;
+    LOGCARP $c[3]."::get : client error: ".$stream->client_errmsg;
   }
   else {
     LOGWARN $c[3]."::get : unknown database-related error";
@@ -410,11 +411,13 @@ sub put_q {
   # rewrite props on existing node
   # need to set props that have defined values,
   # and remove props that undefined values -
-  # so 2 statements are returned
+    # so 2 statements are returned
+    my $nprops;
+    $nprops->{"n.$_"} = $props->{$_} for keys %{$props};
     my @stmts;
     push @stmts, cypher->match('n:'.$self->label)
       ->where({ 'id(n)' => $obj->neoid })
-      ->set($props)
+      ->set($nprops)
       ->return('id(n)');
     for (@null_props) {
       push @stmts, cypher->match('n:'.$self->label)
