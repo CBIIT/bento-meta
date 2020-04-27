@@ -143,6 +143,10 @@ sub put {
     }
     return;
   };
+
+  for my $e ($self->removed_entities) {
+     $do->($e);
+  }
   for my $e ($self->edges) {
     $do->($e);
   }
@@ -319,6 +323,7 @@ sub add_terms {
   unless ($vs) {
     $vs = Bento::Meta::Model::ValueSet->new();
     $vs->set_id( $vs->make_uuid );
+    $vs->set_prop($prop);
     $vs->set_handle( $self->handle.substr($vs->id,0,7) );
     $prop->set_value_set($vs)
   }
@@ -328,6 +333,7 @@ sub add_terms {
 
 # rm_node( $node_or_handle )
 # node must participate in no edges to be able to be removed (like neo4j)
+# - so must rm_edge() first.
 # returns the node removed
 # removes the node's properties from the model list, but not
 # from the node itself
@@ -352,8 +358,10 @@ sub rm_node {
     # the prop list for the node itself is not affected
     # (i.e., the props remain attached to the deleted node)
     $self->set_props(join(':',$node->handle,$p->handle) => undef);
+    # old $prop now in removed_entities
   }
   return $self->set_nodes( $node->handle => undef );
+  # old $node now in removed_entities
 }
 
 # rm_edge( $edge_or_sth_else )
@@ -376,10 +384,14 @@ sub rm_edge {
     # the prop list for the edge itself is not affected
     # (i.e., the props remain attached to the deleted edge)
     $self->set_props(join(':',$edge->triplet,$p->handle) => undef);
+    # old $p now in removed_entities
   }
   my ($hdl,$src,$dst) = split /:/, $edge->triplet;
   delete $self->{_edge_table}{$hdl}{$src}{$dst};
+  $edge->set_src(undef);
+  $edge->set_dst(undef);
   return $self->set_edges( $edge->triplet => undef );
+  # old $edge now in removed_entities
 }
 
 # rm_prop( $prop_or_handle )
@@ -400,10 +412,13 @@ sub rm_prop {
     if (ref($e) =~ /Edge$/) { # an edge prop
       $e->set_props( $prop->handle => undef );
       $self->prop( join(':',$e->triplet,$prop->handle) => undef );
+      # old $prop now in removed_entities
+
     }
     elsif (ref($e) =~ /Node$/) { # a node prop
       $e->set_props( $prop->handle => undef );
       $self->prop( join(':',$e->handle,$prop->handle) => undef );
+      # old $prop now in removed_entities
     }
   }
   return $prop; 
@@ -464,14 +479,16 @@ sub edges_out {
 }  
 
 sub node { $_[0]->{_nodes}{$_[1]} }
+
+# this overrides Entity::nodes
 sub nodes { return $_[0]->node($_[1]) if @_ > 1; values %{shift->{_nodes}} }
 
 sub prop { $_[0]->{_props}{$_[1]} }
+
+# this overrides Entity::props
 sub props { return $_[0]->prop($_[1]) if @_ > 1; values %{shift->{_props}} }
 
-#sub edge_types { values %{shift->{_edge_types}} }
-#sub edge_type { $_[0]->{_edge_types}{$_[1]} }
-
+# this overrides Entity::edges
 sub edges { return $_[0]->edge($_[1]) if @_ > 1; values %{shift->{_edges}} }
 sub edge {
   my $self = shift;

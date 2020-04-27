@@ -121,12 +121,20 @@ my $blerg = $N->new({handle => 'blerg'});
 warning_like { $model->rm_node($blerg) } qr/'blerg' not contained/, "warn when trying to rm node already not in model";
 
 my $project = $model->node('project');
+my $program = $model->node('program');
+my $of_program = $model->edge('of_program:project:program');
+ok my ($thing) = $model->edges_in($program), "got edges in";
+is $thing, $of_program, "correct edge in";
+ok( ($thing) = grep( {$_->handle eq 'of_program'} $model->edges_out($project) ),
+    "got edges_out");
+is $thing, $of_program, "has node from edge out";
+    
 ok $model->add_prop($project, {handle=>'short_name'}), 'add a prop';
 ok $project->props('short_name'), "there it is";
 ok $model->prop('project:short_name'), 'also in model';
 
 warning_like { $model->rm_node( $project ) } qr/can't remove node 'project'/, "warn when trying to rm node that has edges";
-my $of_program = $model->edge('of_program:project:program');
+
 ok $model->add_prop($of_program, {handle => 'scroob'});
 ok $of_program->props('scroob');
 ok $model->prop('of_program:project:program:scroob');
@@ -135,7 +143,9 @@ isa_ok($ret, $E);
 ok !$model->edge('of_program:project:program'), 'really gone';
 ok !$model->prop('of_program:project:program:scroob'), 'prop gone from model';
 ok $of_program->props('scroob'), 'but still on edge';
-
+ok( !$model->edges_in($program), "edge no longer in edges_in");
+ok( !grep( {$_->handle eq 'of_program'} $model->edges_out($project) ),
+    "or in edges_out");
 
 ok $ret = $model->rm_node( $model->node('project') ), 'now can remove node';
 isa_ok( $ret, $N);

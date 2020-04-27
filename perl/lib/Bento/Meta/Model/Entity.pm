@@ -11,6 +11,7 @@ our $AUTOLOAD;
 our @private_attr = qw/
 _dirty
 _neoid
+_removed_entities
                      /;
 sub new {
   my $class = shift;
@@ -18,8 +19,10 @@ sub new {
   my $self = bless $attr, $class;
   $self->{pvt}{_dirty} = 1; # indicates change that has not been synced with db
   #                      0 => fully synced with db
-  #                     -1 => simple-valued attr sync, object-valued attr not yet
+  #                     -1 => simple-valued attrs synced, but object-valued 
+  #                           attrs not yet
   $self->{pvt}{_neoid} = undef; # database id for this entity
+  $self->{pvt}{_removed_entities} = []; # stash removed things here
   $self->{_desc} = undef; # free text description for entity
 
   my @declared_atts = map { my ($a)=/^_(.*)/;$a || () } keys %$self;
@@ -120,33 +123,38 @@ sub AUTOLOAD {
           return $$att; # this picks up \undef (unset object property) and returns false
         };
         do {
-          $att->get if (blessed $att and $att->dirty < 0);
+          $att->get if (blessed $att and ($att->dirty < 0));
           return $att;
         };
       }
     }
     elsif ($action eq 'set') { #setter
       return unless @args;
+      # cache should pick up the changes here
+      ($Bento::Meta::Model::ObjectMap::Cache{$self->neoid} = $self) if $self->neoid;
+      $self->{pvt}{_dirty} = 1;
       for (ref $att) {
         /^ARRAY$/ && do {
           unless (ref $args[0] eq 'ARRAY') {
             LOGDIE "set_$method requires arrayref as arg1";
           }
-          $self->{pvt}{_dirty} = 1;
           return $self->{"_$method"} = $args[0];
         };
         /^HASH$/ && do {
           if (ref $args[0] eq 'HASH') {
-            $self->{pvt}{_dirty} = 1;
             return $self->{"_$method"} = $args[0];
           }
           elsif (!ref($args[0]) && @args > 1) {
-            $self->{pvt}{_dirty} = 1;
+            my $oldval;
+            if ($self->{"_$method"}{$args[0]}) {
+              $oldval = delete $self->{"_$method"}{$args[0]};
+              $self->push_removed_entities("$method:$args[0]" => $oldval);
+            }
             if (defined $args[1]) {
               return $self->{"_$method"}{$args[0]} = $args[1];
             }
             else { # 2nd arg is explicit undef - means delete
-              return delete $self->{"_$method"}{$args[0]}
+              return $oldval;
             }
           }
           else {
@@ -154,15 +162,17 @@ sub AUTOLOAD {
           }
         };
         do { # scalar attribute
-          $self->{pvt}{_dirty} = 1;
-          if ($args[0]) {
+          my $oldval = $self->{"_$method"};
+          if (blessed $oldval) {
+            $self->push_removed_entities("$method" => $oldval);
+          }
+          if (defined $args[0]) {
             return $self->{"_$method"} = $args[0];
           }
           else {
             # handle clearing an object attribute
-            my $v = $self->{"_$method"};
             $self->{"_$method"} = ref($self->{"_$method"}) ? \undef : undef;
-            return $v; # value deleted consistent with HASH handler above
+            return $oldval; # value deleted consistent with HASH handler above
           }
         };
       }
@@ -199,6 +209,12 @@ sub neoid { shift->{pvt}{_neoid} }
 sub set_neoid { $_[0]->{pvt}{_neoid} = $_[1] }
 sub dirty { shift->{pvt}{_dirty} }
 sub set_dirty { $_[0]->{pvt}{_dirty} = $_[1] }
+sub removed_entities { map { $_->[1] } @{shift->{pvt}{_removed_entities}} }
+sub clear_removed_entities { shift->{pvt}{_removed_entities} = [] }
+sub pop_removed_entities { pop @{shift->{pvt}{_removed_entities}} }
+sub push_removed_entities { push @{$_[0]->{pvt}{_removed_entities}},[$_[1] => $_[2]]; $_[2] }
+
+
 sub map_defn { LOGWARN ref(shift)."::map_defn - subclass method; not defined for base class"; return; }1;
 sub set_with_node {
   my $self = shift;

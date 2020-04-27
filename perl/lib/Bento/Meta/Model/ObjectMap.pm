@@ -6,6 +6,7 @@ use Neo4j::Cypher::Abstract qw/cypher ptn/;
 use Log::Log4perl qw/:easy/;
 use strict;
 our %Cache;
+our $USE_CACHE=0;
 
 sub new {
   my $class = shift;
@@ -86,8 +87,13 @@ sub map_collection_attr {
 # :  - related objects are created and their simple attrs are set,
 # :  - but their object- and collection-valued attrs are not loaded
 # :  - this status is indicated by their dirty attr == -1
-# get will pull from cache unless obj is partially loaded, or
+# get will short circuit if obj is in cache, unless obj is partially loaded, or
 # refresh is requested (arg == true)
+
+# main reason for the cache is to insure one object instance per database node,
+# and reuse of that instance everywhere that node is represented. So,
+# a value set points to its property and vice versa, but the property and
+# the value set's property attribute are identical objects. 
 
 sub get {
   my $self = shift;
@@ -96,16 +102,19 @@ sub get {
     LOGWARN ref($self)."::get - ObjectMap has no db connection set";
     return;
   }
-  my $c = $Cache{$obj->neoid};
-  $refresh = 1 if $c && ($c->dirty < 0); # cached obj is only partially pulled
-  if ($c && !$refresh) { # return (poss. shallow copy of) cached object
-    return $obj if ($c == $obj);
-    for (keys %{$obj}) {
-      $obj->{$_} = $c->{$_};
-    }
-    return $obj;
-  }
-  # fully pull obj
+  return $obj unless ( !$Cache{$obj->neoid} || $refresh || ($Cache{$obj->neoid}->dirty < 0) );
+                  
+  # my $c = $Cache{$obj->neoid};
+  # $refresh = 1 if $c && ($c->dirty < 0); # cached obj is only partially pulled
+  # if ($c && !$refresh) { # return (poss. shallow copy of) cached object
+  #   return $obj if ($c == $obj);
+  #   for (keys %{$obj}) {
+  #     $obj->{$_} = $c->{$_};
+  #   }
+  #   return $obj;
+  # }
+
+  # Fully pull obj
   my $rows = $self->bolt_cxn->run_query(
     $self->get_q( $obj )
    );
@@ -121,7 +130,7 @@ sub get {
   }  
   $obj->set_with_node($n);
   # $obj->set_neoid($n_id);
-  $Cache{$obj->neoid} = $obj;
+  $Cache{$obj->neoid} //= $obj; 
   for my $attr ($self->relationship_attrs) {
     $rows = $self->bolt_cxn->run_query(
       $self->get_attr_q( $obj => $attr)
@@ -141,6 +150,7 @@ sub get {
         }
       }
     }
+    # load @values for this attribute
     while ( my ($a,$a_id) = $rows->fetch_next ) {
       my $o = $Cache{$a->{id}};
       my $c;
@@ -148,6 +158,8 @@ sub get {
         $c = $cls;
       }
       else {
+        # pick the right class from the list of classes
+        # for this attribute:
         ($c) = grep { my $lbl = $_->map_defn->{label} ;
                       grep /^$lbl$/, @{$a->{labels}} } @$cls;
       }
@@ -189,6 +201,7 @@ sub get {
       };
     }
   }
+  $obj->clear_removed_entities;
   $obj->set_dirty(0); # this object up to date with db
   return $obj;
 }
@@ -243,6 +256,13 @@ sub put {
       $rows = $self->bolt_cxn->run_query($q);
       return _fail_query($rows) if ($rows->failure);
     }
+  }
+  while (my $rme = $obj->pop_removed_entities) {
+    my ($attr, $rmobj) = @$rme;
+    next unless $rmobj;
+    ($attr) = split /:/,$attr;
+    $self->drop($obj, $attr, $rmobj);
+    1;
   }
   $Cache{$obj->neoid} = $obj; # cache it.
   $obj->set_dirty(0);
@@ -310,7 +330,7 @@ sub drop {
   return _fail_query($rows) if ($rows->failure);
   my ($tgt_id) = $rows->fetch_next;
   unless ($tgt_id) {
-    LOGWARN ref($self)."::drop - corresponding target db node not found";
+    INFO ref($self)."::drop - corresponding target db node not found";
     return;
   }
   return $tgt_id;
@@ -324,10 +344,10 @@ sub _fail_query {
     LOGCARP $c[3]." : server error: ".$stream->server_errmsg;
   }
   elsif ($stream->client_errmsg) {
-    LOGCARP $c[3]."::get : client error: ".$stream->client_errmsg;
+    LOGCARP $c[3]." : client error: ".$stream->client_errmsg;
   }
   else {
-    LOGWARN $c[3]."::get : unknown database-related error";
+    LOGWARN $c[3]." : unknown database-related error";
   }
   return
 }
