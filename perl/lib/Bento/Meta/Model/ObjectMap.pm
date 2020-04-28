@@ -104,16 +104,6 @@ sub get {
   }
   return $obj unless ( !$Cache{$obj->neoid} || $refresh || ($Cache{$obj->neoid}->dirty < 0) );
                   
-  # my $c = $Cache{$obj->neoid};
-  # $refresh = 1 if $c && ($c->dirty < 0); # cached obj is only partially pulled
-  # if ($c && !$refresh) { # return (poss. shallow copy of) cached object
-  #   return $obj if ($c == $obj);
-  #   for (keys %{$obj}) {
-  #     $obj->{$_} = $c->{$_};
-  #   }
-  #   return $obj;
-  # }
-
   # Fully pull obj
   my $rows = $self->bolt_cxn->run_query(
     $self->get_q( $obj )

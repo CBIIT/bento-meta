@@ -1,7 +1,8 @@
 package Bento::Meta;
-use Bento::MakeModel;
+use Bento::Meta::Model;
+use Bento::Meta::MDF;
 use Try::Tiny;
-use Carp qw/carp croak/;
+use Log::Log4perl qw/:easy/;
 use strict;
 use warnings;
 
@@ -22,31 +23,77 @@ sub load_model {
   my $self = shift;
   my ($handle, @files) = @_;
   unless ($handle) {
-    croak "load_model: need arg1 (model handle)";
+    LOGCROAK "load_model: need arg1 (model handle)";
   }
+  my $model;
   unless (@files) {
-    croak "load_model: need arg2 ... (MDF files/db endpoint)";
+    LOGCROAK "load_model: need arg2 ... (MDF files/db endpoint)";
   }
-  return $self->load_model_from_db(@_) if ( $files[0] =~ /$re_url/ );
-  my $mm;
-  try {
-    $mm = Bento::MakeModel->new(files => \@files);
-  } catch {
-    croak "load_model: Bento::MakeModel::new(): $_";
-  };
-  $self->{_models}{$handle} = $mm->model;
-  return $self;
-}
+  if ( $files[0] =~ /$re_url/ ) {
+    unless (eval "require Neo4j::Bolt;1") {
+      LOGCROAK "Connection to Neo4j requires Neo4j::Bolt package";
+    }
+    $model = Bento::Meta::Model->new($handle, Neo4j::Bolt->connect($files[0]));
+  }
+  else {
+    $model = Bento::Meta::MDF->create_model($handle, @files);
+  }
 
-sub load_model_from_db {
-  my $self = shift;
-  my ($handle, $url) = @_;
-  unless ($handle && $url) {
-    croak "load_model_from_db: need arg1 (model handle) and arg2 (url-db endpt)";
-  }
-  carp "unimplemented";
-  return 0;
+  return $self->{_models}{$handle} = $model;
 }
 
 sub model { $_[0]->{_models}{$_[1]} };
+sub models { values %{shift->{_models}} };
+sub handles { sort keys %{shift->{_models}} };
+
 1;
+
+=head1 NAME
+
+Bento::Meta - Tools for manipulating a Bento Metamodel Database
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+L<Bento::Meta> is a full object-relational mapping (although for a graph
+database, L<Neo4j|https://neo4j.com>) of the Bento metamodel for storing
+property graph representations of data models and terminology.
+
+It can be also be used without a database connection to read, manipulate, 
+and store data models in the 
+L<Model Description Format|https://github.com/CBIIT/bento-mdf> (MDF). 
+
+=head1 METHODS
+
+=over
+
+=item load_model($handle, @files), load_model($handle, $bolt_url)
+
+Load a model from MDF files, or from a Neo4j database. C<$bolt_url> must
+use the C<bolt://> scheme.
+
+=item model($handle)
+
+The L<Bento::Meta::Model> object corresponding to the handle.
+
+=item models()
+
+A list of L<Bento::Meta::Model> objects contained in the object.
+
+=item handles()
+
+A sorted list of model handles contained in the object.
+
+=back
+
+=head1 SEE ALSO
+
+L<Bento::Meta::Model>, L<Neo4j::Bolt>.
+
+=head1 AUTHOR
+
+ Mark A. Jensen < mark -dot- jensen -at nih -dot- gov>
+ FNL
+
+=cut
