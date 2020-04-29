@@ -1,0 +1,85 @@
+{
+   "abstract" : "Tools for manipulating Bento Metamodel Database",
+   "author" : [
+      "Mark A. Jensen"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.4229",
+   "license" : [
+      "unknown"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Bento-Meta",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "IPC::Run" : "0",
+            "Test::Exception" : "0",
+            "Test::Warn" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Hash::Merge" : "0.300",
+            "JSON::ize" : "0.202",
+            "Log::Log4perl" : "0",
+            "Neo4j::Bolt" : "0.12",
+            "Neo4j::Cypher::Abstract" : "0.1003",
+            "Scalar::Util" : "0",
+            "Try::Tiny" : "0",
+            "UUID::Tiny" : "0",
+            "YAML::PP" : "0.018"
+         }
+      }
+   },
+   "provides" : {
+      "Bento::Meta" : {
+         "file" : "lib/Bento/Meta.pm",
+         "version" : "0.1"
+      },
+      "Bento::Meta::MDF" : {
+         "file" : "lib/Bento/Meta/MDF.pm"
+      },
+      "Bento::Meta::Model" : {
+         "file" : "lib/Bento/Meta/Model.pm"
+      },
+      "Bento::Meta::Model::Concept" : {
+         "file" : "lib/Bento/Meta/Model/Concept.pm"
+      },
+      "Bento::Meta::Model::Edge" : {
+         "file" : "lib/Bento/Meta/Model/Edge.pm"
+      },
+      "Bento::Meta::Model::Entity" : {
+         "file" : "lib/Bento/Meta/Model/Entity.pm"
+      },
+      "Bento::Meta::Model::Node" : {
+         "file" : "lib/Bento/Meta/Model/Node.pm"
+      },
+      "Bento::Meta::Model::ObjectMap" : {
+         "file" : "lib/Bento/Meta/Model/ObjectMap.pm"
+      },
+      "Bento::Meta::Model::Origin" : {
+         "file" : "lib/Bento/Meta/Model/Origin.pm"
+      },
+      "Bento::Meta::Model::Property" : {
+         "file" : "lib/Bento/Meta/Model/Property.pm"
+      },
+      "Bento::Meta::Model::Term" : {
+         "file" : "lib/Bento/Meta/Model/Term.pm"
+      },
+      "Bento::Meta::Model::ValueSet" : {
+         "file" : "lib/Bento/Meta/Model/ValueSet.pm"
+      }
+   },
+   "release_status" : "stable",
+   "version" : "0.1",
+   "x_serialization_backend" : "JSON::PP version 2.27300_01"
+}
