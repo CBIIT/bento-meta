@@ -1,0 +1,798 @@
+PropDefinitions:
+#property of case, specimen, metastatic_site, nucleic_acid, ihc_assay_report, sequencing_assay, variant_report, file, snv_variant, delins_variant, indel_variant, copy_number_variant, gene_fusion_variant, assignment_report, arm, clinical_trial
+  show_node:
+    Desc: A settable node property that flags a node, and its children as queryable.
+    Src: NA
+    Type: boolean
+    Req: true
+    Private: true
+#property of case
+  case_id:
+    Desc: A unique numerical identifier assigned to each patient by CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of case
+  source_id:
+    Desc: A unique identifier assigned by source project
+    Src: patientSequenceNumber
+    Type: string
+    Req: false
+    Private: true
+#property of case
+  gender:
+    Desc: Gender of patient
+    Src: gender
+    Type:
+      - MALE
+      - FEMALE
+      - UNKNOWN
+    Req: true
+    Private: false
+#property of case
+  race:
+    Desc: Race of patient
+    Src: races
+    Type:
+      - AMERICAN_INDIAN_OR_ALASKA_NATIVE
+      - ASIAN
+      - BLACK_OR_AFRICAN_AMERICAN
+      - NATIVE_HAWAIIAN_OR_OTHER_PACIFIC_ISLANDER
+      - NOT_REPORTED
+      - UNKNOWN
+      - WHITE
+    Req: true
+    Private: false
+#property of case
+  ethnicity:
+    Desc: Ethnicity of patient
+    Src: ethnicity
+    Type:
+      - HISPANIC_OR_LATINO
+      - NOT_HISPANIC_OR_LATINO
+      - UNKNOWN
+    Req: true
+    Private: false
+#property of case
+  patient_status:
+    Desc: Status of patient within the MATCH workflow
+    Src: currentPatientStatus
+    Type:
+      - COMPASSIONATE_CARE
+      - OFF_TRIAL
+      - OFF_TRIAL_BIOPSY_EXPIRED
+      - OFF_TRIAL_DECEASED
+      - OFF_TRIAL_NOT_CONSENTED
+      - OFF_TRIAL_NO_TA_AVAILABLE
+      - OFF_TRIAL_REGISTRATION_ERROR
+      - ON_TREATMENT_ARM
+      - PENDING_APPROVAL
+      - PENDING_CONFIRMATION
+      - PTEN_ORDER_REQUESTED
+      - REGISTRATION
+      - REGISTRATION_OUTSIDE_ASSAY
+    Req: true
+    Private: false
+#property of case
+  current_step:
+    Desc: The MATCH workflow is divided broadly into steps. Step 0 starts with patient registration and ends with the the sign-out of the first assignment report. If the patient is assigned to a treatment arm s/he moves to step 1. If patient progresses during treatment, s/he is assigned to step 2. Current step denotes the step in the workflow the patient is currently at.
+    Src: currentStepNumber
+    Type: integer
+    Req: true
+    Private: false
+    minimum: 0
+#property of case
+  disease:
+    Desc: Disease condition diagnosed in study patient.
+    Src: diseases
+    Type: string
+    Req: true
+    Private: false
+#property of case
+  ctep_category:
+    Desc: The patient's disease diagnosis described according to the CTEP Simplified Disease Classification.
+    Src: ctepCategory
+    Type: string
+    Req: false
+    Private: false
+#property of case
+  ctep_subcategory:
+    Desc: A more granular mapping of the patient's disease diagnosis to the CTEP Simplified Disease Classification.
+    Src: ctepSubCategory
+    Type: string
+    Req: false
+    Private: false
+#property of case
+  meddra_code:
+    Desc: MedDRA code that is assigned to patient's disease diagnosis and that maps to the CTEP subcategory.
+    Src: diseases->_id
+    Type: string
+    Req: false
+    Private: false
+#property of case
+  prior_drugs:
+    Desc: A list of drugs prescribed to patient prior to study registration.
+    Src: priorDrugs
+    Type: string
+    Req: false
+    Private: false
+#property of case
+  extent_of_disease:
+
+    Desc: Extent of disease at study entry.
+    Src: (ECOG-ACRIN) extnt_dz
+    Type:
+      - Locally advanced
+      - Metastatic
+      - Recurrent
+    Req: false
+    Private: false
+#property of case
+  ecog_performance_status:
+    Desc: ECOG Performance Status at study entry (integer values 0 to 5 – only 0 and 1 are eligible). 
+    Src: (ECOG-ACRIN) ps
+    Type: integer
+    Req: false
+    Private: false
+    minimum: 0
+    maximum: 5
+#property of specimen
+  specimen_id:
+    Desc: A unique identifier assigned to each MATCH specimen by CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of specimen
+  biopsy_sequence_number:
+    Desc: A unique identifier assigned to the tumor biopsy assigned by source project.
+    Src: biopsySequenceNumber
+    Type: string
+    Req: true
+    Private: true
+#property of specimen
+  specimen_type:
+    Desc: Biopsy type.
+    Src: NA
+    Type:
+      - Tumor
+      - Normal
+      - Unknown
+    Req: true
+    Private: false
+#property of metastatic_site
+  met_site_id:
+    Desc: A unique identifier assigned to a metastatic site  by CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of metastatic_site
+  metastatic_site_name:
+    Desc: Metastatic site at study entry. 
+    Src: (ECOG-ACRIN) met_(site_name)
+    Type:
+      - Bone Marrow
+      - Bone
+      - Lung
+      - Pleura
+      - Liver
+      - Kidney
+      - Stomach
+      - Small intestine
+      - Large intestine
+      - Skin
+      - Orbit
+      - Conjunctiva
+      - Parotid
+      - Submandibular
+      - Testicle
+      - Epidural
+      - CNS-Brain
+      - CNS-Leptom
+      - Pericardium
+      - Lymph Nodes
+      - Adrenals
+      - Other
+    Req: true
+    Private: false
+#property of nucleic_acid
+  aliquot_id:
+    Desc: A unique identifer assigned to an aliquot of nucleic acid, prepared from a patient's tumor biopsy, by CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of nucleic_acid
+  molecular_sequence_number:
+    Desc: A unique identifer assigned to an aliquot of nucleic acid, prepared from a patient's tumor biopsy, by the source project.
+    Src: molecularSequenceNumber
+    Type: string
+    Req: true
+    Private: true
+#property of nucleic_acid
+  nucleic_acid_concentration:
+    Desc: Nucleic acid concentration of aliquot expressed in nanograms per microliter.
+    Src: dnaConcentration
+    Type: number
+    Req: true
+    Private: false
+    exclusiveMinimum: 0
+#property of nucleic_acid
+  nucleic_acid_volume:
+    Desc: Aliquot volume expressed as microliters.
+    Src: dnaVolume
+    Type: number
+    Req: true
+    Private: false
+    exclusiveMinimum: 0
+#property of nucleic_acid
+  nucleic_acid_type:
+    Desc: Nucleic acid type of extract.
+    Src: NA
+    Type:
+      - DNA
+      - RNA
+      - Pooled DNA/cDNA
+      - Unknown
+    Req: true
+    Private: false
+#property of ihc_assay_report
+  ihc_assay_id:
+    Desc: A unique identifier assigned to each IHC assay report by CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of ihc_assay_report
+  ihc_test_gene:
+    Desc: Gene symbol of gene being assayed for expression by an immunohistochemistry (IHC) test.
+    Src: biomarker
+    Type:
+      - PTEN
+      - RB
+      - MLH1
+      - MSH2
+    Req: true
+    Private: false
+#property of ihc_assay_report
+  ihc_test_result:
+    Desc: The result of the IHC test performed on gene.
+    Src: result
+    Type:
+      - EXPRESSED
+      - LOST
+      - INDETERMINATE
+      - UNKNOWN
+    Req: true
+    Private: false
+#property of sequencing_assay
+  sequencing_assay_id:
+    Desc: A unique identifier assigned to each MATCH sequencing assay report by CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: true
+#property of sequencing_assay
+  qc_result:
+    Desc: Sequencing QC result.
+    Src: Generated through API call
+    Type: string
+    Req: false
+    Private: false
+#property of sequencing_assay
+  experimental_method:
+    Desc: The method or protocol used to perform the sequencing assay. Possible values include-  Targeted NGS (sequencing of selected regions of the genome either via targeted capture or amplification); WGS (whole genome sequencing); WXS (whole exome sequencing); RNA-seq  (transcriptome sequencing); miRNA-Seq (microRNA sequencing); ncRNA-Seq (sequencing of non-coding RNA); ssRNA-seq (strand-specific RNA sequencing); ATAC-seq (assay for Transposase-Accessible Chromatin (ATAC) strategy is used to study genome-wide chromatin accessibility); ChIP-Seq (chromatin ImmunoPrecipitation, reveals binding sites of specific proteins, typically transcription factors using antibodies to extract DNA fragments bound to the target protein); DNase-Hypersensitivity (sequencing of hypersensitive sites, or segments of open chromatin that are more readily cleaved by DNaseI); Bisulfite-Seq (sequencing following treatment of DNA with bisulfite to convert cytosine residues to uracil); ChIA-PET (Direct sequencing of proximity-ligated chromatin immunoprecipitates).
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of sequencing_assay
+  platform:
+    Desc: The technology platform used to perform the sequencing assay.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of variant_report
+  variant_report_id:
+    Desc: A unique identifier assigned to each variant report by CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of variant_report, assignment_report
+  analysis_id:
+    Desc: A unique identifier assigned to each variant report by source project.
+    Src: jobName
+    Type: string
+    Req: true
+    Private: true
+#property of variant_report
+  mapd:
+    Desc: Median Absolute Percentage Deviation (MAPD) is a measure of the accuracy of the copy number calls made by the copy number variant pipeline.
+    Src: mapd
+    Type: number
+    Req: false
+    Private: false
+    exclusiveMinimum: 0
+    maximum: 0.5
+#property of variant_report
+  cellularity:
+    Desc: The fraction of biopsy specimen estimated to be comprised of tumor cells.
+    Src: cellularity
+    Type: number
+    Req: false
+    Private: false
+    exclusiveMinimum: 0
+#property of variant_report
+  torrent_variant_caller_version:
+    Desc: The version of the variant calling pipeline from Ion Torrent that was used to identify variants in variant report.
+    Src: tvc_version
+    Type: string
+    Req: false
+    Private: false
+#property of variant_report
+  reference_genome:
+    Desc: The reference assembly (Hg19, GRCh37, GRCh38) used to align reads from sequencing assay.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of file
+  file_description:
+    Desc: Optional description of the file and its content.
+    Src: NA
+    Type: string
+    Req: false
+    Private: false
+#property of file
+  file_format:
+    Desc: The specific format of the file as derived by the loader.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of file
+  file_location:
+    Desc: S3 bucket location of file in CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of file
+  file_name:
+    Desc: File name as assigned by parent project.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of file
+  file_size:
+    Desc: Size of the file as derived by the loader.
+    Src: NA
+    Type: number
+    Req: true
+    Private: false
+#property of file
+  file_status:
+    Desc: Enumerated representation of the status of files.
+    Src: NA
+    Type:
+      - uploading
+      - uploaded
+      - md5summing
+      - md5summed
+      - validating
+      - error
+      - invalid
+      - suppressed
+      - redacted
+      - live
+      - validated
+      - submitted
+      - released
+    Req: true
+    Private: false
+#property of file
+  file_type:
+    Desc: Indicator as to the nature of the file in terms of its content.
+    Src: NA
+    Type:
+      - Raw reads file
+      - Aligned DNA reads file
+      - Aligned RNA reads file
+      - Index file
+      - Variants file
+    Req: true
+    Private: false
+#property of file
+  md5sum:
+    Desc: Md5 checksum.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of file
+  uuid:
+    Desc: A unique id assigned by CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of snv_variant, delins_variant, indel_variant, copy_number_variant, gene_fusion_variant
+  variant_id:
+    Desc: A unique identifier assigned to each variant by CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of snv_variant, delins_variant, indel_variant, copy_number_variant, gene_fusion_variant
+  external_variant_id:
+    Desc: The COSMIC ID of variant, if available, or another source project assigned ID.
+    Src: identifier
+    Type: string
+    Req: false
+    Private: false
+#property of snv_variant, delins_variant, indel_variant, copy_number_variant
+  gene:
+    Desc: Gene symbol of gene that has been identified as having a variant number of copies.
+    Src: gene
+    Type: string
+    Req: true
+    Private: false
+#property of snv_variant, delins_variant, indel_variant, copy_number_variant
+  chromosome:
+    Desc: The chromosome that encodes variant gene.
+    Src: chromosome
+    Type:
+      - chr1
+      - chr2
+      - chr3
+      - chr4
+      - chr5
+      - chr6
+      - chr7
+      - chr8
+      - chr9
+      - chr10
+      - chr11
+      - chr12
+      - chr13
+      - chr14
+      - chr15
+      - chr16
+      - chr17
+      - chr18
+      - chr19
+      - chr20
+      - chr21
+      - chr22
+      - chrX
+      - chrY
+    Req: true
+    Private: false
+#property of snv_variant, delins_variant, indel_variant
+  exon:
+    Desc: The exon that encodes the variant nucleotide position.
+    Src: exon
+    Type: integer
+    Req: true
+    Private: false
+    exclusiveMinimum: 0
+#property of snv_variant, delins_variant, indel_variant
+  position:
+    Desc: The chromosomal location of nucleotide variant on the positive strand.
+    Src: position
+    Type: integer
+    Req: true
+    Private: false
+    exclusiveMinimum: 0
+#property of snv_variant, delins_variant, indel_variant
+  reference:
+    Desc: Reference allele at variant position.
+    Src: reference
+    Type: string
+    Req: true
+    Private: false
+#property of snv_variant, delins_variant, indel_variant
+  alternative:
+    Desc: Alternative nucelotide identified at variant position.
+    Src: alternative
+    Type: string
+    Req: true
+    Private: false
+#property of snv_variant, delins_variant, indel_variant
+  transcript_id:
+    Desc: NCBI Identifier of the transcript isoform chosen for reporting the variant.
+    Src: transcript
+    Type: string
+    Req: true
+    Private: false
+#property of snv_variant, delins_variant, indel_variant
+  transcript_hgvs:
+    Desc: The transcript level change annotated in the HGVS format.
+    Src: hgvs
+    Type: string
+    Req: false
+    Private: false
+#property of snv_variant, delins_variant, indel_variant
+  genomic_hgvs:
+    Desc: The genomic change annotated in the HGVS format.
+    Src: genomicHgvs
+    Type: string
+    Req: false
+    Private: false
+#property of snv_variant, delins_variant, indel_variant, copy_number_variant, gene_fusion_variant
+  oncomine_variant_class:
+    Desc: Variant classification label assigned by the variant calling workflow of the Ion Reporter Software.
+    Src: oncominevariantclass
+    Type:
+      - Amplification
+      - Deletion
+      - Deleterious
+      - Hotspot
+      - Fusion
+    Req: false
+    Private: false
+#property of snv_variant, delins_variant, indel_variant
+  variant_classification:
+    Desc: Variant classification based on the effect of genomic change.
+    Src: function
+    Type: string
+    Req: true
+    Private: false
+#property of snv_variant, delins_variant, indel_variant
+  amino_acid_change:
+    Desc: The amino acid change resulting from the nucleotide-level change.
+    Src: protein
+    Type: string
+    Req: true
+    Private: false
+#property of copy_number_variant
+  tumor_suppressor:
+    Desc: A flag that indicates if variant gene is a tumor suppressor.
+    Src: cancerGeneType
+    Type: boolean
+    Req: false
+    Private: false
+#property of gene_fusion_variant
+  gene1:
+    Desc: Gene symbol of upstream partner of a fusion variant.
+    Src: partnerGene
+    Type: string
+    Req: true
+    Private: false
+#property of gene_fusion_variant
+  gene2:
+    Desc: Gene symbol of downstream partner of a fusion variant.
+    Src: driverGene
+    Type: string
+    Req: true
+    Private: false
+#property of assignment_report
+  assignment_report_id:
+    Desc: A unique identifier assigned to each assignment report by CTDC.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of assignment_report
+  step_at_assignment:
+    Desc: The step in the MATCH workflow at which patient has been assigned to treatment arm.
+    Src: patientAssignments->stepNumber
+    Type: integer
+    Req: false
+    Private: false
+    minimum: 0
+#property of assignment_report
+  assignment_logic:
+    Desc: The rationale for assigning treatment arm.
+    Src: patientAssignmentLogic
+    Type: string
+    Req: false
+    Private: false
+#property of assignment_report
+  assignment_outcome:
+    Desc: A status describing outcome of assigning patient to treatment arm.
+    Src: assignmentStatusOutcome
+    Type:
+      - COMPASSIONATE_CARE
+      - FORMERLY_ON_ARM_DECEASED
+      - FORMERLY_ON_ARM_OFF_TRIAL
+      - FORMERLY_ON_ARM_PROGRESSED
+      - NOT_ELIGIBLE
+      - OFF_TRIAL
+      - OFF_TRIAL_DECEASED
+      - OFF_TRIAL_NO_TA_AVAILABLE
+      - OFF_TRIAL_NOT_CONSENTED
+      - ON_TREATMENT_ARM
+      - PENDING_APPROVAL
+      - PENDING_CONFIRMATION
+    Req: true
+    Private: false
+#property of assignment_report
+  treatment_outcome:
+    Desc: Best Confirmed Response.
+    Src: (ECOG)best_conf_resp
+    Type:
+      - Complete response
+      - Partial response
+      - Stable disease
+      - Progressive disease
+      - Not evaluable
+    Req: false
+    Private: false
+#property of arm
+  arm_id:
+    Desc: A unique identifier assigned to a study arm.
+    Src: NA
+    Type:
+      - A
+      - C2
+      - E
+      - L
+      - T
+      - V
+      - Z1E
+      - Z1G
+      - Z1H
+      - Z1K
+      - Z1L
+      - Z1J
+      - Z1M
+      - C1
+      - J
+      - K1
+      - K2
+      - M
+      - Z1C
+      - Z1F
+      - F
+      - G
+      - H
+      - R
+      - U
+      - S1
+      - S2
+      - X
+      - Z1A
+      - B
+      - Z1B
+      - Z1D
+      - Z1I
+      - I
+      - N
+      - P
+      - Q
+      - W
+      - Y
+    Req: true
+    Private: false
+#property of arm
+  arm_target:
+    Desc: A concise description of genomic aberrations being targeted by study arm.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of arm
+  arm_drug:
+    Desc: The therapeutic agent being tested against the target genomic aberrations.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of arm
+  pubmed_id:
+    Desc: PubMed ID of the primary publication associated with study arm.
+    Src: NA
+    Type: string
+    Req: false
+    Private: false
+#property of clinical_trial
+  clinical_trial_id:
+    Desc: The Trial ID assigned to trial by ClinicalTrials.gov.
+    Src: study_id
+    Type: string
+    Req: true
+    Private: false
+#property of clinical_trial
+  clinical_trial_short_name:
+    Desc: An abbreviated title of the clinical trial eg. Molecular Analysis for Therapy Choice
+    Src: study_name
+    Type: string
+    Req: true
+    Private: false
+#property of clinical_trial
+  clinical_trial_description:
+    Desc: A brief description of clinical study.
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of clinical_trial
+  clinical_trial_designation:
+    Desc: A concise name for clinical study eg. MATCH
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of clinical_trial
+  clinical_trial_long_name:
+    Desc: The complete name of the clinical trial, eg. Targeted Therapy Directed by Genetic Testing in Treating Patients with Advanced Refractory Solid Tumors, Lymphomas, or Multiple Myeloma (The MATCH Screening Trial).
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of clinical_trial
+  clinical_trial_type:
+    Desc: Clinical trial type
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of clinical_trial
+  lead_organization:
+    Desc: Lead Organization
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of clinical_trial
+  principal_investigators:
+    Desc: Principal Investigators
+    Src: NA
+    Type: string
+    Req: true
+    Private: false
+#property of snv_variant_of, delins_variant_of, indel_variant_of
+  allele_frequency:
+    Desc: Frequency of alternative nucleotide as determined by number of reads carrying alternative nucleotide as a fraction of total number of reads mapping to variant position.
+    Src: alleleFrequency
+    Type: number
+    Req: true
+    Private: false
+    exclusiveMinimum: 0
+    maximum: 1
+#property of copy_number_variant_of
+  copy_number:
+    Desc: The estimated number of copies for the copy number variant gene.
+    Src: copyNumber
+    Type: number
+    Req: true
+    Private: false
+    minimum: 0
+#property of copy_number_variant_of
+  copy_number_ci_5:
+    Desc: The lower limit of the 95% confidence interval for the estimated copy number.
+    Src: confidenceInterval5percent
+    Type: number
+    Req: true
+    Private: false
+    minimum: 0
+#property of copy_number_variant_of
+  copy_number_ci_95:
+    Desc: The upper limit of the 95% confidence interval for the estimated copy number.
+    Src: confidenceInterval95percent
+    Type: number
+    Req: true
+    Private: false
+    minimum: 0
+#property of gene_fusion_variant_of
+  gene1_read_count:
+    Desc: Number of reads mapping to the upstream gene partner.
+    Src: partnerReadCount
+    Type: integer
+    Req: true
+    Private: false
+    exclusiveMinimum: 0
+#property of gene_fusion_variant_of
+  gene2_read_count:
+    Desc: Number of reads mapping to the downstream gene partner.
+    Src: driverReadCount
+    Type: integer
+    Req: true
+    Private: false
+    exclusiveMinimum: 0
