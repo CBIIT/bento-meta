@@ -1,6 +1,5 @@
 use Test::More;
 use File::Spec;
-use Bento::MakeModel;
 use Log::Log4perl qw/:easy/;
 use lib '../lib';
 
