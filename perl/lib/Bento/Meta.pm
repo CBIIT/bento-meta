@@ -64,6 +64,8 @@ It can be also be used without a database connection to read, manipulate,
 and store data models in the 
 L<Model Description Format|https://github.com/CBIIT/bento-mdf> (MDF). 
 
+This class is just a L<Bento::Meta::Model> factory and container. 
+
 =head1 METHODS
 
 =over

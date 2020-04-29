@@ -35,14 +35,25 @@ sub new {
       LOGDIE ref($self)."::new : arg2 must be a Neo4j::Bolt::Cxn";
     }
     $self->{_bolt_cxn} = $bolt_cxn;
-    $self->build_maps;
+    $self->_build_maps;
+    $self->get;
   }
   return $self;
 }
 
+sub set_bolt_cxn {
+  my $self = shift;
+  my ($cxn) = @_;
+  unless ( $cxn->isa('Neo4j::Bolt::Cxn') ) {
+    LOGDIE ref($self)."::set_bolt_cxn : arg1 must be a Neo4j::Bolt::Cxn";
+  }
+  $self->_build_maps;
+  $self->{_bolt_cxn} = $cxn;
+}
+
 sub bolt_cxn { shift->{_bolt_cxn} }
 
-sub build_maps {
+sub _build_maps {
   my $self = shift;
   for (qw/ Node Edge Property ValueSet Origin Concept Term /) {
     my $cls = "Bento::Meta::Model::$_";
@@ -557,13 +568,69 @@ sub edge_by {
 
 =head1 NAME
 
-Bento::Meta::Model - object bindings for Bento Metamodel DB
+Bento::Meta::Model - object bindings for Bento Metamodel Database
 
 =head1 SYNOPSIS
 
-$model = Bento::Meta::Model->new();
+ # empty model with name $handle:
+ $model = Bento::Meta::Model->new('Test');
+ # pull model from database - add bolt connection with Neo4j::Bolt
+ $model = Bento::Meta::Model->new('ICDC',Neo4j::Bolt->connect('bolt://localhost:7687))
+ # connect model to db after creating 
+ $model = Bento::Meta::Model->new('CTDC');
+ $model->set_bolt_cxn( Neo4j::Bolt->connect('bolt://localhost:7687') );
+ $model->get(); # pulls nodes, properties, relationships with model => 'CTDC'
+
+ # read a model from MDF YAML files:
+ use Bento::Meta::MDF;
+ $model = Bento::Meta::MDF->create_model(qw/icdc-model.yml icdc-model-props.yml/);
+ # connect it and push to db
+ $model->set_bolt_cxn( Neo4j::Bolt->connect('bolt://localhost:7687') );
+ $model->put(); # writes all to db
+
+ # build model from scratch: add, change, and remove entities
+
+ $model = Bento::Meta::Model->new('Test');
+ 
+ # create some nodes and add them
+ ($case, $sample, $file) = 
+    map { Bento::Meta::Model::Node->new({handle => $_}) } qw/case sample file/;
+ $model->add_node($case);
+ $model->add_node($sample);
+ $model->add_node($file);
+ 
+ # create some relationships (edges) between nodes
+ $of_case = Bento::Meta::Model::Edge->new({ 
+   handle => 'of_case',
+   src => $sample,
+   dst => $case });
+ 
+ $has_file = Bento::Meta::Model::Edge->new({
+   handle => 'has_file',
+   src => $sample,
+   dst => $file });
+   
+ $model->add_edge($of_case);
+ $model->add_edge($has_file);
+
+ # create some properties and add to nodes or to edges
+ $case_name = Bento::Meta::Model::Property->new({
+   handle => 'name',
+   value_domain => 'string' });
+ $workflow_type = Bento::Meta::Model::Property->new({
+   handle => 'workflow_type',
+   value_domain => 'value_set' });
+
+ $model->add_prop( $case => $case_name );
+ $model->add_prop( $has_file => $workflow_type );
+
+ # add some terms to a property with a value set (i.e., enum)
+
+ $model->add_terms( $workflow_type => qw/wdl cwl snakemake/ );
+  
 
 =head1 DESCRIPTION
+
 
 =head1 METHODS
 

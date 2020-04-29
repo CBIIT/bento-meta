@@ -17,6 +17,7 @@ my $build = Module::Build->new(
   requires => {
     'Log::Log4perl' => 0,
     'Try::Tiny' => 0,
+    'UUID::Tiny' => 0,
     'Scalar::Util' => 0,
     'JSON::ize' => '>= 0.202',
     'YAML::PP' => '>= 0.018',

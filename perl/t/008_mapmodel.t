@@ -41,7 +41,7 @@ SKIP : {
 
   ok my $model = Bento::Meta::Model->new('ICDC', $cxn), "create Model obj with Neo4j mapping";
   diag "get model from db";
-  ok $model->get, "load model from db";
+#  ok $model->get, "load model from db";
 
   ok my ($dbc) = $cxn->run_query('match (n:node) where n.model="ICDC" return count(n)')
     ->fetch_next,"fetch no. db nodes";

@@ -367,6 +367,10 @@ The object-valued attribute maps have this form:
  [ <attribute_name> => <neo4j_relationship_type>,
    <target_attribute_classname> => <neo4j_target_node_label> ]
 
+ Note: <target_attribute_classname> can be a class name string, or an 
+ array of class names, so an attribute can contain objects of more
+ than one class.
+
 The directionality of the relationship is given using an angle bracket, 
 as in L<Neo4j::Cypher::Abstract>. The direction is given relative to the the 
 subclass.
@@ -402,12 +406,14 @@ Return type of the attribute $attr.
 =item set_with_node($neo4j_bolt_node)
 
 Set all simple scalar attributes according to values in 
-$neo4j_bolt_node-E<gt>{properties}.
+$neo4j_bolt_node-E<gt>{properties}, and assign object's neoid attribute
+to $neo4j_bolt_node-E<gt>{id}.
 
 =item map_defn()
 
 This should be defined in the subclasses. It should return a map definition 
-hashref for the subclass as described above in L</object_map>.
+hashref for the subclass as described above in L</object_map>. See 
+L<Bento::Meta::Model::Node>, for example.
 
 =back
 
