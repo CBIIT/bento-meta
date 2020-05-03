@@ -1,17 +1,20 @@
 Nodes:
   node:
     Props:
+      - id
       - handle
       - model
       - category
   relationship:
     Props:
+      - id
       - handle
       - model
       - neo_type
       - multiplicity
   property:
     Props:
+      - id
       - handle
       - model
       - is_required
@@ -20,8 +23,8 @@ Nodes:
       - pattern
   value_set:
     Props:
-      - handle
       - id
+      - handle
       - url
   concept:
     Props:
@@ -34,6 +37,7 @@ Nodes:
       - origin_definition
   origin:
     Props:
+      - id
       - name
       - url
       - is_external
@@ -119,7 +123,7 @@ PropDefinitions:
   id:
     Req: true
     Type: string
-    Desc: content-free id for a concept or value_set
+    Desc: content-free uid for model entities
   neo_type:
     Type: string
     Desc: string as a neo4j relationship type for instances of the relationship entity
