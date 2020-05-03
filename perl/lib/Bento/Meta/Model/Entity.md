@@ -71,7 +71,7 @@ The base class Entity has the following private attributes
 
 - object\_map($map\_definition\_hashref, $bolt\_cxn), object\_map() - getter
 
-    Create and attach an [Bento::Meta::Model::ObjectMap](/lib/Bento/Meta/Model/ObjectMap.md) to the `Entity` subclass.
+    Create and attach an [Bento::Meta::Model::ObjectMap](/perl/lib/Bento/Meta/Model/ObjectMap.md) to the `Entity` subclass.
     The ObjectMap defines the associations from the object class and 
     attributes to the Neo4j graph model, as well as the connection to the graph
     database. When the ObjectMap is defined, instances receive the ["get()"](#get),
@@ -158,11 +158,11 @@ The base class Entity has the following private attributes
 
     This should be defined in the subclasses. It should return a map definition 
     hashref for the subclass as described above in ["object\_map"](#object_map). See 
-    [Bento::Meta::Model::Node](/lib/Bento/Meta/Model/Node.md), for example.
+    [Bento::Meta::Model::Node](/perl/lib/Bento/Meta/Model/Node.md), for example.
 
 ## Database interaction methods
 
-When the subclass has been instrumented with an [Bento::Meta::Model::ObjectMap](/lib/Bento/Meta/Model/ObjectMap.md),
+When the subclass has been instrumented with an [Bento::Meta::Model::ObjectMap](/perl/lib/Bento/Meta/Model/ObjectMap.md),
 the following methods are available on any instance.
 
 - get(), get($refresh)

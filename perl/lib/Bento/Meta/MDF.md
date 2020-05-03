@@ -9,7 +9,7 @@ Bento::Meta::MDF - Create model objects from model description files
 
 # DESCRIPTION
 
-[Bento::Meta::MDF](/lib/Bento/Meta/MDF.md) defines a [Bento::Meta::Model](/lib/Bento/Meta/Model.md) factory, `create_model()`,
+[Bento::Meta::MDF](/perl/lib/Bento/Meta/MDF.md) defines a [Bento::Meta::Model](/perl/lib/Bento/Meta/Model.md) factory, `create_model()`,
 that accepts model description files as specified at [bento-mdf](https://github.com/CBIIT/bento-mdf).
 
 In particular, it follows the merging protocol describes at
@@ -19,7 +19,7 @@ In particular, it follows the merging protocol describes at
 
 - create\_model(@mdf\_yaml\_files)
 
-    Returns a [Bento::Meta::Model](/lib/Bento/Meta/Model.md) object.
+    Returns a [Bento::Meta::Model](/perl/lib/Bento/Meta/Model.md) object.
 
 # AUTHOR
 

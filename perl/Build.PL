@@ -28,7 +28,7 @@ sub ACTION_author_tasks {
         $mdstr =~ s{(\][(]github::[^)]*[)])}
                    {
                      $_ = $1;
-                     s|github::|/lib/|;
+                     s|github::|/perl/lib/|;
                      s|::|/|g;
                      s|[)]$|.md)|;
                      $_
