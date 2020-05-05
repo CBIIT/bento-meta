@@ -21,6 +21,7 @@ t/005_mdf.t
 t/006_map.t
 t/007_db.t
 t/008_mapmodel.t
+t/009_meta.t
 t/samples/ctdc_model_file.yaml
 t/samples/ctdc_model_properties_file.yaml
 t/samples/icdc-model-props.yml

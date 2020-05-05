@@ -1,8 +1,9 @@
 ---
-abstract: 'Tools for manipulating Bento Metamodel Database'
+abstract: 'Tools for manipulating a Bento Metamodel Database'
 author:
   - 'Mark A. Jensen'
 build_requires:
+  IO::Pty: '0'
   IPC::Run: '0'
   Test::Exception: '0'
   Test::Warn: '0'
