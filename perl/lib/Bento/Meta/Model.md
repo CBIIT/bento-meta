@@ -63,6 +63,207 @@ Bento::Meta::Model - object bindings for Bento Metamodel Database
 
 # DESCRIPTION
 
+[Bento::Meta::Model](/perl/lib/Bento/Meta/Model.md) provides an object representation of a single
+[property
+graph](https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph)-based
+data model, as embodied in the structure of the [Bento Metamodel
+Database](https://github.com/CBIIT/bento-mdf) (MDB). The MDB can store
+multiple such models in terms of their nodes, relationships, and
+properties. The MDB links these entities according to the structure of
+the individual models. For example, model nodes are represented as
+metamodel nodes of type "node", model relationships as metamodel nodes
+of type "relationship", that themselves link to the relevant source
+and destination metamodel nodes, representing the two end nodes in the
+model itself. [Bento::Meta::Model](/perl/lib/Bento/Meta/Model.md) can create, read, update, and link
+these entities together according to the [MDB
+structure](https://github.com/CBIIT/bento-meta#structure).
+
+The MDB also provides entities for defining and maintaining
+terminology associated with the stored models. These include the
+`term`s themselves, their `origin`, and associated `concept`s. Each
+of these entities can be created, read, and updated using
+[Bento::Meta::Model](/perl/lib/Bento/Meta/Model.md) and the component objects.
+
+## A Note on "Nodes"
+
+The metamodel is a property graph, designed to store specific property
+graph models, in a database built for property graphs. The word "node"
+is therefore used in different contexts and can be confusing,
+especially since the Cancer Research Data Commons is also set up in
+terms of "nodes", which are central repositories of cancer data of
+different kinds. This and related documentation will attempt to
+distinguish these concepts as follows.
+
+- A "graph node" is a instance of the node concept in the
+property graph model, that usually represents a category or item of
+interest in the real world, and has associate properties that
+distinguish it from other instances.
+- A "model node" is a graph node within a specific data model, and represents
+groups of data items (properties) and can be related to other model nodes via
+model relationships. 
+- A "metamodel node" is a graph node that represents a model node, model 
+relationship, or model property, in the metamodel database.
+- A "Neo4j node" refers generically to the representation of a node in the Neo4j database engine.
+- A "CRDC node" refers to a data commons repository that is part of the CRDC, such as the [ICDC](https://caninecommons.cancer.gov/#/).
+
+## A Note on Objects, Properties, and Attributes
+
+[Bento::Meta](/perl/lib/Bento/Meta.md) creates a mapping between Neo4j nodes and Perl
+objects. Of course, the objects have data associated with them,
+accessed via setters and getters. These object-associated data are
+referred to exclusively as "attributes" in the documentation.
+
+Thus, a `Bento::...::Node` object has an attribute `props`
+(properties), which is an (associative) array of
+`Bento::...::Property` objects. The `props` attribute is a
+representation of the `has_property` relationships between the
+metamodel node-type node to its metamodel property-type nodes.
+
+## Working with Models
+
+Each model stored in the MDB has a simple name, or handle. The word
+"handle" is used throughout the metamodel to distinguish internal
+names (strings that are used within the system and downstream
+applications to refer to entities) and the external "terms" that are
+employed by users and standards. Handles can be understood as "local
+vocabulary". The handle is usually the name of the CRDC node that the
+model supports.
+
+A [Bento::Meta::Model](/perl/lib/Bento/Meta/Model.md) object is meant to represent only one model. The 
+[Bento::Meta](/perl/lib/Bento/Meta.md) object can contain and retrieve a number of models.
+
+## Component Objects
+
+Individual entities in the MDB - nodes, relationships, properties,
+value sets, terms, concepts, and origins, are represented by instances
+of corresponding [Bento::Meta::Model::Entity](/perl/lib/Bento/Meta/Model/Entity.md) subclasses:
+
+- [Bento::Meta::Model::Node](/perl/lib/Bento/Meta/Model/Node.md)
+- [Bento::Meta::Model::Edge](/perl/lib/Bento/Meta/Model/Edge.md)
+
+    "Edge" is shorter than "relationship".
+
+- [Bento::Meta::Model::Property](/perl/lib/Bento/Meta/Model/Property.md)
+- [Bento::Meta::Model::ValueSet](/perl/lib/Bento/Meta/Model/ValueSet.md)
+- [Bento::Meta::Model::Term](/perl/lib/Bento/Meta/Model/Term.md)
+- [Bento::Meta::Model::Concept](/perl/lib/Bento/Meta/Model/Concept.md)
+- [Bento::Meta::Model::Origin](/perl/lib/Bento/Meta/Model/Origin.md)
+
+`Bento::Meta::Model` methods generally accept these objects as
+arguments and/or return these objects. To obtain specific scalar
+information (for example, the handle string) of the object, use the
+relevant getter on the object itself:
+
+    # print the 'handle' for every property in the model
+    for ($model->props) {
+      say $_->handle;
+    }
+
+## Model as Container
+
+The Model object is a direct container of nodes, edges (relationships), and
+properties. To get a simple list of all relevant entities in a model, use the
+model getters:
+
+    @nodes = $model->nodes();
+
+To retrieve a specific entity, provide a key to the getter as the argument. 
+The keys are laid out as follows
+
+    Entity    Key                              Example
+    ------    ---                              -------
+    Node      <node handle>                    sample
+    Property  <node handle>:<property handle>  sample:sample_type
+    Edge      <edge handle>:<src node handle>:<dst node handle>
+                                               of_sample:sample:case
+
+For example:
+
+    $of_sample = $model->edges('of_sample:sample:case');
+    # get source and destination node objects from edge object itself
+    $sample = $of_sample->src;
+    $case = $of_sample->dst;
+
+The component objects are themselves containers of their own attributes, and
+their getters and setters are structured similarly. (In fact, 
+`Bento::Meta::Model` is, like the component objects, a subclass of 
+[Bento::Meta::Model::Entity](/perl/lib/Bento/Meta/Model/Entity.md)). The difference is that keys for collection-
+valued attributes at the component object level are simpler. For example:
+
+    $prop1 = $model->props('sample:sample_type');
+    $prop2 = $sample->props('sample_type');
+    # $prop1 and $prop2 are the same object
+
+## Model as an Interface
+
+The Model object has methods that allow the user to add, remove and
+modify entities in the model. The Model object is an interface, in
+that loosely encapsulates the MDB structure and tries to relieve the
+user from having to remember that structure and guards against
+deviations from it. 
+
+The main methods are 
+
+- add\_node()
+- add\_edge()
+- add\_prop()
+- add\_terms()
+- rm\_node()
+- rm\_edge()
+- rm\_prop()
+- rm\_terms() (coming soon)
+
+Details are below in ["$model object"](#model-object). The main idea is that these
+methods operate on either the relevant component object or on a
+hashref that specifies an object by its attributes. In the latter
+case, a new component object is created.
+
+Here's a pattern for creating two nodes and an edge in a model:
+
+    $src_node = $model->add_node({ handle => 'sample' });
+    $dst_node = $model->add_node({ handle => 'case' });
+    $edge = $model->add_edge({ handle => 'of_case',
+                                  src => $src_node,
+                                  dst => $dst_node });
+
+These new entities are registered in the model, and can be retrieved:
+
+    $case = $model->nodes('case'); # same obj as $dst_node
+    $of_case = $model->edges('of_case:sample:case'); # same obj as $edge
+
+Removing entities from the model "deregisters" them, but does not destroy
+the object itself. 
+
+    $case = $model->rm_node($case);
+    $other_model->add_node($case);
+
+Analogous to Neo4j, attempting to remove a node will throw, if the node 
+participates in any relationships/edges. For the above to work, for example,
+would require
+
+    $model->rm_edge($of_case);
+
+first.
+
+### Manipulating Terms
+
+One of the key uses of the MDB is for storing lists of acceptable values for
+properties that require them. In the MDB schema, a property is linked to 
+a value set entity, and the value set aggregates the term entities. The model
+object tries to hide some of this structure. It will also create a set of 
+Term objects from a list of strings as a shortcut. 
+
+    $prop = $model->add_prop( $sample => { handle => 'sample_type',
+                                           value_domain => 'value_set' });
+    # $prop has domain of 'value_set', so you can add terms to it
+    $value_set = $model->add_terms( $prop => qw/normal tumor/ );
+    @terms = $value_set->terms; # set of 2 term objects
+    @same_terms = $prop->terms; # prop object also has a shortcut 
+
+## Database Interaction
+
+    TODO
+
 # METHODS
 
 ## $model object
