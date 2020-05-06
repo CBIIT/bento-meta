@@ -1,6 +1,6 @@
 # NAME
 
-Bento::Meta::Model::Edge - object that models an egde or relationship
+Bento::Meta::Model::Edge - object that models an edge or relationship
 
 # SYNOPSIS
 

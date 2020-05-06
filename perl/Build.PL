@@ -15,7 +15,7 @@ sub ACTION_author_tasks {
     # write POD as <Module>.md in relevant lib/ subdirs
     find (
       sub {
-        return unless $_ =~ /^(.*)\.pm$/;
+        return unless $_ =~ /^(\w.*)\.pm$/;
         my ($name) = $1;
         die unless defined $name;
         my $mdstr = '';

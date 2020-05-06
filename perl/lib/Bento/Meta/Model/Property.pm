@@ -67,4 +67,21 @@ sub set_terms {
   return $self->value_set->set_terms(@_);
 }
 
+=head1 NAME
+
+Bento::Meta::Model::Property - object that models a node or relationship property
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=head1 AUTHOR
+
+ Mark A. Jensen < mark -dot- jensen -at- nih -dot- gov >
+ FNL
+
+=cut
+
 1;

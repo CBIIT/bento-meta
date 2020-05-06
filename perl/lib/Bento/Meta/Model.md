@@ -98,9 +98,7 @@ distinguish these concepts as follows.
 property graph model, that usually represents a category or item of
 interest in the real world, and has associate properties that
 distinguish it from other instances.
-- A "model node" is a graph node within a specific data model, and represents
-groups of data items (properties) and can be related to other model nodes via
-model relationships. 
+- A "model node" is a graph node within a specific data model, and represents groups of data items (properties) and can be related to other model nodes via model relationships. 
 - A "metamodel node" is a graph node that represents a model node, model 
 relationship, or model property, in the metamodel database.
 - A "Neo4j node" refers generically to the representation of a node in the Neo4j database engine.
@@ -118,6 +116,8 @@ Thus, a `Bento::...::Node` object has an attribute `props`
 `Bento::...::Property` objects. The `props` attribute is a
 representation of the `has_property` relationships between the
 metamodel node-type node to its metamodel property-type nodes.
+
+See [below](#object-attributes) for more details.
 
 ## Working with Models
 
@@ -158,6 +158,57 @@ relevant getter on the object itself:
     for ($model->props) {
       say $_->handle;
     }
+
+### Object attributes
+
+A node in the graph database can possess two kinds of related data. In
+the (Neo4j) database, node "properties" are named items of scalar
+data. These belong directly to the individual nodes, and are
+referenced via the node. These map very naturally to scalar attributes
+of a model object. For example, "handle" is a metamodel node property,
+and it is accessed simply by the object attribute of the same name,
+$node->handle(). In the code, these are referred to as "property
+attributes" or "scalar-valued attributes".
+
+The other kind of data related to a given node is present in other nodes
+that are linked to it via graph database relationships. In the
+MDB, for example, a model edge (e.g., "of\_sample") is represented by
+its own graph node of type "Relationship", and the source and
+destination nodes for that edge are two graph nodes of type "Node",
+one of which is linked to the Relationship node with a graph
+relationship "has\_src", and the other with a graph relationship
+"has\_dst". (Refer to [this
+diagram](https://github.com/CBIIT/bento-meta#structure).)
+
+In the object model, the source and destination nodes of an edge are
+also represented as object attributes: in this case, $edge->src
+and $edge->dst. This representation encapsulates the "has\_src" and
+"has\_dst" graph relationships, so that the programmer can ignore the
+metamodel structure and concentrate on the model structure. Note that
+the value of such an attribute is an object (or an array of objects).
+In the code, such attributes are referred to as "relationship",
+"object-valued" or "collection-valued" attributes.
+
+### Object interface
+
+Individual objects have their own interfaces, which are partially described
+in ["METHODS"](#methods) below. Essentially, the name of the attribute is the 
+name of the getter, while "set\_&lt;name>" is the setter. Getter return 
+types depend on whether the attribute is scalar, object, or collection-valued.
+Setter arguments have similar dependencies.
+
+    For an attribute "blarg":
+
+                       getter                            setter
+    scalar-valued      blarg() returns scalar            set_blarg($scalar)
+    object-valued      blarg() returns object            set_blarg($obj)
+    collection-valued  blarg() returns array of objects  set_blarg(key => $obj)
+
+A true array is returned by collection-valued getters, not an arrayref.
+
+Collection-valued attributes are generally associative arrays. The key 
+is the handle() of the subordinate object (or value() in the case of 
+[term](/perl/lib/Bento/Meta/Model/Term.md) objects).
 
 ## Model as Container
 
@@ -262,7 +313,32 @@ Term objects from a list of strings as a shortcut.
 
 ## Database Interaction
 
-    TODO
+The approach to the back and forth between the object representation
+and the database attempts to be simple and robust. The pattern is a
+push/pull cycle to and from the database. The database instrumentation
+is also encapsulated from the rest of the object functionality, so
+that even if no database is specified or connected, all the object
+manipulations are available.
+
+The Model methods are ["get()"](#get) and ["put()"](#put). `get()` pulls the
+metamodel nodes for the model with handle `$model->handle` from
+the connected database. It will not disturb any modifications made to
+objects in the program, unless called with a true argument. In that
+case, `get(1)` (e.g.) will refresh all objects from current metamodel
+nodes in the database.
+
+`put()` pushes the model objects, with any changes to attributes, to
+the database. It will build and execute queries correctly to convert, for
+example, collection attributes to multiple nodes and corresponding
+relationships. `put()` adds and removes relationships in the database as
+necessary, but will not fully delete nodes. To completely remove objects
+from the database, use `rm()` on the objects themselves:
+
+    $edge = $model->rm_edge($edge); # edge detached from nodes and removed 
+                                    # from model
+    $model->put(); # metamodel node representing the edge is still present in db
+                   # but is detached from the source node and destination node
+    $node->rm(); # metamodel node representing the edge is deleted from db
 
 # METHODS
 
@@ -291,6 +367,18 @@ Term objects from a list of strings as a shortcut.
 - @edges = $model->edge\_by\_src()
 - @edges = $model->edge\_by\_dst()
 - @edges = $model->edge\_by\_type()
+
+### Database methods
+
+- get()
+
+    Pull metamodel nodes from database for the model (given by $model->handle)
+    Refresh nodes (reset) by issuing $model->get(1). 
+
+- put()
+
+    Push model changes back to database. This operation will disconnect (remove
+    Neo4j relationships) nodes, but will not delete nodes themselves.
 
 ## $node object
 

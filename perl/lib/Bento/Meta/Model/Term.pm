@@ -36,4 +36,22 @@ sub map_defn {
      ]
    };
 }
-1;
+
+=head1 NAME
+
+Bento::Meta::Model::Term - object that models a term from a terminology
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=head1 AUTHOR
+
+ Mark A. Jensen < mark -dot- jensen -at- nih -dot- gov >
+ FNL
+
+=cut
+
+  1;

@@ -67,6 +67,7 @@ sub _build_maps {
 # get all the nodes, relationships and properties
 sub get {
   my $self = shift;
+  my ($refresh) = @_;
   unless ($self->bolt_cxn) {
     LOGWARN ref($self)."::get : Can't get model; no database connection set";
     return;
@@ -105,7 +106,7 @@ sub get {
   }
   # now get() each node, which should load the object properties and
   # create the cache...
-  $_->get() for (@n,@e,@p);
+  $_->get($refresh) for (@n,@e,@p);
   ($self->{_nodes}{$_->handle} = $_) for @n;
   for (@e) {
     $self->{_edges}{$_->triplet} = $_;
@@ -672,9 +673,7 @@ property graph model, that usually represents a category or item of
 interest in the real world, and has associate properties that
 distinguish it from other instances.
 
-=item * A "model node" is a graph node within a specific data model, and represents
-groups of data items (properties) and can be related to other model nodes via
-model relationships. 
+=item * A "model node" is a graph node within a specific data model, and represents groups of data items (properties) and can be related to other model nodes via model relationships. 
 
 =item * A "metamodel node" is a graph node that represents a model node, model 
 relationship, or model property, in the metamodel database.
@@ -697,6 +696,8 @@ Thus, a C<Bento::...::Node> object has an attribute C<props>
 C<Bento::...::Property> objects. The C<props> attribute is a
 representation of the C<has_property> relationships between the
 metamodel node-type node to its metamodel property-type nodes.
+
+See L<below|/Object attributes> for more details.
 
 =head2 Working with Models
 
@@ -747,6 +748,57 @@ relevant getter on the object itself:
     say $_->handle;
   }
 
+=head3 Object attributes
+
+A node in the graph database can possess two kinds of related data. In
+the (Neo4j) database, node "properties" are named items of scalar
+data. These belong directly to the individual nodes, and are
+referenced via the node. These map very naturally to scalar attributes
+of a model object. For example, "handle" is a metamodel node property,
+and it is accessed simply by the object attribute of the same name,
+$node-E<gt>handle(). In the code, these are referred to as "property
+attributes" or "scalar-valued attributes".
+
+The other kind of data related to a given node is present in other nodes
+that are linked to it via graph database relationships. In the
+MDB, for example, a model edge (e.g., "of_sample") is represented by
+its own graph node of type "Relationship", and the source and
+destination nodes for that edge are two graph nodes of type "Node",
+one of which is linked to the Relationship node with a graph
+relationship "has_src", and the other with a graph relationship
+"has_dst". (Refer to L<this
+diagram|https://github.com/CBIIT/bento-meta#structure>.)
+
+In the object model, the source and destination nodes of an edge are
+also represented as object attributes: in this case, $edge-E<gt>src
+and $edge-E<gt>dst. This representation encapsulates the "has_src" and
+"has_dst" graph relationships, so that the programmer can ignore the
+metamodel structure and concentrate on the model structure. Note that
+the value of such an attribute is an object (or an array of objects).
+In the code, such attributes are referred to as "relationship",
+"object-valued" or "collection-valued" attributes.
+
+=head3 Object interface
+
+Individual objects have their own interfaces, which are partially described
+in L</METHODS> below. Essentially, the name of the attribute is the 
+name of the getter, while "set_<name>" is the setter. Getter return 
+types depend on whether the attribute is scalar, object, or collection-valued.
+Setter arguments have similar dependencies.
+
+  For an attribute "blarg":
+
+                     getter                            setter
+  scalar-valued      blarg() returns scalar            set_blarg($scalar)
+  object-valued      blarg() returns object            set_blarg($obj)
+  collection-valued  blarg() returns array of objects  set_blarg(key => $obj)
+
+A true array is returned by collection-valued getters, not an arrayref.
+
+Collection-valued attributes are generally associative arrays. The key 
+is the handle() of the subordinate object (or value() in the case of 
+L<term|Bento::Meta::Model::Term> objects).
+  
 =head2 Model as Container
 
 The Model object is a direct container of nodes, edges (relationships), and
@@ -861,7 +913,32 @@ Term objects from a list of strings as a shortcut.
 
 =head2 Database Interaction
 
- TODO
+The approach to the back and forth between the object representation
+and the database attempts to be simple and robust. The pattern is a
+push/pull cycle to and from the database. The database instrumentation
+is also encapsulated from the rest of the object functionality, so
+that even if no database is specified or connected, all the object
+manipulations are available.
+
+The Model methods are L</get()> and L</put()>. C<get()> pulls the
+metamodel nodes for the model with handle C<$model-E<gt>handle> from
+the connected database. It will not disturb any modifications made to
+objects in the program, unless called with a true argument. In that
+case, C<get(1)> (e.g.) will refresh all objects from current metamodel
+nodes in the database.
+
+C<put()> pushes the model objects, with any changes to attributes, to
+the database. It will build and execute queries correctly to convert, for
+example, collection attributes to multiple nodes and corresponding
+relationships. C<put()> adds and removes relationships in the database as
+necessary, but will not fully delete nodes. To completely remove objects
+from the database, use C<rm()> on the objects themselves:
+
+  $edge = $model->rm_edge($edge); # edge detached from nodes and removed 
+                                  # from model
+  $model->put(); # metamodel node representing the edge is still present in db
+                 # but is detached from the source node and destination node
+  $node->rm(); # metamodel node representing the edge is deleted from db
 
 =head1 METHODS
 
@@ -912,6 +989,22 @@ Term objects from a list of strings as a shortcut.
 =item @edges = $model->edge_by_dst()
 
 =item @edges = $model->edge_by_type()
+
+=back
+
+=head3 Database methods
+
+=over
+
+=item get()
+
+Pull metamodel nodes from database for the model (given by $model-E<gt>handle)
+Refresh nodes (reset) by issuing $model-E<gt>get(1). 
+
+=item put()
+
+Push model changes back to database. This operation will disconnect (remove
+Neo4j relationships) nodes, but will not delete nodes themselves.
 
 =back
 
