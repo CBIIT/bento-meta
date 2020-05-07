@@ -293,7 +293,7 @@ Bento::Meta::Model::Entity is a base class that allows quick and dirty setup
 of model objects and provides a consistent interface to simple attributes.
 See L</SYNOPSIS>.
 
-It also provides a place for common actions that must occur for OGM bookkeeping.
+It also provides a place for common actions that must occur for ORM bookkeeping.
 
 You can override anything in the subclasses and make them as complicated as 
 you want. 
@@ -318,16 +318,26 @@ The base class Entity has the following private attributes
 
 $attr_hash configures the object's declared attributes. $init_hash
 initializes the attributes' values. $init_hash can be a plain hashref
-or a L<Neo4j::Bolt::Node>.
+or a L<Neo4j::Bolt::Node> object.
+
+As demonstrated in the L</SYNOPSIS>, creating a subclass requires both
+using Entity as the base class, and calling the Entity constructor
+(via SUPER::new) with the attribute configuration hashref in the subclass
+constructor.
+
+This enables the automagical definition of consistent getters and
+setters on subclass instances.
+
 
 =item object_map($map_definition_hashref, $bolt_cxn), object_map() - getter
 
-Create and attach an L<Bento::Meta::Model::ObjectMap> to the C<Entity> subclass.
-The ObjectMap defines the associations from the object class and 
-attributes to the Neo4j graph model, as well as the connection to the graph
-database. When the ObjectMap is defined, instances receive the L</get()>,
-L</put()>, L<add_E<lt>attrE<gt>>, and L<drop_E<lt>attrE<gt>> methods for
-maintaining consistency between objects and nodes in the graph.
+Create and attach an L<Bento::Meta::Model::ObjectMap> to the C<Entity>
+subclass.  The ObjectMap defines the associations from the object
+class and attributes to the Neo4j graph model, as well as the
+connection to the graph database. When the ObjectMap is defined,
+instances receive the L</get()>, L</put()>, L<add_E<lt>attrE<gt>>, and
+L<drop_E<lt>attrE<gt>> methods for maintaining consistency between
+objects and nodes in the graph.
 
 For a given subclass of C<Entity>, the map definition hash provides the 
 corresponding label for its mapped Neo4j node, the mappings of simple scalar
@@ -354,9 +364,9 @@ mapped relationship and target nodes. Example:
      $bolt_cxn
    );
 
-Note that each individual attribute map is an arrayref with a single element,
-and that these are wrapped in another arrayref which is assigned to the 
-relevant hash key.
+Note that each individual attribute map is an arrayref with a single
+element, and that these are wrapped in another arrayref which is
+assigned to the relevant hash key.
 
 The simple-valued attribute maps have this form:
 
@@ -367,15 +377,16 @@ The object-valued attribute maps have this form:
  [ <attribute_name> => <neo4j_relationship_type>,
    <target_attribute_classname> => <neo4j_target_node_label> ]
 
- Note: <target_attribute_classname> can be a class name string, or an 
+ Note: <target_attribute_classname> can be a class name string, or an
  array of class names, so an attribute can contain objects of more
  than one class.
 
-The directionality of the relationship is given using an angle bracket, 
-as in L<Neo4j::Cypher::Abstract>. The direction is given relative to the the 
-subclass.
+The directionality of the relationship is given using an angle
+bracket, as in L<Neo4j::Cypher::Abstract>. The direction is given
+relative to the the subclass.
 
-The database connection of the map can set in the setter or on the map object:
+The database connection of the map can be set in the setter or on the
+map object:
 
  $cxn = Neo4j::Bolt->connect("bolt://localhost:7687");
  $omap->bolt_cxn($cxn);
@@ -419,14 +430,47 @@ L<Bento::Meta::Model::Node>, for example.
 
 =head2 Database interaction methods
 
-When the subclass has been instrumented with an L<Bento::Meta::Model::ObjectMap>,
-the following methods are available on any instance.
+
+When the subclass has been instrumented with an
+L<Bento::Meta::Model::ObjectMap>, the following methods are available
+on any instance. (If an object map has not been defined, these methods
+are noops.)
+
+In the method descriptions below, note that object attributes are
+essentially of two types: scalar-valued and object-valued.  Attributes
+with scalar values represent properties on the corresponding graph
+node. Attributes with object (or a collection of objects) as values
+represent relationships between nodes in the graph database. (See more
+detailed discussion in L<Bento::Meta::Model>.)
 
 =over
 
 =item get(), get($refresh)
 
+get() retrieves the current state of an object in the database,
+including the values of graph node properties into the object's scalar
+attributes, and loads the object-valued attributes with the correct
+subordinate objects that are currently linked to the object via graph
+relationships. Object loading is performed only to a single level - that is, 
+the subordinate object's own connections are not retrieved. To do this, call
+get() directly on the subordinate objects.
+
+
+
 =item put()
+
+put() will write scalar attributes directly to
+properties on the corresponding graph node, and will create a single
+level of links to appropriate objects for object valued attributes. If
+the subordinate object is not yet mapped into the database, put() will
+create the subordinate object and populate its properties with scalar
+attributes, but will not descend to the object-valued attributes of
+the subordinate object.
+
+The upshot is that it is up to the calling routine to traverse the
+objects and call put() on each object as necessary.
+L<Bento::Make::Model>'s put(), for example, does this.
+
 
 =item rm()
 

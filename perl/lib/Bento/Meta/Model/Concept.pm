@@ -33,4 +33,21 @@ sub map_defn {
    };
 }
 
+=head1 NAME
+
+Bento::Meta::Model::Concept - object that models a semantic concept
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=head1 AUTHOR
+
+ Mark A. Jensen < mark -dot- jensen -at- nih -dot- gov >
+ FNL
+
+=cut
+
 1;

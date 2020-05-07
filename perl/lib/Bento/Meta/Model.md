@@ -363,7 +363,7 @@ from the database, use `rm()` on the objects themselves:
 - $prop = $model->prop($name)
 - $edge = $model->edge($triplet)
 - @edges = $model->edges\_in($node)
-- @edges = $modee->edges\_out($node)
+- @edges = $model->edges\_out($node)
 - @edges = $model->edge\_by\_src()
 - @edges = $model->edge\_by\_dst()
 - @edges = $model->edge\_by\_type()

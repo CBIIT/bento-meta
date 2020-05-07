@@ -982,7 +982,7 @@ from the database, use C<rm()> on the objects themselves:
 
 =item @edges = $model->edges_in($node)
 
-=item @edges = $modee->edges_out($node)
+=item @edges = $model->edges_out($node)
 
 =item @edges = $model->edge_by_src()
 
