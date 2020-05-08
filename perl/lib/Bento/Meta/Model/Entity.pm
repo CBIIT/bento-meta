@@ -455,8 +455,6 @@ relationships. Object loading is performed only to a single level - that is,
 the subordinate object's own connections are not retrieved. To do this, call
 get() directly on the subordinate objects.
 
-
-
 =item put()
 
 put() will write scalar attributes directly to

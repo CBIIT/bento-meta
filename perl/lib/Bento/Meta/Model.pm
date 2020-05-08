@@ -724,7 +724,7 @@ of corresponding L<Bento::Meta::Model::Entity> subclasses:
 
 =item L<Bento::Meta::Model::Edge>
 
-"Edge" is shorter than "relationship".
+("Edge" is easier to type than "relationship".)
 
 =item L<Bento::Meta::Model::Property>
 
@@ -792,12 +792,15 @@ Setter arguments have similar dependencies.
   scalar-valued      blarg() returns scalar            set_blarg($scalar)
   object-valued      blarg() returns object            set_blarg($obj)
   collection-valued  blarg() returns array of objects  set_blarg(key => $obj)
+                     blarg(key) returns object
 
 A true array is returned by collection-valued getters, not an arrayref.
 
 Collection-valued attributes are generally associative arrays. The key 
 is the handle() of the subordinate object (or value() in the case of 
 L<term|Bento::Meta::Model::Term> objects).
+
+More details about objects can be found in L<Bento::Meta::Model::Entity>.
   
 =head2 Model as Container
 
@@ -824,15 +827,35 @@ For example:
   $sample = $of_sample->src;
   $case = $of_sample->dst;
 
-The component objects are themselves containers of their own attributes, and
-their getters and setters are structured similarly. (In fact, 
-C<Bento::Meta::Model> is, like the component objects, a subclass of 
-L<Bento::Meta::Model::Entity>). The difference is that keys for collection-
-valued attributes at the component object level are simpler. For example:
+Note that the keys for edges are three strings separated by colons.
+These are 1) the edge handle ("type"), 2) the source node handle, and
+3) the destination node handle. In the example above, this is 
+"of_sample:sample:case". This is called a "triplet" in the code. 
+An edge object can be queried for its triplet.
+
+  $edge->triplet
+
+The component objects are themselves containers of their own
+attributes, and their getters and setters are structured
+similarly. (In fact, C<Bento::Meta::Model> is, like the component
+objects, a subclass of L<Bento::Meta::Model::Entity>). The difference
+is that keys for collection-valued attributes at the component object
+level are simpler. For example:
 
   $prop1 = $model->props('sample:sample_type');
   $prop2 = $sample->props('sample_type');
   # $prop1 and $prop2 are the same object
+
+=head3 Accessing other objects
+
+The Model object does not provide access to C<Concept>, C<ValueSet>, or 
+C<Origin> objects directly. These are accessible via the linked obects
+themselves, according to the L<metamodel structure|https://github.com/CBIIT/bento-mdf#structure>. For example:
+
+  # all terms for all nodes
+  for ($model->nodes) {
+    push @node_terms, $_->concept->terms;
+  }
 
 =head2 Model as an Interface
 
@@ -920,12 +943,13 @@ is also encapsulated from the rest of the object functionality, so
 that even if no database is specified or connected, all the object
 manipulations are available.
 
-The Model methods are L</get()> and L</put()>. C<get()> pulls the
-metamodel nodes for the model with handle C<$model-E<gt>handle> from
-the connected database. It will not disturb any modifications made to
-objects in the program, unless called with a true argument. In that
-case, C<get(1)> (e.g.) will refresh all objects from current metamodel
-nodes in the database.
+The Model methods are L<get()|/Database Interaction> and
+L<put()|/Database Interaction>. C<get()> pulls the metamodel nodes for
+the model with handle C<$model-E<gt>handle> from the connected
+database. It will not disturb any modifications made to objects in the
+program, unless called with a true argument. In that case, C<get(1)>
+(e.g.) will refresh all objects from current metamodel nodes in the
+database.
 
 C<put()> pushes the model objects, with any changes to attributes, to
 the database. It will build and execute queries correctly to convert, for

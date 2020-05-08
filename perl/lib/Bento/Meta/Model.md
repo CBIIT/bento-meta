@@ -141,7 +141,7 @@ of corresponding [Bento::Meta::Model::Entity](/perl/lib/Bento/Meta/Model/Entity.
 - [Bento::Meta::Model::Node](/perl/lib/Bento/Meta/Model/Node.md)
 - [Bento::Meta::Model::Edge](/perl/lib/Bento/Meta/Model/Edge.md)
 
-    "Edge" is shorter than "relationship".
+    ("Edge" is easier to type than "relationship".)
 
 - [Bento::Meta::Model::Property](/perl/lib/Bento/Meta/Model/Property.md)
 - [Bento::Meta::Model::ValueSet](/perl/lib/Bento/Meta/Model/ValueSet.md)
@@ -203,12 +203,15 @@ Setter arguments have similar dependencies.
     scalar-valued      blarg() returns scalar            set_blarg($scalar)
     object-valued      blarg() returns object            set_blarg($obj)
     collection-valued  blarg() returns array of objects  set_blarg(key => $obj)
+                       blarg(key) returns object
 
 A true array is returned by collection-valued getters, not an arrayref.
 
 Collection-valued attributes are generally associative arrays. The key 
 is the handle() of the subordinate object (or value() in the case of 
 [term](/perl/lib/Bento/Meta/Model/Term.md) objects).
+
+More details about objects can be found in [Bento::Meta::Model::Entity](/perl/lib/Bento/Meta/Model/Entity.md).
 
 ## Model as Container
 
@@ -235,15 +238,35 @@ For example:
     $sample = $of_sample->src;
     $case = $of_sample->dst;
 
-The component objects are themselves containers of their own attributes, and
-their getters and setters are structured similarly. (In fact, 
-`Bento::Meta::Model` is, like the component objects, a subclass of 
-[Bento::Meta::Model::Entity](/perl/lib/Bento/Meta/Model/Entity.md)). The difference is that keys for collection-
-valued attributes at the component object level are simpler. For example:
+Note that the keys for edges are three strings separated by colons.
+These are 1) the edge handle ("type"), 2) the source node handle, and
+3) the destination node handle. In the example above, this is 
+"of\_sample:sample:case". This is called a "triplet" in the code. 
+An edge object can be queried for its triplet.
+
+    $edge->triplet
+
+The component objects are themselves containers of their own
+attributes, and their getters and setters are structured
+similarly. (In fact, `Bento::Meta::Model` is, like the component
+objects, a subclass of [Bento::Meta::Model::Entity](/perl/lib/Bento/Meta/Model/Entity.md)). The difference
+is that keys for collection-valued attributes at the component object
+level are simpler. For example:
 
     $prop1 = $model->props('sample:sample_type');
     $prop2 = $sample->props('sample_type');
     # $prop1 and $prop2 are the same object
+
+### Accessing other objects
+
+The Model object does not provide access to `Concept`, `ValueSet`, or 
+`Origin` objects directly. These are accessible via the linked obects
+themselves, according to the [metamodel structure](https://github.com/CBIIT/bento-mdf#structure). For example:
+
+    # all terms for all nodes
+    for ($model->nodes) {
+      push @node_terms, $_->concept->terms;
+    }
 
 ## Model as an Interface
 
@@ -320,12 +343,13 @@ is also encapsulated from the rest of the object functionality, so
 that even if no database is specified or connected, all the object
 manipulations are available.
 
-The Model methods are ["get()"](#get) and ["put()"](#put). `get()` pulls the
-metamodel nodes for the model with handle `$model->handle` from
-the connected database. It will not disturb any modifications made to
-objects in the program, unless called with a true argument. In that
-case, `get(1)` (e.g.) will refresh all objects from current metamodel
-nodes in the database.
+The Model methods are [get()](#database-interaction) and
+[put()](#database-interaction). `get()` pulls the metamodel nodes for
+the model with handle `$model->handle` from the connected
+database. It will not disturb any modifications made to objects in the
+program, unless called with a true argument. In that case, `get(1)`
+(e.g.) will refresh all objects from current metamodel nodes in the
+database.
 
 `put()` pushes the model objects, with any changes to attributes, to
 the database. It will build and execute queries correctly to convert, for
