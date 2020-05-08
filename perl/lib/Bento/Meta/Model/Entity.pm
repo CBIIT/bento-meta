@@ -24,6 +24,7 @@ sub new {
   $self->{pvt}{_neoid} = undef; # database id for this entity
   $self->{pvt}{_removed_entities} = []; # stash removed things here
   $self->{_desc} = undef; # free text description for entity
+  $self->{_id} = undef; # unique identifier across entities
 
   my @declared_atts = map { my ($a)=/^_(.*)/;$a || () } keys %$self;
   $self->{_declared} = \@declared_atts;
@@ -396,6 +397,14 @@ map object:
 =head2 Instance Methods
 
 =over
+
+=item id(), set_id($id_string)
+
+Every subclass has an id attribute available. 
+
+=item desc(), set_desc($text_description)
+
+Every subclass has a desc attribute available.
 
 =item make_uuid()
 

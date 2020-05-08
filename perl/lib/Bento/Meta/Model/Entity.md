@@ -141,6 +141,14 @@ The base class Entity has the following private attributes
 
 ## Instance Methods
 
+- id(), set\_id($id\_string)
+
+    Every subclass has an id attribute available. 
+
+- desc(), set\_desc($text\_description)
+
+    Every subclass has a desc attribute available.
+
 - make\_uuid()
 
     Create a new uuid (with [Data::UUID](https://metacpan.org/pod/Data::UUID)).

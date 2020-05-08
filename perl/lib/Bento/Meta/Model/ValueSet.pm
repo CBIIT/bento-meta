@@ -65,6 +65,28 @@ Bento::Meta::Model::ValueSet - object that models an enumerated set of property 
 
 =head1 METHODS
 
+=over
+
+=item id(), set_id($id_string)
+
+=item url(), set_id($url)
+
+Informative URL ideally pointing to a description of the set of values.
+
+=item terms(), set_terms( $term_value => $term_obj)
+
+The terms aggregated by the value set.
+
+=item prop()
+
+The property (object) whose value set this is.
+
+=item origin, set_origin($origin_obj)
+
+Origin object represnting the source authority of the term set, if any.
+
+=back
+
 =head1 AUTHOR
 
  Mark A. Jensen < mark -dot- jensen -at- nih -dot- gov >

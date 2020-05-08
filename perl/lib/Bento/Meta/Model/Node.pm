@@ -22,6 +22,7 @@ sub map_defn {
   return {
     label => 'node',
     simple => [
+      [id => 'id'],
       [handle => 'handle'],
       [model => 'model'],
      ],
@@ -34,5 +35,43 @@ sub map_defn {
        'Bento::Meta::Model::Property' => 'property']
      ]
    };
-}
+}1;
+
+=head1 NAME
+
+Bento::Meta::Model::Node - object that models a data node for a model
+
+=head1 SYNOPSIS
+
+  $init = { handle => 'case',
+            model => 'test_model' };
+  $node = Bento::Meta::Model::Node->new($init);
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=over
+
+=item handle(), set_handle($name)
+
+=item model(), set_model($model_name)
+
+=item concept(), set_concept($concept_obj);
+
+=item @props = $node->props, set_props( $prop_name => $prop_obj )
+
+=back
+
+=head1 SEE ALSO
+
+L<Bento::Meta::Model::Entity>, L<Bento::Meta::Model>.
+
+=head1 AUTHOR
+
+ Mark A. Jensen < mark -dot- jensen -at- nih -dot- gov >
+ FNL
+
+=cut
+
 1;

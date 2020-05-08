@@ -9,7 +9,7 @@ isa_ok($node, 'Bento::Meta::Model::Node');
 isa_ok($node, 'Bento::Meta::Model::Entity');
 
 is_deeply [ sort @{$node->{_declared}}],
-  [sort qw/handle model concept tags category props desc /], 'declared attrs correct';
+  [sort qw/handle model concept tags category props id desc /], 'declared attrs correct';
 
 lives_ok { $node->handle; };
 dies_ok { $node->boog; };
@@ -28,6 +28,8 @@ bless $neonode, 'Neo4j::Bolt::Node';
 ok $node->set_with_node($neonode), "set_with_node";
 is $node->handle, 'registering_institution';
 ok !$node->model, 'model undef';
-  
+
+ok $node->set_id("blarg");
+is $node->id, "blarg";
 
 done_testing;

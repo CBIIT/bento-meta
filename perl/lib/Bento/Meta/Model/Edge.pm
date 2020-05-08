@@ -36,6 +36,7 @@ sub map_defn {
   return {
     label => 'relationship',
     simple => [
+      [id => 'id'],
       [handle => 'handle'],
       [model => 'model'],
       [type => 'neo_type'],
@@ -63,11 +64,28 @@ Bento::Meta::Model::Edge - object that models an edge or relationship
 
 =head1 SYNOPSIS
 
+ $case = Bento::Meta::Model::Node->new({handle=>'case'});
+ $sample = Bento::Meta::Model::Node->new({handle=>'sample'});
+ $edge = Bento::Meta::Model::Edge->new({ handle=>'of_case',
+                                         src => $sample,
+                                         dst => $case });
+
+
 =head1 DESCRIPTION
 
 =head1 METHODS
 
 =over
+
+=item handle(), set_handle($name)
+
+=item model(), set_model($model_name)
+
+=item concept(), set_concept($concept_obj)
+
+=item is_required(), set_is_required($bool)
+
+=item @props = $edge->props, set_props( $prop_name => $prop_obj )
 
 =item multiplicity(), cardinality()
 
@@ -86,6 +104,10 @@ Helpful for finding a particular edge.
  $diag_to_case = grep { $_->triplet eq 'of_case:diagnosis:case' } $model->edges;
 
 =back
+
+=head1 SEE ALSO
+
+L<Bento::Meta::Model::Entity>, L<Bento::Meta::Model>.
 
 =head1 AUTHOR
 

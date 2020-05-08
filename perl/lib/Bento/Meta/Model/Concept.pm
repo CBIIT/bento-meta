@@ -43,6 +43,20 @@ Bento::Meta::Model::Concept - object that models a semantic concept
 
 =head1 METHODS
 
+=over
+
+=item @terms = $concept->terms()
+
+Terms representing this concept (all of which are therefore
+synonymous, under the MDB).
+
+=item @entities = $concept->entities()
+
+Entities besides terms (nodes, edges, properties) that have (i.e.,
+express) this concept.
+
+=back
+
 =head1 AUTHOR
 
  Mark A. Jensen < mark -dot- jensen -at- nih -dot- gov >

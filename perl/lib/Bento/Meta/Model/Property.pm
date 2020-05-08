@@ -13,6 +13,7 @@ sub new {
     _units => undef,
     _pattern => undef,
     _is_required => undef,
+    _concept => \undef, # prop has_concept concept
     _value_set => \undef, # prop has_value_set value_set
     _entities => {}, # entity | entity has_property prop
     _tags => [],
@@ -25,6 +26,7 @@ sub map_defn {
   return {
     label => 'property',
     simple => [
+      [id => 'id'],
       [handle => 'handle'],
       [model => 'model'],
       [value_domain => 'value_domain'],
@@ -35,6 +37,8 @@ sub map_defn {
     object => [
       [ 'value_set' => ':has_value_set>',
         'Bento::Meta::Model::ValueSet' => 'value_set' ],
+      [ 'concept' => ':has_concept>',
+        'Bento::Meta::Model::Concept' => 'concept'],
      ],
     collection => [
       [ 'entities' => '<:has_property',
@@ -73,9 +77,51 @@ Bento::Meta::Model::Property - object that models a node or relationship propert
 
 =head1 SYNOPSIS
 
+  $prop = Bento::Meta::Model::Property->new({ handle => 'sample_weight', 
+                                              value_domain => 'number',
+                                              units => 'mg',
+                                              is_required => 1 });           
+  $node = Bento::Meta::Model::Node->new({handle=>'sample'});
+  $node->set_props( sample_weight => $prop ); # add this property to node
+
+
 =head1 DESCRIPTION
 
 =head1 METHODS
+
+=over
+
+=item handle(), set_handle($name)
+
+=item model(), set_model($model_name)
+
+=item concept(), set_concept($concept_obj)
+
+=item is_required(), set_is_required($bool)
+
+=item value_domain(), set_value_domain($type_name)
+
+=item value_set, set_value_set($value_set_obj)
+
+=item units(), set_units($units_string)
+
+=item pattern(), set_pattern($regex_string)
+
+=item @entities = $prop->entities()
+
+Objects (nodes or edges) that have this property.
+
+=item @terms = $prop->terms(), set_terms()
+
+This is a convenience accessor to the terms attribute of the property's
+L<value set|Bento::Meta::Model::ValueSet>, if any.
+
+=back
+
+=head1 SEE ALSO
+
+L<Bento::Meta::Model::Entity>, L<Bento::Meta::Model::ValueSet>, 
+L<Bento::Meta::Model>.
 
 =head1 AUTHOR
 

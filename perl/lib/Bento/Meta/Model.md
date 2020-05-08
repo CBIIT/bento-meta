@@ -261,7 +261,7 @@ level are simpler. For example:
 
 The Model object does not provide access to `Concept`, `ValueSet`, or 
 `Origin` objects directly. These are accessible via the linked obects
-themselves, according to the [metamodel structure](https://github.com/CBIIT/bento-mdf#structure). For example:
+themselves, according to the [metamodel structure](https://github.com/CBIIT/bento-meta#structure). For example:
 
     # all terms for all nodes
     for ($model->nodes) {

@@ -47,6 +47,22 @@ Bento::Meta::Model::Term - object that models a term from a terminology
 
 =head1 METHODS
 
+=over 
+
+=item value(), set_value($actual_term_string)
+
+=item origin_id(), set_origin_id($name_of_term_source)
+
+=item origin_definition(), set_origin_definition($text_definition_from_source)
+
+=item concept(), set_concept($concept_obj)
+
+=back
+
+=head1 SEE ALSO
+
+L<Bento::Meta::Model::Entity>, L<Bento::Meta::Model>.
+
 =head1 AUTHOR
 
  Mark A. Jensen < mark -dot- jensen -at- nih -dot- gov >
