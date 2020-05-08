@@ -603,7 +603,7 @@ Bento::Meta::Model::ObjectMap - interface Perl objects with Neo4j database
 
 =item new($obj_class [ => $neo4j_node_label ][, $bolt_url])
 
-Create new ObjectMap object for class C($obj_class). Arg is a string.
+Create new ObjectMap object for class C<$obj_class>. Arg is a string.
 If $label is not provided, the Neo4j label that is mapped to the
 object is set as the last token  in the class namespace, lower-cased.
 E.g., for an object of class C<Bento::Meta::Model::Node>, the label is
