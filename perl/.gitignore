@@ -1,0 +1,12 @@
+# perl-centric gitignore
+Build
+_build/
+/blib/
+
+/META.yml
+/META.json
+/MYMETA.*
+
+*.o
+*.pm.tdy
+*.bs
