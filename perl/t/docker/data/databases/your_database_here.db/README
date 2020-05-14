@@ -1,0 +1,5 @@
+put the contents of the desired neo4j data/databases/<graph>.db here
+update neo4j.conf at line 9 to reflect this name:
+
+ # The name of the database to mount
+ dbms.active_database=<graph>.db

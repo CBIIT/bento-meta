@@ -41,7 +41,7 @@ A Concept node represents an intellectual concept. It is abstract, in that it ha
 
 ### Origin
 
-An Origin node represents an entity (institution, internal projectdefined standard, recognized body, public database) that defines and/or promulgates a terminology and represents it authoritatively.
+An Origin node represents an entity (institution, internal project, defined standard, recognized body, public database) that defines and/or promulgates a terminology and represents it authoritatively.
 
 ### Term > Value
 
