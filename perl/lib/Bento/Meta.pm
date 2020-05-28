@@ -6,7 +6,7 @@ use Log::Log4perl qw/:easy/;
 use strict;
 use warnings;
 
-our $VERSION = "0.1";
+our $VERSION = "0.2";
 
 our $re_url = qr{^(?:https?|bolt)://};
 
@@ -42,6 +42,44 @@ sub load_model {
   return $self->{_models}{$handle} = $model;
 }
 
+# just get the list of models (model handles) in database - do not load them!
+sub list_db_models {
+  my $self = shift;
+  my ($connection) = @_;
+
+  # return value, will hold found models in db
+  my @db_model_handles = ();
+
+  # connect to neo4j
+  my $bolt_cxn = Neo4j::Bolt->connect($connection);
+  unless ($bolt_cxn->connected) {
+      LOGDIE ref($self)."::get_db_handle : Can't connect! ".$bolt_cxn->errmsg; 
+      return;
+  }
+  # retrieve all model handles from db
+  my $qry = "MATCH (n:node) RETURN DISTINCT n.model";
+  my $stream = $bolt_cxn->run_query($qry, {});
+  while (my @results = $stream->fetch_next ) {
+    push @db_model_handles, $results[0];
+  }
+
+  return @db_model_handles;
+}
+
+# load all the database models
+sub load_all_db_models{
+  my $self = shift;
+  my ($connection) = @_;
+
+  my @db_handles = $self->list_db_models($connection);
+
+    foreach my $handle (@db_handles){
+        $self->load_model($handle, $connection);
+    }
+
+  return @db_handles;
+}
+
 sub model { $_[0]->{_models}{$_[1]} };
 sub models { values %{shift->{_models}} };
 sub handles { sort keys %{shift->{_models}} };
@@ -74,6 +112,16 @@ This class is just a L<Bento::Meta::Model> factory and container.
 
 Load a model from MDF files, or from a Neo4j database. C<$bolt_url> must
 use the C<bolt://> scheme.
+
+=item list_db_models($bolt_url)
+
+Lists all of the models found in a Neo4j database. C<$bolt_url> must
+use the C<bolt://> scheme. 
+
+=item load_all_db_models($bolt_url)
+
+Loads all models found in a Neo4j database.  C<$bolt_url> must
+use the C<bolt://> scheme. 
 
 =item model($handle)
 
