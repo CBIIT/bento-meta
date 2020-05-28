@@ -5,6 +5,7 @@ use Try::Tiny;
 use Log::Log4perl qw/:easy/;
 use strict;
 use warnings;
+no warnings qw/regexp/;
 
 our $VERSION = "0.2";
 
