@@ -3,38 +3,18 @@ use Test::Warn;
 use Test::Exception;
 use IPC::Run qw/run/;
 use Neo4j::Bolt;
-use lib '../lib';
+use lib qw'../lib ..';
 use Log::Log4perl qw/:easy/;
 use Bento::Meta::Model;
 
-Log::Log4perl->easy_init($FATAL);
-my $ctr_name = "test$$";
-my $img = 'maj1/test-db-bento-meta';
-
-####
-diag "Starting docker container '$ctr_name' with image $img";
-my @startcmd = split / /,
-  "docker run -d -P --name $ctr_name $img";
-my @portcmd = split / /, "docker container port $ctr_name";
-my @stopcmd = split / /,"docker kill $ctr_name";
-my @rmcmd = split / /, "docker rm $ctr_name";
-
-my ($in, $out, $err);
-unless (run(['docker'],'<pty<',\$in,'>pty>',\$out)) {
+Log::Log4perl->easy_init($INFO);
+unless (eval 'require t::NeoCon; 1') {
   plan skip_all => "Docker not available for test database setup: skipping.";
 }
-run \@startcmd, \$in, \$out, \$err;
-if ($err) {
-  diag "docker error: $err";
-}
-else {
-  sleep 10;
-}
-$in=$err=$out='';
-run \@portcmd, \$in, \$out, \$err;
-my ($port) = grep /7687.tcp/, split /\n/,$out;
-($port) = $port =~ m/([0-9]+)$/;
-####
+my $docker = t::NeoCon->new;
+$docker->start;
+my $port = $docker->port(7687);
+
 ok my $cxn = Neo4j::Bolt->connect("bolt://localhost:$port"), 'create neo4j connection';
 SKIP : {
   skip "Can't connect to test db: ".$cxn->errmsg, 1 unless $cxn->connected;
@@ -135,7 +115,7 @@ QRY
 
   ok my $t = Bento::Meta::Model::Term->new({value => "electric_boogaloo"}), "create new term";
   is $t->dirty, 1, "new term dirty";
-  $DB::single=1 ;
+
   ok $model->add_terms($prop => $t), "add term to property";
   is $prop->dirty, 1, "prop dirty";
   is $prop->value_set->dirty, 1, "value set dirty";
@@ -240,8 +220,6 @@ QRY
 done_testing;
 
 END {
-  diag "Stopping container $ctr_name";
-  run \@stopcmd;
-  diag "Removing container $ctr_name";  
-  run \@rmcmd;
+  $docker->stop;
+  $docker->rm;
 }

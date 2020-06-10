@@ -4,7 +4,7 @@ use Test::Deep;
 use Test::Exception;
 use IPC::Run qw/run/;
 use Neo4j::Bolt;
-use lib '../lib';
+use lib qw'../lib ..';
 use Log::Log4perl qw/:easy/;
 use Bento::Meta;
 
@@ -14,35 +14,13 @@ use Bento::Meta;
 #   broke out from 009_meta.t so that db loaded models would not conflict 
 #   with file loaded models (cannot load two models named ICDC)
 
-Log::Log4perl->easy_init($FATAL);
-my $ctr_name = "test$$";
-my $img = 'maj1/test-db-bento-meta';
-my $d = (-e 't' ? 't' : '.');
-
-####
-diag "Starting docker container '$ctr_name' with image $img";
-my @startcmd = split / /,
-  "docker run -d -P --name $ctr_name $img";
-my @portcmd = split / /, "docker container port $ctr_name";
-my @stopcmd = split / /,"docker kill $ctr_name";
-my @rmcmd = split / /, "docker rm $ctr_name";
-
-my ($in, $out, $err);
-unless (run(['docker'],'<pty<',\$in,'>pty>',\$out)) {
+Log::Log4perl->easy_init($INFO);
+unless (eval 'require t::NeoCon; 1') {
   plan skip_all => "Docker not available for test database setup: skipping.";
 }
-run \@startcmd, \$in, \$out, \$err;
-if ($err) {
-  diag "docker error: $err";
-}
-else {
-  sleep 10;
-}
-$in=$err=$out='';
-run \@portcmd, \$in, \$out, \$err;
-my ($port) = grep /7687.tcp/, split /\n/,$out;
-($port) = $port =~ m/([0-9]+)$/;
-####
+my $docker = t::NeoCon->new();
+$docker->start;
+my $port = $docker->port(7687);
 
 ok my $cxn = Neo4j::Bolt->connect("bolt://localhost:$port"), 'create neo4j connection';
 SKIP : {
@@ -64,8 +42,6 @@ SKIP : {
 done_testing;
 
 END {
-  diag "Stopping container $ctr_name";
-  run \@stopcmd;
-  diag "Removing container $ctr_name";
-  run \@rmcmd;
+  $docker->stop;
+  $docker->rm;
 }
