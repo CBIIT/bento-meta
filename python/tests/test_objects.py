@@ -11,7 +11,7 @@ def test_create_objects():
     assert n
     assert isinstance(n, Entity)
 
-def test_init_objects():
+def test_init_and_link_objects():
   case = Node({"model":"test","handle":"case"})
   assert case
   assert case.model == "test"
@@ -33,4 +33,31 @@ def test_init_objects():
   sample.concept = concept
   assert of_sample.src.concept.terms["sample"].value == "sample"
   
+def test_some_object_methods():
+  p = Property({"handle":"complaint"})
+  assert p
+  t = Term({"value":"halitosis"})
+  assert t
+  u = Term({"value":"ptomaine"})
+  assert u
+  vs = ValueSet({"_id":"1"})
+  assert vs
+  p.value_set = vs
+  vs.terms['ptomaine'] = u
+  assert p.terms['ptomaine'].value == 'ptomaine'
+  p.terms['halitosis'] = t
+  assert vs.terms['halitosis'].value == 'halitosis'
+  vals = p.values
+  assert isinstance(vals,list)
+  assert 'ptomaine' in vals
+  assert 'halitosis' in vals
+  s = Node({'handle':"case"})
+  assert s
+  d = Node({'handle':"cohort"})
+  assert d
+  e = Edge({'handle':"member_of",'src':s,'dst':d})
+  assert e
+  assert e.triplet == 'member_of:case:cohort'
+  
+
   

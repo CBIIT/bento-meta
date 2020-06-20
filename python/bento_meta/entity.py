@@ -28,7 +28,14 @@ class Entity(object):
         self.set_with_entity(init)
       elif isinstance(init, dict):
         self.set_with_dict(init)
-
+    for att in self.__attspec:
+      if not att in self.__dict__:
+        if self.__attspec[att] == 'collection':
+          self[att] = {}
+        else:
+          self[att] = None
+      
+      
   def set_with_dict(self, init):
     for att in self.__attspec:
       if att in init:
@@ -75,12 +82,14 @@ class Entity(object):
         if not (isinstance(value,int) or
                 isinstance(value,str) or
                 isinstance(value,float) or
-                isinstance(value,bool)):
+                isinstance(value,bool) or
+                value == None):
           raise ArgError(
             "value for key '{att}' is not a simple scalar".format(att=att)
           )
       elif spec == 'object':
-        if not (isinstance(value,Entity)):
+        if not (isinstance(value,Entity) or
+                value == None):
           raise ArgError(
             "value for key '{att}' is not an Entity subclass".format(att=att)
             )
