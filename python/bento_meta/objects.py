@@ -41,11 +41,7 @@ class Edge(Entity):
   @property
   def triplet(self):
     if (self.handle and self.src and self.dst):
-      return "{handle}:{src}:{dst}".format(
-        handle=self.handle,
-        src=self.src.handle,
-        dst=self.dst.handle
-        )
+      return (self.handle, self.src.handle, self.dst.handle)
 
 class Term(Entity):
   attspec={"value":"simple", "origin_id":"simple",

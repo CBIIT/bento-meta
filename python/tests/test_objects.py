@@ -57,7 +57,7 @@ def test_some_object_methods():
   assert d
   e = Edge({'handle':"member_of",'src':s,'dst':d})
   assert e
-  assert e.triplet == 'member_of:case:cohort'
+  assert e.triplet == ('member_of','case','cohort')
   
 
   
