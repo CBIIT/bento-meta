@@ -14,7 +14,7 @@ class Entity(object):
     if not set(attspec.values()) <= set(['simple','object','collection']):
       raise ArgError("unknown attribute type in attspec")
     # universal attributes
-    attspec.update( {"id":"simple", "desc":"simple",
+    attspec.update( {"_id":"simple", "desc":"simple",
                      "_next":"object", "_prev":"object",
                      "_from":"simple", "_to":"simple"} )
     # private
