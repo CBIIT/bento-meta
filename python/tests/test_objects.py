@@ -33,6 +33,8 @@ def test_init_and_link_objects():
 
   concept.terms["sample"]=term
   sample.concept = concept
+  [o] = [x for x in term.belongs.values()]
+  assert o == concept
   assert of_sample.src.concept.terms["sample"].value == "sample"
   
 def test_some_object_methods():

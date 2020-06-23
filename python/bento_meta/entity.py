@@ -10,6 +10,8 @@ class ArgError(Exception):
   pass
 
 class Entity(object):
+  pvt_attr=['pvt','neoid','dirty','removed_entities','attspec',
+            'object_map','belongs']
   def __init__(self,attspec=None,init=None):
     if not attspec:
       raise ArgError("attribute spec required as arg attspec");
@@ -20,53 +22,71 @@ class Entity(object):
                      "_next":"object", "_prev":"object",
                      "_from":"simple", "_to":"simple"} )
     # private
-    self.__neoid=1
-    self.__dirty=1
-    self.__removed_entities=[]
-    self.__attspec=attspec
-    self.__object_map=None
-    self.__belongs = {}
+    self.pvt={}
+    self.neoid=1
+    self.dirty=1
+    self.removed_entities=[]
+    self.attspec=attspec
+    self.object_map=None
+    self.belongs = {}
     if init:
       if isinstance(init,Entity):
         self.set_with_entity(init)
       elif isinstance(init, dict):
         self.set_with_dict(init)
-    for att in self.__attspec:
+    for att in self.attspec:
       if not att in self.__dict__:
-        if self.__attspec[att] == 'collection':
+        if self.attspec[att] == 'collection':
           self[att] = CollValue({},owner=self,owner_key=att)
         else:
           self[att] = None
-      
+  @property
+  def attspec(self):
+    return self.pvt.attspec
+  @property
+  def dirty(self):
+    return self.pvt.dirty
+  @property
+  def removed_entities(self):
+    return self.pvt.removed_entities
+  @property
+  def object_map(self):
+    return self.pvt.object_map
+  @property
+  def belongs(self):
+    return self.pvt.belongs
+  
   def set_with_dict(self, init):
-    for att in self.__attspec:
+    for att in self.attspec:
       if att in init:
-        if self.__attspec[att] == 'collection':
+        if self.attspec[att] == 'collection':
           self[att] = CollValue(init[att],owner=self,owner_key=att)
         else:
           self[att] = init[att] 
 
   def __getattr__(self, name):
-    pfx = "_{cls}".format(cls=type(self).__name__)
-    if re.match(pfx+'|_Entity',name): #private
+    if name in Entity.pvt_attr:
+      return self.__dict__['pvt'][name]
+    elif name in self.attspec:
+      if not name in self.__dict__:
+        return None
       return self.__dict__[name]
-    elif re.match('__',name): #private
-      return self.__dict__["{pfx}{name}".format(pfx=pfx,name=name)]
-    elif (not name in self.__attspec):
+    else:
       raise AttributeError("get: attribute '{name}' neither private nor declared".format(name=name))
-    return self.__dict__[name]
+
   def __getitem__(self, name):
     return self.__getattr__(name)
 
   def __setattr__(self, name, value):
-    pfx = "_{cls}|_Entity".format(cls=type(self).__name__)
-    if re.match(pfx,name): # private
-      self.__dict__[name] = value
-    elif  name in self.__attspec:
+    if name == 'pvt':
+      self.__dict__['pvt'] = value
+    elif name in Entity.pvt_attr:
+      self.__dict__['pvt'][name]=value
+    elif name in self.attspec:
       self._check_value(name,value)
       if isinstance(value, Entity):
-        value.__belongs[(id(self),name)] = self
-      if isinstance(value, dict) and self.__attspec[name] == 'collection':
+        value.belongs[(id(self),name)] = self
+      if isinstance(value, dict) and self.attspec[name] == 'collection':
         value = CollValue(value,owner=self,owner_key=name)
       self.__dict__[name] = value
     else:
@@ -75,19 +95,15 @@ class Entity(object):
     self.__setattr__(name, value)
     
   def __delattr__(self, name):
-    if re.match('__',name):
-      cls = re.match(".*'([^']+)'",str(type(self))).group(1)
-      cls = cls.split('.')[-1]
-      name = "_{cls}{name}".format(cls=cls,name=name)
     del self.__dict__[name]
 
   def _check_init(self,init):
-    for att in self.__attspec:
+    for att in self.attspec:
       if init[att]:
         self._check_value(att,init[att])
                                
   def _check_value(self,att,value):
-    spec = self.__attspec[att]
+    spec = self.attspec[att]
     try:
       if spec == 'simple':
         if not (isinstance(value,int) or
@@ -115,19 +131,19 @@ class Entity(object):
       raise
     
   def get(self,refresh):
-    if (self.__object_map):
+    if (self.object_map):
       pass
     else:
       pass
 
   def put(self,refresh):
-    if (self.__object_map):
+    if (self.object_map):
       pass
     else:
       pass
 
   def rm(self,refresh):
-    if (self.__object_map):
+    if (self.object_map):
       pass
     else:
       pass
@@ -167,7 +183,7 @@ class CollValue(UserDict):
 
     # when value.__belongs = x is attempted, the Entity.__setattr__ method
     # is called, but the attribute is mangled to _CollVal__belongs, not
-    # _Entity__belongs .. WTF????
-    value['_Entity__belongs'][(id(self.owner),self.owner_key,name)] = self.owner
+    # _Entity__belongs .. WTH????
+    value.belongs[(id(self.owner),self.owner_key,name)] = self.owner
     self.data[name]=value
     return

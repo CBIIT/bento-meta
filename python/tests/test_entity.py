@@ -16,7 +16,7 @@ def test_entity_attrs():
   attspec={"a":"simple","b":"object","c":"collection"}
   ent = Entity(attspec=attspec)
   val = Entity(attspec=attspec)
-  assert ent.__attspec == attspec
+  assert ent.attspec == attspec
   ent.a = 1
   ent['a'] = 1
   ent.b = val

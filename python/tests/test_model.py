@@ -44,6 +44,3 @@ def test_create_model():
   model.add_terms(dx, tm, 'rockin_pneumonia', 'fungusamongus')
   assert {x.value for x in dx.terms.values()} == { 'CRS', 'rockin_pneumonia', 'fungusamongus'}
   
-  
-    
-test_create_model()
