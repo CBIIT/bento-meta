@@ -1,7 +1,8 @@
 import re
 import sys
-sys.path.append('.')
+sys.path.extend(['.','..'])
 import pytest
+from pdb import set_trace
 from bento_meta.model import Model, ArgError
 from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin
 
@@ -15,6 +16,7 @@ def test_init_model():
 def test_create_model():
   model = Model('test')
   case = Node({"handle":"case"})
+#  set_trace()
   case.props['days_to_enrollment'] = Property({"handle":'days_to_enrollment'})
   model.add_node(case)
   assert isinstance(model.nodes['case'],Node)
@@ -44,3 +46,4 @@ def test_create_model():
   
   
     
+test_create_model()

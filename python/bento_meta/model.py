@@ -115,6 +115,13 @@ class Model(object):
     if not self.contains(edge):
       warn("edge '{edge}' not contained in model '{model}'".format(edge=edge.triplet, model=model.handle))
       return
+    for p in edge.props:
+      try:
+        k = list(edge.triplet)
+        k.append(p.handle)
+        del self.props[tuple(k)]
+      except:
+        pass
     del self.edges[edge.triplet]
     return edge
 
@@ -122,6 +129,7 @@ class Model(object):
   def rm_prop(self, prop):
     if not isinstance(prop, Property):
       raise ArgError("arg must be a Property object")
+      ###
     pass
 
   def rm_term(self, term):

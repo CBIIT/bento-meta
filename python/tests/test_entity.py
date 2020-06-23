@@ -3,7 +3,7 @@ import sys
 sys.path.append('.')
 import pytest
 
-from bento_meta.entity import Entity, ArgError
+from bento_meta.entity import Entity, CollValue, ArgError
 
 def test_create_entity():
   assert Entity(attspec={"a":"simple","b":"object","c":"collection"})
@@ -38,4 +38,13 @@ def test_entity_init():
   ent = Entity(attspec=attspec, init=good)
   with pytest.raises(ArgError,match=".*is not a simple scalar"):
     Entity(attspec=attspec,init=bad)
-    
+
+def test_entity_belongs():
+  e = Entity({'C':'collection'})
+  ee = Entity({'a':'simple'})
+  cc = CollValue({},owner=e,owner_key='C')
+  e['C']=cc
+  cc['k']=ee
+  assert e['C'] == cc
+  assert e['C']['k'] == ee
+  

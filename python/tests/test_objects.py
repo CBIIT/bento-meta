@@ -1,5 +1,6 @@
 import re
 import sys
+from pdb import set_trace
 sys.path.append('.')
 import pytest
 from bento_meta.entity import Entity
@@ -29,7 +30,8 @@ def test_init_and_link_objects():
   term = Term({"value":"sample"})
   concept = Concept();
   term.concept = concept
-  concept.terms={"sample":term}
+
+  concept.terms["sample"]=term
   sample.concept = concept
   assert of_sample.src.concept.terms["sample"].value == "sample"
   
