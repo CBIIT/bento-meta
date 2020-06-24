@@ -40,6 +40,7 @@ class Model(object):
     for p in node.props.values():
       self.add_prop(node, p)
     self.nodes[node.handle] = node
+    return node
 
   def add_edge(self, edge=None):
     if not edge:
@@ -59,7 +60,7 @@ class Model(object):
     for p in edge.props.values():
       self.add_prop(edge,p)
     self.edges[edge.triplet] = edge
-    pass
+    return edge
 
   def add_prop(self, ent, prop=None):
     if not isinstance(ent, (Node, Edge)):
@@ -73,7 +74,7 @@ class Model(object):
     key = [ent.handle] if isinstance(ent,Node) else list(ent.triplet)
     key.append(prop.handle)
     self.props[tuple(key)] = prop
-    pass
+    return prop
 
   def add_terms(self, prop, *terms):
     if not isinstance(prop, Property):

@@ -7,8 +7,9 @@ from bento_meta.entity import Entity
 
 class Node(Entity):
   attspec = {"handle":"simple","model":"simple",
-             "concept":"object",
+             "category":"simple","concept":"object",
              "props":"collection"}
+
   def __init__(self, init=None):
     super().__init__(attspec=Node.attspec,init=init)
 
@@ -17,6 +18,7 @@ class Property(Entity):
              "value_domain":"simple","units":"simple",
              "pattern":"simple","is_required":"simple",
              "concept":"object","value_set":"object","terms":"object"}
+
   def __init__(self, init=None):
     super().__init__(attspec=Property.attspec,init=init)
   @property
@@ -47,6 +49,7 @@ class Term(Entity):
   attspec={"value":"simple", "origin_id":"simple",
            "origin_definition":"simple",
            "concept":"object", "origin":"object"}
+
   def __init__(self, init=None):
     super().__init__(attspec=Term.attspec,init=init)
 
@@ -64,7 +67,12 @@ class Concept(Entity):
 
 class Origin(Entity):
   attspec={"url":"simple", "is_external":"simple"}
+
   def __init__(self, init=None):
     super().__init__(attspec=Origin.attspec,init=init)
-  
+
+class Tag(Entity):
+  attspec={"value":"simple"}
+  def __init__(self,init=None):
+    super().__init__(attspec=Tag.attspec,init=init)    
   

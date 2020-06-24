@@ -20,7 +20,8 @@ class Entity(object):
     # universal attributes
     attspec.update( {"_id":"simple", "desc":"simple",
                      "_next":"object", "_prev":"object",
-                     "_from":"simple", "_to":"simple"} )
+                     "_from":"simple", "_to":"simple",
+                     "tags":"collection"} )
     # private
     self.pvt={}
     self.neoid=1
