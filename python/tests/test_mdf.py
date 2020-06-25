@@ -54,5 +54,14 @@ def test_created_model():
   assert derived_from
   assert len(derived_from.props.keys()) == 1
   assert next(iter(derived_from.props.values())).handle == 'id'
-  
-  
+  d_f = m.model.edges_by_dst( m.model.nodes['file'] )
+  assert d_f
+  assert len(d_f) == 1
+  assert 'workflow_id' in d_f[0].props.keys()
+  assert len(m.model.edges_in(m.model.nodes['case'])) == 2
+  assert len(m.model.edges_out(m.model.nodes['file'])) == 2
+  sample = m.model.nodes['sample']
+  sample_type = sample.props['sample_type']
+  assert sample_type.value_domain == 'value_set'
+  assert isinstance(sample_type.value_set, ValueSet)
+  assert set(sample_type.values) == {'tumor','normal'}
