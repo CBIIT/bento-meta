@@ -67,10 +67,10 @@ class Model(object):
       raise ArgError("arg 1 must be Node or Edge")
     if not prop:
       raise ArgError("arg 2 must be Property, dict, or graph.Node")
-    if not prop.model:
+    if not prop.get('model'):
       prop.model = self.handle
     if isinstance(prop, (dict, neo4j.graph.Node)):
-      init = Property(init)
+      prop = Property(prop)
     key = [ent.handle] if isinstance(ent,Node) else list(ent.triplet)
     key.append(prop.handle)
     self.props[tuple(key)] = prop
@@ -83,8 +83,10 @@ class Model(object):
       raise AttributeError("Property value domain is not value_set or enum, can't add terms")
     if not prop.value_set:
       warn("Creating ValueSet object for Property "+prop.handle)
-      prop.value_set = ValueSet({ "prop":prop })
-      prop.value_set._id=str(uuid4())
+      prop.value_set = ValueSet({ "prop":prop,
+                                  "_id":str(uuid4())})
+      prop.value_set.handle=self.handle+prop.value_set._id[0:8]
+      
     for t in terms:
       if isinstance(t, str):
         warn("Creating Term object for string '{term}'".format(term=t))

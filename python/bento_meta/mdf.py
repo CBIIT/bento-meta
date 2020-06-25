@@ -1,25 +1,32 @@
 import sys
 sys.path.extend(['.','..'])
 from  bento_meta.model import Model
-from bento_entity import ArgError,CollValue
+from bento_meta.entity import ArgError,CollValue
 from bento_meta.objects import Node,Property,Edge, Term, ValueSet, Concept, Origin
 import re
 import yaml
 import option_merge as om
 from collections import ChainMap
+from warnings import warn
+from uuid import uuid4
+
+from pdb import set_trace
 
 class MDF(object):
   default_mult = 'one_to_one'
   default_type = 'TBD'
-  def __init__(self, *yaml_files,*,handle=None):
+  def __init__(self, *yaml_files,handle=None):
     if not handle or not isinstance(handle,str):
       raise ArgError("arg handle= must be a str - name for model")
     self.handle = handle
     self.files = yaml_files
     self.schema = om.MergedOptions()
     self.model = None
-    self.load_yaml()
-    self.create_model()
+    if self.files:
+      self.load_yaml()
+      self.create_model()
+    else:
+      warn("No MDF files provided to constructor")
     pass
 
   def load_yaml(self):
@@ -47,11 +54,11 @@ class MDF(object):
     yedges = self.schema['Relationships']
     ypropdefs = self.schema['PropDefinitions']
     # create nodes
-    for n in nodes:
+    for n in ynodes:
       yn = ynodes[n]
       init = { "handle":n, "model":self.handle }
       for a in ['category','desc']:
-        if yn[a]:
+        if yn.get(a):
           init[a]=yn[a]
       node = self.model.add_node(init)
       if yn.get('Tags'):
@@ -77,7 +84,7 @@ class MDF(object):
             tags[t]=Tag({"value":t})
             edge['tags'] = tags
     # create properties
-    for ent in ChainMap(model.nodes, model.edges).values():
+    for ent in ChainMap(self.model.nodes, self.model.edges).values():
       if isinstance(ent,Node):
         pnames = ynodes[ent.handle]['Props']
       elif isinstance(ent,Edge):
@@ -90,25 +97,46 @@ class MDF(object):
         pnames = end.get('Props') or yedges[hdl].get('Props')
       else:
         raise AttributeError("unhandled entity type {type} for properties".format(type=type(ent).__name__))
-      for pname in pnames:
-        ypdef = ypropdefs[pname]
-        init = { "handle":pname, "model":self.handle,
-                 "type":self.calc_value_domain(ypdef['Type']) or
-                 MDF.default_type }
-      prop = self.model.add_prop(ent, init)
-      if ypdef.get('Tags'):
-        tags=CollValue({},owner=node,owner_key='tags')
-        for t in ypdef['Tags']:
-          tags[t]=Tag({"value":t})
-        prop['tags'] = tags
+      if pnames:
+        for pname in pnames:
+          ypdef = ypropdefs[pname]
+          init = { "handle":pname, "model":self.handle}
+          if ypdef.get('Type'):
+            init.update( self.calc_value_domain(ypdef['Type']) )
+          else:
+            init['value_domain']=MDF.default_type
+          prop = self.model.add_prop(ent, init)
+          ent.props[prop.handle]=prop
+          if ypdef.get('Tags'):
+            tags=CollValue({},owner=node,owner_key='tags')
+            for t in ypdef['Tags']:
+              tags[t]=Tag({"value":t})
+            prop['tags'] = tags
     return self.model
 
-  def calculate_value_domain(self,typedef):
+  def calc_value_domain(self,typedef):
     if isinstance(typedef,dict):
-      pass
-    elif isinstance(typedef,list):
-      pass
+      if typedef.get('pattern'):
+        return {"value_domain":"regexp",
+                "pattern":typedef['pattern']}
+      elif typedef.get('units'):
+        return {"value_domain":typedef.get('value_type'),
+                "units":";".join(typedef.get('units'))}
+      else:
+        # punt
+        warn("MDF type descriptor unrecognized: json looks like {j}".format(j=json.dumps(typedef)))
+        return {"value_domain":json.dumps(typedef)}
+    elif isinstance(typedef,list): # a valueset: create value set and term objs
+      vs = ValueSet({"_id":str(uuid4())})
+      vs.handle = self.handle+vs._id[0:8]
+      if re.match("^(?:https?|bolt)://",typedef[0]): #looks like url
+        vs.url = typedef[0]
+      else: # an enum
+        for t in typedef:
+          vs.terms[t] = Term({"value":t})
+      return { "value_domain":"value_set",
+               "value_set":vs }
     else:
-      return MDF.default_type
+      return {"value_domain":MDF.default_type}
                              
     

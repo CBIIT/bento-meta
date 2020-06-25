@@ -54,7 +54,7 @@ class Term(Entity):
     super().__init__(attspec=Term.attspec,init=init)
 
 class ValueSet(Entity):
-  attspec={"url":"simple",
+  attspec={"handle":"simple","url":"simple",
            "prop":"object", "origin":"object",
            "terms":"collection"}
   def __init__(self, init=None):
