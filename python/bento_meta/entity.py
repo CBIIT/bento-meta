@@ -3,6 +3,7 @@
 #
 # attspec : { <att_name> : "simple|object|collection", ... }
 import re
+from option_merge import MergedOptions
 from pdb import set_trace
 from collections import UserDict
 
@@ -11,17 +12,38 @@ class ArgError(Exception):
 
 class Entity(object):
   pvt_attr=['pvt','neoid','dirty','removed_entities','attspec',
-            'object_map','belongs']
-  def __init__(self,attspec=None,init=None):
+            'mapspec','object_map','belongs']
+  attspec_={"_id":"simple", "desc":"simple",
+           "_next":"object", "_prev":"object",
+           "_from":"simple", "_to":"simple",
+           "tags":"collection"}
+  mapspec_={
+    "label":None,
+    "property": {
+      "_id":"id",
+      "desc":"desc",
+      "_from":"_from",
+      "_to":"_to"
+      },
+    "relationship": {
+      "_next": { "rel" : ":_next>",
+                 "end_cls" : set() },
+      "_prev": { "rel" : ":_prev>",
+                 "end_cls" : set() },
+      "tags": { "rel" : ":has_tag",
+                "end_cls" : {"Tag"} }
+    }}
+
+      
+      
+  def __init__(self,attspec=None,mapspec=None,init=None):
     if not attspec:
       raise ArgError("attribute spec required as arg attspec");
     if not set(attspec.values()) <= set(['simple','object','collection']):
       raise ArgError("unknown attribute type in attspec")
-    # universal attributes
-    attspec.update( {"_id":"simple", "desc":"simple",
-                     "_next":"object", "_prev":"object",
-                     "_from":"simple", "_to":"simple",
-                     "tags":"collection"} )
+    # add universal attributes
+    attspec.update(Entity.attspec_)
+
     # private
     self.pvt={}
     self.neoid=1
@@ -30,6 +52,16 @@ class Entity(object):
     self.attspec=attspec
     self.object_map=None
     self.belongs = {}
+
+    # merge to universal map
+    self.mapspec=MergedOptions()
+    self.mapspec.update(Entity.mapspec_)
+    self.mapspec.update(mapspec)
+    self.mapspec["relationship"]["_next"]["end_cls"]={type(self).__name__}
+    self.mapspec["relationship"]["_prev"]["end_cls"]={type(self).__name__}
+    
+
+
     if init:
       if isinstance(init,Entity):
         self.set_with_entity(init)
@@ -44,6 +76,10 @@ class Entity(object):
   @property
   def attspec(self):
     return self.pvt.attspec
+  @property
+  def mapspec(self):
+    return self.pvt.mapspec
+    
   @property
   def dirty(self):
     return self.pvt.dirty
