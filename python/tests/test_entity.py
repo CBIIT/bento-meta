@@ -2,21 +2,23 @@ import re
 import sys
 sys.path.append('.')
 import pytest
+from pdb import set_trace
 
 from bento_meta.entity import Entity, CollValue, ArgError
 
+class TestEntity(Entity):
+  attspec = {"a":"simple","b":"object","c":"collection"}
+  def __init__(self,init=None):
+    super().mergespec()
+    super().__init__(init)
+
 def test_create_entity():
-  assert Entity(attspec={"a":"simple","b":"object","c":"collection"})
-  with pytest.raises(ArgError, match="^attribute spec required"):
-    Entity()
-  with pytest.raises(ArgError, match="^unknown attribute type"):
-    Entity(attspec={"a":"frelb"})
+  assert Entity()
 
 def test_entity_attrs():
-  attspec={"a":"simple","b":"object","c":"collection"}
-  ent = Entity(attspec=attspec)
-  val = Entity(attspec=attspec)
-  assert ent.attspec == attspec
+  assert TestEntity.attspec == {"a":"simple","b":"object","c":"collection"}
+  ent = TestEntity()
+  val = TestEntity()
   ent.a = 1
   ent['a'] = 1
   ent.b = val
@@ -30,21 +32,20 @@ def test_entity_attrs():
     ent.b={"plain":"dict"}
     
 def test_entity_init():
-  attspec={"a":"simple","b":"object","c":"collection"}
-  val = Entity(attspec=attspec)
+  val = TestEntity({"a":10})
   col = {}
   good = {"a":1,"b":val,"c":col,"d":"ignored"}
   bad = {"a":val,"b":val,"c":col,"d":"ignored"}
-  ent = Entity(attspec=attspec, init=good)
+  ent = TestEntity(init=good)
   with pytest.raises(ArgError,match=".*is not a simple scalar"):
-    Entity(attspec=attspec,init=bad)
+    TestEntity(init=bad)
 
 def test_entity_belongs():
-  e = Entity({'C':'collection'})
-  ee = Entity({'a':'simple'})
-  cc = CollValue({},owner=e,owner_key='C')
-  e['C']=cc
+  e = TestEntity()
+  ee = TestEntity()
+  cc = CollValue({},owner=e,owner_key='c')
+  e['c']=cc
   cc['k']=ee
-  assert e['C'] == cc
-  assert e['C']['k'] == ee
+  assert e['c'] == cc
+  assert e['c']['k'] == ee
   

@@ -3,22 +3,23 @@ import sys
 sys.path.append('..')
 from bento_meta.entity import Entity
 
+
+from pdb import set_trace
 # tags attr?
 
 class Node(Entity):
   attspec = {"handle":"simple","model":"simple",
              "category":"simple","concept":"object",
              "props":"collection"}
-  mapspec = {"label":"node",
+  mapspec_ = {"label":"node",
              "property": {"handle":"handle","model":"model","category":"category"},
              "relationship": {
                "concept": { "rel" : ":has_concept>",
                             "end_cls" : "Concept" }
                }}
   def __init__(self, init=None):
-    super().__init__(attspec=Node.attspec,
-                     mapspec=Node.mapspec,
-                     init=init)
+    super().mergespec()
+    super().__init__(init=init)
 
 class Property(Entity):
   attspec = {"handle":"simple","model":"simple",
@@ -38,9 +39,8 @@ class Property(Entity):
                               "end_cls" : "ValueSet" }
                }}
   def __init__(self, init=None):
-    super().__init__(attspec=Property.attspec,
-                     mapspec=Property.mapspec,
-                     init=init)
+    super().mergespec()
+    super().__init__(init=init)
   @property
   def terms(self):
     if self.value_set:
@@ -74,9 +74,8 @@ class Edge(Entity):
                }}
 
   def __init__(self, init=None):
-    super().__init__(attspec=Edge.attspec,
-                     mapspec=Edge.mapspec,
-                     init=init)
+    super().mergespec()
+    super().__init__(init=init)
   @property
   def triplet(self):
     if (self.handle and self.src and self.dst):
@@ -97,9 +96,8 @@ class Term(Entity):
                           "end_cls" : "Origin" }
                }}
   def __init__(self, init=None):
-    super().__init__(attspec=Term.attspec,
-                     mapspec=Term.mapspec,
-                     init=init)
+    super().mergespec()
+    super().__init__(init=init)
 
 class ValueSet(Entity):
   attspec={"handle":"simple","url":"simple",
@@ -117,9 +115,8 @@ class ValueSet(Entity):
                           "end_cls" : "Origin" }
                }}
   def __init__(self, init=None):
-    super().__init__(attspec=ValueSet.attspec,
-                     mapspec=ValueSet.mapspec,
-                     init=init)
+    super().mergespec()
+    super().__init__(init=init)
 
 class Concept(Entity):
   attspec={"terms":"collection"}
@@ -129,9 +126,8 @@ class Concept(Entity):
                          "end_cls":"Term" }
              }}
   def __init__(self, init=None):
-    super().__init__(attspec=Concept.attspec,
-                     mapspec=Concept.mapspec,
-                     init=init)
+    super().mergespec()
+    super().__init__(init=init)
 
 class Origin(Entity):
   attspec={"url":"simple", "is_external":"simple"}
@@ -141,16 +137,14 @@ class Origin(Entity):
              "is_external":"is_external"
            }}
   def __init__(self, init=None):
-    super().__init__(attspec=Origin.attspec,
-                     mapspec=Origin.mapspec,
-                     init=init)
+    super().mergespec()
+    super().__init__(init=init)
 
 class Tag(Entity):
   attspec={"value":"simple"}
   mapspec={"label":"tag",
            "property": { "value":"value" }}
   def __init__(self,init=None):
-    super().__init__(attspec=Tag.attspec,
-                     mapspec=Tag.mapspec,
-                     init=init)    
+    super().mergespec()
+    super().__init__(init=init)    
   

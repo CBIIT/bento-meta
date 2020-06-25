@@ -3,9 +3,9 @@
 #
 # attspec : { <att_name> : "simple|object|collection", ... }
 import re
-from option_merge import MergedOptions
 from pdb import set_trace
 from collections import UserDict
+from option_merge import MergedOptions
 
 class ArgError(Exception):
   pass
@@ -17,6 +17,7 @@ class Entity(object):
            "_next":"object", "_prev":"object",
            "_from":"simple", "_to":"simple",
            "tags":"collection"}
+  attspec=attspec_
   mapspec_={
     "label":None,
     "property": {
@@ -34,51 +35,43 @@ class Entity(object):
                 "end_cls" : {"Tag"} }
     }}
 
-      
-      
-  def __init__(self,attspec=None,mapspec=None,init=None):
-    if not attspec:
-      raise ArgError("attribute spec required as arg attspec");
-    if not set(attspec.values()) <= set(['simple','object','collection']):
+  def __init__(self,init=None):
+    if not set(type(self).attspec.values()) <= set(['simple','object','collection']):
       raise ArgError("unknown attribute type in attspec")
-    # add universal attributes
-    attspec.update(Entity.attspec_)
-
     # private
     self.pvt={}
     self.neoid=1
     self.dirty=1
     self.removed_entities=[]
-    self.attspec=attspec
     self.object_map=None
     self.belongs = {}
 
     # merge to universal map
-    self.mapspec=MergedOptions()
-    self.mapspec.update(Entity.mapspec_)
-    self.mapspec.update(mapspec)
-    self.mapspec["relationship"]["_next"]["end_cls"]={type(self).__name__}
-    self.mapspec["relationship"]["_prev"]["end_cls"]={type(self).__name__}
-    
-
+    type(self).mergespec
 
     if init:
       if isinstance(init,Entity):
         self.set_with_entity(init)
       elif isinstance(init, dict):
         self.set_with_dict(init)
-    for att in self.attspec:
+    for att in type(self).attspec:
       if not att in self.__dict__:
         if self.attspec[att] == 'collection':
           self[att] = CollValue({},owner=self,owner_key=att)
         else:
           self[att] = None
-  @property
-  def attspec(self):
-    return self.pvt.attspec
-  @property
-  def mapspec(self):
-    return self.pvt.mapspec
+          
+  @classmethod
+  def mergespec(cls):
+    cls.attspec.update(Entity.attspec_)
+    mo=MergedOptions()
+    mo.update(Entity.mapspec_)
+    if hasattr(cls,'mapspec_'):
+      mo.update(cls.mapspec_)
+    mo["relationship"]["_next"]["end_cls"]={cls.__name__}
+    mo["relationship"]["_prev"]["end_cls"]={cls.__name__}
+    cls.mapspec=mo
+
     
   @property
   def dirty(self):
@@ -94,9 +87,9 @@ class Entity(object):
     return self.pvt.belongs
   
   def set_with_dict(self, init):
-    for att in self.attspec:
+    for att in type(self).attspec:
       if att in init:
-        if self.attspec[att] == 'collection':
+        if type(self).attspec[att] == 'collection':
           self[att] = CollValue(init[att],owner=self,owner_key=att)
         else:
           self[att] = init[att] 
@@ -104,7 +97,7 @@ class Entity(object):
   def __getattr__(self, name):
     if name in Entity.pvt_attr:
       return self.__dict__['pvt'][name]
-    elif name in self.attspec:
+    elif name in type(self).attspec:
       if not name in self.__dict__:
         return None
       return self.__dict__[name]
@@ -119,11 +112,11 @@ class Entity(object):
       self.__dict__['pvt'] = value
     elif name in Entity.pvt_attr:
       self.__dict__['pvt'][name]=value
-    elif name in self.attspec:
+    elif name in type(self).attspec:
       self._check_value(name,value)
       if isinstance(value, Entity):
         value.belongs[(id(self),name)] = self
-      if isinstance(value, dict) and self.attspec[name] == 'collection':
+      if isinstance(value, dict) and type(self).attspec[name] == 'collection':
         value = CollValue(value,owner=self,owner_key=name)
       self.__dict__[name] = value
     else:
@@ -135,12 +128,12 @@ class Entity(object):
     del self.__dict__[name]
 
   def _check_init(self,init):
-    for att in self.attspec:
+    for att in type(self).attspec:
       if init[att]:
         self._check_value(att,init[att])
                                
   def _check_value(self,att,value):
-    spec = self.attspec[att]
+    spec = type(self).attspec[att]
     try:
       if spec == 'simple':
         if not (isinstance(value,int) or

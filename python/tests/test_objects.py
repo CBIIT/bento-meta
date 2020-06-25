@@ -4,10 +4,10 @@ from pdb import set_trace
 sys.path.append('.')
 import pytest
 from bento_meta.entity import Entity
-from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin
+from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag
 
 def test_create_objects():
-  for cls in [Node,Property,Edge,Term,ValueSet,Concept,Origin]:
+  for cls in [Node,Property,Edge,Term,ValueSet,Concept,Origin,Tag]:
     n = cls()
     assert n
     assert isinstance(n, Entity)
