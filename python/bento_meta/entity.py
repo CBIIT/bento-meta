@@ -40,14 +40,14 @@ class Entity(object):
       raise ArgError("unknown attribute type in attspec")
     # private
     self.pvt={}
-    self.neoid=1
+    self.neoid=None
     self.dirty=1
     self.removed_entities=[]
     self.object_map=None
     self.belongs = {}
 
     # merge to universal map
-    type(self).mergespec
+    type(self).mergespec()
 
     if init:
       if isinstance(init,Entity):
@@ -70,9 +70,14 @@ class Entity(object):
       mo.update(cls.mapspec_)
     mo["relationship"]["_next"]["end_cls"]={cls.__name__}
     mo["relationship"]["_prev"]["end_cls"]={cls.__name__}
-    cls.mapspec=mo
+    cls._mapspec=mo
 
-    
+  @classmethod
+  def mapspec(cls):
+    if not hasattr(cls,'_mapspec'):
+      cls.mergespec()
+    return cls._mapspec
+
   @property
   def dirty(self):
     return self.pvt.dirty

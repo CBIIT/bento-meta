@@ -128,7 +128,7 @@ class MDF(object):
         return {"value_domain":json.dumps(typedef)}
     elif isinstance(typedef,list): # a valueset: create value set and term objs
       vs = ValueSet({"_id":str(uuid4())})
-      vs.handle = self.handle+vs._id[0:8]
+      vs.handle = self.handle+vs['_id'][0:8]
       if re.match("^(?:https?|bolt)://",typedef[0]): #looks like url
         vs.url = typedef[0]
       else: # an enum

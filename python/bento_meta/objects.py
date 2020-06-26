@@ -17,16 +17,16 @@ class Node(Entity):
                "concept": { "rel" : ":has_concept>",
                             "end_cls" : "Concept" }
                }}
-  def __init__(self, init=None):
-    super().mergespec()
-    super().__init__(init=init)
 
+  def __init__(self, init=None):
+    super().__init__(init=init)
+  
 class Property(Entity):
   attspec = {"handle":"simple","model":"simple",
              "value_domain":"simple","units":"simple",
              "pattern":"simple","is_required":"simple",
              "concept":"object","value_set":"object"}
-  mapspec = {"label":"property",
+  mapspec_ = {"label":"property",
              "property": {"handle":"handle","model":"model",
                           "value_domain":"value_domain",
                           "pattern":"pattern",
@@ -39,7 +39,6 @@ class Property(Entity):
                               "end_cls" : "ValueSet" }
                }}
   def __init__(self, init=None):
-    super().mergespec()
     super().__init__(init=init)
   @property
   def terms(self):
@@ -58,7 +57,7 @@ class Edge(Entity):
              "src":"object","dst":"object",
              "concept":"object",
              "props":"collection"}
-  mapspec = {"label":"relationship",
+  mapspec_ = {"label":"relationship",
              "property": {"handle":"handle","model":"model",
                           "multiplicity":"multiplicity",
                           "is_required":"is_required"},
@@ -74,7 +73,6 @@ class Edge(Entity):
                }}
 
   def __init__(self, init=None):
-    super().mergespec()
     super().__init__(init=init)
   @property
   def triplet(self):
@@ -85,7 +83,7 @@ class Term(Entity):
   attspec={"value":"simple", "origin_id":"simple",
            "origin_definition":"simple",
            "concept":"object", "origin":"object"}
-  mapspec = {"label":"term",
+  mapspec_ = {"label":"term",
              "property": {"value":"value",
                           "origin_id":"origin_id",
                           "origin_defintion":"origin_defintion"},
@@ -96,14 +94,13 @@ class Term(Entity):
                           "end_cls" : "Origin" }
                }}
   def __init__(self, init=None):
-    super().mergespec()
     super().__init__(init=init)
 
 class ValueSet(Entity):
   attspec={"handle":"simple","url":"simple",
            "prop":"object", "origin":"object",
            "terms":"collection"}
-  mapspec = {"label":"value_set",
+  mapspec_ = {"label":"value_set",
              "property": {"handle":"handle",
                           "url":"url"},
              "relationship": {
@@ -115,36 +112,32 @@ class ValueSet(Entity):
                           "end_cls" : "Origin" }
                }}
   def __init__(self, init=None):
-    super().mergespec()
     super().__init__(init=init)
 
 class Concept(Entity):
   attspec={"terms":"collection"}
-  mapspec={"label":"concept",
+  mapspec_={"label":"concept",
            "relationship": {
              "terms" : { "rel":"<:represents",
                          "end_cls":"Term" }
              }}
   def __init__(self, init=None):
-    super().mergespec()
     super().__init__(init=init)
 
 class Origin(Entity):
   attspec={"url":"simple", "is_external":"simple"}
-  mapspec={"label":"origin",
+  mapspec_={"label":"origin",
            "property": {
              "url":"url",
              "is_external":"is_external"
            }}
   def __init__(self, init=None):
-    super().mergespec()
     super().__init__(init=init)
 
 class Tag(Entity):
   attspec={"value":"simple"}
-  mapspec={"label":"tag",
+  mapspec_={"label":"tag",
            "property": { "value":"value" }}
   def __init__(self,init=None):
-    super().mergespec()
     super().__init__(init=init)    
   
