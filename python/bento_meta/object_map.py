@@ -176,7 +176,7 @@ class ObjectMap(object):
         att=att,
         cls=self.cls.__name__))
 
-  def rm_q(self,detach=False):
+  def rm_q(self,obj,detach=False):
     if not isinstance(obj, self.cls):
       raise ArgError("arg1 must be object of class {cls}".format(cls=self.cls.__name__))
     if obj.neoid == None:
@@ -211,40 +211,40 @@ class ObjectMap(object):
       cond = ' OR '.join(cond)
       rel = re.sub('^([^:]?)(:[a-zA-Z0-9_]+)(.*)$',r'\1-[r\2]-\3', spec['rel'])
       if values[0]==':all':
-        if not many:
+        if len(end_lbls)==1:
+          return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} DELETE r".format(
+            lbl=self.cls.mapspec()["label"],
+            albl=end_lbls[0],
+            rel=rel,
+            neoid=obj.neoid)
+        else:
+          return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND ({cond}) DELETE r".format(
+            lbl=self.cls.mapspec()["label"],
+            cond=cond,
+            neoid=obj.neoid,
+              rel=rel)
+      else:
+        stmts=[]
+        if not self._check_values_list(att,values):
+          raise ArgError("'values' must be a list of mapped Entity objects of the appropriate subclass for attribute '{att}'".format(att=att))
+        for val in values:
+          qry=''
           if len(end_lbls)==1:
-            return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} DELETE r".format(
+            qry = "MATCH (n:{lbl}){rel}(a:{albl}) WHERE id(n)={neoid} AND id(a)={aneoid} DELETE r".format(
               lbl=self.cls.mapspec()["label"],
               albl=end_lbls[0],
-              neoid=obj.neoid)
-          else:
-            return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND ({cond}) DELETE r".format(
-              lbl=self.cls.mapspec()["label"],
-              cond=cond,
               neoid=obj.neoid,
+              aneoid=val.neoid,
               rel=rel)
-        else:
-          stmts=[]
-          if not self._check_values_list(att,values):
-            raise ArgError("'values' must be a list of mapped Entity objects of the appropriate subclass for attribute '{att}'".format(att=att))
-          for val in values:
-            qry=''
-            if len(end_lbls)==1:
-              qry = "MATCH (n:{lbl}){rel}(a:{albl}) WHERE id(n)={neoid} AND id(a)={aneoid} DELETE r".format(
-                lbl=self.cls.mapspec()["label"],
-                albl=end_lbls[0],
-                neoid=obj.neoid,
-                aneoid=val.neoid,
-                rel=rel)
-            else:
-              qry = "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) DELETE r".format(
-                lbl=self.cls.mapspec()["label"],
-                albl=end_lbls[0],
-                neoid=obj.neoid,
-                cond=cond,
-                rel=rel)
-            stmts.append(qry)
-          return stmts    
+          else:
+            qry = "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) DELETE r".format(
+              lbl=self.cls.mapspec()["label"],
+              albl=end_lbls[0],
+              neoid=obj.neoid,
+              cond=cond,
+              rel=rel)
+          stmts.append(qry)
+        return stmts    
     else:
       raise ArgError("'{att}' is not a registered attribute for class '{cls}'".format(
         att=att,
