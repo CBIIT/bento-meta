@@ -8,8 +8,8 @@ from bento_meta.entity import Entity, CollValue, ArgError
 
 class TestEntity(Entity):
   attspec = {"a":"simple","b":"object","c":"collection"}
+  mapspec_ = {"label":"test","relationship":{"b":{ "rel":":has_object>", "end_cls":"entity"},"c":{ "rel":":has_object>", "end_cls":"entity"}},"property":{"a":"a"}}
   def __init__(self,init=None):
-    super().mergespec()
     super().__init__(init)
 
 def test_create_entity():

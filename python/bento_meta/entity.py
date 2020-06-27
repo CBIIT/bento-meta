@@ -3,6 +3,7 @@
 #
 # attspec : { <att_name> : "simple|object|collection", ... }
 import re
+from copy import deepcopy
 from pdb import set_trace
 from collections import UserDict
 from option_merge import MergedOptions
@@ -64,10 +65,18 @@ class Entity(object):
   @classmethod
   def mergespec(cls):
     cls.attspec.update(Entity.attspec_)
-    mo=MergedOptions()
-    mo.update(Entity.mapspec_)
-    if hasattr(cls,'mapspec_'):
-      mo.update(cls.mapspec_)
+    # mo=MergedOptions()
+    # mo.update(Entity.mapspec_)
+    # if hasattr(cls,'mapspec_'):
+    #   mo.update(cls.mapspec_)
+    mo=deepcopy(Entity.mapspec_)
+    cs=cls.mapspec_
+    if "label" in cs:
+      mo["label"] = cs["label"]
+    if "property" in cs:
+      mo["property"].update(cs["property"])
+    if "relationship" in cs:
+      mo["relationship"].update(cs["relationship"])    
     mo["relationship"]["_next"]["end_cls"]={cls.__name__}
     mo["relationship"]["_prev"]["end_cls"]={cls.__name__}
     cls._mapspec=mo

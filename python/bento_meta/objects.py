@@ -22,7 +22,7 @@ class Node(Entity):
 
   def __init__(self, init=None):
     super().__init__(init=init)
-  
+    
 class Property(Entity):
   attspec = {"handle":"simple","model":"simple",
              "value_domain":"simple","units":"simple",
@@ -42,6 +42,7 @@ class Property(Entity):
                }}
   def __init__(self, init=None):
     super().__init__(init=init)
+  
   @property
   def terms(self):
     if self.value_set:
