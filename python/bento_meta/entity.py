@@ -12,7 +12,7 @@ class ArgError(Exception):
 
 class Entity(object):
   pvt_attr=['pvt','neoid','dirty','removed_entities','attspec',
-            'mapspec','object_map','belongs']
+            'mapspec','belongs']
   attspec_={"_id":"simple", "desc":"simple",
            "_next":"object", "_prev":"object",
            "_from":"simple", "_to":"simple",
@@ -34,7 +34,8 @@ class Entity(object):
       "tags": { "rel" : ":has_tag",
                 "end_cls" : {"Tag"} }
     }}
-
+  object_map=None
+  
   def __init__(self,init=None):
     if not set(type(self).attspec.values()) <= set(['simple','object','collection']):
       raise ArgError("unknown attribute type in attspec")
@@ -43,7 +44,6 @@ class Entity(object):
     self.neoid=None
     self.dirty=1
     self.removed_entities=[]
-    self.object_map=None
     self.belongs = {}
 
     # merge to universal map
@@ -166,19 +166,19 @@ class Entity(object):
       raise
     
   def get(self,refresh):
-    if (self.object_map):
+    if (type(self).object_map):
       pass
     else:
       pass
 
   def put(self,refresh):
-    if (self.object_map):
+    if (type(self).object_map):
       pass
     else:
       pass
 
   def rm(self,refresh):
-    if (self.object_map):
+    if (type(self).object_map):
       pass
     else:
       pass

@@ -15,7 +15,9 @@ class Node(Entity):
              "property": {"handle":"handle","model":"model","category":"category"},
              "relationship": {
                "concept": { "rel" : ":has_concept>",
-                            "end_cls" : "Concept" }
+                            "end_cls" : "Concept" },
+               "props": { "rel" : ":has_property>",
+                          "end_cls" : "Property" }
                }}
 
   def __init__(self, init=None):
