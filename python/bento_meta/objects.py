@@ -12,6 +12,7 @@ class Node(Entity):
              "category":"simple","concept":"object",
              "props":"collection"}
   mapspec_ = {"label":"node",
+              "key":"handle",
              "property": {"handle":"handle","model":"model","category":"category"},
              "relationship": {
                "concept": { "rel" : ":has_concept>",
@@ -29,17 +30,18 @@ class Property(Entity):
              "pattern":"simple","is_required":"simple",
              "concept":"object","value_set":"object"}
   mapspec_ = {"label":"property",
-             "property": {"handle":"handle","model":"model",
-                          "value_domain":"value_domain",
-                          "pattern":"pattern",
-                          "units":"units",
-                          "is_required":"is_required"},
-             "relationship": {
-               "concept": { "rel" : ":has_concept>",
-                            "end_cls" : "Concept" },
-               "value_set": { "rel" : ":has_value_set>",
-                              "end_cls" : "ValueSet" }
-               }}
+              "key":"handle",
+              "property": {"handle":"handle","model":"model",
+                           "value_domain":"value_domain",
+                           "pattern":"pattern",
+                           "units":"units",
+                           "is_required":"is_required"},
+              "relationship": {
+                "concept": { "rel" : ":has_concept>",
+                             "end_cls" : "Concept" },
+                "value_set": { "rel" : ":has_value_set>",
+                               "end_cls" : "ValueSet" }
+              }}
   def __init__(self, init=None):
     super().__init__(init=init)
   
@@ -61,19 +63,20 @@ class Edge(Entity):
              "concept":"object",
              "props":"collection"}
   mapspec_ = {"label":"relationship",
-             "property": {"handle":"handle","model":"model",
-                          "multiplicity":"multiplicity",
-                          "is_required":"is_required"},
-             "relationship": {
-               "src": { "rel" : ":has_src>",
-                            "end_cls" : "Node" },
-               "dst": { "rel" : ":has_dst>",
-                            "end_cls" : "Node" },
-               "concept": { "rel" : ":has_concept>",
-                            "end_cls" : "Concept" },
-               "props": { "rel" : ":has_property>",
-                          "end_cls" : "Property" }
-               }}
+              "key":"handle",
+              "property": {"handle":"handle","model":"model",
+                           "multiplicity":"multiplicity",
+                           "is_required":"is_required"},
+              "relationship": {
+                "src": { "rel" : ":has_src>",
+                         "end_cls" : "Node" },
+                "dst": { "rel" : ":has_dst>",
+                         "end_cls" : "Node" },
+                "concept": { "rel" : ":has_concept>",
+                             "end_cls" : "Concept" },
+                "props": { "rel" : ":has_property>",
+                           "end_cls" : "Property" }
+              }}
 
   def __init__(self, init=None):
     super().__init__(init=init)
@@ -87,15 +90,16 @@ class Term(Entity):
            "origin_definition":"simple",
            "concept":"object", "origin":"object"}
   mapspec_ = {"label":"term",
-             "property": {"value":"value",
-                          "origin_id":"origin_id",
-                          "origin_defintion":"origin_defintion"},
-             "relationship": {
-               "concept": { "rel" : ":has_concept>",
-                            "end_cls" : "Concept" },
-               "origin": { "rel" : ":has_origin>",
-                          "end_cls" : "Origin" }
-               }}
+              "key":"value",
+              "property": {"value":"value",
+                           "origin_id":"origin_id",
+                           "origin_defintion":"origin_defintion"},
+              "relationship": {
+                "concept": { "rel" : ":has_concept>",
+                             "end_cls" : "Concept" },
+                "origin": { "rel" : ":has_origin>",
+                            "end_cls" : "Origin" }
+              }}
   def __init__(self, init=None):
     super().__init__(init=init)
 
@@ -120,27 +124,30 @@ class ValueSet(Entity):
 class Concept(Entity):
   attspec={"terms":"collection"}
   mapspec_={"label":"concept",
-           "relationship": {
-             "terms" : { "rel":"<:represents",
+            "relationship": {
+              "terms" : { "rel":"<:represents",
                          "end_cls":"Term" }
-             }}
+            }}
   def __init__(self, init=None):
     super().__init__(init=init)
 
 class Origin(Entity):
   attspec={"url":"simple", "is_external":"simple"}
   mapspec_={"label":"origin",
-           "property": {
-             "url":"url",
-             "is_external":"is_external"
-           }}
+            "key":"name",
+            "property": {
+              "name":"name",
+              "url":"url",
+              "is_external":"is_external"
+            }}
   def __init__(self, init=None):
     super().__init__(init=init)
 
 class Tag(Entity):
   attspec={"value":"simple"}
   mapspec_={"label":"tag",
-           "property": { "value":"value" }}
+            "key":"value",
+            "property": { "value":"value" }}
   def __init__(self,init=None):
     super().__init__(init=init)    
   

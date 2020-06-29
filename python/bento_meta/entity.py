@@ -20,6 +20,7 @@ class Entity(object):
   attspec=attspec_
   mapspec_={
     "label":None,
+    "key":"_id",
     "property": {
       "_id":"id",
       "desc":"desc",
@@ -70,6 +71,8 @@ class Entity(object):
     cs=cls.mapspec_
     if "label" in cs:
       mo["label"] = cs["label"]
+    if "key" in cs:
+      mo["key"] = cs["key"]
     if "property" in cs:
       mo["property"].update(cs["property"])
     if "relationship" in cs:
@@ -97,7 +100,7 @@ class Entity(object):
   def belongs(self):
     return self.pvt.belongs
   def clear_removed_entities(self):
-    self.pvt.removed_entities=[]
+    self.pvt['removed_entities']=[]
   def set_with_dict(self, init):
     for att in type(self).attspec:
       if att in init:
@@ -215,9 +218,9 @@ class CollValue(UserDict):
 
   """
   def __init__(self,init=None,*,owner,owner_key):
-    super().__init__(init)
     self.__dict__["__owner"]=owner
     self.__dict__["__owner_key"]=owner_key
+    super().__init__(init)
     
   @property
   def owner(self):

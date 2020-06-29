@@ -17,10 +17,10 @@ class ObjectMap(object):
     self.maps={}
   @classmethod
   def cls_by_label(cls,lbl):
-    if not hasattr(cls,_clsxlbl):
+    if not hasattr(cls,'_clsxlbl'):
       cls._clsxlbl={}
       for o in (Node,Edge,Property,ValueSet,Term,Concept,Origin,Tag):
-        clx._clsxlbl[o.mapspec()["label"]]=o
+        cls._clsxlbl[o.mapspec()["label"]]=o
     return cls._clsxlbl[lbl]
                      
   @classmethod
@@ -38,8 +38,10 @@ class ObjectMap(object):
   def get(self,obj, refresh=False):
     if not self.drv:
       raise ArgError("get() requires Neo4j driver instance")
-    if not (obj.neoid in ObjectMap.cache) or refresh or ObjectMap.cache[obj.neoid].dirty < 0:
-      return obj
+    if (obj.neoid in ObjectMap.cache):
+      if (not refresh or ObjectMap.cache[obj.neoid].dirty >= 0):
+        return obj
+      
     with self.drv.session() as session:
       result = session.run( self.get_q(obj) )
       rec = result.single()
@@ -49,30 +51,30 @@ class ObjectMap(object):
       ObjectMap.cache[obj.neoid] = obj
     with self.drv.session() as session:
       for att in self.cls.mapspec()["relationship"]:
-        result = session.run( self.get_att_q(obj, att) )
+        result = session.run( self.get_attr_q(obj, att) )
         values={}
         first_val=None
         for rec in result:
-          o = ObjectMap.cache[r['a'].id]
+          o = ObjectMap.cache.get(rec['a'].id)
           if o:
             if not first_val:
               first_val=o
-            values[o['handle'] if hasattr(o,'handle') else o['value']]=o
+            values[o[type(o).mapspec()["key"]]]=o
           else:
             c=None
-            for l in r['a'].labels:
+            for l in rec['a'].labels:
               c = ObjectMap.cls_by_label(l)
               if c:
                 break
             if not c:
               raise RuntimeError('node labels {lbls} have no associated class in the object model'.format(
-                lbls=r['a'].labels))
-            o=c(r['a'])
+                lbls=rec['a'].labels))
+            o=c(rec['a'])
             o.dirty=-1
             ObjectMap.cache[o.neoid]=o
             if not first_val:
               first_val=o
-            values[o['handle'] if hasattr(o,'handle') else o['value']]=o
+            values[o[type(o).mapspec()["key"]]]=o
         if (self.cls.attspec[att]=='object' and len(values) > 1):
           warn('expected one node for attribute {att} on class {cls}, but got {n}; using first one'.format(
             att=att,
@@ -103,7 +105,7 @@ class ObjectMap(object):
         obj.neoid = result.single().value('id(n)')
         if obj.neoid==None:
           raise RuntimeError("no neo4j id retrived on put for obj '{name}'".format(
-            name=obj['handle'] if hasattr(obj,'handle') else obj['value']))
+            name=obj[self.cls.mapspec()["key"]]))
         for att in self.cls.mapspec()["relationship"]:
           values = obj[att]
           if not values:
@@ -119,7 +121,7 @@ class ObjectMap(object):
             val.neoid = result.single().value('id(n)')
             if val.neoid == None:
               raise RuntimeError("no neo4j id retrived on put for obj '{name}'".format(
-                name=val['handle'] if hasattr(val,'handle') else val['value']))
+                name=val[type(val).mapspec()["key"]]))
             val.dirty=1
             ObjectMap.cache[val.neoid]=val
           for qry in self.put_attr_q(obj, att, values.values()):
