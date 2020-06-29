@@ -6,7 +6,6 @@ import re
 from copy import deepcopy
 from pdb import set_trace
 from collections import UserDict
-from option_merge import MergedOptions
 
 class ArgError(Exception):
   pass
@@ -55,6 +54,8 @@ class Entity(object):
         self.set_with_entity(init)
       elif isinstance(init, dict):
         self.set_with_dict(init)
+      elif type(init).__name__ == 'Node': # neo4j.graph.Node - but don't want to import that
+        self.set_with_node(init)
     for att in type(self).attspec:
       if not att in self.__dict__:
         if self.attspec[att] == 'collection':
@@ -65,10 +66,6 @@ class Entity(object):
   @classmethod
   def mergespec(cls):
     cls.attspec.update(Entity.attspec_)
-    # mo=MergedOptions()
-    # mo.update(Entity.mapspec_)
-    # if hasattr(cls,'mapspec_'):
-    #   mo.update(cls.mapspec_)
     mo=deepcopy(Entity.mapspec_)
     cs=cls.mapspec_
     if "label" in cs:
@@ -99,7 +96,8 @@ class Entity(object):
   @property
   def belongs(self):
     return self.pvt.belongs
-  
+  def clear_removed_entities(self):
+    self.pvt.removed_entities=[]
   def set_with_dict(self, init):
     for att in type(self).attspec:
       if att in init:
@@ -107,7 +105,18 @@ class Entity(object):
           self[att] = CollValue(init[att],owner=self,owner_key=att)
         else:
           self[att] = init[att] 
-
+  def set_with_node(self, init):
+    # this unsets any attribute that is not present in the Node's properties
+    for att in [a for a in type(self).attspec if type(self).attspec[a]=='simple']:
+      patt = type(self).mapspec()['property'][att]
+      if patt in init:
+        self[att] = init[patt]
+      else:
+        self[att] = None
+    self.neoid = init.id
+      
+      
+    
   def __getattr__(self, name):
     if name in Entity.pvt_attr:
       return self.__dict__['pvt'][name]
