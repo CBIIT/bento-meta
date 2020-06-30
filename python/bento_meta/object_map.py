@@ -53,10 +53,10 @@ class ObjectMap(object):
   def get(self,obj, refresh=False):
     if not self.drv:
       raise ArgError("get() requires Neo4j driver instance")
-    if (obj.neoid in ObjectMap.cache):
-      if (not refresh or ObjectMap.cache[obj.neoid].dirty >= 0):
+    if (refresh):
+      pass
+    elif (obj.neoid in ObjectMap.cache) and (ObjectMap.cache[obj.neoid].dirty >= 0):
         return obj
-      
     with self.drv.session() as session:
       result = session.run( self.get_q(obj) )
       rec = result.single()
@@ -166,14 +166,15 @@ class ObjectMap(object):
     if not self.drv:
       raise ArgError("rm() requires Neo4j driver instance")
     with self.drv.session() as session:
-      result = self.put_attr_q( obj, att, tgt)
+      for qry in self.put_attr_q( obj, att, tgt):
+        result = session.run(qry)
       tgt_id = result.single().value()
       if tgt_id == None:
         warn("add() - corresponding db node not found")
       return tgt_id
       
     
-  def drop(self, obj, att, tgt, tx):
+  def drop(self, obj, att, tgt, tx=None):
     if not self.drv:
       raise ArgError("rm() requires Neo4j driver instance")
     if (tx):
@@ -184,11 +185,13 @@ class ObjectMap(object):
       return tgt_id
     else:
       with self.drv.session() as session:
-        result = session.run(self.rm_att_q(obj, att, tgt))
-        tgt_id = result.single().value()
-        if tgt_id == None:
+        for qry in self.rm_att_q(obj, att, tgt):
+          result = session.run(qry)
+        s = result.single()
+        if s == None:
           warn("drop() - corresponding target db node not found")
-          return tgt_id
+        else:
+          return s.value()
 
   def get_owners(self, obj):
     if not self.drv:
@@ -318,10 +321,12 @@ class ObjectMap(object):
       raise ArgError("arg1 must be object of class {cls}".format(cls=self.cls.__name__))
     if obj.neoid == None:
       raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
-    if not isinstance(values, (list,CollValue)):
+    if not isinstance(values, (Entity,list,CollValue)):
       raise ArgError("'values' must be a list of values suitable for the attribute")
     if isinstance(values,CollValue):
       values = values.values()
+    elif isinstance(values, Entity):
+      values = [values]
     if att in self.cls.mapspec()['property']:
       return "MATCH (n:{lbl}) WHERE id(n)={neoid} SET {pr}={val} RETURN id(n)".format(
         lbl=self.cls.mapspec()["label"],

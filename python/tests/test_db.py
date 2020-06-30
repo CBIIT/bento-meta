@@ -4,6 +4,7 @@ sys.path.extend(['.','..'])
 import pytest
 import pytest_docker
 from neo4j import GraphDatabase
+import neo4j.graph
 from neo4j.exceptions import Neo4jError
 from pdb import set_trace
 import requests
@@ -35,7 +36,7 @@ def test_get(bento_neo4j):
   owners = node_map.get_owners(node)
   assert len(owners) == 1
 
-def test_put(bento_neo4j):  
+def test_put_rm(bento_neo4j):  
   (b,h)=bento_neo4j
   drv = GraphDatabase.driver(b)
   vs_map = ObjectMap(cls=ValueSet,drv=drv)
@@ -64,3 +65,22 @@ def test_put(bento_neo4j):
   term_map.rm(quilm, 1)
   with term_map.drv.session() as session:
     result = session.run("match (t:term {value:'quilm'}) return id(t)")
+    assert result.single() == None
+
+  new_term = Term({"value":"belpit"})
+  term_map.put(new_term)
+  vs_map.add(vs, 'terms', new_term)
+  assert len(vs['terms']) == 2
+  vs_map.get(vs,True)
+  assert len(vs['terms']) == 3
+  assert vs['terms']['belpit']
+  old_term = vs['terms']['ferb']
+  r = None
+  with term_map.drv.session() as session:
+    result = session.run("match (t:term {value:'ferb'})<-[r]-(v:value_set) return r")
+    r = result.single().value()
+    assert isinstance(r,neo4j.graph.Relationship)
+  vs_map.drop(vs,'terms',old_term)
+  with term_map.drv.session() as session:
+    result = session.run("match (t:term {value:'ferb'})<-[r]-(v:value_set) return r")
+    assert result.single() == None
