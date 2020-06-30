@@ -21,8 +21,23 @@ class ObjectMap(object):
       cls._clsxlbl={}
       for o in (Node,Edge,Property,ValueSet,Term,Concept,Origin,Tag):
         cls._clsxlbl[o.mapspec()["label"]]=o
-    return cls._clsxlbl[lbl]
-                     
+    return cls._clsxlbl.get(lbl)
+
+  @classmethod
+  def keys_by_cls_and_reln(cls,qcls,reln):
+    if not hasattr(cls,'_keysxcls'):
+      cls._keysxcls={}
+      for o in (Node,Edge,Property,ValueSet,Term,Concept,Origin,Tag):
+        for oatt in [x for x in o.attspec if o.attspec[x]=='object']:
+          r = o.mapspec()['relationship'][oatt]['rel']
+          r = re.match("[:<>]*([a-zA-Z_]+)[:<>]*",r).group(1)
+          cls._keysxcls[(o.__name__, r)]=(oatt,None)
+        for catt in [x for x in o.attspec if o.attspec[x]=='collection']:
+          r = o.mapspec()['relationship'][catt]['rel']
+          r = re.match("[:<>]*([a-zA-Z_]+)[:<>]*",r).group(1)
+          cls._keysxcls[(o.__name__, r)]=(catt, o.mapspec()['key'])
+    return cls._keysxcls.get((qcls.__name__,reln))
+        
   @classmethod
   def _quote_val(cls,value,single=None): # double quote unless single is set
     if value == None:
@@ -174,7 +189,28 @@ class ObjectMap(object):
           warn("drop() - corresponding target db node not found")
           return tgt_id
 
-  
+  def get_owners(self, obj):
+    if not self.drv:
+      raise ArgError("rm() requires Neo4j driver instance")
+    ret=[]
+    with self.drv.session() as session:
+      result = session.run( self.get_owners_q(obj) )
+      for rec in result:
+        if rec['reln'][0] == "_": # skip _prev, _next, and convenience links
+          break
+        ocls=None
+        for lbl in rec['a'].labels:
+          ocls = self.cls_by_label(lbl)
+          if ocls:
+            break
+        assert ocls
+        o = ocls(rec['a'])
+        # creating object but not putting in the cache - why?
+        keys = self.keys_by_cls_and_reln(type(o),rec['reln'])
+        #obj.belongs[(id(o),*keys)] = o
+        # not setting the belongs on the obj - why?
+        ret.append( (o,*keys) )
+    return ret
 
   def get_q(self, obj):
     if not isinstance(obj, self.cls):
@@ -233,9 +269,9 @@ class ObjectMap(object):
     if obj.neoid==None:
       raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
     label = self.cls.mapspec()["label"]
-    return "MATCH (n:{lbl})<--(a) WHERE id(n)={neoid} RETURN TYPE(r), a".format(
+    return "MATCH (n:{lbl})<-[r]-(a) WHERE id(n)={neoid} RETURN TYPE(r) as reln, a".format(
       neoid=obj.neoid,
-      llbl=label)
+      lbl=label)
 
   def put_q(self, obj):
     if not isinstance(obj, self.cls):
