@@ -5,7 +5,7 @@ from bento_meta.entity import *
 from bento_meta.objects import *
 from neo4j import GraphDatabase
 from warnings import warn
-
+from pdb import set_trace
 
 class ObjectMap(object):
   cache = {}
@@ -131,7 +131,7 @@ class ObjectMap(object):
             if val.neoid != None:
               continue
             # put val as a node
-            for qry in self.put_q(val):
+            for qry in ObjectMap(cls=type(val),drv=self.drv).put_q(val):
               result = tx.run(qry)
             val.neoid = result.single().value('id(n)')
             if val.neoid == None:
@@ -139,7 +139,7 @@ class ObjectMap(object):
                 name=val[type(val).mapspec()["key"]]))
             val.dirty=1
             ObjectMap.cache[val.neoid]=val
-          for qry in self.put_attr_q(obj, att, values.values()):
+          for qry in self.put_attr_q(obj, att, values):
             tx.run(qry)
           # drop removed entities here
           while obj.removed_entities:
@@ -156,10 +156,11 @@ class ObjectMap(object):
         raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
     with self.drv.session() as session:
       result = session.run( self.rm_q(obj,force) )
-      n_id = result.single().value()
-      if n_id == None:
+      s = result.single()
+      if s == None:
         warn("rm() - corresponding db node not found")
-      return n_id
+      else:
+        return s.value()
 
   def add(self,obj,att,tgt):
     if not self.drv:
@@ -310,15 +311,17 @@ class ObjectMap(object):
           pr=pr,
           val=ObjectMap._quote_val(props[pr])))
       spec=','.join(spec)
-      return "CREATE (n:%s {%s}) RETURN n,id(n)" % (self.cls.mapspec()["label"],spec)
+      return ["CREATE (n:%s {%s}) RETURN n,id(n)" % (self.cls.mapspec()["label"],spec)]
         
   def put_attr_q(self,obj,att,values):
     if not isinstance(obj, self.cls):
       raise ArgError("arg1 must be object of class {cls}".format(cls=self.cls.__name__))
     if obj.neoid == None:
       raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
-    if not isinstance(values, list):
+    if not isinstance(values, (list,CollValue)):
       raise ArgError("'values' must be a list of values suitable for the attribute")
+    if isinstance(values,CollValue):
+      values = values.values()
     if att in self.cls.mapspec()['property']:
       return "MATCH (n:{lbl}) WHERE id(n)={neoid} SET {pr}={val} RETURN id(n)".format(
         lbl=self.cls.mapspec()["label"],
@@ -440,14 +443,17 @@ class ObjectMap(object):
         cls=self.cls.__name__))
 
   def _check_values_list(self,att,values):
-    chk = [ not x.neoid for x in values ]
+    v = values
+    if isinstance(values, CollValue):
+      v = values.values()
+    chk = [ not x.neoid for x in v ]
     if True in chk:
       return False
     end_cls = self.cls.mapspec()['relationship'][att]['end_cls']
     if isinstance(end_cls,str):
       end_cls = {end_cls}
     cls_set = tuple([ eval(x) for x in end_cls ])
-    chk = [ isinstance(x, cls_set) for x in values ]
+    chk = [ isinstance(x, cls_set) for x in v ]
     if False in chk:
       return False
     return True

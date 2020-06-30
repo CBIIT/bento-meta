@@ -144,6 +144,11 @@ class Entity(object):
         value.belongs[(id(self),name)] = self
       if isinstance(value, dict) and type(self).attspec[name] == 'collection':
         value = CollValue(value,owner=self,owner_key=name)
+      if isinstance(value,list): # convert list of objs to CollValue
+        d={}
+        for v in value:
+          d[ v[type(v).mapspec()["key"]] ] = v
+        value = CollValue(d,owner=self,owner_key=name)
       self.__dict__[name] = value
     else:
       raise AttributeError("set: attribute '{name}' neither private nor declared".format(name=name))
@@ -177,9 +182,9 @@ class Entity(object):
             "value for key '{att}' is not an Entity subclass".format(att=att)
             )
       elif spec == 'collection':
-        if not (isinstance(value,(dict,CollValue))):
+        if not (isinstance(value,(dict,list,CollValue))):
           raise AttributeError(
-              "value for key '{att}' is not a dict or CollValue".format(att=att)
+              "value for key '{att}' is not a dict,list, or CollValue".format(att=att)
           )
       else:
         raise ArgError("unknown attribute type '{type}' for attribute '{att}' in attspec".format(type=spec,att=att) )

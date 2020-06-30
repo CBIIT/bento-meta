@@ -93,7 +93,7 @@ class Term(Entity):
               "key":"value",
               "property": {"value":"value",
                            "origin_id":"origin_id",
-                           "origin_defintion":"origin_defintion"},
+                           "origin_definition":"origin_definition"},
               "relationship": {
                 "concept": { "rel" : ":has_concept>",
                              "end_cls" : "Concept" },
