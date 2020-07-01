@@ -191,21 +191,21 @@ class Entity(object):
     except Exception:
       raise
     
-  def get(self,refresh):
+  def dget(self,refresh):
     if (type(self).object_map):
-      pass
+      return type(self).object_map.get(self,refresh)
     else:
       pass
 
-  def put(self,refresh):
+  def dput(self,refresh):
     if (type(self).object_map):
-      pass
+      return type(self).object_map.put(self,refresh)
     else:
       pass
 
-  def rm(self,refresh):
+  def rm(self,force):
     if (type(self).object_map):
-      pass
+      return type(self).object_map.rm(self,force)
     else:
       pass
 

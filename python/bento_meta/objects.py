@@ -103,6 +103,9 @@ class Term(Entity):
   def __init__(self, init=None):
     super().__init__(init=init)
 
+# for ValueSet - updating terms prop should dirty the connected Property
+# (from Bento::Meta), signal need to refresh. Engineer so this happens
+# here (__setattr__ override), not in Entity
 class ValueSet(Entity):
   attspec={"handle":"simple","url":"simple",
            "prop":"object", "origin":"object",

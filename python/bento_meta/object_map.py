@@ -3,7 +3,7 @@ import sys
 sys.path.append('..')
 from bento_meta.entity import *
 from bento_meta.objects import *
-from neo4j import GraphDatabase
+from neo4j import BoltDriver, Neo4jDriver
 from warnings import warn
 from pdb import set_trace
 
@@ -13,7 +13,11 @@ class ObjectMap(object):
     if not cls:
       raise ArgError("arg cls= is required")
     self.cls = cls
-    self.drv=drv
+    if (drv):
+      if isinstance(drv, (Neo4jDriver, BoltDriver)):
+        self.drv=drv
+      else:
+        raise ArgError("drv= arg must be Neo4jDriver or BoltDriver (returned from GraphDatabase.driver())")
     self.maps={}
   @classmethod
   def cls_by_label(cls,lbl):
@@ -178,14 +182,14 @@ class ObjectMap(object):
     if not self.drv:
       raise ArgError("rm() requires Neo4j driver instance")
     if (tx):
-      result = tx.run(self.rm_att_q(obj, att, tgt))
+      result = tx.run(self.rm_attr_q(obj, att, tgt))
       tgt_id = result.single().value()
       if tgt_id == None:
         warn("drop() - corresponding target db node not found")
       return tgt_id
     else:
       with self.drv.session() as session:
-        for qry in self.rm_att_q(obj, att, tgt):
+        for qry in self.rm_attr_q(obj, att, tgt):
           result = session.run(qry)
         s = result.single()
         if s == None:
@@ -195,7 +199,7 @@ class ObjectMap(object):
 
   def get_owners(self, obj):
     if not self.drv:
-      raise ArgError("rm() requires Neo4j driver instance")
+      raise ArgError("get_owners() requires Neo4j driver instance")
     ret=[]
     with self.drv.session() as session:
       result = session.run( self.get_owners_q(obj) )
@@ -213,7 +217,7 @@ class ObjectMap(object):
         keys = self.keys_by_cls_and_reln(type(o),rec['reln'])
         #obj.belongs[(id(o),*keys)] = o
         # not setting the belongs on the obj - why?
-        ret.append( (o,*keys) )
+        ret.append( (o,keys) )
     return ret
 
   def get_q(self, obj):
@@ -383,7 +387,7 @@ class ObjectMap(object):
     return qry+dlt
     pass
   
-  def rm_att_q(self,obj,att,values=None):
+  def rm_attr_q(self,obj,att,values=None):
     if not isinstance(obj, self.cls):
       raise ArgError("arg1 must be object of class {cls}".format(cls=self.cls.__name__))
     if obj.neoid == None:

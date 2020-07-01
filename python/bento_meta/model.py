@@ -2,17 +2,17 @@ import re
 import sys
 from uuid import uuid4
 from warnings import warn
-
+from neo4j import BoltDriver, Neo4jDriver
 import neo4j.graph
 sys.path.append('..')
 from bento_meta.entity import Entity
-from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin
+from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag
 
 class ArgError(Exception):
   pass
 
 class Model(object):
-  def __init__(self,handle=None):
+  def __init__(self,handle=None,drv=None):
     if not handle:
       raise ArgError("model requires arg 'handle' set")
     self.handle = handle
@@ -20,15 +20,16 @@ class Model(object):
     self.edges={} # keys are (edge.handle, src.handle, dst.handle) tuples
     self.props={} # keys are ({edge|node}.handle, prop.handle) tuples
     self.terms={}
-    # neo4j cxn here later
 
-  def get(self):
-    # get from neo4j if connected
-    pass
-
-  def put(self):
-    # put to neo4j if connected
-    pass
+    if drv:
+      if isinstance(drv,(BoltDriver, Neo4jDriver)):
+        self.drv=drv
+        for cls in ( Node, Property, Edge, Term, ValueSet, Concept, Origin, Tags ):
+          cls.object_map=ObjectMap(cls=cls,drv=drv)
+      else:
+        raise ArgError("drv= arg must be Neo4jDriver or BoltDriver (returned from GraphDatabase.driver())")
+    else:
+      self.drv=None
 
   def add_node(self, node=None):
     if not node:
@@ -67,7 +68,7 @@ class Model(object):
       raise ArgError("arg 1 must be Node or Edge")
     if not prop:
       raise ArgError("arg 2 must be Property, dict, or graph.Node")
-    if not prop.get('model'):
+    if not prop['model']:
       prop.model = self.handle
     if isinstance(prop, (dict, neo4j.graph.Node)):
       prop = Property(prop)
@@ -184,3 +185,49 @@ class Model(object):
       raise ArgError("arg must be str")
     return self.edges_by('type',edge_handle)    
 
+
+  def dget(self):
+    if not self.drv:
+      return
+    nodes=[]
+    edges=[]
+    props=[]
+    with self.drv.session() as session:
+      result = session.run("MATCH (n) WHERE n.model='{handle}' RETURN n".format(
+        handle=self.handle))
+      for rec in result:
+        if 'node' in rec.labels:
+          n=Node(rec['n'])
+          nodes.append(n)
+        elif 'relationship' in rec.labels:
+          e=Edge(rec['n'])
+          edges.append(e)
+        elif 'property' in rec.labels:
+          p=Property(rec['n'])
+          props.append(p)
+        else:
+          warn("unhandled node type {lbl} encountered in model '{handle}'".format(
+            lbl=rec.labels[0],
+            handle=self.handle))
+    if not nodes:
+      warn("no nodes in db for model '{handle}'".format(handle=self.handle))
+    for n in nodes:
+      n.dget(True)
+      self.nodes[n.handle]=n
+    for e in edges:
+      e.dget(True)
+      self.edges[e.triplet] = e
+    for p in props:
+      p.dget(True)
+      for (o, keys) in Property.object_map.get_owners(p):
+        k = [o.handle] if isinstance(o,Node) else list(o.triplet)
+        k.append(p.handle)
+        self.props[tuple(k)]=p
+    return self
+
+  def dput(self):
+    if not self.drv:
+      return
+
+
+  

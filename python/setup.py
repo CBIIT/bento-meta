@@ -9,6 +9,9 @@ setup(
     'neo4j>=4.0'
     ],
   tests_require=[
-    'pytest'
-    ]
+    'pytest',
+    'docker-compose',
+    'pytest-docker',
+    'requests'
+  ]
   )

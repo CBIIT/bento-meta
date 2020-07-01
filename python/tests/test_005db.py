@@ -7,7 +7,6 @@ from neo4j import GraphDatabase
 import neo4j.graph
 from neo4j.exceptions import Neo4jError
 from pdb import set_trace
-import requests
 from bento_meta.object_map import ObjectMap
 from bento_meta.entity import *
 from bento_meta.objects import *
@@ -84,3 +83,6 @@ def test_put_rm(bento_neo4j):
   with term_map.drv.session() as session:
     result = session.run("match (t:term {value:'ferb'})<-[r]-(v:value_set) return r")
     assert result.single() == None
+  old_term = vs['terms']['belpit']
+
+

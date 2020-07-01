@@ -41,7 +41,7 @@ def test_put_queries():
   m = ObjectMap(cls=Node)
   n = Node({"handle":"test","model":"test_model","category":1})
   qry = m.put_q(n)
-  assert qry=='CREATE (n:node {handle:"test",model:"test_model",category:1}) RETURN n,id(n)'
+  assert qry==['CREATE (n:node {handle:"test",model:"test_model",category:1}) RETURN n,id(n)']
   n.neoid=2
   stmts = m.put_q(n)
   assert stmts[0]=='MATCH (n:node) WHERE id(n)=2 SET n.handle="test",n.model="test_model",n.category=1 RETURN n,id(n)'
@@ -53,7 +53,7 @@ def test_put_queries():
     m.put_attr_q(n,'category',2)
   n.neoid=1
   c = Concept({"_id":"blarf"})
-  with pytest.raises(ArgError, match="'values' must be a list of values"):
+  with pytest.raises(ArgError, match="'values' must be a list of mapped Entity objects"):
     m.put_attr_q(n,'concept',c)
   with pytest.raises(ArgError, match="'values' must be a list of mapped Entity objects"):  
     m.put_attr_q(n,'concept',[c])
@@ -96,6 +96,17 @@ def test_rm_queries():
 
   m = ObjectMap(cls=Node)
   n = Node({"handle":"test","model":"test_model","category":1})
+  Node.mapspec_={"label":"node",
+             "property": {"handle":"handle","model":"model","category":"category"},
+             "relationship": {
+               "concept": { "rel" : ":has_concept>",
+                            "end_cls" : {"Concept","Term"} },
+               "props": { "rel" : ":has_property>",
+                          "end_cls" : "Property" }
+               }}
+  Node._mapspec=None
+  Node.mergespec()
+  assert Node.mapspec()["relationship"]["concept"]["end_cls"] == {"Concept","Term"}
   with pytest.raises(ArgError,match="object must be mapped"):
     m.rm_q(n)
   n.neoid=1
@@ -104,11 +115,11 @@ def test_rm_queries():
   qry = m.rm_q(n,detach=True)
   assert qry=='MATCH (n:node) WHERE id(n)=1 DETACH DELETE n'
   c = Concept({"_id":"blerf"})
-  qry = m.rm_att_q(n,'model')
+  qry = m.rm_attr_q(n,'model')
   assert qry=='MATCH (n:node) WHERE id(n)=1 REMOVE n.model'
-  qry = m.rm_att_q(n,'props',[':all'])
+  qry = m.rm_attr_q(n,'props',[':all'])
   assert qry=='MATCH (n:node)-[r:has_property]->(a) WHERE id(n)=1 DELETE r'
-  qry = m.rm_att_q(n,'concept',[':all'])
+  qry = m.rm_attr_q(n,'concept',[':all'])
   assert re.match("MATCH \\(n:node\\)-\\[r:has_concept\\]->\\(a\\) WHERE id\\(n\\)=1 AND \\('[a-z]+' IN labels\\(a\\) OR '[a-z]+' IN labels\\(a\\)\\) DELETE r",qry)
   prps = [Property(x) for x in ( {"model":"test","handle":"prop1"},
                                  {"model":"test","handle":"prop2"},
@@ -117,7 +128,7 @@ def test_rm_queries():
   for p in prps:
     p.neoid=i
     i+=1
-  stmts = m.rm_att_q(n,'props',prps)
+  stmts = m.rm_attr_q(n,'props',prps)
   assert stmts[0] == "MATCH (n:node)-[r:has_property]->(a:property) WHERE id(n)=1 AND id(a)=5 DELETE r"
   assert len(stmts) == 3
 
