@@ -5,8 +5,11 @@ from warnings import warn
 from neo4j import BoltDriver, Neo4jDriver
 import neo4j.graph
 sys.path.append('..')
+from bento_meta.object_map import ObjectMap
 from bento_meta.entity import Entity
 from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag
+
+from pdb import set_trace
 
 class ArgError(Exception):
   pass
@@ -24,7 +27,7 @@ class Model(object):
     if drv:
       if isinstance(drv,(BoltDriver, Neo4jDriver)):
         self.drv=drv
-        for cls in ( Node, Property, Edge, Term, ValueSet, Concept, Origin, Tags ):
+        for cls in ( Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag ):
           cls.object_map=ObjectMap(cls=cls,drv=drv)
       else:
         raise ArgError("drv= arg must be Neo4jDriver or BoltDriver (returned from GraphDatabase.driver())")
@@ -195,15 +198,16 @@ class Model(object):
     with self.drv.session() as session:
       result = session.run("MATCH (n) WHERE n.model='{handle}' RETURN n".format(
         handle=self.handle))
-      for rec in result:
-        if 'node' in rec.labels:
-          n=Node(rec['n'])
+      graph = result.graph()
+      for nod in graph.nodes:
+        if 'node' in nod.labels:
+          n=Node(nod)
           nodes.append(n)
-        elif 'relationship' in rec.labels:
-          e=Edge(rec['n'])
+        elif 'relationship' in nod.labels:
+          e=Edge(nod)
           edges.append(e)
-        elif 'property' in rec.labels:
-          p=Property(rec['n'])
+        elif 'property' in nod.labels:
+          p=Property(nod)
           props.append(p)
         else:
           warn("unhandled node type {lbl} encountered in model '{handle}'".format(

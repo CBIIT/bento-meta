@@ -124,11 +124,14 @@ class Entity(object):
     if name in Entity.pvt_attr:
       return self.__dict__['pvt'][name]
     elif name in type(self).attspec:
-      if not name in self.__dict__:
+      if not name in self.__dict__ or self.__dict__[name]==None:
         return None
+      if type(self).attspec[name] == 'object':
+        if self.__dict__[name].dirty < 0:
+          self.__dict__[name].dget()
       return self.__dict__[name]
     else:
-      raise AttributeError("get: attribute '{name}' neither private nor declared".format(name=name))
+      raise AttributeError("get: attribute '{name}' neither private nor declared for subclass {cls}".format(name=name,cls=type(self).__name__))
 
   def __getitem__(self, name):
     return self.__getattr__(name)
@@ -151,7 +154,7 @@ class Entity(object):
         value = CollValue(d,owner=self,owner_key=name)
       self.__dict__[name] = value
     else:
-      raise AttributeError("set: attribute '{name}' neither private nor declared".format(name=name))
+      raise AttributeError("set: attribute '{name}' neither private nor declared for subclass {cls}".format(name=name, cls=type(self).__name__))
   def __setitem__(self, name, value):
     self.__setattr__(name, value)
     
@@ -191,15 +194,15 @@ class Entity(object):
     except Exception:
       raise
     
-  def dget(self,refresh):
+  def dget(self,refresh=False):
     if (type(self).object_map):
       return type(self).object_map.get(self,refresh)
     else:
       pass
 
-  def dput(self,refresh):
+  def dput(self):
     if (type(self).object_map):
-      return type(self).object_map.put(self,refresh)
+      return type(self).object_map.put(self)
     else:
       pass
 
@@ -248,3 +251,10 @@ class CollValue(UserDict):
     value.belongs[(id(self.owner),self.owner_key,name)] = self.owner
     self.data[name]=value
     return
+  def __getitem__(self, name):
+    if not name in self.data:
+      return
+    if self.data[name].dirty < 0:
+       self.data[name].dget()
+    return self.data[name]
+  

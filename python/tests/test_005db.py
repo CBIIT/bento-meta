@@ -16,6 +16,9 @@ def test_get(bento_neo4j):
   drv = GraphDatabase.driver(b)
   assert drv
   node_map = ObjectMap(cls=Node,drv=drv)
+  Node.object_map=node_map
+  Concept.object_map=ObjectMap(cls=Concept,drv=drv)
+  Property.object_map=ObjectMap(cls=Property,drv=drv)  
   n_id=None
   with node_map.drv.session() as session:
     result = session.run("match (a:node) return id(a) limit 1")
@@ -25,10 +28,12 @@ def test_get(bento_neo4j):
   node.neoid = n_id
   node_map.get(node)
   assert node.dirty==0
-  assert node['concept'].dirty == -1
+  assert node.__dict__['concept'].dirty == -1 # before dget()
+  assert node['concept'].dirty == 0 # after dget()
   assert node['concept']._id == "a5b87a02-1eb3-4ec9-881d-f4479ab917ac"
   assert len(node['props']) == 3
-  assert node['props']['site_short_name'].dirty == -1
+  assert node['props'].data['site_short_name'].dirty == -1  # before dget()
+  assert node['props']['site_short_name'].dirty == 0 # after dget()
   assert node['props']['site_short_name'].model == 'ICDC'
   concept = node['concept']
   assert concept.belongs[(id(node), 'concept')] == node
