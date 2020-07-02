@@ -120,6 +120,7 @@ class Entity(object):
 
   def __getattribute__(self, name):
     if name in type(self).attspec:
+      # declared attr, send to __getattr__ for magic
       return self.__getattr__(name)
     else:
      return object.__getattribute__(self,name)
@@ -131,6 +132,7 @@ class Entity(object):
       if not name in self.__dict__ or self.__dict__[name]==None:
         return None
       if type(self).attspec[name] == 'object':
+        # magic - lazy getting
         if self.__dict__[name].dirty < 0:
           self.__dict__[name].dget()
       return self.__dict__[name]
