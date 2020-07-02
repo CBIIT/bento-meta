@@ -129,9 +129,11 @@ class ObjectMap(object):
           values = getattr(obj,att)
           if not values:
             continue
-          if not isinstance(values, CollValue):
-            values = {'val':values}
-          for val in values.values():
+          if isinstance(values, CollValue):
+            items = values.values()
+          else:
+            items = [values]
+          for val in items:
             if val.neoid != None:
               continue
             # put val as a node

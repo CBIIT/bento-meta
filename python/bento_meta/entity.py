@@ -89,7 +89,11 @@ class Entity(object):
 
   @property
   def dirty(self):
-    return self.pvt.dirty
+    return self.pvt['dirty']
+  @dirty.setter
+  def dirty(self,value):
+    self.pvt['dirty']=value
+
   @property
   def removed_entities(self):
     return self.pvt.removed_entities
@@ -155,6 +159,7 @@ class Entity(object):
         for v in value:
           d[ getattr(v,type(v).mapspec()["key"]) ] = v
         value = CollValue(d,owner=self,owner_key=name)
+      self.dirty=1
       self.__dict__[name] = value
     else:
       raise AttributeError("set: attribute '{name}' neither private nor declared for subclass {cls}".format(name=name, cls=type(self).__name__))
@@ -250,6 +255,8 @@ class CollValue(UserDict):
     # is called, but the attribute is mangled to _CollVal__belongs, not
     # _Entity__belongs .. WTH????
     value.belongs[(id(self.owner),self.owner_key,name)] = self.owner
+    # smudge the owner
+    self.owner.dirty = 1
     self.data[name]=value
     return
   def __getitem__(self, name):

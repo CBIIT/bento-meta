@@ -232,6 +232,30 @@ class Model(object):
   def dput(self):
     if not self.drv:
       return
-
-
+    seen={}
+    def do_(obj):
+      if id(obj) in seen:
+        return
+      seen[id(obj)]=1
+      if obj.dirty == 1:
+        obj.dput()
+      atts = [x for x in type(obj).attspec if type(obj).attspec[x]=='object']
+      for att in atts:
+        ent = getattr(obj,att)
+        if ent:
+          do_(ent)
+      atts = [x for x in type(obj).attspec if type(obj).attspec[x]=='collection']
+      for att in atts:
+        ents = getattr(obj,att)
+        if ents:
+          for ent in ents:
+            do_(ents[ent])
+    for e in self.edges.values():
+      do_(e)
+    for e in self.nodes.values():
+      do_(e)
+    for e in self.props.values():
+      do_(e)
+    return
+  
   
