@@ -60,9 +60,9 @@ class Entity(object):
     for att in type(self).attspec:
       if not att in self.__dict__:
         if self.attspec[att] == 'collection':
-          self[att] = CollValue({},owner=self,owner_key=att)
+          setattr(self,att, CollValue({},owner=self,owner_key=att))
         else:
-          self[att] = None
+          setattr(self,att,None)
           
   @classmethod
   def mergespec(cls):
@@ -105,20 +105,24 @@ class Entity(object):
     for att in type(self).attspec:
       if att in init:
         if type(self).attspec[att] == 'collection':
-          self[att] = CollValue(init[att],owner=self,owner_key=att)
+          setattr(self,att,CollValue(init[att],owner=self,owner_key=att))
         else:
-          self[att] = init[att] 
+          setattr(self,att,init[att])
   def set_with_node(self, init):
     # this unsets any attribute that is not present in the Node's properties
     for att in [a for a in type(self).attspec if type(self).attspec[a]=='simple']:
       patt = type(self).mapspec()['property'][att]
       if patt in init:
-        self[att] = init[patt]
+        setattr(self,att,init[patt])
       else:
-        self[att] = None
+        setattr(self,att,None)
     self.neoid = init.id
-      
-      
+
+  def __getattribute__(self, name):
+    if name in type(self).attspec:
+      return self.__getattr__(name)
+    else:
+     return object.__getattribute__(self,name)
     
   def __getattr__(self, name):
     if name in Entity.pvt_attr:
@@ -132,9 +136,6 @@ class Entity(object):
       return self.__dict__[name]
     else:
       raise AttributeError("get: attribute '{name}' neither private nor declared for subclass {cls}".format(name=name,cls=type(self).__name__))
-
-  def __getitem__(self, name):
-    return self.__getattr__(name)
 
   def __setattr__(self, name, value):
     if name == 'pvt':
@@ -150,13 +151,11 @@ class Entity(object):
       if isinstance(value,list): # convert list of objs to CollValue
         d={}
         for v in value:
-          d[ v[type(v).mapspec()["key"]] ] = v
+          d[ getattr(v,type(v).mapspec()["key"]) ] = v
         value = CollValue(d,owner=self,owner_key=name)
       self.__dict__[name] = value
     else:
       raise AttributeError("set: attribute '{name}' neither private nor declared for subclass {cls}".format(name=name, cls=type(self).__name__))
-  def __setitem__(self, name, value):
-    self.__setattr__(name, value)
     
   def __delattr__(self, name):
     del self.__dict__[name]

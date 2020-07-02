@@ -20,7 +20,6 @@ def test_entity_attrs():
   ent = TestEntity()
   val = TestEntity()
   ent.a = 1
-  ent['a'] = 1
   ent.b = val
   assert ent.a==1
   assert ent.b==val
@@ -44,8 +43,8 @@ def test_entity_belongs():
   e = TestEntity()
   ee = TestEntity()
   cc = CollValue({},owner=e,owner_key='c')
-  e['c']=cc
+  e.c=cc
   cc['k']=ee
-  assert e['c'] == cc
-  assert e['c']['k'] == ee
+  assert e.c == cc
+  assert e.c['k'] == ee
   

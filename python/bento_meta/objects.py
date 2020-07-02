@@ -124,6 +124,17 @@ class ValueSet(Entity):
   def __init__(self, init=None):
     super().__init__(init=init)
 
+  @property
+  def dirty(self):
+    return self.pvt.dirty
+  @dirty.setter
+  def dirty(self, value):
+    self.pvt.dirty = value
+    if self.prop and value != 0:
+      self.prop.dirty=1
+      
+  
+    
 class Concept(Entity):
   attspec={"terms":"collection"}
   mapspec_={"label":"concept",
@@ -135,7 +146,7 @@ class Concept(Entity):
     super().__init__(init=init)
 
 class Origin(Entity):
-  attspec={"url":"simple", "is_external":"simple"}
+  attspec={"url":"simple", "is_external":"simple", "name":"simple"}
   mapspec_={"label":"origin",
             "key":"name",
             "property": {

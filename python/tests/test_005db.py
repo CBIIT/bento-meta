@@ -29,13 +29,13 @@ def test_get(bento_neo4j):
   node_map.get(node)
   assert node.dirty==0
   assert node.__dict__['concept'].dirty == -1 # before dget()
-  assert node['concept'].dirty == 0 # after dget()
-  assert node['concept']._id == "a5b87a02-1eb3-4ec9-881d-f4479ab917ac"
-  assert len(node['props']) == 3
-  assert node['props'].data['site_short_name'].dirty == -1  # before dget()
-  assert node['props']['site_short_name'].dirty == 0 # after dget()
-  assert node['props']['site_short_name'].model == 'ICDC'
-  concept = node['concept']
+  assert node.concept.dirty == 0 # after dget()
+  assert node.concept._id == "a5b87a02-1eb3-4ec9-881d-f4479ab917ac"
+  assert len(node.props) == 3
+  assert node.props.data['site_short_name'].dirty == -1  # before dget()
+  assert node.props['site_short_name'].dirty == 0 # after dget()
+  assert node.props['site_short_name'].model == 'ICDC'
+  concept = node.concept
   assert concept.belongs[(id(node), 'concept')] == node
   owners = node_map.get_owners(node)
   assert len(owners) == 1
@@ -56,9 +56,9 @@ def test_put_rm(bento_neo4j):
     for rec in result:
       rt.append(rec['t']['value'])
   assert set(rt) == set(['ferb','narquit','quilm'])
-  quilm = vs['terms']['quilm']
-  del vs['terms']['quilm']
-  assert len(vs['terms'])==2
+  quilm = vs.terms['quilm']
+  del vs.terms['quilm']
+  assert len(vs.terms)==2
   with pytest.raises(Neo4jError,match='.*Cannot delete'):
     term_map.rm(quilm)
   t_id=None
@@ -74,11 +74,11 @@ def test_put_rm(bento_neo4j):
   new_term = Term({"value":"belpit"})
   term_map.put(new_term)
   vs_map.add(vs, 'terms', new_term)
-  assert len(vs['terms']) == 2
+  assert len(vs.terms) == 2
   vs_map.get(vs,True)
-  assert len(vs['terms']) == 3
-  assert vs['terms']['belpit']
-  old_term = vs['terms']['ferb']
+  assert len(vs.terms) == 3
+  assert vs.terms['belpit']
+  old_term = vs.terms['ferb']
   r = None
   with term_map.drv.session() as session:
     result = session.run("match (t:term {value:'ferb'})<-[r]-(v:value_set) return r")
@@ -88,6 +88,6 @@ def test_put_rm(bento_neo4j):
   with term_map.drv.session() as session:
     result = session.run("match (t:term {value:'ferb'})<-[r]-(v:value_set) return r")
     assert result.single() == None
-  old_term = vs['terms']['belpit']
+  old_term = vs.terms['belpit']
 
 

@@ -78,7 +78,7 @@ class ObjectMap(object):
           if o:
             if not first_val:
               first_val=o
-            values[o[type(o).mapspec()["key"]]]=o
+            values[getattr(o,type(o).mapspec()["key"])]=o
           else:
             c=None
             for l in rec['a'].labels:
@@ -93,16 +93,16 @@ class ObjectMap(object):
             ObjectMap.cache[o.neoid]=o
             if not first_val:
               first_val=o
-            values[o[type(o).mapspec()["key"]]]=o
+            values[getattr(o,type(o).mapspec()["key"])]=o
         if (self.cls.attspec[att]=='object' and len(values) > 1):
           warn('expected one node for attribute {att} on class {cls}, but got {n}; using first one'.format(
             att=att,
             cls=self.cls.__name__,
             n=len(values)))
         if (self.cls.attspec[att]=='object'):
-          obj[att]=first_val
+          setattr(obj,att,first_val)
         elif (self.cls.attspec[att]=='collection'):
-          obj[att]=values
+          setattr(obj,att,values)
         else:
           raise RuntimeError("attribute '{att}' has unknown attribute type '{atype}'".format(
             att=att,
@@ -124,9 +124,9 @@ class ObjectMap(object):
         obj.neoid = result.single().value('id(n)')
         if obj.neoid==None:
           raise RuntimeError("no neo4j id retrived on put for obj '{name}'".format(
-            name=obj[self.cls.mapspec()["key"]]))
+            name=getattr(obj,self.cls.mapspec()["key"])))
         for att in self.cls.mapspec()["relationship"]:
-          values = obj[att]
+          values = getattr(obj,att)
           if not values:
             continue
           if not isinstance(values, CollValue):
@@ -287,10 +287,10 @@ class ObjectMap(object):
     props = {}
     null_props = []
     for pr in self.cls.mapspec()["property"]:
-      if obj[pr]==None:
+      if getattr(obj,pr)==None:
         null_props.append(self.cls.mapspec()["property"][pr])
       else:
-        props[self.cls.mapspec()["property"][pr]]=obj[pr]
+        props[self.cls.mapspec()["property"][pr]]=getattr(obj,pr)
     stmts=[]
     if obj.neoid != None:
       set_clause=[]

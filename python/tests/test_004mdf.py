@@ -38,7 +38,7 @@ def test_created_model():
     'file_size', 'disease','days_to_sample','workflow_id','id'}
   file_ = m.model.nodes['file']
   assert file_
-  assert file_['props']
+  assert file_.props
   assert set([x.handle for x in file_.props.values()])=={
     'md5sum','file_name','file_size'}
   assert m.model.nodes['file'].props['md5sum'].value_domain == 'regexp'

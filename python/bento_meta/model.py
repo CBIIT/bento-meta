@@ -71,10 +71,10 @@ class Model(object):
       raise ArgError("arg 1 must be Node or Edge")
     if not prop:
       raise ArgError("arg 2 must be Property, dict, or graph.Node")
-    if not prop['model']:
-      prop.model = self.handle
     if isinstance(prop, (dict, neo4j.graph.Node)):
       prop = Property(prop)
+    if not prop.model:
+      prop.model = self.handle
     key = [ent.handle] if isinstance(ent,Node) else list(ent.triplet)
     key.append(prop.handle)
     self.props[tuple(key)] = prop

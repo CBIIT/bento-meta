@@ -16,7 +16,7 @@ def test_init_and_link_objects():
   case = Node({"model":"test","handle":"case"})
   assert case
   assert case.model == "test"
-  assert case['handle'] == "case"
+  assert case.handle == "case"
   sample = Node({"model":"test","handle":"sample"})
   assert sample
   of_sample = Edge({"model":"test","handle":"of_sample"})
