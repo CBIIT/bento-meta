@@ -30,6 +30,7 @@ def test_get_model(bento_neo4j):
     for rec in result:
       (s,e,d) = (rec['s'],rec['e'],rec['d'])
       triplet = (e['handle'], s['handle'], d['handle'])
+      set_trace()
       assert m.edges[triplet].handle == e['handle']
       assert m.edges[triplet].src.handle == s['handle']
       assert m.edges[triplet].dst.handle == d['handle']
@@ -114,3 +115,22 @@ def test_put_model(bento_neo4j):
     assert not 'model' in s['p']
 
   prop.model = 'ICDC'
+  at_enrollment = m.edges[('at_enrollment','prior_surgery','enrollment')]
+  prior_surgery = m.nodes['prior_surgery']
+  with drv.session() as session:
+    result = session.run('match (n:node)<-[:has_src]-(r:relationship {handle:"at_enrollment"})-[:has_dst]->(:node {handle:"enrollment"}) where id(n)=$id return r',{"id":prior_surgery.neoid})
+    s = result.single()
+    assert s
+
+  m.rm_edge(at_enrollment)
+  assert not at_enrollment.src
+  assert not at_enrollment.dst
+  assert not at_enrollment in m.edges_out(prior_surgery)
+  m.dput()
+  with drv.session() as session:
+    result = session.run('match (n:node)<-[:has_src]-(r:relationship {handle:"at_enrollment"})-[:has_dst]->(:node {handle:"enrollment"}) where id(n)=$id return r',{"id":prior_surgery.neoid})
+    s = result.single()
+    assert not s
+    result = session.run('match (e:relationship) where id(e)=$id return e',{"id":at_enrollment.neoid})
+    s = result.single()
+    assert s

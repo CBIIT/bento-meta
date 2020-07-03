@@ -272,4 +272,8 @@ class CollValue(UserDict):
     if self.data[name].dirty < 0:
        self.data[name].dget()
     return self.data[name]
+  def __delitem__(self,name):
+    self[name]==None # trigger __setitem__
+    super().__delitem__(name)
+    return
   

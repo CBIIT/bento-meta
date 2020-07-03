@@ -23,6 +23,7 @@ class Model(object):
     self.edges={} # keys are (edge.handle, src.handle, dst.handle) tuples
     self.props={} # keys are ({edge|node}.handle, prop.handle) tuples
     self.terms={}
+    self.removed_entities=[]
 
     if drv:
       if isinstance(drv,(BoltDriver, Neo4jDriver)):
@@ -113,6 +114,7 @@ class Model(object):
       except:
         pass
     del self.nodes[node.handle]
+    self.removed_entities.append(node)
     return node
       
 
@@ -130,13 +132,26 @@ class Model(object):
       except:
         pass
     del self.edges[edge.triplet]
+    edge.src = None
+    edge.dst = None
+    self.removed_entities.append(edge)
     return edge
 
 
   def rm_prop(self, prop):
     if not isinstance(prop, Property):
       raise ArgError("arg must be a Property object")
-      ###
+    if not self.contains(prop):
+      warn("prop '{prop}' not contained in model '{model}'".format(prop=prop.handle, model=model.handle))
+      return
+    for okey in prop.belongs:
+      owner = prop.belongs[okey]
+      (i,att,key) = okey
+      getattr(owner,att)[key]==None
+      k = [owner.handle] if isinstance(owner, Node) else list(owner.triplet)
+      k.append(key)
+      del self.props[tuple(k)]
+    self.removed_entities.append(prop)
     pass
 
   def rm_term(self, term):
@@ -250,6 +265,8 @@ class Model(object):
         if ents:
           for ent in ents:
             do_(ents[ent])
+    for e in self.removed_entities:
+      do_(e)
     for e in self.edges.values():
       do_(e)
     for e in self.nodes.values():
