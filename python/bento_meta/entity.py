@@ -96,13 +96,13 @@ class Entity(object):
 
   @property
   def removed_entities(self):
-    return self.pvt.removed_entities
+    return self.pvt['removed_entities']
   @property
   def object_map(self):
-    return self.pvt.object_map
+    return self.pvt['object_map']
   @property
   def belongs(self):
-    return self.pvt.belongs
+    return self.pvt['belongs']
   def clear_removed_entities(self):
     self.pvt['removed_entities']=[]
   def set_with_dict(self, init):
@@ -150,15 +150,21 @@ class Entity(object):
       self.__dict__['pvt'][name]=value
     elif name in type(self).attspec:
       self._check_value(name,value)
-      if isinstance(value, Entity):
-        value.belongs[(id(self),name)] = self
-      if isinstance(value, dict) and type(self).attspec[name] == 'collection':
-        value = CollValue(value,owner=self,owner_key=name)
-      if isinstance(value,list): # convert list of objs to CollValue
-        d={}
-        for v in value:
-          d[ getattr(v,type(v).mapspec()["key"]) ] = v
-        value = CollValue(d,owner=self,owner_key=name)
+      if type(self).attspec[name] == 'object':
+        oldval = self.__dict__.get(name)
+        if oldval:
+          del oldval.belongs[(id(self),name)]
+          self.removed_entities.append( (name, oldval) )
+        if isinstance(value, Entity):
+          value.belongs[(id(self),name)] = self
+      elif type(self).attspec[name] == 'collection':
+        if isinstance(value, dict):
+          value = CollValue(value,owner=self,owner_key=name)
+        if isinstance(value,list): # convert list of objs to CollValue
+          d={}
+          for v in value:
+            d[ getattr(v,type(v).mapspec()["key"]) ] = v
+          value = CollValue(d,owner=self,owner_key=name)
       self.dirty=1
       self.__dict__[name] = value
     else:
@@ -245,15 +251,16 @@ class CollValue(UserDict):
     
   # def __setattr__(self, name, value):
   def __setitem__(self, name, value):
-    pfx = "_{cls}".format(cls=type(self).__name__)
-    if re.match(pfx,name): # private
-      self.__dict__[name] = value
+    # pfx = "_{cls}".format(cls=type(self).__name__)
+    # if re.match(pfx,name): # private
+    #   self.__dict__[name] = value
     if not isinstance(value, Entity):
       raise ArgError("a collection-valued attribute can only accept Entity members, not '{tipe}'s".format(tipe=type(value)))
-
-    # when value.__belongs = x is attempted, the Entity.__setattr__ method
-    # is called, but the attribute is mangled to _CollVal__belongs, not
-    # _Entity__belongs .. WTH????
+    if name in self:
+      oldval = self.data.get(name)
+      if oldval:
+        del oldval.belongs[(id(self.owner),self.owner_key,name)]
+        self.owner.removed_entities.append( (self.owner_key, oldval) )
     value.belongs[(id(self.owner),self.owner_key,name)] = self.owner
     # smudge the owner
     self.owner.dirty = 1

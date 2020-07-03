@@ -57,4 +57,60 @@ def test_put_model(bento_neo4j):
   drv = GraphDatabase.driver(b)
   assert drv
   m = Model('ICDC',drv)
-  pass
+  m.dget()
+  prop = m.props[('sample','sample_type')]
+  sample = m.nodes['sample']
+  edge = m.edges[('on_visit','sample', 'visit')]
+  term = Term({"value":"electric_boogaloo"})
+  m.add_terms(prop, term)
+  node = m.nodes['lab_exam']
+  node.category = 'boog'
+  m.dput()
+  with drv.session() as session:
+    result = session.run('match (v:value_set)-->(t:term {value:"electric_boogaloo"}) return v,t')
+    rec = result.single()
+    assert rec['v'].id == prop.value_set.neoid
+    assert rec['t'].id == term.neoid
+    assert rec['t']['value'] == term.value
+    result = session.run('match (n:node {handle:"lab_exam",category:"boog"}) return n')
+    rec = result.single()
+    assert rec['n'].id == node.neoid
+
+  term = m.props[('demographic','sex')].terms['M']
+  assert term.concept
+  assert term.concept._id == "337c0e4f-506a-4f4e-95f6-07c3462b81ff"
+
+  concept = term.concept
+  assert term in concept.belongs.values()
+  term.concept=None
+  assert not term in concept.belongs.values()
+  assert ('concept',concept) in term.removed_entities
+  m.dput()
+  with drv.session() as session:
+    result = session.run('match (t:term) where id(t)=$id return t',{"id":term.neoid})
+    assert result.single() # term there
+    result = session.run('match (c:concept) where id(c)=$id return c',{"id":concept.neoid})
+    assert result.single() # concept there
+    result = session.run('match (t:term)-->(c:concept) where id(t)=$id return t',{"id":term.neoid})
+    assert not result.single() # but link is gone
+  
+    concept._id="heydude"
+    term.concept = concept
+    prop.model = None
+    assert not prop.model
+
+  m.dput()
+
+  with drv.session() as session:
+    result = session.run('match (t:term)--(c:concept) where id(t)=$id return c',{"id":term.neoid})
+    s = result.single()
+    assert s
+    assert s['c'].id == concept.neoid
+    assert s['c']['id'] == "heydude"
+    result = session.run('match (p:property) where id(p)=$id return p',{"id":prop.neoid})
+    s = result.single()
+    assert s
+    assert s['p'].id == prop.neoid
+    assert not 'model' in s['p']
+
+  prop.model = 'ICDC'

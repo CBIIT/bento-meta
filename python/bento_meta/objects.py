@@ -95,7 +95,7 @@ class Term(Entity):
                            "origin_id":"origin_id",
                            "origin_definition":"origin_definition"},
               "relationship": {
-                "concept": { "rel" : ":has_concept>",
+                "concept": { "rel" : ":represents>",
                              "end_cls" : "Concept" },
                 "origin": { "rel" : ":has_origin>",
                             "end_cls" : "Origin" }

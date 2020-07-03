@@ -184,13 +184,15 @@ class ObjectMap(object):
     if not self.drv:
       raise ArgError("rm() requires Neo4j driver instance")
     if (tx):
-      result = tx.run(self.rm_attr_q(obj, att, tgt))
-      tgt_id = result.single().value()
-      if tgt_id == None:
+      for qry in self.rm_attr_q(obj, att, tgt):
+        result = tx.run(qry)
+      s = result.single()
+      if s == None:
         warn("drop() - corresponding target db node not found")
-      return tgt_id
+      return s.value()
     else:
       with self.drv.session() as session:
+        result=None
         for qry in self.rm_attr_q(obj, att, tgt):
           result = session.run(qry)
         s = result.single()
@@ -397,7 +399,7 @@ class ObjectMap(object):
     if values and not isinstance(values, list):
       values = [values]
     if att in self.cls.mapspec()["property"]:
-      return "MATCH (n:{lbl}) WHERE id(n)={neoid} REMOVE n.{att}".format(
+      return "MATCH (n:{lbl}) WHERE id(n)={neoid} REMOVE n.{att} RETURN id(n)".format(
         lbl=self.cls.mapspec()["label"],
         neoid=obj.neoid,
         att=att)
@@ -415,32 +417,33 @@ class ObjectMap(object):
       rel = re.sub('^([^:]?)(:[a-zA-Z0-9_]+)(.*)$',r'\1-[r\2]-\3', spec['rel'])
       if values[0]==':all':
         if len(end_lbls)==1:
-          return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} DELETE r".format(
+          return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} DELETE r RETURN id(n),id(a)".format(
             lbl=self.cls.mapspec()["label"],
             albl=end_lbls[0],
             rel=rel,
             neoid=obj.neoid)
         else:
-          return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND ({cond}) DELETE r".format(
+          return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND ({cond}) DELETE r RETURN id(n)".format(
             lbl=self.cls.mapspec()["label"],
             cond=cond,
             neoid=obj.neoid,
               rel=rel)
       else:
         stmts=[]
+
         if not self._check_values_list(att,values):
           raise ArgError("'values' must be a list of mapped Entity objects of the appropriate subclass for attribute '{att}'".format(att=att))
         for val in values:
           qry=''
           if len(end_lbls)==1:
-            qry = "MATCH (n:{lbl}){rel}(a:{albl}) WHERE id(n)={neoid} AND id(a)={aneoid} DELETE r".format(
+            qry = "MATCH (n:{lbl}){rel}(a:{albl}) WHERE id(n)={neoid} AND id(a)={aneoid} DELETE r RETURN id(n),id(a)".format(
               lbl=self.cls.mapspec()["label"],
               albl=end_lbls[0],
               neoid=obj.neoid,
               aneoid=val.neoid,
               rel=rel)
           else:
-            qry = "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) DELETE r".format(
+            qry = "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) DELETE r RETURN id(n),id(a)".format(
               lbl=self.cls.mapspec()["label"],
               albl=end_lbls[0],
               neoid=obj.neoid,
