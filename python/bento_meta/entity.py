@@ -1,7 +1,3 @@
-
-# need to specify the attribute types for each new subclass
-#
-# attspec : { <att_name> : "simple|object|collection", ... }
 import re
 from copy import deepcopy
 from pdb import set_trace
@@ -36,6 +32,8 @@ class Entity(object):
                 "end_cls" : {"Tag"} }
     }}
   object_map=None
+  version_count=None
+  versioning_on=False
   
   def __init__(self,init=None):
     if not set(type(self).attspec.values()) <= set(['simple','object','collection']):
@@ -86,14 +84,26 @@ class Entity(object):
     if not hasattr(cls,'_mapspec'):
       cls.mergespec()
     return cls._mapspec
-
+  @classmethod
+  def versioning(cls,on=None):
+    if on==None:
+      return cls.versioning_on
+    cls.versioning_on=on
+    return cls.versioning_on
+  @classmethod
+  def set_version_count(cls,ct):
+    if not isinstance(ct, int) or ct < 0:
+      raise ArgError("arg must be a positive integer")
+    cls.version_count=ct
   @property
   def dirty(self):
     return self.pvt['dirty']
   @dirty.setter
   def dirty(self,value):
     self.pvt['dirty']=value
-
+  @property
+  def versioned(self):
+    return self._from
   @property
   def removed_entities(self):
     return self.pvt['removed_entities']
@@ -122,6 +132,30 @@ class Entity(object):
         setattr(self,att,None)
     self.neoid = init.id
 
+  def set_with_entity(self,ent):
+    if not isinstance(self, type(ent)):
+      raise ArgError("class mismatch: I am a {slf}, but arg is a {ent}".format(
+        slf=type(self).__name__,
+        ent=type(ent).__name__))
+    for k in type(self).attspec:
+      atts = type(self).attspec[k]
+      if k=="_next" or k=="_prev":
+        break
+      if atts=='simple':
+        setattr(self,k,ent.k)
+      elif atts=='object':
+        setattr(self,k,ent.k)
+      elif atts=='collection':
+        setattr(self,k, CollValue(ent.k,owner=self,owner_key=k))
+        pass
+      else:
+        raise RuntimeError("unknown attribute type '{atts}'".format(atts=atts))
+    for okey in ent.belongs:
+      self.belongs[okey] = ent.belongs[okey]
+    self.neoid = ent.neoid
+    self.dirty = 1
+    return self
+  
   def __getattribute__(self, name):
     if name in type(self).attspec:
       # declared attr, send to __getattr__ for magic
@@ -150,29 +184,89 @@ class Entity(object):
       self.__dict__['pvt'][name]=value
     elif name in type(self).attspec:
       self._check_value(name,value)
-      if type(self).attspec[name] == 'object':
-        oldval = self.__dict__.get(name)
-        if oldval:
-          del oldval.belongs[(id(self),name)]
-          self.removed_entities.append( (name, oldval) )
-        if isinstance(value, Entity):
-          value.belongs[(id(self),name)] = self
-      elif type(self).attspec[name] == 'collection':
-        if isinstance(value, dict):
-          value = CollValue(value,owner=self,owner_key=name)
-        if isinstance(value,list): # convert list of objs to CollValue
-          d={}
-          for v in value:
-            d[ getattr(v,type(v).mapspec()["key"]) ] = v
-          value = CollValue(d,owner=self,owner_key=name)
-      self.dirty=1
-      self.__dict__[name] = value
+      if type(self).attspec[name]=='simple' or name == '_next' or name == '_prev':
+        self.dirty=1
+        self.__dict__[name] = value
+      else:
+        self._set_object_attr(name,value)
     else:
       raise AttributeError("set: attribute '{name}' neither private nor declared for subclass {cls}".format(name=name, cls=type(self).__name__))
+
+  def version_me(setattr_func):
+    def _version_set_object_attr(self, name, value):
+      if not type(self).versioning_on:
+        return setattr_func(self,name,value)
+      if not self.versioned:
+        return setattr_func(self,name,value)
+      if not type(self).attspec[name] == 'object':
+        return setattr_func(self,name,value)        
+      elif (version_count > self._from) and (self._to==None):
+        # dup becomes the "old" object and self the "new":
+        dup = self.dup()
+        dup._to = self.version_count
+        self._from = self.version_count
+        if self._prev:
+          dup._prev = self._prev
+          self._prev._next=dup
+        dup._next = self
+        self._prev = dup
+        self.neoid = None
+        # make the owners own dup, rather than self
+        for okey in dup.belongs:
+          owner = dup.belongs[okey]
+          (oid,*att)=okey
+          if isinstance(att,list):
+            getattr(owner,att[0])[att[1]] = dup
+          else:
+            setattr(owner,att,dup)
+        setattr_func(self,name,value) ### 
+        for okey in self.belongs:
+          owner = self.belongs[okey]
+          (oid,*att)=okey
+          if instance(att,list):
+            getattr(owner,att[0])[att[1]]=self # this dups the owning entity if nec
+          else:
+            setattr(owner,att,self)
+          if owner._prev:
+            # dup (old entity) needs to belong to the prev version of owner
+            if isinstance(att, list):
+              del dup.belongs[ (id(owner), *att) ]
+              dup.belongs[ (id(owner._prev),*att) ] = owner._prev
+            else:
+              del dup.belongs[ (id(owner), att) ]
+              dup.belongs[ (id(owner._prev),att) ] = owner._prev
+      else:
+        return setattr_func(self,name,value)
+    return _version_set_object_attr
+
+  @version_me
+  def _set_object_attr(self,name,value):
+    atts =type(self).attspec[name]
+    if atts  == 'object':
+      oldval = self.__dict__.get(name)
+      if oldval:
+        if not self.versioned:
+          del oldval.belongs[(id(self),name)]
+          self.removed_entities.append( (name, oldval) )
+      if isinstance(value, Entity):
+        value.belongs[(id(self),name)] = self
+    elif atts  == 'collection':
+      if isinstance(value, dict):
+        value = CollValue(value,owner=self,owner_key=name)
+      if isinstance(value,list): # convert list of objs to CollValue
+        d={}
+        for v in value:
+          d[ getattr(v,type(v).mapspec()["key"]) ] = v
+        value = CollValue(d,owner=self,owner_key=name)
+    else:
+      raise RuntimeError("unknown attspec value '{}'".format(atts))
+    self.dirty=1
+    self.__dict__[name] = value
     
   def __delattr__(self, name):
     del self.__dict__[name]
 
+  
   def _check_init(self,init):
     for att in type(self).attspec:
       if init[att]:
@@ -205,7 +299,10 @@ class Entity(object):
         raise ArgError("unknown attribute type '{type}' for attribute '{att}' in attspec".format(type=spec,att=att) )
     except Exception:
       raise
-    
+
+  def dup(self):
+    return type(self)(self)
+  
   def dget(self,refresh=False):
     if (type(self).object_map):
       return type(self).object_map.get(self,refresh)
@@ -224,6 +321,7 @@ class Entity(object):
     else:
       pass
 
+    
 class CollValue(UserDict):
   """A UserDict for housing Entity collection attributes
 
@@ -248,19 +346,62 @@ class CollValue(UserDict):
   @property
   def owner_key(self):
     return self.__dict__["__owner_key"]
+  def version_me(setitem_func):
+    def _version_set_collvalue_item(self,name,value):
+      if not self.owner.versioning_on:
+        return setitem_func(self,name,value)        
+      if not self.owner.versioned:
+        return setitem_func(self,name,value)
+      elif (Entity.version_count > self.owner._from) and (self.owner._to==None):
+        pass ###....
+        # dup becomes the "old" object and self the "new":
+        dup = self.owner.dup()
+        dup._to = Entity.version_count
+        self.owner._from = Entity.version_count
+        if self.owner._prev:
+          dup._prev = self.owner._prev
+          self.owner._prev._next=dup
+        dup._next = self.owner
+        self.owner._prev = dup
+        self.owner.neoid = None
+        # make the owners own dup, rather than self.owner
+        for okey in dup.belongs:
+          owner = dup.belongs[okey]
+          (oid,*att)=okey
+          if isinstance(att,list):
+            getattr(owner,att[0])[att[1]] = dup
+          else:
+            setattr(owner,att,dup)
+        setitem_func(self,name,value) ### 
+        for okey in self.owner.belongs:
+          owner = self.owner.belongs[okey]
+          (oid,*att)=okey
+          if instance(att,list):
+            getattr(owner,att[0])[att[1]]=self.owner # this dups the owning entity if nec
+          else:
+            setattr(owner,att,self.owner)
+          if owner._prev:
+            # dup (old entity) needs to belong to the prev version of owner
+            if isinstance(att, list):
+              del dup.belongs[ (id(owner), *att) ]
+              dup.belongs[ (id(owner._prev),*att) ] = owner._prev
+            else:
+              del dup.belongs[ (id(owner), att) ]
+              dup.belongs[ (id(owner._prev),att) ] = owner._prev
+      else:
+          return setitem_func(self,name,value)
+    return _version_set_collvalue_item
     
-  # def __setattr__(self, name, value):
+  @version_me
   def __setitem__(self, name, value):
-    # pfx = "_{cls}".format(cls=type(self).__name__)
-    # if re.match(pfx,name): # private
-    #   self.__dict__[name] = value
     if not isinstance(value, Entity):
       raise ArgError("a collection-valued attribute can only accept Entity members, not '{tipe}'s".format(tipe=type(value)))
     if name in self:
       oldval = self.data.get(name)
       if oldval:
-        del oldval.belongs[(id(self.owner),self.owner_key,name)]
-        self.owner.removed_entities.append( (self.owner_key, oldval) )
+        if not self.owner.versioned:
+          del oldval.belongs[(id(self.owner),self.owner_key,name)]
+          self.owner.removed_entities.append( (self.owner_key, oldval) )
     value.belongs[(id(self.owner),self.owner_key,name)] = self.owner
     # smudge the owner
     self.owner.dirty = 1
@@ -276,4 +417,4 @@ class CollValue(UserDict):
     self[name]==None # trigger __setitem__
     super().__delitem__(name)
     return
-  
+

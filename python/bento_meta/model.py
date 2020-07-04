@@ -204,9 +204,11 @@ class Model(object):
     return self.edges_by('type',edge_handle)    
 
 
-  def dget(self):
+  def dget(self,refresh=False):
     if not self.drv:
       return
+    if (refresh):
+      ObjectMap.clear_cache()
     nodes=[]
     edges=[]
     props=[]
