@@ -20,6 +20,9 @@ class ObjectMap(object):
         raise ArgError("drv= arg must be Neo4jDriver or BoltDriver (returned from GraphDatabase.driver())")
     self.maps={}
   @classmethod
+  def clear_cache(cls):
+    cls.cache={}
+  @classmethod
   def cls_by_label(cls,lbl):
     if not hasattr(cls,'_clsxlbl'):
       cls._clsxlbl={}
@@ -76,6 +79,12 @@ class ObjectMap(object):
         for rec in result:
           o = ObjectMap.cache.get(rec['a'].id)
           if o:
+            print("hit cache in attr get for {id}: is {o} for {obj} {att}".format(
+              id=rec['a'].id,
+              o=type(o).__name__,
+              obj=type(obj).__name__,
+              att=att
+            ))
             if not first_val:
               first_val=o
             values[getattr(o,type(o).mapspec()["key"])]=o

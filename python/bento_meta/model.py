@@ -235,6 +235,8 @@ class Model(object):
       self.nodes[n.handle]=n
     for e in edges:
       e.dget(True)
+      if None in e.triplet:
+        set_trace()
       self.edges[e.triplet] = e
     for p in props:
       p.dget(True)

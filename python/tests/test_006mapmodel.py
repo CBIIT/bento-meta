@@ -10,11 +10,13 @@ from pdb import set_trace
 from bento_meta.entity import *
 from bento_meta.objects import *
 from bento_meta.model import Model
+from bento_meta.object_map import ObjectMap
 
 def test_get_model(bento_neo4j):
   (b,h)=bento_neo4j
   drv = GraphDatabase.driver(b)
   assert drv
+  ObjectMap.clear_cache()
   m = Model('ICDC',drv)
   m.dget()
 
@@ -30,7 +32,6 @@ def test_get_model(bento_neo4j):
     for rec in result:
       (s,e,d) = (rec['s'],rec['e'],rec['d'])
       triplet = (e['handle'], s['handle'], d['handle'])
-      set_trace()
       assert m.edges[triplet].handle == e['handle']
       assert m.edges[triplet].src.handle == s['handle']
       assert m.edges[triplet].dst.handle == d['handle']
@@ -57,6 +58,7 @@ def test_put_model(bento_neo4j):
   (b,h)=bento_neo4j
   drv = GraphDatabase.driver(b)
   assert drv
+  ObjectMap.clear_cache()
   m = Model('ICDC',drv)
   m.dget()
   prop = m.props[('sample','sample_type')]
