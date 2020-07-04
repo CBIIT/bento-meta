@@ -75,7 +75,6 @@ def test_object_versioning():
   assert r21._prev.handle == "r21"
   assert r21._prev.dst == n21
 
-  set_trace()
   n1.category = "blarf"
   assert n1.category == "blarf"
   assert not n1._prev.category # prev version attr still empth
@@ -88,7 +87,19 @@ def test_object_versioning():
   n1.model="test2" # change another attr shouldn't dup
   assert n1._prev == prev # and it didn't dup
   assert prev._next == n1 # yep
-  
+
+  Entity.set_version_count(4)
+  #         r1       r21 --                                                       
+  #       /   \    /        \                                                     
+  #    n1*      n2 --       n31                                                   
+  #            /|\    \      /                                                    
+  #          p1 p2 p3 p41  p21                                                    
+
+  p41=Property({"handle":"p41"})
+  n2.props['p41']=p41
+  assert n2._prev
+  assert not 'p41' in n2._prev.props
+  assert n2.props['p41'] == p41
   
 if __name__ == "__main__":
   test_object_versioning()
