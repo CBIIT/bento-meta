@@ -44,6 +44,9 @@ class Entity(object):
     self.dirty=1
     self.removed_entities=[]
     self.belongs = {}
+    if type(self).versioning_on:
+      self.mergespec()
+      self._from = type(self).version_count
 
     # merge to universal map
     type(self).mergespec()
@@ -142,11 +145,11 @@ class Entity(object):
       if k=="_next" or k=="_prev":
         break
       if atts=='simple':
-        setattr(self,k,ent.k)
+        setattr(self,k,getattr(ent,k))
       elif atts=='object':
-        setattr(self,k,ent.k)
+        setattr(self,k,getattr(ent,k))
       elif atts=='collection':
-        setattr(self,k, CollValue(ent.k,owner=self,owner_key=k))
+        setattr(self,k, CollValue(getattr(ent,k),owner=self,owner_key=k))
         pass
       else:
         raise RuntimeError("unknown attribute type '{atts}'".format(atts=atts))
@@ -184,65 +187,65 @@ class Entity(object):
       self.__dict__['pvt'][name]=value
     elif name in type(self).attspec:
       self._check_value(name,value)
-      if type(self).attspec[name]=='simple' or name == '_next' or name == '_prev':
+      if name in ['_prev','_next','_from','_to']:
         self.dirty=1
         self.__dict__[name] = value
       else:
-        self._set_object_attr(name,value)
+        self._set_declared_attr(name,value)
     else:
       raise AttributeError("set: attribute '{name}' neither private nor declared for subclass {cls}".format(name=name, cls=type(self).__name__))
 
   def version_me(setattr_func):
-    def _version_set_object_attr(self, name, value):
+    def _version_set_declared_attr(self, name, value):
       if not type(self).versioning_on:
         return setattr_func(self,name,value)
       if not self.versioned:
         return setattr_func(self,name,value)
-      if not type(self).attspec[name] == 'object':
-        return setattr_func(self,name,value)        
-      elif (version_count > self._from) and (self._to==None):
+      elif (type(self).version_count > self._from) and (self._to==None):
         # dup becomes the "old" object and self the "new":
         dup = self.dup()
-        dup._to = self.version_count
-        self._from = self.version_count
+        dup._to = type(self).version_count
+        self._from = type(self).version_count
         if self._prev:
           dup._prev = self._prev
           self._prev._next=dup
         dup._next = self
         self._prev = dup
         self.neoid = None
-        # make the owners own dup, rather than self
+        # make the owners own dup, rather than self - this is under the radar of
+        # version_me
         for okey in dup.belongs:
           owner = dup.belongs[okey]
           (oid,*att)=okey
-          if isinstance(att,list):
-            getattr(owner,att[0])[att[1]] = dup
+          if len(att)==2:
+            getattr(owner,att[0]).data[att[1]] = dup
           else:
-            setattr(owner,att,dup)
-        setattr_func(self,name,value) ### 
+            owner.__dict__[att[0]] = dup
+        setattr_func(self,name,value) ###
+        # this is on version_me's radar- dups the owning entity if nec
         for okey in self.belongs:
           owner = self.belongs[okey]
           (oid,*att)=okey
-          if instance(att,list):
-            getattr(owner,att[0])[att[1]]=self # this dups the owning entity if nec
+          if len(att) == 2:
+            getattr(owner,att[0])[att[1]]=self 
           else:
-            setattr(owner,att,self)
+            if att[0]=='category':
+              set_trace()
+            setattr(owner,att[0],self)
           if owner._prev:
             # dup (old entity) needs to belong to the prev version of owner
-            if isinstance(att, list):
-              del dup.belongs[ (id(owner), *att) ]
-              dup.belongs[ (id(owner._prev),*att) ] = owner._prev
-            else:
-              del dup.belongs[ (id(owner), att) ]
-              dup.belongs[ (id(owner._prev),att) ] = owner._prev
+            del dup.belongs[ (id(owner), *att) ]
+            dup.belongs[ (id(owner._prev),*att) ] = owner._prev
       else:
         return setattr_func(self,name,value)
-    return _version_set_object_attr
+    return _version_set_declared_attr
 
   @version_me
-  def _set_object_attr(self,name,value):
+  def _set_declared_attr(self,name,value):
     atts =type(self).attspec[name]
-    if atts  == 'object':
+    if atts == 'simple':
+      pass
+    elif atts  == 'object':
       oldval = self.__dict__.get(name)
       if oldval:
         if not self.versioned:
@@ -302,7 +305,23 @@ class Entity(object):
 
   def dup(self):
     return type(self)(self)
-  
+
+  def delete(self):
+    if self.versioning_on and self.versioned:
+      if type(self).version_count > self._from:
+        self._to = type(self).version_count
+      else:
+        warn("delete - current version count {vct} is <= entity's _to attribute".format(vct=type(self).version_count))
+    else:
+      # unlink from other entities
+      for okey in self.belongs:
+        owner = self.belongs[okey]
+        (oid,*att)=okey
+        if len(att)==2:
+          del getattr(owner,att[0])[att[1]]
+        else:
+          setattr(owner,att[0],None)
+
   def dget(self,refresh=False):
     if (type(self).object_map):
       return type(self).object_map.get(self,refresh)
@@ -368,26 +387,22 @@ class CollValue(UserDict):
         for okey in dup.belongs:
           owner = dup.belongs[okey]
           (oid,*att)=okey
-          if isinstance(att,list):
+          if len(att)==2:
             getattr(owner,att[0])[att[1]] = dup
           else:
-            setattr(owner,att,dup)
+            setattr(owner,att[0],dup)
         setitem_func(self,name,value) ### 
         for okey in self.owner.belongs:
           owner = self.owner.belongs[okey]
           (oid,*att)=okey
-          if instance(att,list):
+          if len(att)==2:
             getattr(owner,att[0])[att[1]]=self.owner # this dups the owning entity if nec
           else:
-            setattr(owner,att,self.owner)
+            setattr(owner,att[0],self.owner)
           if owner._prev:
             # dup (old entity) needs to belong to the prev version of owner
-            if isinstance(att, list):
-              del dup.belongs[ (id(owner), *att) ]
-              dup.belongs[ (id(owner._prev),*att) ] = owner._prev
-            else:
-              del dup.belongs[ (id(owner), att) ]
-              dup.belongs[ (id(owner._prev),att) ] = owner._prev
+            del dup.belongs[ (id(owner), *att) ]
+            dup.belongs[ (id(owner._prev),*att) ] = owner._prev
       else:
           return setitem_func(self,name,value)
     return _version_set_collvalue_item
