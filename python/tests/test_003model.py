@@ -29,6 +29,7 @@ def test_create_model():
   model.add_prop(case,case_id)
   assert model.props[("case","case_id")]
   assert model.props[("case","case_id")].value_domain == 'string'
+  assert 'case_id' in model.nodes['case'].props
   sample = model.nodes["sample"]
   of_case = Edge({"handle":"of_case","src":sample,"dst":case})
   of_case.props['operator'] = Property({"handle":"operator","value_domain":"boolean"})

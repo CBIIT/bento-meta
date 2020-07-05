@@ -469,15 +469,17 @@ class ObjectMap(object):
     v = values
     if isinstance(values, CollValue):
       v = values.values()
-    chk = [ not x.neoid for x in v ]
+    chk = [ x.neoid==None for x in v ]
     if True in chk:
+      print("not mapped")
       return False
     end_cls = self.cls.mapspec()['relationship'][att]['end_cls']
     if isinstance(end_cls,str):
       end_cls = {end_cls}
     cls_set = tuple([ eval(x) for x in end_cls ])
     chk = [ isinstance(x, cls_set) for x in v ]
-    if False in chk:
-      return False
-    return True
+    if True in chk:
+      return True
+    print("bad class")
+    return False
   

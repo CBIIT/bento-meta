@@ -35,6 +35,17 @@ class Model(object):
     else:
       self.drv=None
 
+  @classmethod
+  def versioning(cls,on=None):
+    if on==None:
+      return Entity.versioning_on
+    Entity.versioning_on=on
+    return Entity.versioning_on
+
+  @classmethod
+  def set_version_count(cls,ct):
+    Entity.set_version_count(ct)
+    
   def add_node(self, node=None):
     if not node:
       raise ArgError("arg must be Node, dict, or graph.Node")
@@ -78,6 +89,7 @@ class Model(object):
       prop.model = self.handle
     key = [ent.handle] if isinstance(ent,Node) else list(ent.triplet)
     key.append(prop.handle)
+    ent.props[ getattr(prop,type(prop).mapspec()["key"]) ] = prop
     self.props[tuple(key)] = prop
     return prop
 
@@ -106,7 +118,7 @@ class Model(object):
     if not self.contains(node):
       warn("node '{node}' not contained in model '{model}'".format(node=node.handle, model=model.handle))
       return
-    if self.edges_by_src(node) or self.edge_by_dst(node):
+    if self.edges_by_src(node) or self.edges_by_dst(node):
       raise ValueError("can't remove node '{node}', it is participating in edges".format(node=node.handle))
     for p in node.props:
       try:
@@ -159,6 +171,21 @@ class Model(object):
       raise ArgError("arg must be a Term object")
     pass
 
+  def assign_edge_end(self,edge=None,end=None,node=None):
+    if not isinstance(edge,Edge):
+      raise ArgError("edge= must an Edge object")
+    if not isinstance(node,Node):
+      raise ArgError("node= must a Node object")
+    if not end in ['src','dst']:
+      raise ArgError("end= must be one of 'src' or 'dst'")
+    if not self.contains(edge) or not self.contains(node):
+      warn("model must contain both edge and node")
+      return
+    del self.edges[edge.triplet]
+    setattr(edge,end,node)
+    self.edges[edge.triplet] = edge
+    return edge
+    
   def contains(self, ent):
     if not isinstance(ent, Entity):
       warn("argument is not an Entity subclass")
@@ -257,6 +284,7 @@ class Model(object):
         return
       seen[id(obj)]=1
       if obj.dirty == 1:
+        print("{} {}".format(type(obj).__name__,getattr(obj,type(obj).mapspec()["key"])))
         obj.dput()
       atts = [x for x in type(obj).attspec if type(obj).attspec[x]=='object']
       for att in atts:
@@ -271,9 +299,9 @@ class Model(object):
             do_(ents[ent])
     for e in self.removed_entities:
       do_(e)
-    for e in self.edges.values():
-      do_(e)
     for e in self.nodes.values():
+      do_(e)
+    for e in self.edges.values():
       do_(e)
     for e in self.props.values():
       do_(e)

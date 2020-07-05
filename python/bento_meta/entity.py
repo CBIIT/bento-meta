@@ -388,9 +388,9 @@ class CollValue(UserDict):
           owner = dup.belongs[okey]
           (oid,*att)=okey
           if len(att)==2:
-            getattr(owner,att[0])[att[1]] = dup
+            getattr(owner,att[0]).data[att[1]] = dup
           else:
-            setattr(owner,att[0],dup)
+            owner.__dict__[att[0]] = dup
         setitem_func(self,name,value) ### 
         for okey in self.owner.belongs:
           owner = self.owner.belongs[okey]
