@@ -44,10 +44,6 @@ class Entity(object):
     self.dirty=1
     self.removed_entities=[]
     self.belongs = {}
-    if type(self).versioning_on:
-      self.mergespec()
-      self._from = type(self).version_count
-
     # merge to universal map
     type(self).mergespec()
 
@@ -64,6 +60,9 @@ class Entity(object):
           setattr(self,att, CollValue({},owner=self,owner_key=att))
         else:
           setattr(self,att,None)
+    if type(self).versioning_on:
+      self._from = type(self).version_count
+
           
   @classmethod
   def mergespec(cls):
@@ -205,6 +204,7 @@ class Entity(object):
         # dup becomes the "old" object and self the "new":
         dup = self.dup()
         dup._to = type(self).version_count
+        dup._from = self._from
         self._from = type(self).version_count
         if self._prev:
           dup._prev = self._prev
