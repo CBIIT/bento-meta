@@ -44,7 +44,7 @@
    "provides" : {
       "Bento::Meta" : {
          "file" : "lib/Bento/Meta.pm",
-         "version" : "0.1"
+         "version" : "0.21"
       },
       "Bento::Meta::MDF" : {
          "file" : "lib/Bento/Meta/MDF.pm"
@@ -81,6 +81,6 @@
       }
    },
    "release_status" : "stable",
-   "version" : "0.1",
+   "version" : "0.21",
    "x_serialization_backend" : "JSON::PP version 2.27300_01"
 }
