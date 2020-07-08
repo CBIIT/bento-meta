@@ -11,9 +11,9 @@ bento_meta
    :caption: Contents:
 
 :class:`bento_meta.model.Model` provides an object representation of a single
-`property graph <https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph>`
+`property graph <https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph>`_
 based data model, as embodied in the structure of the
-`Bento Metamodel Database <https://github.com/CBIIT/bento-mdf>`, or
+`Bento Metamodel Database <https://github.com/CBIIT/bento-mdf>`_, or
 MDB. The MDB can store multiple such models in terms of their nodes,
 relationships, and properties. The MDB links these entities according to the structure of
 the individual models. For example, model nodes are represented as
@@ -22,7 +22,7 @@ of type "relationship", that themselves link to the relevant source
 and destination metamodel nodes, representing the two end nodes in the
 model itself. :class:`Model` can create, read, update, and link
 these entities together according to the
-`MDB structure <https://github.com/CBIIT/bento-meta#structure>`.
+`MDB structure <https://github.com/CBIIT/bento-meta#structure>`_.
 
 The MDB also provides entities for defining and maintaining
 terminology associated with the stored models. These include the
@@ -37,7 +37,7 @@ The metamodel is a property graph, designed to store specific property
 graph models, in a database built for property graphs. The word "node"
 is therefore used in different contexts and can be confusing,
 especially since the `Cancer Research Data Commons
-<https://datascience.cancer.gov/data-commons>` is also set up in terms
+<https://datascience.cancer.gov/data-commons>`_ is also set up in terms
 of "nodes", which are central repositories of cancer data of
 different kinds. This and related documentation will attempt to
 distinguish these concepts as follows.
@@ -54,7 +54,7 @@ distinguish these concepts as follows.
 * A "Neo4j node" refers generically to the representation of a node in
   the Neo4j database engine.
 * A "CRDC node" refers to a data commons repository that is part of
-  the CRDC, such as the `ICDC <https://caninecommons.cancer.gov>`.
+  the CRDC, such as the `ICDC <https://caninecommons.cancer.gov>`_.
 
 A Note on Objects, Properties, and Attributes
 _______________________________________________________
@@ -130,7 +130,7 @@ its own graph node with label ``relationship``, and the source and
 destination nodes for that edge are two graph nodes with label ``node``,
 one of which is linked to the ``relationship`` node with a graph
 relationship ``has_src``, and the other with a graph relationship
-``has_dst``. (Refer to `this diagram <https://github.com/CBIIT/bento-meta#structure>`.)
+``has_dst``. (Refer to `this diagram <https://github.com/CBIIT/bento-meta#structure>`_.)
 
 In the object model, the source and destination nodes of an edge are
 also represented as object attributes: in this case, ``edge.src``
@@ -183,7 +183,8 @@ Accessing other objects
 
 The Model object does not provide access to :class:`Concept`, :class:`ValueSet`, or 
 :class:`Origin` objects directly. These are accessible via the linked obects
-themselves, according to the `metamodel structure <https://github.com/CBIIT/bento-meta#structure>`. For example::
+themselves, according to the `metamodel structure <https://github.com/CBIIT/bento-meta#structure>`_.
+For example::
 
     # all terms for all nodes
     terms=[]
@@ -280,7 +281,22 @@ from the database, use ``rm()`` on the objects themselves::
     model.dput(); # metamodel node representing the edge is still present in db
                           # but is detached from the source node and destination node
     edge.rm(); # metamodel node representing the edge is deleted from db
-      
+
+.. autoclass:: bento_meta.model.Model
+               :members:
+
+.. automodule:: bento_meta.objects
+               :members:
+
+.. autoclass:: bento_meta.entity.Entity
+               :members:
+
+.. autoclass:: bento_meta.object_map.ObjectMap
+               :members:
+
+                  
+
+    
 Indices and tables
 ==================
 

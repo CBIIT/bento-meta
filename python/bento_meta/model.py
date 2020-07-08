@@ -24,8 +24,10 @@ from pdb import set_trace
 class Model(object):
   def __init__(self,handle=None,drv=None):
     """Model constructor.
+
 :param str handle: A string name for the model. Corresponds to the model property in MDB database nodes.
-:param :class:`neo4j.Driver` drv: A `neo4j.Driver` object describing the database connection (see :class:`neo4j.GraphDatabase`)
+:param neo4j.Driver drv: A `neo4j.Driver` object describing the database connection (see :class:`neo4j.GraphDatabase`)
+
 """
     if not handle:
       raise ArgError("model requires arg 'handle' set")
@@ -49,7 +51,9 @@ class Model(object):
   @classmethod
   def versioning(cls,on=None):
     """Get or set versioning state.
+
 :param boolean on: True, apply versioning. False, do not.
+
 Note: this delegates to :meth:`Entity.versioning`.
 """
     if on==None:
@@ -60,14 +64,18 @@ Note: this delegates to :meth:`Entity.versioning`.
   @classmethod
   def set_version_count(cls,ct):
     """Set the integer version counter.
+
 :param int ct: Set version counter to this value.
+
 Note: this delegates to :meth:`Entity.set_version_count`.
 """
     Entity.set_version_count(ct)
     
   def add_node(self, node=None):
     """Add a :class:`Node` to the model.
-:param :class:`Node` node: A :class:`Node` instance
+
+:param Node node: A :class:`Node` instance
+
 The model attribute of ``node`` is set to `Model.handle`
 """
     if not node:
@@ -82,8 +90,10 @@ The model attribute of ``node`` is set to `Model.handle`
     return node
 
   def add_edge(self, edge=None):
-    """Add a :class:`Edge` to the model.
-:param :class:`Edge` edge: A :class:`Edge` instance
+    """Add an :class:`Edge` to the model.
+
+:param Edge edge: A :class:`Edge` instance
+
 The model attribute of ``edge`` is set to `Model.handle`
 """
     if not edge:
@@ -107,8 +117,10 @@ The model attribute of ``edge`` is set to `Model.handle`
 
   def add_prop(self, ent, prop=None):
     """Add a :class:`Property` to the model.
-:param :class:`Node`|:class:`Edge` ent: Attach ``prop`` to this entity
-:param :class:`Property` prop: A :class:`Property` instance
+
+:param Node|Edge ent: Attach ``prop`` to this entity
+:param Property prop: A :class:`Property` instance
+
 The model attribute of ``prop`` is set to `Model.handle`
 """
     if not isinstance(ent, (Node, Edge)):
@@ -127,10 +139,11 @@ The model attribute of ``prop`` is set to `Model.handle`
 
   def add_terms(self, prop, *terms):
     """Add a list of :class:`Term` and/or strings to a :class:`Property` with a value domain of ``value_set``
-:param :class:`Property` prop: :class:`Property` to modify
+
+:param Property prop: :class:`Property` to modify
 :param list terms: A list of :class:`Term` instances and/or str
-:class:`Term` instances are created for strings; `Term.value` is set to
-the string.
+
+:class:`Term` instances are created for strings; `Term.value` is set to the string.
 """
     if not isinstance(prop, Property):
       raise ArgError("arg1 must be Property")
@@ -152,7 +165,9 @@ the string.
 
   def rm_node(self, node):
     """Remove a :class:`Node` from the Model instance.
-:param :class:`Node` node: Node to be removed
+
+:param Node node: Node to be removed
+
 Note: A node can't be removed if it is participating in an edge (i.e., 
 if the node is some edge's src or dst attribute)
 
@@ -177,7 +192,9 @@ is off, in the database when versioning is on*
 
   def rm_edge(self, edge):
     """Remove an :class:`Edge` instance from the Model instance.
-:param :class:`Edge` edge: Edge to be removed
+
+:param Edge edge: Edge to be removed
+
 *Clarify what happens in the Model object, in the database when versioning
 is off, in the database when versioning is on*
 """
@@ -202,7 +219,9 @@ is off, in the database when versioning is on*
 
   def rm_prop(self, prop):
     """Remove a :class:`Property` instance from the Model instance.
-:param :class:`Property` prop: Property to be removed
+
+:param Property prop: Property to be removed
+
 *Clarify what happens in the Model object, in the database when versioning
 is off, in the database when versioning is on*
 """
@@ -229,9 +248,11 @@ is off, in the database when versioning is on*
 
   def assign_edge_end(self,edge=None,end=None,node=None):
     """Move the src or dst of an :class:`Edge` to a different :class:`Node`.
-:param :class:`Edge` edge: Edge to manipulate
+
+:param Edge edge: Edge to manipulate
 :param str end: Edge end to change (src|dst)
-:param :class:`Node` node: Node to be connected
+:param Node node: Node to be connected
+
 Note: Both ``node`` and ``edge`` must be present in the Model instance
 (via :meth:`add_node` and :meth:`add_edge`)
 """
@@ -251,7 +272,9 @@ Note: Both ``node`` and ``edge`` must be present in the Model instance
     
   def contains(self, ent):
     """Ask whether an entity is present in the Model instance.
-:param :class:`Entity` ent: Entity in question
+
+:param Entity ent: Entity in question
+
 Note: Only works on Nodes, Edges, and Properties
 """
     if not isinstance(ent, Entity):
@@ -266,9 +289,11 @@ Note: Only works on Nodes, Edges, and Properties
     pass
 
   def edges_in(self, node):
-    """Get all :class:`Edge`s that have a given :class:`Node` as their dst attribute
-:param :class:`Node` node: The node
-:return: list of :class:`Edge`s
+    """Get all :class:`Edge` that have a given :class:`Node` as their dst attribute
+
+:param Node node: The node
+:return: list of :class:`Edge`
+
 """
     if not  isinstance(node,Node):
       raise ArgError("arg must be Node")
@@ -276,9 +301,11 @@ Note: Only works on Nodes, Edges, and Properties
     pass
 
   def edges_out(self, node):
-    """Get all :class:`Edge`s that have a given :class:`Node` as their src attribute
-:param :class:`Node` node: The node
-:return: list of :class:`Edge`s
+    """Get all :class:`Edge` that have a given :class:`Node` as their src attribute
+
+:param Node node: The node
+:return: list of :class:`Edge`
+
 """
     if not  isinstance(node,Node):
       raise ArgError("arg must be Node")
@@ -295,23 +322,29 @@ Note: Only works on Nodes, Edges, and Properties
       return [self.edges[x] for x in self.edge if x[0] == item]
 
   def edges_by_src(self,node):
-    """Get all :class:`Edge`s that have a given :class:`Node` as their src attribute
-:param :class:`Node` node: The node
-:return: list of :class:`Edge`s
+    """Get all :class:`Edge` that have a given :class:`Node` as their src attribute
+
+:param Node node: The node
+:return: list of :class:`Edge`
+
 """
     return self.edges_by('src',node)
 
   def edges_by_dst(self,node):
-    """Get all :class:`Edge`s that have a given :class:`Node` as their dst attribute
-:param :class:`Node` node: The node
-:return: list of :class:`Edge`s
+    """Get all :class:`Edge` that have a given :class:`Node` as their dst attribute
+
+:param Node node: The node
+:return: list of :class:`Edge`
+
 """
     return self.edges_by('dst',node)
 
   def edges_by_type(self,edge_handle):
-    """Get all :class:`Edge`s that have a given edge type (i.e., handle)
+    """Get all :class:`Edge` that have a given edge type (i.e., handle)
+
 :param str edge_handle: The edge type
-:return: list of :class:`Edge`s
+:return: list of :class:`Edge`
+
 """
     if not isinstance(edge_handle,str):
       raise ArgError("arg must be str")
@@ -320,7 +353,8 @@ Note: Only works on Nodes, Edges, and Properties
 
   def dget(self,refresh=False):
     """Pull model from MDB into this Model instance, based on its handle
-Note: is a noop if :property:`Model.drv` is unset.
+
+Note: is a noop if `Model.drv` is unset.
 """
     if not self.drv:
       return
@@ -367,7 +401,8 @@ Note: is a noop if :property:`Model.drv` is unset.
 
   def dput(self):
     """Push this Model's objects to MDB.
-Note: is a noop if :property:`Model.drv` is unset.
+
+Note: is a noop if `Model.drv` is unset.
 """
     if not self.drv:
       return
