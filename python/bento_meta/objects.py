@@ -8,6 +8,7 @@ from pdb import set_trace
 # tags attr?
 
 class Node(Entity):
+  """Subclass that models a data node"""
   attspec = {"handle":"simple","model":"simple",
              "category":"simple","concept":"object",
              "props":"collection"}
@@ -25,6 +26,7 @@ class Node(Entity):
     super().__init__(init=init)
     
 class Property(Entity):
+  """Subclass that models a property of a node or relationship (edge)"""
   attspec = {"handle":"simple","model":"simple",
              "value_domain":"simple","units":"simple",
              "pattern":"simple","is_required":"simple",
@@ -47,16 +49,22 @@ class Property(Entity):
   
   @property
   def terms(self):
+    """If the `Property` has a ``value_set`` domain, return the `Term` objects
+of its `ValueSet`"""
     if self.value_set:
       return self.value_set.terms
     else:
       return None
   @property
   def values(self):
+    """If the `Property` as a ``value_set`` domain, return its term values as a list of str.
+:return: list of term values
+:rtype: list"""
     if self.value_set:
       return [self.terms[x].value for x in self.terms]
     
 class Edge(Entity):
+  """Subclass that models a relationship between model nodes"""
   attspec = {"handle":"simple","model":"simple",
              "multiplicity":"simple","is_required":"simple",
              "src":"object","dst":"object",
@@ -82,10 +90,14 @@ class Edge(Entity):
     super().__init__(init=init)
   @property
   def triplet(self):
+    """A 3-tuple that fully qualifies the edge: ``(edge.handle, src.handle, dst.handle)``
+``src`` and ``dst`` attributes must be set.
+"""
     if (self.handle and self.src and self.dst):
       return (self.handle, self.src.handle, self.dst.handle)
 
 class Term(Entity):
+  """Subclass that models a term from a terminology"""
   attspec={"value":"simple", "origin_id":"simple",
            "origin_definition":"simple",
            "concept":"object", "origin":"object"}
@@ -107,6 +119,9 @@ class Term(Entity):
 # (from Bento::Meta), signal need to refresh. Engineer so this happens
 # here (__setattr__ override), not in Entity
 class ValueSet(Entity):
+  """Subclass that models an enumerated set of `Property` values
+Essentially a container for `Term` instances. 
+"""
   attspec={"handle":"simple","url":"simple",
            "prop":"object", "origin":"object",
            "terms":"collection"}
@@ -140,6 +155,7 @@ class ValueSet(Entity):
         self.prop.dirty=1
 
 class Concept(Entity):
+  """"Subclass that models a semantic concept."""
   attspec={"terms":"collection"}
   mapspec_={"label":"concept",
             "relationship": {
@@ -150,6 +166,7 @@ class Concept(Entity):
     super().__init__(init=init)
 
 class Origin(Entity):
+  """Subclass that models a `Term`'s authoritative source"""
   attspec={"url":"simple", "is_external":"simple", "name":"simple"}
   mapspec_={"label":"origin",
             "key":"name",
@@ -162,6 +179,7 @@ class Origin(Entity):
     super().__init__(init=init)
 
 class Tag(Entity):
+  """Subclass that allows simple key-value tagging of a model at arbitrary points."""
   attspec={"value":"simple"}
   mapspec_={"label":"tag",
             "key":"value",

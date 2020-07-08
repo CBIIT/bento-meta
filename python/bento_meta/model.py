@@ -1,3 +1,13 @@
+"""
+bento_meta.model
+================
+
+This module contains :class:`Model`, a class for managing data models housed
+in the Bento Metamodel Database. Models are built from `bento_meta.Entity`
+subclasses (see :mod:`bento_meta.objects`). A Model can be used with or 
+without a Neo4j database connection.
+
+"""
 import re
 import sys
 from uuid import uuid4
@@ -6,16 +16,17 @@ from neo4j import BoltDriver, Neo4jDriver
 import neo4j.graph
 sys.path.append('..')
 from bento_meta.object_map import ObjectMap
-from bento_meta.entity import Entity
+from bento_meta.entity import Entity, ArgError
 from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag
 
 from pdb import set_trace
 
-class ArgError(Exception):
-  pass
-
 class Model(object):
   def __init__(self,handle=None,drv=None):
+    """Model constructor.
+:param str handle: A string name for the model. Corresponds to the model property in MDB database nodes.
+:param :class:`neo4j.Driver` drv: A `neo4j.Driver` object describing the database connection (see :class:`neo4j.GraphDatabase`)
+"""
     if not handle:
       raise ArgError("model requires arg 'handle' set")
     self.handle = handle
@@ -37,6 +48,10 @@ class Model(object):
 
   @classmethod
   def versioning(cls,on=None):
+    """Get or set versioning state.
+:param boolean on: True, apply versioning. False, do not.
+Note: this delegates to :meth:`Entity.versioning`.
+"""
     if on==None:
       return Entity.versioning_on
     Entity.versioning_on=on
@@ -44,9 +59,17 @@ class Model(object):
 
   @classmethod
   def set_version_count(cls,ct):
+    """Set the integer version counter.
+:param int ct: Set version counter to this value.
+Note: this delegates to :meth:`Entity.set_version_count`.
+"""
     Entity.set_version_count(ct)
     
   def add_node(self, node=None):
+    """Add a :class:`Node` to the model.
+:param :class:`Node` node: A :class:`Node` instance
+The model attribute of ``node`` is set to `Model.handle`
+"""
     if not node:
       raise ArgError("arg must be Node, dict, or graph.Node")
     if isinstance(node, (dict, neo4j.graph.Node)):
@@ -59,6 +82,10 @@ class Model(object):
     return node
 
   def add_edge(self, edge=None):
+    """Add a :class:`Edge` to the model.
+:param :class:`Edge` edge: A :class:`Edge` instance
+The model attribute of ``edge`` is set to `Model.handle`
+"""
     if not edge:
       raise ArgError("arg must be Edge, dict, or graph.Node")
     if isinstance(edge, (dict, neo4j.graph.Node)):
@@ -79,6 +106,11 @@ class Model(object):
     return edge
 
   def add_prop(self, ent, prop=None):
+    """Add a :class:`Property` to the model.
+:param :class:`Node`|:class:`Edge` ent: Attach ``prop`` to this entity
+:param :class:`Property` prop: A :class:`Property` instance
+The model attribute of ``prop`` is set to `Model.handle`
+"""
     if not isinstance(ent, (Node, Edge)):
       raise ArgError("arg 1 must be Node or Edge")
     if not prop:
@@ -94,6 +126,12 @@ class Model(object):
     return prop
 
   def add_terms(self, prop, *terms):
+    """Add a list of :class:`Term` and/or strings to a :class:`Property` with a value domain of ``value_set``
+:param :class:`Property` prop: :class:`Property` to modify
+:param list terms: A list of :class:`Term` instances and/or str
+:class:`Term` instances are created for strings; `Term.value` is set to
+the string.
+"""
     if not isinstance(prop, Property):
       raise ArgError("arg1 must be Property")
     if not re.match('value_set|enum',prop.value_domain):
@@ -113,6 +151,14 @@ class Model(object):
       prop.value_set.terms[t.value]=t
 
   def rm_node(self, node):
+    """Remove a :class:`Node` from the Model instance.
+:param :class:`Node` node: Node to be removed
+Note: A node can't be removed if it is participating in an edge (i.e., 
+if the node is some edge's src or dst attribute)
+
+*Clarify what happens in the Model object, in the database when versioning
+is off, in the database when versioning is on*
+"""
     if not isinstance(node, Node):
       raise ArgError("arg must be a Node object")
     if not self.contains(node):
@@ -128,9 +174,13 @@ class Model(object):
     del self.nodes[node.handle]
     self.removed_entities.append(node)
     return node
-      
 
   def rm_edge(self, edge):
+    """Remove an :class:`Edge` instance from the Model instance.
+:param :class:`Edge` edge: Edge to be removed
+*Clarify what happens in the Model object, in the database when versioning
+is off, in the database when versioning is on*
+"""
     if not isinstance(edge, Edge):
       raise ArgError("arg must be an Edge object")
     if not self.contains(edge):
@@ -151,6 +201,11 @@ class Model(object):
 
 
   def rm_prop(self, prop):
+    """Remove a :class:`Property` instance from the Model instance.
+:param :class:`Property` prop: Property to be removed
+*Clarify what happens in the Model object, in the database when versioning
+is off, in the database when versioning is on*
+"""
     if not isinstance(prop, Property):
       raise ArgError("arg must be a Property object")
     if not self.contains(prop):
@@ -167,11 +222,19 @@ class Model(object):
     pass
 
   def rm_term(self, term):
+    """Not implemented."""
     if not isinstance(term, Term):
       raise ArgError("arg must be a Term object")
     pass
 
   def assign_edge_end(self,edge=None,end=None,node=None):
+    """Move the src or dst of an :class:`Edge` to a different :class:`Node`.
+:param :class:`Edge` edge: Edge to manipulate
+:param str end: Edge end to change (src|dst)
+:param :class:`Node` node: Node to be connected
+Note: Both ``node`` and ``edge`` must be present in the Model instance
+(via :meth:`add_node` and :meth:`add_edge`)
+"""
     if not isinstance(edge,Edge):
       raise ArgError("edge= must an Edge object")
     if not isinstance(node,Node):
@@ -187,6 +250,10 @@ class Model(object):
     return edge
     
   def contains(self, ent):
+    """Ask whether an entity is present in the Model instance.
+:param :class:`Entity` ent: Entity in question
+Note: Only works on Nodes, Edges, and Properties
+"""
     if not isinstance(ent, Entity):
       warn("argument is not an Entity subclass")
       return
@@ -199,12 +266,20 @@ class Model(object):
     pass
 
   def edges_in(self, node):
+    """Get all :class:`Edge`s that have a given :class:`Node` as their dst attribute
+:param :class:`Node` node: The node
+:return: list of :class:`Edge`s
+"""
     if not  isinstance(node,Node):
       raise ArgError("arg must be Node")
     return [self.edges[i] for i in self.edges if i[2]==node.handle]
     pass
 
   def edges_out(self, node):
+    """Get all :class:`Edge`s that have a given :class:`Node` as their src attribute
+:param :class:`Node` node: The node
+:return: list of :class:`Edge`s
+"""
     if not  isinstance(node,Node):
       raise ArgError("arg must be Node")
     return [self.edges[i] for i in self.edges if i[1]==node.handle]    
@@ -220,18 +295,33 @@ class Model(object):
       return [self.edges[x] for x in self.edge if x[0] == item]
 
   def edges_by_src(self,node):
+    """Get all :class:`Edge`s that have a given :class:`Node` as their src attribute
+:param :class:`Node` node: The node
+:return: list of :class:`Edge`s
+"""
     return self.edges_by('src',node)
 
   def edges_by_dst(self,node):
+    """Get all :class:`Edge`s that have a given :class:`Node` as their dst attribute
+:param :class:`Node` node: The node
+:return: list of :class:`Edge`s
+"""
     return self.edges_by('dst',node)
 
   def edges_by_type(self,edge_handle):
+    """Get all :class:`Edge`s that have a given edge type (i.e., handle)
+:param str edge_handle: The edge type
+:return: list of :class:`Edge`s
+"""
     if not isinstance(edge_handle,str):
       raise ArgError("arg must be str")
     return self.edges_by('type',edge_handle)    
 
 
   def dget(self,refresh=False):
+    """Pull model from MDB into this Model instance, based on its handle
+Note: is a noop if :property:`Model.drv` is unset.
+"""
     if not self.drv:
       return
     if (refresh):
@@ -276,6 +366,9 @@ class Model(object):
     return self
 
   def dput(self):
+    """Push this Model's objects to MDB.
+Note: is a noop if :property:`Model.drv` is unset.
+"""
     if not self.drv:
       return
     seen={}

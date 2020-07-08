@@ -1,3 +1,11 @@
+"""
+bento_meta.mdf
+==============
+
+This module contains :class:`MDF`, a class for reading a graph data model in
+Model Description Format into a :class:`bento_meta.model.Model` object.
+
+"""
 import sys
 sys.path.extend(['.','..'])
 from  bento_meta.model import Model
@@ -16,6 +24,10 @@ class MDF(object):
   default_mult = 'one_to_one'
   default_type = 'TBD'
   def __init__(self, *yaml_files,handle=None):
+    """Create a :class:`Model` from MDF YAML files.
+:param str|file *yaml_files: MDF filenames or file objects, in desired merge order
+:param str handle: Handle (name) for the resulting Model
+"""
     if not handle or not isinstance(handle,str):
       raise ArgError("arg handle= must be a str - name for model")
     self.handle = handle
@@ -30,6 +42,7 @@ class MDF(object):
     pass
 
   def load_yaml(self):
+    """Load YAML files or open file handles specified in constructor"""
     yloader = yaml.loader.Loader
     for f in self.files:
       if isinstance(f,str):
@@ -47,6 +60,9 @@ class MDF(object):
         raise
       
   def create_model(self):
+    """Create :class:`Model` instance from loaded YAML
+Note: This is brittle, since the syntax of MDF is hard-coded into this method.
+"""
     if not self.schema.keys():
       raise ValueError("attribute 'schema' not set - are yamls loaded?")
     self.model = Model(handle=self.handle)

@@ -1,12 +1,37 @@
+"""
+bento_meta.entity
+=================
+
+This module contains 
+* `Entity`, the base class for metamodel objects, 
+* the `CollValue` class to manage collection-valued attributes, and 
+* the `ArgError` exception.
+"""
+
 import re
 from copy import deepcopy
 from pdb import set_trace
 from collections import UserDict
 
 class ArgError(Exception):
+  """Exception for method argument errors"""
   pass
 
 class Entity(object):
+  """Base class for all metamodel objects. 
+
+Entity contains all the magic for metamodel objects such as
+`bento_meta.objects.Node` and 'bento_meta.object.Edge`. It will rarely
+be used directly. Entity redefines `__setattr__` and `__getattr__` to
+enable necessary bookkeeping for model versioning and graph database
+object mapping under the hood.
+
+The Entity class also defines private and declared attributes that are
+common to all metamodel objects. It provides the machinery to manage
+private attributes separately from declared attributes, and to raise
+exceptions when attempts are made to access attributes that are not
+declared.
+"""
   pvt_attr=['pvt','neoid','dirty','removed_entities','attspec',
             'mapspec','belongs']
   attspec_={"_id":"simple", "desc":"simple",
@@ -36,6 +61,13 @@ class Entity(object):
   versioning_on=False
   
   def __init__(self,init=None):
+    """Entity constructor. Always called by subclasses.
+.. py:function:: Node(init)
+:param dict init: A dict of attribute names and values. Undeclared attributes are ignored.
+:param neo4j.graph.Node init: a `neo4j.graph.Node` object to be stored as a model object.
+:param `bento_meta.Entity` init: an Entity (of matching subclass). Used to duplicate another model object.
+"""
+
     if not set(type(self).attspec.values()) <= set(['simple','object','collection']):
       raise ArgError("unknown attribute type in attspec")
     # private
@@ -66,6 +98,8 @@ class Entity(object):
           
   @classmethod
   def mergespec(cls):
+    """Merge subclass attribute and mapping specification dicts with the
+base class's. Not for human consumption."""
     cls.attspec.update(Entity.attspec_)
     mo=deepcopy(Entity.mapspec_)
     cs=cls.mapspec_
@@ -83,28 +117,41 @@ class Entity(object):
 
   @classmethod
   def mapspec(cls):
+    """The object to database mapping specification. Is a class method, not a property."""
     if not hasattr(cls,'_mapspec'):
       cls.mergespec()
     return cls._mapspec
   @classmethod
   def versioning(cls,on=None):
+    """Get or set whether versioning is applied to object manipulations
+:param boolean on: True, apply versioning. False, do not.
+"""
     if on==None:
       return cls.versioning_on
     cls.versioning_on=on
     return cls.versioning_on
   @classmethod
   def set_version_count(cls,ct):
+    """Set the integer version counter. This will usually be accessed via a 
+`bento_meta.Model` instance
+:param int ct: Set version counter to this value
+"""
     if not isinstance(ct, int) or ct < 0:
       raise ArgError("arg must be a positive integer")
     cls.version_count=ct
   @property
   def dirty(self):
+    """Flag whether this instance has been changed since retrieval from 
+the database
+Set to -1, ensure that the next time an attribute is accessed, the instance
+will retrieve itself from the database."""
     return self.pvt['dirty']
   @dirty.setter
   def dirty(self,value):
     self.pvt['dirty']=value
   @property
   def versioned(self):
+    """Is this instance versioned?"""
     return self._from
   @property
   def removed_entities(self):
@@ -114,6 +161,8 @@ class Entity(object):
     return self.pvt['object_map']
   @property
   def belongs(self):
+    """Dict that stored information on the owners (referents) of this instance
+in the model"""
     return self.pvt['belongs']
   def clear_removed_entities(self):
     self.pvt['removed_entities']=[]
@@ -304,9 +353,11 @@ class Entity(object):
       raise
 
   def dup(self):
+    """Duplicate the object, but not too deeply. Mainly for use of the versioning machinery."""
     return type(self)(self)
 
   def delete(self):
+    """Delete self from the database. If versioning is active, this will 'deprecate' the entity, but not actually remove it from the db"""
     if self.versioning_on and self.versioned:
       if type(self).version_count > self._from:
         self._to = type(self).version_count
@@ -323,18 +374,25 @@ class Entity(object):
           setattr(owner,att[0],None)
 
   def dget(self,refresh=False):
+    """Update self from the database
+:param boolean refresh: if True, force a retrieval from db; if False, retrieve from cache; don't disrupt changes already made
+"""
     if (type(self).object_map):
       return type(self).object_map.get(self,refresh)
     else:
       pass
 
   def dput(self):
+    """Put self to the database.
+This will set the `neoid` property if not yet set.
+"""
     if (type(self).object_map):
       return type(self).object_map.put(self)
     else:
       pass
 
   def rm(self,force):
+    """Delete self from the database. The object instance survives."""
     if (type(self).object_map):
       return type(self).object_map.rm(self,force)
     else:
@@ -342,18 +400,17 @@ class Entity(object):
 
     
 class CollValue(UserDict):
-  """A UserDict for housing Entity collection attributes
+  """A UserDict for housing Entity collection attributes.
+This class contains a hook for recording the Entity that
+owns the value that is being set. The value is marked as belonging
+to the *containing object*, not this collection object.
+It also protects against adding arbitrarily typed elements to the
+collection; it throws unless a value to set is an `Entity`. `__setitem__`
+is instrumented for managing versioning.
 
-  A UserDict that contains a hook for recording the Entity that
-  own the value that is being set. The value is marked as belonging
-  to the containing object, not this collection object.
-  Also protects against adding arbitrarily typed elements to the
-  collection (throws unless a value to set is an Entity)
-
-  :param owner: Entity object of which this collection is an attribute
-  :param owner_key: the attribute name of this collection on the owner
-
-  """
+:param owner: `Entity` object of which this collection is an attribute
+:param owner_key: the attribute name of this collection on the owner
+"""
   def __init__(self,init=None,*,owner,owner_key):
     self.__dict__["__owner"]=owner
     self.__dict__["__owner_key"]=owner_key
@@ -361,9 +418,11 @@ class CollValue(UserDict):
     
   @property
   def owner(self):
+    """The entity instance of which this collection is an attribute"""
     return self.__dict__["__owner"]
   @property
   def owner_key(self):
+    """The attribute name of this collection on the `owner`"""
     return self.__dict__["__owner_key"]
   def version_me(setitem_func):
     def _version_set_collvalue_item(self,name,value):

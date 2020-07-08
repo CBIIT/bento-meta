@@ -1,3 +1,21 @@
+"""
+bento_meta.object_map
+=====================
+
+This module contains :class:`ObjectMap`, a class which provides the 
+machinery for mapping bento_meta objects to a Bento Metamodel Database
+in Neo4j. Mostly not for human consumption. The ObjectMap:
+
+* interprets the attribute specification (attspec) and map specification 
+(mapspec) associated with :class:`Entity` subclasses;
+* provides the :meth:`get` and :meth:`put` methods to subclasses, that enable 
+them to get and put themselves to the database
+* generates appropriate `Cypher <https://neo4j.com/docs/cypher-manual/current/>` queries to do gets and puts
+
+One ObjectMap instance should be generated for each Entity subclass (see, e.g., 
+:class:`bento_meta.model.Model`)
+
+"""
 import re
 import sys
 sys.path.append('..')
@@ -58,6 +76,7 @@ class ObjectMap(object):
         return "\"{val}\"".format(val=value) # quote
 
   def get(self,obj, refresh=False):
+    """Get the data for an object instance from the db and load the instance with it"""
     if not self.drv:
       raise ArgError("get() requires Neo4j driver instance")
     if (refresh):
@@ -122,6 +141,7 @@ class ObjectMap(object):
 
   
   def put(self,obj):
+    """Put the object instance's attributes to the mapped data node in the database"""
     if not self.drv:
       raise ArgError("put() requires Neo4j driver instance")
       pass
@@ -165,6 +185,7 @@ class ObjectMap(object):
     return obj
         
   def rm(self,obj,force=False):
+    """'Delete' the object's mapped node from the database"""
     if not self.drv:
       raise ArgError("rm() requires Neo4j driver instance")
     if obj.neoid == None:
@@ -178,8 +199,10 @@ class ObjectMap(object):
         return s.value()
 
   def add(self,obj,att,tgt):
+    """Create a link between an object instance and a target object in the database.
+This represents adding an object-valued attribute to the object."""
     if not self.drv:
-      raise ArgError("rm() requires Neo4j driver instance")
+      raise ArgError("add() requires Neo4j driver instance")
     with self.drv.session() as session:
       for qry in self.put_attr_q( obj, att, tgt):
         result = session.run(qry)
@@ -190,6 +213,8 @@ class ObjectMap(object):
       
     
   def drop(self, obj, att, tgt, tx=None):
+    """Remove an existing link between an object instance and a target object in the database.
+This represents dropping an object-valued attribute from the object."""
     if not self.drv:
       raise ArgError("rm() requires Neo4j driver instance")
     if (tx):
@@ -211,6 +236,7 @@ class ObjectMap(object):
           return s.value()
 
   def get_owners(self, obj):
+    """Get the nodes which are linked to the object instance (the owners of the object)"""
     if not self.drv:
       raise ArgError("get_owners() requires Neo4j driver instance")
     ret=[]
