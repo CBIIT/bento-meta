@@ -94,7 +94,6 @@ declared.
           setattr(self,att,None)
     if type(self).versioning_on:
       self._from = type(self).version_count
-
           
   @classmethod
   def mergespec(cls):
@@ -398,7 +397,45 @@ This will set the `neoid` property if not yet set.
     else:
       pass
 
-    
+  @classmethod
+  def attr_doc(cls):
+    """Create a docstring for declared attributes on class as configured"""
+    def str_for_obj(thing):
+      if isinstance(thing, set):
+        return "|".join(thing)
+      else:
+        return thing
+    (first,*rest) = cls.__doc__.split("\n")
+    if cls.__name__ == 'Entity':
+      first += " Posesses the following attributes:"
+    else:
+      first += " Posesses all :class:`Entity` attributes, plus the following:"
+    doc = """\
+.. py:class:: {cls}
+
+{desc}
+
+""".format(desc=first, cls = cls.__name__)
+    for att in [x for x in cls.attspec if cls.attspec[x] == "simple"]:
+      doc += """\
+  .. py:attribute:: {att}
+       :type: simple
+""".format(att=cls.__name__.lower()+"."+att)
+    for att in [x for x in cls.attspec if cls.attspec[x] == "object"]:
+      doc += """\
+  .. py:attribute:: {att}
+       :type: {obj}
+""".format(att=cls.__name__.lower()+"."+att,
+           obj= str_for_obj(cls.mapspec_['relationship'][att]['end_cls']) )
+    for att in [x for x in cls.attspec if cls.attspec[x] == "collection"]:
+      doc += """\
+  .. py:attribute:: {att}
+       :type: collection of {obj}
+""".format(att=cls.__name__.lower()+"."+att,
+             obj=str_for_obj(cls.mapspec_['relationship'][att]['end_cls']) )
+    doc += "\n"
+    return doc
+  
 class CollValue(UserDict):
   """A UserDict for housing Entity collection attributes.
 This class contains a hook for recording the Entity that
