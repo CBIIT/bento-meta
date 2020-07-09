@@ -13,6 +13,7 @@ from bento_meta.entity import ArgError,CollValue
 from bento_meta.objects import Node,Property,Edge, Term, ValueSet, Concept, Origin
 import re
 import yaml
+import requests
 import option_merge as om
 from collections import ChainMap
 from warnings import warn
@@ -27,13 +28,14 @@ class MDF(object):
     """Create a :class:`Model` from MDF YAML files.
 :param str|file *yaml_files: MDF filenames or file objects, in desired merge order
 :param str handle: Handle (name) for the resulting Model
+:attribute model: the bento_meta.model.Model created
 """
     if not handle or not isinstance(handle,str):
       raise ArgError("arg handle= must be a str - name for model")
     self.handle = handle
     self.files = yaml_files
     self.schema = om.MergedOptions()
-    self.model = None
+    self._model = None
     if self.files:
       self.load_yaml()
       self.create_model()
@@ -41,12 +43,20 @@ class MDF(object):
       warn("No MDF files provided to constructor")
     pass
 
+  @property
+  def model(self):
+    """The :class:`bento_meta.model.Model` object created from the MDF input"""
+    return self._model
   def load_yaml(self):
     """Load YAML files or open file handles specified in constructor"""
     yloader = yaml.loader.Loader
     for f in self.files:
       if isinstance(f,str):
-        f = open(f,"r")
+        if re.match('(?:file|https?)://',f):
+          response = requests.get(f)
+          f=response.text
+        else:
+          f = open(f,"r")
       try:
         yml = yaml.load(f,Loader=yloader)
         self.schema.update(yml)
@@ -65,7 +75,7 @@ Note: This is brittle, since the syntax of MDF is hard-coded into this method.
 """
     if not self.schema.keys():
       raise ValueError("attribute 'schema' not set - are yamls loaded?")
-    self.model = Model(handle=self.handle)
+    self._model = Model(handle=self.handle)
     ynodes = self.schema['Nodes']
     yedges = self.schema['Relationships']
     ypropdefs = self.schema['PropDefinitions']
@@ -76,7 +86,7 @@ Note: This is brittle, since the syntax of MDF is hard-coded into this method.
       for a in ['category','desc']:
         if yn.get(a):
           init[a]=yn[a]
-      node = self.model.add_node(init)
+      node = self._model.add_node(init)
       if yn.get('Tags'):
         tags=CollValue({},owner=node,owner_key='tags')
         for t in yn['Tags']:
@@ -87,12 +97,12 @@ Note: This is brittle, since the syntax of MDF is hard-coded into this method.
       ye = yedges[e]
       for ends in ye['Ends']:
         init = { "handle":e, "model":self.handle,
-                 "src":self.model.nodes[ends['Src']],
-                 "dst":self.model.nodes[ends['Dst']],
+                 "src":self._model.nodes[ends['Src']],
+                 "dst":self._model.nodes[ends['Dst']],
                  "multiplicity":ends.get("Mul") or ye.get("Mul") or
                  MDF.default_mult,
                  "desc":ends.get("Desc") or ye.get("Desc") }
-        edge = self.model.add_edge(init)
+        edge = self._model.add_edge(init)
         Tags = ye.get('Tags') or ends.get('Tags')
         if Tags:
           tags=CollValue({},owner=edge,owner_key='tags')
@@ -100,7 +110,7 @@ Note: This is brittle, since the syntax of MDF is hard-coded into this method.
             tags[t]=Tag({"value":t})
             edge['tags'] = tags
     # create properties
-    for ent in ChainMap(self.model.nodes, self.model.edges).values():
+    for ent in ChainMap(self._model.nodes, self._model.edges).values():
       if isinstance(ent,Node):
         pnames = ynodes[ent.handle]['Props']
       elif isinstance(ent,Edge):
@@ -115,20 +125,23 @@ Note: This is brittle, since the syntax of MDF is hard-coded into this method.
         raise AttributeError("unhandled entity type {type} for properties".format(type=type(ent).__name__))
       if pnames:
         for pname in pnames:
-          ypdef = ypropdefs[pname]
+          ypdef = ypropdefs.get(pname)
+          if not ypdef:
+            warn("property '{pname}' does not have a corresponding propdef".format(pname=pname))
+            break
           init = { "handle":pname, "model":self.handle}
           if ypdef.get('Type'):
             init.update( self.calc_value_domain(ypdef['Type']) )
           else:
             init['value_domain']=MDF.default_type
-          prop = self.model.add_prop(ent, init)
+          prop = self._model.add_prop(ent, init)
           ent.props[prop.handle]=prop
           if ypdef.get('Tags'):
             tags=CollValue({},owner=node,owner_key='tags')
             for t in ypdef['Tags']:
               tags[t]=Tag({"value":t})
             prop['tags'] = tags
-    return self.model
+    return self._model
 
   def calc_value_domain(self,typedef):
     if isinstance(typedef,dict):

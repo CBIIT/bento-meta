@@ -19,11 +19,19 @@ def test_load_yaml():
   m.files = ['tests/samples/ctdc_model_file.yaml', 'tests/samples/ctdc_model_properties_file.yaml']
   m.load_yaml()
 
+def test_load_yaml_url():
+  m = MDF(handle='ICDC')
+  m.files = ['https://cbiit.github.io/icdc-model-tool/model-desc/icdc-model.yml','https://cbiit.github.io/icdc-model-tool/model-desc/icdc-model-props.yml']
+  m.load_yaml()
+  m.create_model()
+  assert m.model
+
 def test_create_model():
   m = MDF(handle='test')
   m.files = ['tests/samples/ctdc_model_file.yaml', 'tests/samples/ctdc_model_properties_file.yaml']
   m.load_yaml()
   m.create_model()
+  assert m.model
 
 def test_created_model():
   m = MDF('tests/samples/test-model.yml',handle='test')

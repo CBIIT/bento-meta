@@ -11,7 +11,8 @@ setup(
   install_requires=[
     'PyYAML>=5.1.1',
     'option-merge>=1.6',
-    'neo4j>=4.0'
+    'neo4j>=4.0',
+    'requests'
     ],
   tests_require=[
     'pytest',
