@@ -19,7 +19,7 @@ name: Bento-Meta
 provides:
   Bento::Meta:
     file: lib/Bento/Meta.pm
-    version: '0.1'
+    version: '0.21'
   Bento::Meta::MDF:
     file: lib/Bento/Meta/MDF.pm
   Bento::Meta::Model:
@@ -52,5 +52,5 @@ requires:
   Try::Tiny: '0'
   UUID::Tiny: '0'
   YAML::PP: '0.018'
-version: '0.1'
+version: '0.21'
 x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

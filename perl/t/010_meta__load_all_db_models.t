@@ -1,4 +1,4 @@
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Warn;
 use Test::Deep;
 use Test::Exception;
@@ -38,6 +38,11 @@ SKIP : {
   isa_ok($meta->model('ICDC'), 'Bento::Meta::Model');
   isa_ok($meta->model('CTDC'), 'Bento::Meta::Model');
   ok !$meta->model('boog'), 'make sure uncreated model doesnt exist';
+
+  # do it again without borking
+  $meta = undef;
+  $meta = Bento::Meta->new();
+  ok $meta->load_all_db_models("bolt://localhost:$port"), "load again without bork"
 }
 done_testing;
 

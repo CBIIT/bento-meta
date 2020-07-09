@@ -72,55 +72,69 @@ sub get {
     LOGWARN ref($self)."::get : Can't get model; no database connection set";
     return;
   }
-  my $qry = cypher->match('n')
-    ->where( { 'n.model' => $self->handle } )
-    ->return('n');
+  
+  # my $qry = cypher->match('n')
+  #   ->where( { 'n.model' => $self->handle } )
+  #   ->return('n');
+  my $pth = ptn->N('s:node')->R('<:has_src')->N('r:relationship')
+    ->R(':has_dst>')->N('d:node');
+  my $qry = cypher->match($pth->as('p'))
+    ->where({'s.model' => $self->handle,
+             'r.model' => $self->handle,
+             'd.model' => $self->handle})->return('p');
   my $rows = $self->bolt_cxn->run_query($qry);
   return _fail_query($rows) if ($rows->failure);
-  my (@n,@e,@p);
-  while ( my ($n) = $rows->fetch_next ) {
-    for ($n->{labels}) {
-      grep(/^node$/,@$_) && do {
-        my $a = Bento::Meta::Model::Node->new($n);
-        $a->set_dirty(0);
-        push @n, $a;
-        last;
-      };
-      grep(/^relationship$/,@$_) && do {
-        my $a = Bento::Meta::Model::Edge->new($n);
-        $a->set_dirty(0);
-        push @e, $a;
-        last;
-      };
-      grep(/^property$/,@$_) && do {
-        my $a = Bento::Meta::Model::Property->new($n);
-        $a->set_dirty(0);
-        push @p, $a;
-        last;
-      };
-      LOGWARN ref($self)."::get : unhandled node type of ".join('/',@$_);
+  while( my $pth = $rows->fetch_next ) {
+    my ($ns, $r1, $nr, $r2, $nd) = @$pth;
+    $ns = Bento::Meta::Model::Node->new($ns);
+    $nd = Bento::Meta::Model::Node->new($nd);
+    $nr = Bento::Meta::Model::Edge->new($nr);
+    $Bento::Meta::Model::ObjectMap::Cache{$ns->neoid} = $ns;
+    $Bento::Meta::Model::ObjectMap::Cache{$nd->neoid} = $nd;
+    $Bento::Meta::Model::ObjectMap::Cache{$nr->neoid} = $nr;    
+    $nr->set_src($ns);
+    $nr->set_dst($nd);
+    $self->{_nodes}{$ns->handle} = $ns;
+    $self->{_nodes}{$nd->handle} = $nd;
+    $self->{_edges}{$nr->triplet} = $nr;
+    $self->{_edge_table}{$nr->handle}{$ns->handle}{$nd->handle} = $nr
+  }
+  $qry = cypher->match( ptn->N('n:node')->R(':has_property>')->N('p:property') )
+    ->where( {'n.model' => $self->handle,
+              'p.model' => $self->handle})
+    ->return( 'id(n), p');
+  $rows = $self->bolt_cxn->run_query($qry);
+  return _fail_query($rows) if ($rows->failure);
+  while (my ($n_id,$p) = $rows->fetch_next) {
+    my $n = $Bento::Meta::Model::ObjectMap::Cache{$n_id};
+    unless (defined $n) {
+      LOGWARN ref($self)."::get() - node with id $n_id not yet retrieved";
+      next;
     }
+    $p = Bento::Meta::Model::Property->new($p);
+    $Bento::Meta::Model::ObjectMap::Cache{$p->neoid} = $p;
+    $self->{_props}{join(':',$n->handle,$p->handle)} = $p;
+    $n->set_props($p->handle => $p);
+    $p->set_dirty(-1); # flag to get from db at next access
   }
-  unless (@n) {
-    LOGWARN ref($self)."::get : no nodes returned for model '".$self->handle."'";
-  }
-  # now get() each node, which should load the object properties and
-  # create the cache...
-  $_->get($refresh) for (@n,@e,@p);
-  ($self->{_nodes}{$_->handle} = $_) for @n;
-  for (@e) {
-    $self->{_edges}{$_->triplet} = $_;
-    my ($t,$s,$d) = split /[:]/,$_->triplet;
-    $self->{_edge_table}{$t}{$s}{$d} = $_;
-  }
-  for (@p) {
-    for my $e ($_->entities) {
-      my $pfx = (ref($e) =~ /Node$/ ? $e->handle :
-                 $e->triplet);
-      $self->{_props}{join(':',$pfx,$_->handle)} = $_;
+  $qry = cypher->match( ptn->N('r:relationship')->R(':has_property>')->N('p:property') )
+    ->where( {'r.model' => $self->handle,
+              'p.model' => $self->handle})
+    ->return( 'id(r), p');
+  $rows = $self->bolt_cxn->run_query($qry);
+  return _fail_query($rows) if ($rows->failure);
+  while (my ($r_id, $p) = $rows->fetch_next) {
+    my $e = $Bento::Meta::Model::ObjectMap::Cache{$r_id};
+    unless (defined $e) {
+      LOGWARN ref($self)."::get() - edge with id $r_id not yet retrieved";
+      next;
     }
+    $p = Bento::Meta::Model::Property->new($p);
+    $Bento::Meta::Model::ObjectMap::Cache{$p->neoid} = $p;
+    $self->{_props}{join(':',$e->triplet,$p->handle)} = $p;
+    $e->set_props($p->handle => $p);
+    $p->set_dirty(-1); # flag to get from db at next access
   }
-  
   return $self;
 }
 
