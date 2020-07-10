@@ -98,10 +98,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#manipulating-terms">Manipulating Terms</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#database-interaction">Database Interaction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#objects-and-their-attributes">Objects and their Attributes</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#database-interaction">Database Interaction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#objects-and-their-attributes">Objects and their Attributes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
@@ -189,15 +187,15 @@ model supports.</p>
 <h2>Component Objects<a class="headerlink" href="#component-objects" title="Permalink to this headline">¶</a></h2>
 <p>Individual entities in the MDB - nodes, relationships, properties,
 value sets, terms, concepts, and origins, are represented by instances
-of corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> subclasses:</p>
+of corresponding <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> subclasses:</p>
 <ul class="simple">
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code>  (“Edge” is easier to type than “relationship”.)</p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></p></li>
+<li><p><a class="reference internal" href="#Node" title="Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p></li>
+<li><p><a class="reference internal" href="#Edge" title="Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></a>  (“Edge” is easier to type than “relationship”.)</p></li>
+<li><p><a class="reference internal" href="#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a></p></li>
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSet</span></code></p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Concept</span></code></p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Origin</span></code></p></li>
+<li><p><a class="reference internal" href="#Term" title="Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a></p></li>
+<li><p><a class="reference internal" href="#Concept" title="Concept"><code class="xref py py-class docutils literal notranslate"><span class="pre">Concept</span></code></a></p></li>
+<li><p><a class="reference internal" href="#Origin" title="Origin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Origin</span></code></a></p></li>
 </ul>
 <p><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> methods generally accept these objects as
 arguments and/or return these objects. To obtain specific scalar
@@ -272,8 +270,8 @@ node or edge itself:</p>
 </div>
 <div class="section" id="accessing-other-objects">
 <h3>Accessing other objects<a class="headerlink" href="#accessing-other-objects" title="Permalink to this headline">¶</a></h3>
-<p>The Model object does not provide access to <code class="xref py py-class docutils literal notranslate"><span class="pre">Concept</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSet</span></code>, or
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Origin</span></code> objects directly. These are accessible via the linked obects
+<p>The Model object does not provide access to <a class="reference internal" href="#Concept" title="Concept"><code class="xref py py-class docutils literal notranslate"><span class="pre">Concept</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSet</span></code>, or
+<a class="reference internal" href="#Origin" title="Origin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Origin</span></code></a> objects directly. These are accessible via the linked obects
 themselves, according to the <a class="reference external" href="https://github.com/CBIIT/bento-meta#structure">metamodel structure</a>.
 For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># all terms for all nodes</span>
@@ -331,7 +329,7 @@ if the node participates in any relationships/edges.</p>
 properties that require them. In the MDB schema, a property is linked to
 a value set entity, and the value set aggregates the term entities. The model
 object tries to hide some of this structure. It will also create a set of
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code> objects from a list of strings as a shortcut:</p>
+<a class="reference internal" href="#Term" title="Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> objects from a list of strings as a shortcut:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">prop</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_prop</span><span class="p">(</span> <span class="n">sample</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span><span class="s2">&quot;sample_type&quot;</span><span class="p">,</span>
                                 <span class="s2">&quot;value_domain&quot;</span><span class="p">:</span><span class="s2">&quot;value_set&quot;</span><span class="p">})</span>
 <span class="c1"># prop has domain of &#39;value_set&#39;, so you can add terms to it</span>
@@ -369,13 +367,12 @@ from the database, use <code class="docutils literal notranslate"><span class="p
 <span class="n">edge</span><span class="o">.</span><span class="n">rm</span><span class="p">();</span> <span class="c1"># metamodel node representing the edge is deleted from db</span>
 </pre></div>
 </div>
+</div>
 <div class="section" id="objects-and-their-attributes">
-<span id="object-attribute-lists"></span><h3>Objects and their Attributes<a class="headerlink" href="#objects-and-their-attributes" title="Permalink to this headline">¶</a></h3>
-<p>Here is a list of objects and their attributes. This is generated from the code, and should
-always be up-to-date.</p>
+<span id="object-attribute-lists"></span><h2>Objects and their Attributes<a class="headerlink" href="#objects-and-their-attributes" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt>
-<em class="property">class </em><code class="sig-name descname">Entity</code></dt>
+<dt id="Entity">
+<em class="property">class </em><code class="sig-name descname">Entity</code><a class="headerlink" href="#Entity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>Base class for all metamodel objects.  Posesses the following attributes:</p>
@@ -417,11 +414,11 @@ always be up-to-date.</p>
 
 </div></blockquote>
 <dl class="py class">
-<dt>
-<em class="property">class </em><code class="sig-name descname">Node</code></dt>
+<dt id="Node">
+<em class="property">class </em><code class="sig-name descname">Node</code><a class="headerlink" href="#Node" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Subclass that models a data node. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<p>Subclass that models a data node. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt id="node.handle">
@@ -440,7 +437,7 @@ always be up-to-date.</p>
 
 <dl class="py attribute">
 <dt id="node.concept">
-<code class="sig-prename descclassname">node.</code><code class="sig-name descname">concept</code><em class="property">: Concept</em><a class="headerlink" href="#node.concept" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">node.</code><code class="sig-name descname">concept</code><em class="property">: <a class="reference internal" href="#Concept" title="Concept">Concept</a></em><a class="headerlink" href="#node.concept" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -450,11 +447,11 @@ always be up-to-date.</p>
 
 </div></blockquote>
 <dl class="py class">
-<dt>
-<em class="property">class </em><code class="sig-name descname">Edge</code></dt>
+<dt id="Edge">
+<em class="property">class </em><code class="sig-name descname">Edge</code><a class="headerlink" href="#Edge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Subclass that models a relationship between model nodes. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<p>Subclass that models a relationship between model nodes. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt id="edge.handle">
@@ -478,17 +475,17 @@ always be up-to-date.</p>
 
 <dl class="py attribute">
 <dt id="edge.src">
-<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">src</code><em class="property">: Node</em><a class="headerlink" href="#edge.src" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">src</code><em class="property">: <a class="reference internal" href="#Node" title="Node">Node</a></em><a class="headerlink" href="#edge.src" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="edge.dst">
-<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">dst</code><em class="property">: Node</em><a class="headerlink" href="#edge.dst" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">dst</code><em class="property">: <a class="reference internal" href="#Node" title="Node">Node</a></em><a class="headerlink" href="#edge.dst" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="edge.concept">
-<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">concept</code><em class="property">: Concept</em><a class="headerlink" href="#edge.concept" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">concept</code><em class="property">: <a class="reference internal" href="#Concept" title="Concept">Concept</a></em><a class="headerlink" href="#edge.concept" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -498,11 +495,11 @@ always be up-to-date.</p>
 
 </div></blockquote>
 <dl class="py class">
-<dt>
-<em class="property">class </em><code class="sig-name descname">Property</code></dt>
+<dt id="Property">
+<em class="property">class </em><code class="sig-name descname">Property</code><a class="headerlink" href="#Property" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Subclass that models a property of a node or relationship (edge). Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<p>Subclass that models a property of a node or relationship (edge). Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt id="property.handle">
@@ -536,7 +533,7 @@ always be up-to-date.</p>
 
 <dl class="py attribute">
 <dt id="property.concept">
-<code class="sig-prename descclassname">property.</code><code class="sig-name descname">concept</code><em class="property">: Concept</em><a class="headerlink" href="#property.concept" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">property.</code><code class="sig-name descname">concept</code><em class="property">: <a class="reference internal" href="#Concept" title="Concept">Concept</a></em><a class="headerlink" href="#property.concept" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -546,11 +543,11 @@ always be up-to-date.</p>
 
 </div></blockquote>
 <dl class="py class">
-<dt>
-<em class="property">class </em><code class="sig-name descname">Term</code></dt>
+<dt id="Term">
+<em class="property">class </em><code class="sig-name descname">Term</code><a class="headerlink" href="#Term" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Subclass that models a term from a terminology. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<p>Subclass that models a term from a terminology. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt id="term.value">
@@ -569,21 +566,21 @@ always be up-to-date.</p>
 
 <dl class="py attribute">
 <dt id="term.concept">
-<code class="sig-prename descclassname">term.</code><code class="sig-name descname">concept</code><em class="property">: Concept</em><a class="headerlink" href="#term.concept" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">concept</code><em class="property">: <a class="reference internal" href="#Concept" title="Concept">Concept</a></em><a class="headerlink" href="#term.concept" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="term.origin">
-<code class="sig-prename descclassname">term.</code><code class="sig-name descname">origin</code><em class="property">: Origin</em><a class="headerlink" href="#term.origin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">origin</code><em class="property">: <a class="reference internal" href="#Origin" title="Origin">Origin</a></em><a class="headerlink" href="#term.origin" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
 <dl class="py class">
-<dt>
-<em class="property">class </em><code class="sig-name descname">Concept</code></dt>
+<dt id="Concept">
+<em class="property">class </em><code class="sig-name descname">Concept</code><a class="headerlink" href="#Concept" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>“Subclass that models a semantic concept. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<p>Subclass that models a semantic concept. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt id="concept.terms">
@@ -592,11 +589,11 @@ always be up-to-date.</p>
 
 </div></blockquote>
 <dl class="py class">
-<dt>
-<em class="property">class </em><code class="sig-name descname">Origin</code></dt>
+<dt id="Origin">
+<em class="property">class </em><code class="sig-name descname">Origin</code><a class="headerlink" href="#Origin" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Subclass that models a <code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code> ‘s authoritative source. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<p>Subclass that models a <a class="reference internal" href="#Term" title="Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> ‘s authoritative source. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt id="origin.url">
@@ -615,11 +612,11 @@ always be up-to-date.</p>
 
 </div></blockquote>
 <dl class="py class">
-<dt>
-<em class="property">class </em><code class="sig-name descname">Tag</code></dt>
+<dt id="Tag">
+<em class="property">class </em><code class="sig-name descname">Tag</code><a class="headerlink" href="#Tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Subclass that allows simple key-value tagging of a model at arbitrary points. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<p>Subclass that allows simple key-value tagging of a model at arbitrary points. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt id="tag.value">
@@ -627,7 +624,6 @@ always be up-to-date.</p>
 <dd></dd></dl>
 
 </div></blockquote>
-</div>
 </div>
 </div>
 

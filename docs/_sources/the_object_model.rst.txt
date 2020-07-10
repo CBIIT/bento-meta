@@ -215,13 +215,10 @@ from the database, use ``rm()`` on the objects themselves::
 .. _object_attribute_lists:
 
 Objects and their Attributes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+____________________________
 
-Here is a list of objects and their attributes. This is generated from the code, and should
-always be up-to-date.
 
 .. py:class:: Entity
-              :noindex:
 
 Base class for all metamodel objects.  Posesses the following attributes:
 
@@ -241,7 +238,6 @@ Base class for all metamodel objects.  Posesses the following attributes:
        :type: collection of Tag
 
 .. py:class:: Node
-              :noindex:
 
 Subclass that models a data node. Posesses all :class:`Entity` attributes, plus the following:
 
@@ -257,8 +253,7 @@ Subclass that models a data node. Posesses all :class:`Entity` attributes, plus 
        :type: collection of Property
 
 .. py:class:: Edge
-              :noindex:
-              
+
 Subclass that models a relationship between model nodes. Posesses all :class:`Entity` attributes, plus the following:
 
   .. py:attribute:: edge.handle
@@ -279,8 +274,7 @@ Subclass that models a relationship between model nodes. Posesses all :class:`En
        :type: collection of Property
 
 .. py:class:: Property
-              :noindex:
-              
+
 Subclass that models a property of a node or relationship (edge). Posesses all :class:`Entity` attributes, plus the following:
 
   .. py:attribute:: property.handle
@@ -301,8 +295,7 @@ Subclass that models a property of a node or relationship (edge). Posesses all :
        :type: ValueSet
 
 .. py:class:: Term
-              :noindex:
-              
+
 Subclass that models a term from a terminology. Posesses all :class:`Entity` attributes, plus the following:
 
   .. py:attribute:: term.value
@@ -317,16 +310,14 @@ Subclass that models a term from a terminology. Posesses all :class:`Entity` att
        :type: Origin
 
 .. py:class:: Concept
-              :noindex:
-              
-"Subclass that models a semantic concept. Posesses all :class:`Entity` attributes, plus the following:
+
+Subclass that models a semantic concept. Posesses all :class:`Entity` attributes, plus the following:
 
   .. py:attribute:: concept.terms
        :type: collection of Term
 
 .. py:class:: Origin
-              :noindex:
-              
+
 Subclass that models a :class:`Term` 's authoritative source. Posesses all :class:`Entity` attributes, plus the following:
 
   .. py:attribute:: origin.url
@@ -337,9 +328,9 @@ Subclass that models a :class:`Term` 's authoritative source. Posesses all :clas
        :type: simple
 
 .. py:class:: Tag
-              :noindex:
-              
+
 Subclass that allows simple key-value tagging of a model at arbitrary points. Posesses all :class:`Entity` attributes, plus the following:
 
   .. py:attribute:: tag.value
        :type: simple
+
