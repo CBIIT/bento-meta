@@ -213,7 +213,6 @@ is off, in the database when versioning is on*
     del self.edges[edge.triplet]
     edge.src = None
     edge.dst = None
-    set_trace()
     self.removed_entities.append(edge)
     return edge
 

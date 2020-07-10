@@ -277,8 +277,8 @@ in the model"""
           if len(att) == 2:
             getattr(owner,att[0])[att[1]]=self 
           else:
-            if att[0]=='category':
-              set_trace()
+            # if att[0]=='category':
+            #   set_trace()
             setattr(owner,att[0],self)
           if owner._prev:
             # dup (old entity) needs to belong to the prev version of owner
