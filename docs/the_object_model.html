@@ -103,6 +103,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="classes.html">Class Documentation</a></li>
 </ul>
@@ -239,9 +240,9 @@ In the code, such attributes are referred to as <em>relationship</em>,
 <p>The Model object is a direct container of nodes, edges (relationships), and
 properties. To get a simple list of all relevant entities in a model, use the
 model attributes:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nodes</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span>
-<span class="n">relationships</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span>
-<span class="n">properties</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">props</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nodes</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+<span class="n">relationships</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+<span class="n">properties</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>To retrieve a specific entity, provide a key to the relevant
@@ -251,7 +252,7 @@ node handle, and the destination node handle:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edge</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">edge</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">handle</span><span class="p">)]</span>
 </pre></div>
 </div>
-<p>This tuple can be retrived from an edge with <cite>Edge.edge.triplet</cite>:</p>
+<p>This tuple can be retrived from an edge with <code class="xref py py-func docutils literal notranslate"><span class="pre">Edge.triplet()</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edge</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">triplet</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -265,7 +266,7 @@ on many nodes and edges. To get properties, it is easier to pull them from the
 node or edge itself:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">node</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s1">&#39;case&#39;</span><span class="p">]</span>
 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">props</span><span class="p">:</span>
-  <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="section" id="accessing-other-objects">
@@ -276,8 +277,10 @@ themselves, according to the <a class="reference external" href="https://github.
 For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># all terms for all nodes</span>
 <span class="n">terms</span><span class="o">=</span><span class="p">[]</span>
-<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span>
-  <span class="n">terms</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span> <span class="n">n</span><span class="o">.</span><span class="n">concept</span><span class="o">.</span><span class="n">terms</span> <span class="p">)</span>
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+  <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">concept</span><span class="p">:</span>
+    <span class="n">terms</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span> <span class="n">n</span><span class="o">.</span><span class="n">concept</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="p">)</span>
+<span class="n">strings</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>

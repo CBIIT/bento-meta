@@ -80,9 +80,9 @@ The Model object is a direct container of nodes, edges (relationships), and
 properties. To get a simple list of all relevant entities in a model, use the
 model attributes::
 
-   nodes = model.nodes
-   relationships = model.edges 
-   properties = model.props
+   nodes = model.nodes.values()
+   relationships = model.edges.values() 
+   properties = model.props.values()
 
 To retrieve a specific entity, provide a key to the relevant
 attribute. For nodes, the key is just the node handle (name
@@ -91,7 +91,7 @@ node handle, and the destination node handle::
 
   edge = model.edges[(edge.handle, edge.src.handle, edge.dst.handle)]
   
-This tuple can be retrived from an edge with `Edge.edge.triplet`::
+This tuple can be retrived from an edge with :func:`Edge.triplet`::
 
   edge = model.edges[edge.triplet]
 
@@ -106,7 +106,7 @@ node or edge itself::
 
   node = model.nodes['case']
   for p in node.props:
-    print(p.handle)
+    print(node.props[p].handle)
 
 Accessing other objects
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -118,9 +118,11 @@ For example::
 
     # all terms for all nodes
     terms=[]
-    for n in model.nodes
-      terms.extend( n.concept.terms )
-
+    for n in model.nodes.values()
+      if n.concept:
+        terms.extend( n.concept.terms.values() )
+    strings = [t.value for t in terms]
+    
 Model as an Interface
 _________________________
 

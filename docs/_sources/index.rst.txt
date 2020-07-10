@@ -47,6 +47,7 @@ Run::
 
    ./the_object_model
    ./meta_and_mdf
+   ./model_versioning
    ./object_mapping
    ./classes
 
