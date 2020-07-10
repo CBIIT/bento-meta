@@ -13,6 +13,8 @@ from bento_meta.entity import ArgError,CollValue
 from bento_meta.objects import Node,Property,Edge, Term, ValueSet, Concept, Origin
 import re
 import yaml
+from yaml.constructor import ConstructorError
+from yaml.parser import ParserError
 import requests
 import option_merge as om
 from collections import ChainMap
@@ -26,9 +28,9 @@ class MDF(object):
   default_type = 'TBD'
   def __init__(self, *yaml_files,handle=None):
     """Create a :class:`Model` from MDF YAML files.
-:param str|file *yaml_files: MDF filenames or file objects, in desired merge order
+:param str|file|url *yaml_files: MDF filenames or file objects, in desired merge order
 :param str handle: Handle (name) for the resulting Model
-:attribute model: the bento_meta.model.Model created
+:attribute model: the :class:`bento_meta.model.Model` created
 """
     if not handle or not isinstance(handle,str):
       raise ArgError("arg handle= must be a str - name for model")
@@ -54,6 +56,7 @@ class MDF(object):
       if isinstance(f,str):
         if re.match('(?:file|https?)://',f):
           response = requests.get(f)
+          response.encoding='utf8'
           f=response.text
         else:
           f = open(f,"r")
