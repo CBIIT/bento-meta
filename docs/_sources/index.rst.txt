@@ -33,6 +33,13 @@ terminology associated with the stored models. These include the
 ``terms``  themselves, their ``origin``, and associated ``concepts``. Each
 of these entities can be created, read, and updated using *bento_meta*.
 
+Installation
+____________
+
+::
+   pip install https://github.com/CBIIT/bento-meta/raw/master/python/dist/bento-meta-0.0.1.tar.gz
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
