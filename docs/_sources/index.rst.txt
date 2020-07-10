@@ -36,8 +36,9 @@ of these entities can be created, read, and updated using *bento_meta*.
 Installation
 ____________
 
-::
-   pip install https://github.com/CBIIT/bento-meta/raw/master/python/dist/bento-meta-0.0.1.tar.gz
+Run::
+
+  pip install https://github.com/CBIIT/bento-meta/raw/master/python/dist/bento-meta-0.0.1.tar.gz
 
 
 .. toctree::
