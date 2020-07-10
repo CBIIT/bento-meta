@@ -1,3 +1,4 @@
+.. _the_object_model:
 
 The Object Model
 ================
