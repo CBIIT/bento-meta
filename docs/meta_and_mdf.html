@@ -1,0 +1,268 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bento_meta and MDF &mdash; bento_meta  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Object Map Specifications" href="object_mapping.html" />
+    <link rel="prev" title="The Object Model" href="the_object_model.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> bento_meta
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">bento_meta and MDF</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-description-files">Model Description Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#slurping-mdf-with-bento-meta">Slurping MDF with bento_meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#squirting-a-model-into-mdf-yaml">Squirting a Model into MDF YAML</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classes.html">Class Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">bento_meta</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>bento_meta and MDF</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/meta_and_mdf.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bento-meta-and-mdf">
+<h1>bento_meta and MDF<a class="headerlink" href="#bento-meta-and-mdf" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="model-description-files">
+<h2>Model Description Files<a class="headerlink" href="#model-description-files" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://github.com/CBIIT/bento-mdf">Model description files</a>, or MDF, are simple descriptions of a graph data model, usually written in <a class="reference external" href="https://learnxinyminutes.com/docs/yaml/">YAML</a>. They are organized in terms of sections defined by the top-level keys <code class="docutils literal notranslate"><span class="pre">Nodes</span></code>, <code class="docutils literal notranslate"><span class="pre">Relationships</span></code>, and <code class="docutils literal notranslate"><span class="pre">PropDefinitions</span></code>. They describe the graph nodes and relationships belonging to a model, the properties associated with each. The MDF details and documents:</p>
+<ul class="simple">
+<li><p>the “local” or internal names for each of these entities,</p></li>
+<li><p>the node types that are allowed as the source and destination for each relationship,</p></li>
+<li><p>detailed attributes that may be associated with any of these entities, for example:</p>
+<ul>
+<li><p>the data types or enumerated values that are valid for a given property</p></li>
+<li><p>whether a particular relationship or property is required to be present, for data to be valid</p></li>
+<li><p>the cardinality (one-to-one, one-to-many, etc.) that is valid for a given relationship.</p></li>
+</ul>
+</li>
+</ul>
+<p>Examples of valid MDF are available for the <a class="reference external" href="https://cbiit.github.io/icdc-model-tool/model-desc/">Integrated Canine Data Commons</a> and the <a class="reference external" href="https://cbiit.github.io/ctdc-model/model-desc/">Clinical Trials Data Commons</a> models.</p>
+<p>The MDF syntax is described <a class="reference external" href="https://github.com/CBIIT/bento-mdf#model-description-files-mdf">here in detail</a>. This syntax is defined by and can be validated against a <a class="reference external" href="https://json-schema.org/understanding-json-schema/">JSONSchema</a> document. This document lives <a class="reference external" href="https://github.com/CBIIT/bento-mdf/blob/master/schema/mdf-schema.yaml">here</a>.</p>
+</div>
+<div class="section" id="slurping-mdf-with-bento-meta">
+<h2>Slurping MDF with bento_meta<a class="headerlink" href="#slurping-mdf-with-bento-meta" title="Permalink to this headline">¶</a></h2>
+<p>Create a <a class="reference internal" href="classes.html#bento_meta.model.Model" title="bento_meta.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.model.Model</span></code></a> from MDF files as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bento_meta.mdf</span> <span class="kn">import</span> <span class="n">MDF</span>
+
+<span class="n">mdf</span> <span class="o">=</span> <span class="n">MDF</span><span class="p">(</span><span class="s1">&#39;model.yml&#39;</span><span class="p">,</span><span class="s1">&#39;model-props.yml&#39;</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">mdf</span><span class="o">.</span><span class="n">model</span>
+</pre></div>
+</div>
+<p>The model object can be used and modified as discussed in <a class="reference internal" href="the_object_model.html#the-object-model"><span class="std std-ref">The Object Model</span></a>. No database connection is necessary.</p>
+<p>Note that the MDF can be spread out over multiple YAML files. Typically, the
+nodes and relationships are defined in one file, and the properties in a separate files. <cite>MDF</cite> merges the files provided according to <a class="reference external" href="https://github.com/CBIIT/bento-mdf#multiple-input-yaml-files-and-overlays">the spec</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">handle=</span></code> is a keyword-only argument that must be provided, which sets the name (a.k.a. handle) for the model. This is used, for example, in setting the <cite>Entity.model</cite> attribute for the model objects. It enables pushing and pulling a model to and from a Neo4j database in a single call.</p>
+<p>URLs that resolve to MDF files can also be used. To load the latest CTDC model, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">bento_meta.mdf</span> <span class="kn">import</span> <span class="n">MDF</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mdf</span> <span class="o">=</span> <span class="n">MDF</span><span class="p">(</span><span class="s1">&#39;https://cbiit.github.io/ctdc-model/model-desc/ctdc_model_file.yaml&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>          <span class="s1">&#39;https://cbiit.github.io/ctdc-model/model-desc/ctdc_model_properties_file.yaml&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>           <span class="n">handle</span><span class="o">=</span><span class="s1">&#39;CTDC&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctdc_model</span> <span class="o">=</span> <span class="n">mdf</span><span class="o">.</span><span class="n">model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">mdf</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">nodes</span><span class="p">]</span>
+<span class="go">[&#39;case&#39;, &#39;specimen&#39;, &#39;metastatic_site&#39;, &#39;nucleic_acid&#39;, &#39;ihc_assay_report&#39;, &#39;sequencing_assay&#39;, &#39;variant_report&#39;, &#39;file&#39;, &#39;snv_variant&#39;, &#39;delins_variant&#39;, &#39;indel_variant&#39;, &#39;copy_number_variant&#39;, &#39;gene_fusion_variant&#39;, &#39;assignment_report&#39;, &#39;disease_eligibility_criterion&#39;, &#39;drug_eligibility_criterion&#39;, &#39;arm&#39;, &#39;clinical_trial&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">mdf</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s1">&#39;case&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">props</span><span class="p">]</span>
+<span class="go">[&#39;show_node&#39;, &#39;case_id&#39;, &#39;source_id&#39;, &#39;gender&#39;, &#39;race&#39;, &#39;ethnicity&#39;, &#39;patient_status&#39;, &#39;current_step&#39;, &#39;disease&#39;, &#39;ctep_category&#39;, &#39;ctep_subcategory&#39;, &#39;meddra_code&#39;, &#39;prior_drugs&#39;, &#39;extent_of_disease&#39;, &#39;ecog_performance_status&#39;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="squirting-a-model-into-mdf-yaml">
+<h2>Squirting a Model into MDF YAML<a class="headerlink" href="#squirting-a-model-into-mdf-yaml" title="Permalink to this headline">¶</a></h2>
+<p>Coming soon.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="object_mapping.html" class="btn btn-neutral float-right" title="Object Map Specifications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="the_object_model.html" class="btn btn-neutral float-left" title="The Object Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, FNLCR
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

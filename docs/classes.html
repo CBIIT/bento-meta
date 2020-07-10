@@ -1,0 +1,782 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Class Documentation &mdash; bento_meta  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Object Map Specifications" href="object_mapping.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> bento_meta
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Class Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#bento-meta-model">bento_meta.model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bento-meta-objects">bento_meta.objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bento-meta-entity">bento_meta.entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bento-meta-mdf">bento_meta.mdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bento-meta-object-map">bento_meta.object_map</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">bento_meta</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Class Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/classes.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-bento_meta.model">
+<span id="class-documentation"></span><h1>Class Documentation<a class="headerlink" href="#module-bento_meta.model" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="bento-meta-model">
+<h2>bento_meta.model<a class="headerlink" href="#bento-meta-model" title="Permalink to this headline">¶</a></h2>
+<p>This module contains <a class="reference internal" href="#bento_meta.model.Model" title="bento_meta.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>, a class for managing data models housed
+in the Bento Metamodel Database. Models are built from <cite>bento_meta.Entity</cite>
+subclasses (see <a class="reference internal" href="#module-bento_meta.objects" title="bento_meta.objects"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.objects</span></code></a>). A Model can be used with or 
+without a Neo4j database connection.</p>
+</div>
+<dl class="py class">
+<dt id="bento_meta.model.Model">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.model.</code><code class="sig-name descname">Model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">handle</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">drv</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="bento_meta.model.Model.add_edge">
+<code class="sig-name descname">add_edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edge</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.add_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> to the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>edge</strong> (<a class="reference internal" href="#bento_meta.objects.Edge" title="bento_meta.objects.Edge"><em>Edge</em></a>) – A <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> instance</p>
+</dd>
+</dl>
+<p>The model attribute of <code class="docutils literal notranslate"><span class="pre">edge</span></code> is set to <cite>Model.handle</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.add_node">
+<code class="sig-name descname">add_node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.add_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code> to the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="#bento_meta.objects.Node" title="bento_meta.objects.Node"><em>Node</em></a>) – A <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code> instance</p>
+</dd>
+</dl>
+<p>The model attribute of <code class="docutils literal notranslate"><span class="pre">node</span></code> is set to <cite>Model.handle</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.add_prop">
+<code class="sig-name descname">add_prop</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ent</span></em>, <em class="sig-param"><span class="n">prop</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.add_prop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a <code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code> to the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ent</strong> (<em>Node|Edge</em>) – Attach <code class="docutils literal notranslate"><span class="pre">prop</span></code> to this entity</p></li>
+<li><p><strong>prop</strong> (<a class="reference internal" href="#bento_meta.objects.Property" title="bento_meta.objects.Property"><em>Property</em></a>) – A <code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code> instance</p></li>
+</ul>
+</dd>
+</dl>
+<p>The model attribute of <code class="docutils literal notranslate"><span class="pre">prop</span></code> is set to <cite>Model.handle</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.add_terms">
+<code class="sig-name descname">add_terms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prop</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">terms</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.add_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code> and/or strings to a <code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code> with a value domain of <code class="docutils literal notranslate"><span class="pre">value_set</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prop</strong> (<a class="reference internal" href="#bento_meta.objects.Property" title="bento_meta.objects.Property"><em>Property</em></a>) – <code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code> to modify</p></li>
+<li><p><strong>terms</strong> (<em>list</em>) – A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code> instances and/or str</p></li>
+</ul>
+</dd>
+</dl>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code> instances are created for strings; <cite>Term.value</cite> is set to the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.assign_edge_end">
+<code class="sig-name descname">assign_edge_end</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edge</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.assign_edge_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the src or dst of an <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> to a different <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edge</strong> (<a class="reference internal" href="#bento_meta.objects.Edge" title="bento_meta.objects.Edge"><em>Edge</em></a>) – Edge to manipulate</p></li>
+<li><p><strong>end</strong> (<em>str</em>) – Edge end to change (src|dst)</p></li>
+<li><p><strong>node</strong> (<a class="reference internal" href="#bento_meta.objects.Node" title="bento_meta.objects.Node"><em>Node</em></a>) – Node to be connected</p></li>
+</ul>
+</dd>
+</dl>
+<p>Note: Both <code class="docutils literal notranslate"><span class="pre">node</span></code> and <code class="docutils literal notranslate"><span class="pre">edge</span></code> must be present in the Model instance
+(via <a class="reference internal" href="#bento_meta.model.Model.add_node" title="bento_meta.model.Model.add_node"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_node()</span></code></a> and <a class="reference internal" href="#bento_meta.model.Model.add_edge" title="bento_meta.model.Model.add_edge"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_edge()</span></code></a>)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.contains">
+<code class="sig-name descname">contains</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ent</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask whether an entity is present in the Model instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ent</strong> (<a class="reference internal" href="#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><em>Entity</em></a>) – Entity in question</p>
+</dd>
+</dl>
+<p>Note: Only works on Nodes, Edges, and Properties</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.dget">
+<code class="sig-name descname">dget</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">refresh</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.dget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull model from MDB into this Model instance, based on its handle</p>
+<p>Note: is a noop if <cite>Model.drv</cite> is unset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.dput">
+<code class="sig-name descname">dput</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.dput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push this Model’s objects to MDB.</p>
+<p>Note: is a noop if <cite>Model.drv</cite> is unset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.edges_by_dst">
+<code class="sig-name descname">edges_by_dst</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.edges_by_dst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> that have a given <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code> as their dst attribute</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="#bento_meta.objects.Node" title="bento_meta.objects.Node"><em>Node</em></a>) – The node</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.edges_by_src">
+<code class="sig-name descname">edges_by_src</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.edges_by_src" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> that have a given <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code> as their src attribute</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="#bento_meta.objects.Node" title="bento_meta.objects.Node"><em>Node</em></a>) – The node</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.edges_by_type">
+<code class="sig-name descname">edges_by_type</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edge_handle</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.edges_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> that have a given edge type (i.e., handle)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>edge_handle</strong> (<em>str</em>) – The edge type</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.edges_in">
+<code class="sig-name descname">edges_in</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.edges_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> that have a given <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code> as their dst attribute</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="#bento_meta.objects.Node" title="bento_meta.objects.Node"><em>Node</em></a>) – The node</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.edges_out">
+<code class="sig-name descname">edges_out</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.edges_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> that have a given <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code> as their src attribute</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="#bento_meta.objects.Node" title="bento_meta.objects.Node"><em>Node</em></a>) – The node</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.rm_edge">
+<code class="sig-name descname">rm_edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edge</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.rm_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> instance from the Model instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>edge</strong> (<a class="reference internal" href="#bento_meta.objects.Edge" title="bento_meta.objects.Edge"><em>Edge</em></a>) – Edge to be removed</p>
+</dd>
+</dl>
+<p><em>Clarify what happens in the Model object, in the database when versioning
+is off, in the database when versioning is on</em></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.rm_node">
+<code class="sig-name descname">rm_node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.rm_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code> from the Model instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> (<a class="reference internal" href="#bento_meta.objects.Node" title="bento_meta.objects.Node"><em>Node</em></a>) – Node to be removed</p>
+</dd>
+</dl>
+<p>Note: A node can’t be removed if it is participating in an edge (i.e., 
+if the node is some edge’s src or dst attribute)</p>
+<p><em>Clarify what happens in the Model object, in the database when versioning
+is off, in the database when versioning is on</em></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.rm_prop">
+<code class="sig-name descname">rm_prop</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prop</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.rm_prop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a <code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code> instance from the Model instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<a class="reference internal" href="#bento_meta.objects.Property" title="bento_meta.objects.Property"><em>Property</em></a>) – Property to be removed</p>
+</dd>
+</dl>
+<p><em>Clarify what happens in the Model object, in the database when versioning
+is off, in the database when versioning is on</em></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.rm_term">
+<code class="sig-name descname">rm_term</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">term</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.rm_term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not implemented.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.set_version_count">
+<em class="property">classmethod </em><code class="sig-name descname">set_version_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ct</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.set_version_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the integer version counter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ct</strong> (<em>int</em>) – Set version counter to this value.</p>
+</dd>
+</dl>
+<p>Note: this delegates to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Entity.set_version_count()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.versioning">
+<em class="property">classmethod </em><code class="sig-name descname">versioning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">on</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.versioning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set versioning state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>on</strong> (<em>boolean</em>) – True, apply versioning. False, do not.</p>
+</dd>
+</dl>
+<p>Note: this delegates to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Entity.versioning()</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-bento_meta.objects"></span><div class="section" id="bento-meta-objects">
+<h2>bento_meta.objects<a class="headerlink" href="#bento-meta-objects" title="Permalink to this headline">¶</a></h2>
+<p>This module contains the subclasses of <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> which are used 
+in representing the models contained in the <a class="reference external" href="https://github.com/CBIIT/bento-mdf">MDB</a>.</p>
+<dl class="py class">
+<dt id="bento_meta.objects.Concept">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.objects.</code><code class="sig-name descname">Concept</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.objects.Concept" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass that models a semantic concept.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="bento_meta.objects.Edge">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.objects.</code><code class="sig-name descname">Edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.objects.Edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass that models a relationship between model nodes.</p>
+<dl class="py method">
+<dt id="bento_meta.objects.Edge.triplet">
+<em class="property">property </em><code class="sig-name descname">triplet</code><a class="headerlink" href="#bento_meta.objects.Edge.triplet" title="Permalink to this definition">¶</a></dt>
+<dd><p>A 3-tuple that fully qualifies the edge: <code class="docutils literal notranslate"><span class="pre">(edge.handle,</span> <span class="pre">src.handle,</span> <span class="pre">dst.handle)</span></code>
+<code class="docutils literal notranslate"><span class="pre">src</span></code> and <code class="docutils literal notranslate"><span class="pre">dst</span></code> attributes must be set.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="bento_meta.objects.Node">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.objects.</code><code class="sig-name descname">Node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.objects.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass that models a data node.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="bento_meta.objects.Origin">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.objects.</code><code class="sig-name descname">Origin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.objects.Origin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass that models a <a class="reference internal" href="#bento_meta.objects.Term" title="bento_meta.objects.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> ‘s authoritative source.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="bento_meta.objects.Property">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.objects.</code><code class="sig-name descname">Property</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.objects.Property" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass that models a property of a node or relationship (edge).</p>
+<dl class="py method">
+<dt id="bento_meta.objects.Property.terms">
+<em class="property">property </em><code class="sig-name descname">terms</code><a class="headerlink" href="#bento_meta.objects.Property.terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the <cite>Property</cite> has a <code class="docutils literal notranslate"><span class="pre">value_set</span></code> domain, return the <cite>Term</cite> objects
+of its <cite>ValueSet</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.objects.Property.values">
+<em class="property">property </em><code class="sig-name descname">values</code><a class="headerlink" href="#bento_meta.objects.Property.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the <cite>Property</cite> as a <code class="docutils literal notranslate"><span class="pre">value_set</span></code> domain, return its term values as a list of str.
+:return: list of term values
+:rtype: list</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="bento_meta.objects.Tag">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.objects.</code><code class="sig-name descname">Tag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.objects.Tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass that allows simple key-value tagging of a model at arbitrary points.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="bento_meta.objects.Term">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.objects.</code><code class="sig-name descname">Term</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.objects.Term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass that models a term from a terminology.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="bento_meta.objects.ValueSet">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.objects.</code><code class="sig-name descname">ValueSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.objects.ValueSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass that models an enumerated set of <a class="reference internal" href="#bento_meta.objects.Property" title="bento_meta.objects.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a> values.
+Essentially a container for <a class="reference internal" href="#bento_meta.objects.Term" title="bento_meta.objects.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> instances.</p>
+</dd></dl>
+
+</div>
+<span class="target" id="module-bento_meta.entity"></span><div class="section" id="bento-meta-entity">
+<h2>bento_meta.entity<a class="headerlink" href="#bento-meta-entity" title="Permalink to this headline">¶</a></h2>
+<p>This module contains 
+* <cite>Entity</cite>, the base class for metamodel objects, 
+* the <cite>CollValue</cite> class to manage collection-valued attributes, and 
+* the <cite>ArgError</cite> exception.</p>
+<dl class="py exception">
+<dt id="bento_meta.entity.ArgError">
+<em class="property">exception </em><code class="sig-prename descclassname">bento_meta.entity.</code><code class="sig-name descname">ArgError</code><a class="headerlink" href="#bento_meta.entity.ArgError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for method argument errors</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="bento_meta.entity.CollValue">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.entity.</code><code class="sig-name descname">CollValue</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">owner</span></em>, <em class="sig-param"><span class="n">owner_key</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.CollValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>A UserDict for housing Entity collection attributes.
+This class contains a hook for recording the Entity that
+owns the value that is being set. The value is marked as belonging
+to the <em>containing object</em>, not this collection object.
+It also protects against adding arbitrarily typed elements to the
+collection; it throws unless a value to set is an <cite>Entity</cite>. <cite>__setitem__</cite>
+is instrumented for managing versioning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>owner</strong> – <cite>Entity</cite> object of which this collection is an attribute</p></li>
+<li><p><strong>owner_key</strong> – the attribute name of this collection on the owner</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="bento_meta.entity.CollValue.owner">
+<em class="property">property </em><code class="sig-name descname">owner</code><a class="headerlink" href="#bento_meta.entity.CollValue.owner" title="Permalink to this definition">¶</a></dt>
+<dd><p>The entity instance of which this collection is an attribute</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.CollValue.owner_key">
+<em class="property">property </em><code class="sig-name descname">owner_key</code><a class="headerlink" href="#bento_meta.entity.CollValue.owner_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>The attribute name of this collection on the <cite>owner</cite></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="bento_meta.entity.Entity">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.entity.</code><code class="sig-name descname">Entity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">init</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all metamodel objects.</p>
+<p>Entity contains all the magic for metamodel objects such as
+<cite>bento_meta.objects.Node</cite> and ‘bento_meta.object.Edge`. It will rarely
+be used directly. Entity redefines <cite>__setattr__</cite> and <cite>__getattr__</cite> to
+enable necessary bookkeeping for model versioning and graph database
+object mapping under the hood.</p>
+<p>The Entity class also defines private and declared attributes that are
+common to all metamodel objects. It provides the machinery to manage
+private attributes separately from declared attributes, and to raise
+exceptions when attempts are made to access attributes that are not
+declared.</p>
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.attr_doc">
+<em class="property">classmethod </em><code class="sig-name descname">attr_doc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.attr_doc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a docstring for declared attributes on class as configured</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.belongs">
+<em class="property">property </em><code class="sig-name descname">belongs</code><a class="headerlink" href="#bento_meta.entity.Entity.belongs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict that stored information on the owners (referents) of this instance
+in the model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.delete">
+<code class="sig-name descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete self from the database. If versioning is active, this will ‘deprecate’ the entity, but not actually remove it from the db</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.dget">
+<code class="sig-name descname">dget</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">refresh</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.dget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update self from the database
+:param boolean refresh: if True, force a retrieval from db; if False, retrieve from cache; don’t disrupt changes already made</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.dirty">
+<em class="property">property </em><code class="sig-name descname">dirty</code><a class="headerlink" href="#bento_meta.entity.Entity.dirty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag whether this instance has been changed since retrieval from 
+the database
+Set to -1, ensure that the next time an attribute is accessed, the instance
+will retrieve itself from the database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.dput">
+<code class="sig-name descname">dput</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.dput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put self to the database.
+This will set the <cite>neoid</cite> property if not yet set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.dup">
+<code class="sig-name descname">dup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.dup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Duplicate the object, but not too deeply. Mainly for use of the versioning machinery.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.mapspec">
+<em class="property">classmethod </em><code class="sig-name descname">mapspec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.mapspec" title="Permalink to this definition">¶</a></dt>
+<dd><p>The object to database mapping specification. Is a class method, not a property.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.mergespec">
+<em class="property">classmethod </em><code class="sig-name descname">mergespec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.mergespec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge subclass attribute and mapping specification dicts with the
+base class’s. Not for human consumption.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.rm">
+<code class="sig-name descname">rm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">force</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.rm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete self from the database. The object instance survives.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.set_version_count">
+<em class="property">classmethod </em><code class="sig-name descname">set_version_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ct</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.set_version_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the integer version counter. This will usually be accessed via a 
+<cite>bento_meta.Model</cite> instance
+:param int ct: Set version counter to this value</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.versioned">
+<em class="property">property </em><code class="sig-name descname">versioned</code><a class="headerlink" href="#bento_meta.entity.Entity.versioned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this instance versioned?</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.entity.Entity.versioning">
+<em class="property">classmethod </em><code class="sig-name descname">versioning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">on</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.versioning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set whether versioning is applied to object manipulations
+:param boolean on: True, apply versioning. False, do not.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-bento_meta.mdf"></span><div class="section" id="bento-meta-mdf">
+<h2>bento_meta.mdf<a class="headerlink" href="#bento-meta-mdf" title="Permalink to this headline">¶</a></h2>
+<p>This module contains <a class="reference internal" href="#bento_meta.mdf.MDF" title="bento_meta.mdf.MDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">MDF</span></code></a>, a class for reading a graph data model in
+Model Description Format into a <a class="reference internal" href="#bento_meta.model.Model" title="bento_meta.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.model.Model</span></code></a> object.</p>
+</div>
+<dl class="py class">
+<dt id="bento_meta.mdf.MDF">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.mdf.</code><code class="sig-name descname">MDF</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">yaml_files</span></em>, <em class="sig-param"><span class="n">handle</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdf.MDF" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="bento_meta.mdf.MDF.create_model">
+<code class="sig-name descname">create_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdf.MDF.create_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> instance from loaded YAML
+Note: This is brittle, since the syntax of MDF is hard-coded into this method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.mdf.MDF.load_yaml">
+<code class="sig-name descname">load_yaml</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdf.MDF.load_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load YAML files or open file handles specified in constructor</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.mdf.MDF.model">
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#bento_meta.mdf.MDF.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <a class="reference internal" href="#bento_meta.model.Model" title="bento_meta.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.model.Model</span></code></a> object created from the MDF input</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-bento_meta.object_map"></span><div class="section" id="bento-meta-object-map">
+<h2>bento_meta.object_map<a class="headerlink" href="#bento-meta-object-map" title="Permalink to this headline">¶</a></h2>
+<p>This module contains <a class="reference internal" href="#bento_meta.object_map.ObjectMap" title="bento_meta.object_map.ObjectMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectMap</span></code></a>, a class which provides the 
+machinery for mapping bento_meta objects to a Bento Metamodel Database
+in Neo4j. Mostly not for human consumption. The ObjectMap:</p>
+<ul class="simple">
+<li><p>interprets the attribute specification (attspec) and map
+specification (mapspec) associated with <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> subclasses</p></li>
+<li><p>provides the <code class="xref py py-meth docutils literal notranslate"><span class="pre">get()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">put()</span></code> methods to subclasses, that
+enable them to get and put themselves to the database</p></li>
+<li><p>generates appropriate <a class="reference external" href="https://neo4j.com/docs/cypher-manual/current/">Cypher</a> queries to do gets and puts</p></li>
+</ul>
+<p>One ObjectMap instance should be generated for each Entity subclass (see, e.g., 
+<a class="reference internal" href="#bento_meta.model.Model" title="bento_meta.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.model.Model</span></code></a>)</p>
+</div>
+<dl class="py class">
+<dt id="bento_meta.object_map.ObjectMap">
+<em class="property">class </em><code class="sig-prename descclassname">bento_meta.object_map.</code><code class="sig-name descname">ObjectMap</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">cls</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">drv</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.object_map.ObjectMap" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="bento_meta.object_map.ObjectMap.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">att</span></em>, <em class="sig-param"><span class="n">tgt</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.object_map.ObjectMap.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a link between an object instance and a target object in the database.
+This represents adding an object-valued attribute to the object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.object_map.ObjectMap.drop">
+<code class="sig-name descname">drop</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">att</span></em>, <em class="sig-param"><span class="n">tgt</span></em>, <em class="sig-param"><span class="n">tx</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.object_map.ObjectMap.drop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an existing link between an object instance and a target object in the database.
+This represents dropping an object-valued attribute from the object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.object_map.ObjectMap.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">refresh</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the data for an object instance from the db and load the instance with it</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.object_map.ObjectMap.get_owners">
+<code class="sig-name descname">get_owners</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get_owners" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the nodes which are linked to the object instance (the owners of the object)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.object_map.ObjectMap.put">
+<code class="sig-name descname">put</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.object_map.ObjectMap.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put the object instance’s attributes to the mapped data node in the database</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.object_map.ObjectMap.rm">
+<code class="sig-name descname">rm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">force</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.object_map.ObjectMap.rm" title="Permalink to this definition">¶</a></dt>
+<dd><p>‘Delete’ the object’s mapped node from the database</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="object_mapping.html" class="btn btn-neutral float-left" title="Object Map Specifications" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, FNLCR
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

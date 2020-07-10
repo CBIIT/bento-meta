@@ -1,0 +1,690 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The Object Model &mdash; bento_meta  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bento_meta and MDF" href="meta_and_mdf.html" />
+    <link rel="prev" title="bento_meta" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> bento_meta
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The Object Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-models">Working with Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#component-objects">Component Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#object-attributes">Object attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#model-as-a-container">Model as a Container</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#accessing-other-objects">Accessing other objects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#model-as-an-interface">Model as an Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#manipulating-terms">Manipulating Terms</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#database-interaction">Database Interaction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#objects-and-their-attributes">Objects and their Attributes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classes.html">Class Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">bento_meta</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>The Object Model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/the_object_model.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-object-model">
+<span id="id1"></span><h1>The Object Model<a class="headerlink" href="#the-object-model" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="working-with-models">
+<h2>Working with Models<a class="headerlink" href="#working-with-models" title="Permalink to this headline">¶</a></h2>
+<p>Each model stored in the MDB has a simple name, or handle. The word
+<strong>handle</strong> is used throughout the metamodel to distinguish internal
+names (strings that are used within the system and downstream
+applications to refer to entities) and the external <strong>terms</strong> that are
+employed by users and standards. Handles can be understood as <em>local
+vocabulary</em>. The mode handle is usually the name of the CRDC node that the
+model supports.</p>
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> object is meant to represent only one model.</p>
+</div>
+<div class="section" id="component-objects">
+<h2>Component Objects<a class="headerlink" href="#component-objects" title="Permalink to this headline">¶</a></h2>
+<p>Individual entities in the MDB - nodes, relationships, properties,
+value sets, terms, concepts, and origins, are represented by instances
+of corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> subclasses:</p>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code>  (“Edge” is easier to type than “relationship”.)</p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSet</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Concept</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Origin</span></code></p></li>
+</ul>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> methods generally accept these objects as
+arguments and/or return these objects. To obtain specific scalar
+information (for example, the handle string) of the object, use the
+attribute on the object itself:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># print the &#39;handle&#39; for every property in the model</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">props</span><span class="p">:</span>
+  <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="object-attributes">
+<span id="id2"></span><h3>Object attributes<a class="headerlink" href="#object-attributes" title="Permalink to this headline">¶</a></h3>
+<p>A node in the graph database can possess two kinds of related data. In
+the (Neo4j) database, <em>node properties</em> are named items of scalar
+data. These belong directly to the individual nodes, and are
+referenced via the node. These map very naturally to scalar attributes
+of a model object. For example, <code class="docutils literal notranslate"><span class="pre">handle</span></code> is a metamodel node property,
+and it is accessed simply by the object attribute of the same name,
+<code class="docutils literal notranslate"><span class="pre">node.handle</span></code>. In the code, these are referred to as <em>property
+attributes</em> or <em>scalar-valued attributes</em>.</p>
+<p>The other kind of data related to a given node is present in other nodes
+that are linked to it via graph database relationships. In the
+MDB, for example, a model edge (e.g., <code class="docutils literal notranslate"><span class="pre">of_sample</span></code>) is represented by
+its own graph node with label <code class="docutils literal notranslate"><span class="pre">relationship</span></code>, and the source and
+destination nodes for that edge are two graph nodes with label <code class="docutils literal notranslate"><span class="pre">node</span></code>,
+one of which is linked to the <code class="docutils literal notranslate"><span class="pre">relationship</span></code> node with a graph
+relationship <code class="docutils literal notranslate"><span class="pre">has_src</span></code>, and the other with a graph relationship
+<code class="docutils literal notranslate"><span class="pre">has_dst</span></code>. (Refer to <a class="reference external" href="https://github.com/CBIIT/bento-meta#structure">this diagram</a>.)</p>
+<p>In the object model, the source and destination nodes of an edge are
+also represented as object attributes: in this case, <code class="docutils literal notranslate"><span class="pre">edge.src</span></code>
+and <code class="docutils literal notranslate"><span class="pre">edge.dst</span></code>. This representation encapsulates the <code class="docutils literal notranslate"><span class="pre">has_src</span></code> and
+<code class="docutils literal notranslate"><span class="pre">has_dst</span></code> graph relationships, so that the programmer can ignore the
+metamodel structure and concentrate on the model structure. Note that
+the value of such an attribute is an object (or an array of objects).
+In the code, such attributes are referred to as <em>relationship</em>,
+<em>object-valued</em> or <em>collection-valued</em> attributes.</p>
+</div>
+</div>
+<div class="section" id="model-as-a-container">
+<h2>Model as a Container<a class="headerlink" href="#model-as-a-container" title="Permalink to this headline">¶</a></h2>
+<p>The Model object is a direct container of nodes, edges (relationships), and
+properties. To get a simple list of all relevant entities in a model, use the
+model attributes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nodes</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span>
+<span class="n">relationships</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span>
+<span class="n">properties</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">props</span>
+</pre></div>
+</div>
+<p>To retrieve a specific entity, provide a key to the relevant
+attribute. For nodes, the key is just the node handle (name
+string). For edges, the key is a tuple of the edge handle, the source
+node handle, and the destination node handle:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edge</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">edge</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">handle</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>This tuple can be retrived from an edge with <cite>Edge.edge.triplet</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edge</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">triplet</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For properties, the key is a tuple that depends on whether the property belongs to a node or an edge:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">node_prop</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">props</span><span class="p">[</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">prop</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span> <span class="p">]</span>
+<span class="n">edge_prop</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">props</span><span class="p">[</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">prop</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span> <span class="p">]</span>
+</pre></div>
+</div>
+<p>This is not very convenient, but it ensures that a single property instance can be used
+on many nodes and edges. To get properties, it is easier to pull them from the
+node or edge itself:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">node</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s1">&#39;case&#39;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">props</span><span class="p">:</span>
+  <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="accessing-other-objects">
+<h3>Accessing other objects<a class="headerlink" href="#accessing-other-objects" title="Permalink to this headline">¶</a></h3>
+<p>The Model object does not provide access to <code class="xref py py-class docutils literal notranslate"><span class="pre">Concept</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSet</span></code>, or
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Origin</span></code> objects directly. These are accessible via the linked obects
+themselves, according to the <a class="reference external" href="https://github.com/CBIIT/bento-meta#structure">metamodel structure</a>.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># all terms for all nodes</span>
+<span class="n">terms</span><span class="o">=</span><span class="p">[]</span>
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span>
+  <span class="n">terms</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span> <span class="n">n</span><span class="o">.</span><span class="n">concept</span><span class="o">.</span><span class="n">terms</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="model-as-an-interface">
+<h2>Model as an Interface<a class="headerlink" href="#model-as-an-interface" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> object has methods that allow the user to add, remove and
+modify entities in the model. The Model object is an interface, in that it loosely
+encapsulates the MDB structure and tries to relieve the user from having to
+remember that structure and guards against deviations from it.</p>
+<p>The main methods are</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.add_node()</span></code></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.add_edge()</span></code></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.add_prop()</span></code></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.add_terms()</span></code></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.rm_node()</span></code></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.rm_edge()</span></code></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.rm_prop()</span></code></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.rm_terms()</span></code> (coming soon)</p></li>
+</ul>
+<p>The main idea is that these methods operate on either the relevant
+component object or on a dict that specifies an object by its
+attributes. In the latter case, a new component object is created.</p>
+<p>Here’s a pattern for creating two nodes and an edge in a model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">src_node</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span> <span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span><span class="s2">&quot;sample&quot;</span><span class="p">}</span> <span class="p">)</span>
+<span class="n">dst_node</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span> <span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span><span class="s2">&quot;case&quot;</span><span class="p">}</span> <span class="p">)</span>
+<span class="n">edge</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span> <span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span><span class="s2">&quot;of_case&quot;</span><span class="p">,</span> <span class="s2">&quot;src&quot;</span><span class="p">:</span><span class="n">src_node</span><span class="p">,</span> <span class="s2">&quot;dst&quot;</span><span class="p">:</span><span class="n">dst_node</span><span class="p">}</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>These new entities are registered in the model, and can be retrieved:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">case</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="s1">&#39;case&#39;</span><span class="p">)</span>
+<span class="n">of_case</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span> <span class="p">(</span><span class="s2">&quot;of_case&quot;</span><span class="p">,</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span><span class="s2">&quot;case&quot;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Removing entities from the model “deregisters” them, but does not destroy
+the object itself:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">rm_edge</span><span class="p">(</span><span class="n">of_case</span><span class="p">);</span>
+<span class="n">model</span><span class="o">.</span><span class="n">rm_node</span><span class="p">(</span><span class="n">case</span><span class="p">);</span>
+<span class="n">other_model</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">case</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Note that the edge needs to be removed for this to work in the
+example. Analogous to Neo4j, attempting to remove a node will throw,
+if the node participates in any relationships/edges.</p>
+<div class="section" id="manipulating-terms">
+<h3>Manipulating Terms<a class="headerlink" href="#manipulating-terms" title="Permalink to this headline">¶</a></h3>
+<p>One of the key uses of the MDB is for storing lists of acceptable values for
+properties that require them. In the MDB schema, a property is linked to
+a value set entity, and the value set aggregates the term entities. The model
+object tries to hide some of this structure. It will also create a set of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code> objects from a list of strings as a shortcut:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">prop</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_prop</span><span class="p">(</span> <span class="n">sample</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span><span class="s2">&quot;sample_type&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;value_domain&quot;</span><span class="p">:</span><span class="s2">&quot;value_set&quot;</span><span class="p">})</span>
+<span class="c1"># prop has domain of &#39;value_set&#39;, so you can add terms to it</span>
+<span class="n">value_set</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_terms</span><span class="p">(</span> <span class="n">prop</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="s2">&quot;tumor&quot;</span><span class="p">]</span> <span class="p">)</span>
+<span class="n">terms</span> <span class="o">=</span> <span class="n">value_set</span><span class="o">.</span><span class="n">terms</span> <span class="c1"># set of 2 term objects</span>
+<span class="n">same_terms</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">terms</span> <span class="c1"># prop object also has a shortcut</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="database-interaction">
+<h2>Database Interaction<a class="headerlink" href="#database-interaction" title="Permalink to this headline">¶</a></h2>
+<p>The approach to the back and forth between the object representation
+and the database attempts to be simple and robust. The pattern is a
+push/pull cycle to and from the database. The database instrumentation
+is also encapsulated from the rest of the object functionality, so
+that even if no database is specified or connected, all the object
+manipulations are available.</p>
+<p>The Model methods are <code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.dget()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.dput()</span></code>.
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.dget()</span></code> pulls the metamodel nodes for
+the model that have <code class="docutils literal notranslate"><span class="pre">handle</span></code> property equal to <cite>Model.handle</cite>
+from the connected database. It will not disturb any modifications made to
+objects in the program, unless called with a True argument. In that case,
+<code class="docutils literal notranslate"><span class="pre">model.dget(True)</span></code> (e.g.) will refresh all objects from current metamodel nodes
+in the database, overwriting any changes.</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.put()</span></code> pushes the model objects, with any changes to attributes, to
+the database. It will build and execute queries correctly to convert, for
+example, collection attributes to multiple nodes and corresponding
+relationships. <code class="xref py py-meth docutils literal notranslate"><span class="pre">Model.put()</span></code> adds and removes relationships in the database as
+necessary, but will not fully delete nodes. To completely remove objects
+from the database, use <code class="docutils literal notranslate"><span class="pre">rm()</span></code> on the objects themselves:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">rm_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">);</span> <span class="c1"># edge detached from nodes and removed from model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">dput</span><span class="p">();</span> <span class="c1"># metamodel node representing the edge is still present in db</span>
+              <span class="c1"># but is detached from the source node and destination node</span>
+<span class="n">edge</span><span class="o">.</span><span class="n">rm</span><span class="p">();</span> <span class="c1"># metamodel node representing the edge is deleted from db</span>
+</pre></div>
+</div>
+<div class="section" id="objects-and-their-attributes">
+<span id="object-attribute-lists"></span><h3>Objects and their Attributes<a class="headerlink" href="#objects-and-their-attributes" title="Permalink to this headline">¶</a></h3>
+<p>Here is a list of objects and their attributes. This is generated from the code, and should
+always be up-to-date.</p>
+<dl class="py class">
+<dt>
+<em class="property">class </em><code class="sig-name descname">Entity</code></dt>
+<dd></dd></dl>
+
+<p>Base class for all metamodel objects.  Posesses the following attributes:</p>
+<blockquote>
+<div><dl class="py attribute">
+<dt id="entity._id">
+<code class="sig-prename descclassname">entity.</code><code class="sig-name descname">_id</code><em class="property">: simple</em><a class="headerlink" href="#entity._id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="entity.desc">
+<code class="sig-prename descclassname">entity.</code><code class="sig-name descname">desc</code><em class="property">: simple</em><a class="headerlink" href="#entity.desc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="entity._from">
+<code class="sig-prename descclassname">entity.</code><code class="sig-name descname">_from</code><em class="property">: simple</em><a class="headerlink" href="#entity._from" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="entity._to">
+<code class="sig-prename descclassname">entity.</code><code class="sig-name descname">_to</code><em class="property">: simple</em><a class="headerlink" href="#entity._to" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="entity._next">
+<code class="sig-prename descclassname">entity.</code><code class="sig-name descname">_next</code><a class="headerlink" href="#entity._next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="entity._prev">
+<code class="sig-prename descclassname">entity.</code><code class="sig-name descname">_prev</code><a class="headerlink" href="#entity._prev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="entity.tags">
+<code class="sig-prename descclassname">entity.</code><code class="sig-name descname">tags</code><em class="property">: collection of Tag</em><a class="headerlink" href="#entity.tags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+<dl class="py class">
+<dt>
+<em class="property">class </em><code class="sig-name descname">Node</code></dt>
+<dd></dd></dl>
+
+<p>Subclass that models a data node. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<blockquote>
+<div><dl class="py attribute">
+<dt id="node.handle">
+<code class="sig-prename descclassname">node.</code><code class="sig-name descname">handle</code><em class="property">: simple</em><a class="headerlink" href="#node.handle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="node.model">
+<code class="sig-prename descclassname">node.</code><code class="sig-name descname">model</code><em class="property">: simple</em><a class="headerlink" href="#node.model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="node.category">
+<code class="sig-prename descclassname">node.</code><code class="sig-name descname">category</code><em class="property">: simple</em><a class="headerlink" href="#node.category" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="node.concept">
+<code class="sig-prename descclassname">node.</code><code class="sig-name descname">concept</code><em class="property">: Concept</em><a class="headerlink" href="#node.concept" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="node.props">
+<code class="sig-prename descclassname">node.</code><code class="sig-name descname">props</code><em class="property">: collection of Property</em><a class="headerlink" href="#node.props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+<dl class="py class">
+<dt>
+<em class="property">class </em><code class="sig-name descname">Edge</code></dt>
+<dd></dd></dl>
+
+<p>Subclass that models a relationship between model nodes. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<blockquote>
+<div><dl class="py attribute">
+<dt id="edge.handle">
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">handle</code><em class="property">: simple</em><a class="headerlink" href="#edge.handle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="edge.model">
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">model</code><em class="property">: simple</em><a class="headerlink" href="#edge.model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="edge.multiplicity">
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">multiplicity</code><em class="property">: simple</em><a class="headerlink" href="#edge.multiplicity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="edge.is_required">
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">is_required</code><em class="property">: simple</em><a class="headerlink" href="#edge.is_required" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="edge.src">
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">src</code><em class="property">: Node</em><a class="headerlink" href="#edge.src" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="edge.dst">
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">dst</code><em class="property">: Node</em><a class="headerlink" href="#edge.dst" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="edge.concept">
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">concept</code><em class="property">: Concept</em><a class="headerlink" href="#edge.concept" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="edge.props">
+<code class="sig-prename descclassname">edge.</code><code class="sig-name descname">props</code><em class="property">: collection of Property</em><a class="headerlink" href="#edge.props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+<dl class="py class">
+<dt>
+<em class="property">class </em><code class="sig-name descname">Property</code></dt>
+<dd></dd></dl>
+
+<p>Subclass that models a property of a node or relationship (edge). Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<blockquote>
+<div><dl class="py attribute">
+<dt id="property.handle">
+<code class="sig-prename descclassname">property.</code><code class="sig-name descname">handle</code><em class="property">: simple</em><a class="headerlink" href="#property.handle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="property.model">
+<code class="sig-prename descclassname">property.</code><code class="sig-name descname">model</code><em class="property">: simple</em><a class="headerlink" href="#property.model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="property.value_domain">
+<code class="sig-prename descclassname">property.</code><code class="sig-name descname">value_domain</code><em class="property">: simple</em><a class="headerlink" href="#property.value_domain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="property.units">
+<code class="sig-prename descclassname">property.</code><code class="sig-name descname">units</code><em class="property">: simple</em><a class="headerlink" href="#property.units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="property.pattern">
+<code class="sig-prename descclassname">property.</code><code class="sig-name descname">pattern</code><em class="property">: simple</em><a class="headerlink" href="#property.pattern" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="property.is_required">
+<code class="sig-prename descclassname">property.</code><code class="sig-name descname">is_required</code><em class="property">: simple</em><a class="headerlink" href="#property.is_required" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="property.concept">
+<code class="sig-prename descclassname">property.</code><code class="sig-name descname">concept</code><em class="property">: Concept</em><a class="headerlink" href="#property.concept" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="property.value_set">
+<code class="sig-prename descclassname">property.</code><code class="sig-name descname">value_set</code><em class="property">: ValueSet</em><a class="headerlink" href="#property.value_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+<dl class="py class">
+<dt>
+<em class="property">class </em><code class="sig-name descname">Term</code></dt>
+<dd></dd></dl>
+
+<p>Subclass that models a term from a terminology. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<blockquote>
+<div><dl class="py attribute">
+<dt id="term.value">
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">value</code><em class="property">: simple</em><a class="headerlink" href="#term.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="term.origin_id">
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">origin_id</code><em class="property">: simple</em><a class="headerlink" href="#term.origin_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="term.origin_definition">
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">origin_definition</code><em class="property">: simple</em><a class="headerlink" href="#term.origin_definition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="term.concept">
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">concept</code><em class="property">: Concept</em><a class="headerlink" href="#term.concept" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="term.origin">
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">origin</code><em class="property">: Origin</em><a class="headerlink" href="#term.origin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+<dl class="py class">
+<dt>
+<em class="property">class </em><code class="sig-name descname">Concept</code></dt>
+<dd></dd></dl>
+
+<p>“Subclass that models a semantic concept. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<blockquote>
+<div><dl class="py attribute">
+<dt id="concept.terms">
+<code class="sig-prename descclassname">concept.</code><code class="sig-name descname">terms</code><em class="property">: collection of Term</em><a class="headerlink" href="#concept.terms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+<dl class="py class">
+<dt>
+<em class="property">class </em><code class="sig-name descname">Origin</code></dt>
+<dd></dd></dl>
+
+<p>Subclass that models a <code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code> ‘s authoritative source. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<blockquote>
+<div><dl class="py attribute">
+<dt id="origin.url">
+<code class="sig-prename descclassname">origin.</code><code class="sig-name descname">url</code><em class="property">: simple</em><a class="headerlink" href="#origin.url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="origin.is_external">
+<code class="sig-prename descclassname">origin.</code><code class="sig-name descname">is_external</code><em class="property">: simple</em><a class="headerlink" href="#origin.is_external" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="origin.name">
+<code class="sig-prename descclassname">origin.</code><code class="sig-name descname">name</code><em class="property">: simple</em><a class="headerlink" href="#origin.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+<dl class="py class">
+<dt>
+<em class="property">class </em><code class="sig-name descname">Tag</code></dt>
+<dd></dd></dl>
+
+<p>Subclass that allows simple key-value tagging of a model at arbitrary points. Posesses all <code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code> attributes, plus the following:</p>
+<blockquote>
+<div><dl class="py attribute">
+<dt id="tag.value">
+<code class="sig-prename descclassname">tag.</code><code class="sig-name descname">value</code><em class="property">: simple</em><a class="headerlink" href="#tag.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="meta_and_mdf.html" class="btn btn-neutral float-right" title="bento_meta and MDF" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="bento_meta" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, FNLCR
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
