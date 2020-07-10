@@ -98,12 +98,6 @@ class ObjectMap(object):
         for rec in result:
           o = ObjectMap.cache.get(rec['a'].id)
           if o:
-            print("hit cache in attr get for {id}: is {o} for {obj} {att}".format(
-              id=rec['a'].id,
-              o=type(o).__name__,
-              obj=type(obj).__name__,
-              att=att
-            ))
             if not first_val:
               first_val=o
             values[getattr(o,type(o).mapspec()["key"])]=o
@@ -497,7 +491,6 @@ This represents dropping an object-valued attribute from the object."""
       v = values.values()
     chk = [ x.neoid==None for x in v ]
     if True in chk:
-      print("not mapped")
       return False
     end_cls = self.cls.mapspec()['relationship'][att]['end_cls']
     if isinstance(end_cls,str):
@@ -506,6 +499,5 @@ This represents dropping an object-valued attribute from the object."""
     chk = [ isinstance(x, cls_set) for x in v ]
     if True in chk:
       return True
-    print("bad class")
     return False
   

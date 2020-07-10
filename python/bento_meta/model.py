@@ -213,6 +213,7 @@ is off, in the database when versioning is on*
     del self.edges[edge.triplet]
     edge.src = None
     edge.dst = None
+    set_trace()
     self.removed_entities.append(edge)
     return edge
 
@@ -360,43 +361,48 @@ Note: is a noop if `Model.drv` is unset.
       return
     if (refresh):
       ObjectMap.clear_cache()
-    nodes=[]
-    edges=[]
-    props=[]
     with self.drv.session() as session:
-      result = session.run("MATCH (n) WHERE n.model='{handle}' RETURN n".format(
-        handle=self.handle))
-      graph = result.graph()
-      for nod in graph.nodes:
-        if 'node' in nod.labels:
-          n=Node(nod)
-          nodes.append(n)
-        elif 'relationship' in nod.labels:
-          e=Edge(nod)
-          edges.append(e)
-        elif 'property' in nod.labels:
-          p=Property(nod)
-          props.append(p)
-        else:
-          warn("unhandled node type {lbl} encountered in model '{handle}'".format(
-            lbl=rec.labels[0],
-            handle=self.handle))
-    if not nodes:
-      warn("no nodes in db for model '{handle}'".format(handle=self.handle))
-    for n in nodes:
-      n.dget(True)
-      self.nodes[n.handle]=n
-    for e in edges:
-      e.dget(True)
-      if None in e.triplet:
-        set_trace()
-      self.edges[e.triplet] = e
-    for p in props:
-      p.dget(True)
-      for (o, keys) in Property.object_map.get_owners(p):
-        k = [o.handle] if isinstance(o,Node) else list(o.triplet)
+      result = session.run('match p = (s:node)<-[:has_src]-(r:relationship)-[:has_dst]->(d:node) where s.model=$hndl and r.model=$hndl and d.model=$hndl return p',{"hndl":self.handle})
+      for rec in result:
+        (ns,nr,nd) = rec['p'].nodes
+        ns = Node(ns)
+        nr = Edge(nr)
+        nd = Node(nd)
+        ObjectMap.cache[ns.neoid] = ns
+        ObjectMap.cache[nr.neoid] = nr
+        ObjectMap.cache[nd.neoid] = nd
+        nr.src = ns
+        nr.dst = nd
+        self.nodes[ns.handle] = ns
+        self.nodes[nd.handle] = nd
+        self.edges[nr.triplet] = nr
+
+    with self.drv.session() as session:
+      result = session.run('match (n:node)-[:has_property]->(p:property) where n.model=$hndl and p.model=$hndl return id(n), p',{"hndl":self.handle})
+      for rec in result:
+        n = ObjectMap.cache.get(rec['id(n)'])
+        if n == None:
+          warn("node with id {nid} not yet retrieved".format(nid=rec['id(n)']))
+          continue
+        p = Property(rec['p'])
+        ObjectMap.cache[p.neoid] = p
+        self.props[(n.handle, p.handle)] = p
+        n.props[p.handle] = p
+        p.dirty=-1
+    with self.drv.session() as session:
+      result = session.run('match (r:relationship)-[:has_property]->(p:property) where r.model=$hndl and p.model=$hndl return id(r), p',{"hndl":self.handle})
+      for rec in result:
+        e = ObjectMap.cache.get(rec['id(r)'])
+        if e == None:
+          warn("relationship with id {rid} not yet retrieved".format(rid=rec['id(r)']))
+          continue
+        p = Property(rec['p'])
+        ObjectMap.cache[p.neoid] = p
+        k = list(e.triplet)
         k.append(p.handle)
-        self.props[tuple(k)]=p
+        self.props[tuple(k)] = p
+        e.props[p.handle] = p
+        p.dirty=-1
     return self
 
   def dput(self):
@@ -412,7 +418,6 @@ Note: is a noop if `Model.drv` is unset.
         return
       seen[id(obj)]=1
       if obj.dirty == 1:
-        print("{} {}".format(type(obj).__name__,getattr(obj,type(obj).mapspec()["key"])))
         obj.dput()
       atts = [x for x in type(obj).attspec if type(obj).attspec[x]=='object']
       for att in atts:
@@ -426,7 +431,12 @@ Note: is a noop if `Model.drv` is unset.
           for ent in ents:
             do_(ents[ent])
     for e in self.removed_entities:
-      do_(e)
+      # detach
+      with self.drv.session() as session:
+        result = session.run('match (e)-[r]-() where id(e)=$eid delete r return id(e)',
+                               {"eid":e.neoid})
+        for rec in result:
+          pass
     for e in self.nodes.values():
       do_(e)
     for e in self.edges.values():
