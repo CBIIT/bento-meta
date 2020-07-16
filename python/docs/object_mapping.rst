@@ -5,7 +5,7 @@ Object Map Specifications
 Defining and Updating Objects
 ______________________________
 
-Objects (i.e., subclasses of class `bento_meta.entity.Entity`) are really just containers for :ref:`simple, object and collection attributes <object-attributes>`. They are special, however, in that an object can map to an instance of a `Neo4j graph node <https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-nodes>`_ that has a particular `label <https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-labels>`_. Having this mapping means that changes to the object attributes can be pushed to the corresponding node in the graph database, and changes in the graph can be pulled to the object.
+Objects (i.e., subclasses of class :class:`bento_meta.entity.Entity`) are really just containers for :ref:`simple, object and collection attributes <object-attributes>`. They are special, however, in that an object can map to an instance of a `Neo4j graph node <https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-nodes>`_ that has a particular `label <https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-labels>`_. Having this mapping means that changes to the object attributes can be pushed to the corresponding node in the graph database, and changes in the graph can be pulled to the object.
 
 Defining a new object (or changing the attributes on an existing object) is a matter of telling the subclass what the relationships are between the object class and node labels, and object attributes and node `properties <https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-properties>`_ or `links <https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-relationships>`_ to other nodes. In the process, you are declaring the attributes that are associated with the object.
 
@@ -14,9 +14,9 @@ These *declared attributes* can be used in code like standard attributes (i.e., 
 Subclasses are derived from Entity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `bento_meta.entity.Entity` class is the base for all mapped objects. `Entity` contains almost all the functionality required for mapping, including magic setters that perform versioning bookkeeping, and connecting objects with `bento_meta.object_map.ObjectMap` classes that perform the database interactions.
+The :class:`bento_meta.entity.Entity` class is the base for all mapped objects. :class:`Entity` contains almost all the functionality required for mapping, including magic setters that perform versioning bookkeeping, and connecting objects with :class:`bento_meta.object_map.ObjectMap` classes that perform the database interactions.
 
-The `Entity` class also provides attributes that are common to all objects. These include ``_from`` and ``_to`` that indicate the versioned "lifetime" of an objects, and ``_next`` and ``_prev``, that point to next and previous versions of an object.
+The :class:`Entity` class also provides attributes that are common to all objects. These include ``_from`` and ``_to`` that indicate the versioned "lifetime" of an objects, and ``_next`` and ``_prev``, that point to next and previous versions of an object.
 
 attspec and mapspec
 ^^^^^^^^^^^^^^^^^^^
@@ -77,7 +77,7 @@ Looking at the class def for :class:`Property`,
                                    "end_cls" : "ValueSet" }
                   }}
 
-we see from the mapspec that `Property` objects are represented by Neo4j nodes with the ``property`` label. Also, the attribute that serves as a key to `Node.props` is the `Property` handle::
+we see from the mapspec that :class:`Property` objects are represented by Neo4j nodes with the ``property`` label. Also, the attribute that serves as a key to :meth:`Node.props` is :meth:`Property.handle`::
 
   n = Node({"handle":"mynode", "model":"test"})
   # create property with handle "myprop"
