@@ -21,8 +21,8 @@ The `Entity` class also provides attributes that are common to all objects. Thes
 attspec and mapspec
 ^^^^^^^^^^^^^^^^^^^
 
-Two subclass properties declare attributes and specify the mapping: `attspec` and `mapspec`. 
-`attspec` is a dictionary whose keys are the attribute names, and values are the attribute type: `simple`, `object`, or `collection`. `mapspec` is a dictionary that specifies the database mapping, as described below.
+Two subclass properties declare attributes and specify the mapping: *attspec* and *mapspec*. 
+*attspec* is a dictionary whose keys are the attribute names, and values are the attribute type: ``simple``, ``object``, or ``collection``. *mapspec* is a dictionary that specifies the database mapping, as described below.
 
 .. code-block:: python
                 
@@ -50,8 +50,8 @@ The ``mapspec`` has four keys:
 * ``property``: is a dict that relates the simple object attributes (key) to the Neo4j node properties (value).
 * ``relationship``: is a dict that relates the object and collection attributes (key) to the Neo4j relationship type and the name(s) of the object class that are the values of the attribute. The value is a dict with keys ``rel`` and ``end_cls``.
 
-So, in the example, ``props`` is an attribute of ``Node`` objects that refers to a collection of
-``Property`` objects. In the database, each ``Property`` object is connected to its owning ``Node`` by a Neo4j relationship with type "has_property", with the ``Node`` object as source and ``Property`` as destination of that relationship.
+So, in the example, ``props`` is an attribute of :class:`Node` objects that refers to a collection of
+:class:`Property` objects. In the database, each :class:`Property` object is connected to its owning :class:`Node` by a Neo4j relationship with type ``has_property``, with the :class:`Node` object as source and :class:`Property` as destination of that relationship.
 
 Looking at the class def for :class:`Property`,
 
@@ -77,7 +77,7 @@ Looking at the class def for :class:`Property`,
                                    "end_cls" : "ValueSet" }
                   }}
 
-we see from the mapspec that `Property` objects are represented by Neo4j nodes with the ``property`` label. Also, the attribute that serves as a key to ``Node.props`` is the `Property` handle::
+we see from the mapspec that `Property` objects are represented by Neo4j nodes with the ``property`` label. Also, the attribute that serves as a key to `Node.props` is the `Property` handle::
 
   n = Node({"handle":"mynode", "model":"test"})
   # create property with handle "myprop"
