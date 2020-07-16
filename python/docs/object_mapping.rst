@@ -77,7 +77,7 @@ Looking at the class def for :class:`Property`,
                                    "end_cls" : "ValueSet" }
                   }}
 
-we see from the mapspec that :class:`Property` objects are represented by Neo4j nodes with the ``property`` label. Also, the attribute that serves as a key to :meth:`Node.props` is :meth:`Property.handle`::
+we see from the mapspec that :class:`Property` objects are represented by Neo4j nodes with the ``property`` label. Also, the attribute that serves as a key to :attr:`Node.props` is :attr:`Property.handle`::
 
   n = Node({"handle":"mynode", "model":"test"})
   # create property with handle "myprop"
