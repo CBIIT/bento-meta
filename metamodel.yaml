@@ -7,14 +7,12 @@ Nodes:
       - category
   relationship:
     Props:
-      - id
       - handle
       - model
-      - neo_type
       - multiplicity
+      - is_required
   property:
     Props:
-      - id
       - handle
       - model
       - is_required
@@ -23,7 +21,6 @@ Nodes:
       - pattern
   value_set:
     Props:
-      - id
       - handle
       - url
   concept:
@@ -31,16 +28,18 @@ Nodes:
       - id
   term:
     Props:
-      - id
       - value
       - origin_id
       - origin_definition
   origin:
     Props:
-      - id
       - name
       - url
       - is_external
+  tag:
+    Props:
+      - key
+      - value
 Relationships:
   has_concept:
     Mul: many_to_one
@@ -103,6 +102,24 @@ Relationships:
     Ends:
       - Src: value_set
         Dst: term
+  has_tag:
+    Mul: many_to_many
+    Props: null
+    Ends:
+      - Src: node
+        Dst: tag
+      - Src: relationship
+        Dst: tag
+      - Src: property
+        Dst: tag
+      - Src: concept
+        Dst: tag
+      - Src: term
+        Dst: tag
+      - Src: value_set
+        Dst: tag
+      - Src: origin
+        Dst: tag
   represents:
     Mul: one_to_many
     Props: null
@@ -114,19 +131,25 @@ Relationships:
           different concepts. Then the terms are \"homonyms\", but not \"synonyms\". The difference is in the graph context:
           a term\'s value is not its meaning, but the concept is, and the terms context is the value_set in which it is
           grouped (or the entity, including the entity\'s home model, which is linked to the concept)
-          
+
+UniversalNodeProperties:
+  mustHave:
+    - id
+  mayHave:
+    - desc
+
 PropDefinitions:
   handle:
     Req: true
     Type: string
-    Desc: the name of the entity in local vocabulary; not necessarily the term per se
+    Desc: |
+      the name of the entity in local vocabulary; not necessarily the term
+      per se. For a Relationship, the handle is the "relationship
+      type" in a Neo4j representation
   id:
     Req: true
     Type: string
     Desc: content-free uid for model entities
-  neo_type:
-    Type: string
-    Desc: string as a neo4j relationship type for instances of the relationship entity
   model:
     Req: true
     Type: string
@@ -154,6 +177,7 @@ PropDefinitions:
       number as a string; e.g., 'mg', 'cm','degrees'. Multiple allowable
       units are separated by semicolons: 'um;angstrom'. Unit string tokens
       could (should?) have their own Terms and Concepts for completeness.
+      For other value_domain values, units should be unset
     Type: string
   value_domain:
     Req: true
