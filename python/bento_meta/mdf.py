@@ -82,6 +82,8 @@ Note: This is brittle, since the syntax of MDF is hard-coded into this method.
     ynodes = self.schema['Nodes']
     yedges = self.schema['Relationships']
     ypropdefs = self.schema['PropDefinitions']
+    yunps = self.schema.get('UniversalNodeProperties')
+    yurps = self.schema.get('UniversalRelationshipProperties')    
     # create nodes
     for n in ynodes:
       yn = ynodes[n]
@@ -116,6 +118,9 @@ Note: This is brittle, since the syntax of MDF is hard-coded into this method.
     for ent in ChainMap(self._model.nodes, self._model.edges).values():
       if isinstance(ent,Node):
         pnames = ynodes[ent.handle]['Props']
+        if yunps:
+          pnames.extend( yunps['mayHave'] if yunps.get('mayHave') else [] )
+          pnames.extend( yunps['mustHave'] if yunps.get('mustHave') else [] )
       elif isinstance(ent,Edge):
         # props elts appearing Ends hash take
         # precedence over Props elt in the
@@ -124,6 +129,9 @@ Note: This is brittle, since the syntax of MDF is hard-coded into this method.
         [end] = [e for e in yedges[hdl]['Ends'] if e['Src'] == src and
                  e['Dst'] == dst]
         pnames = end.get('Props') or yedges[hdl].get('Props')
+        if yurps:
+          pnames.extend( yurps['mayHave'] if yurps.get('mayHave') else [] )
+          pnames.extend( yurps['mustHave'] if yurps.get('mustHave') else [] )
       else:
         raise AttributeError("unhandled entity type {type} for properties".format(type=type(ent).__name__))
       if pnames:
