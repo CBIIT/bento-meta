@@ -14,7 +14,6 @@ def test_class():
   assert m.cls.attspec["props"] == 'collection'
   assert m.cls.attspec["_next"] == 'object'
   for c in (Node,Property,Term,Concept,Origin,Tag):
-    c.mergespec()
     assert isinstance(ObjectMap(cls=c),ObjectMap)
     assert c.mapspec()["label"] == c.__name__.lower()
 
@@ -81,8 +80,7 @@ def test_put_queries():
                "props": { "rel" : ":has_property>",
                           "end_cls" : "Property" }
                }}
-  Node._mapspec=None
-  Node.mergespec()
+  (Node.attspec, Node._mapspec) = mergespec('Node',Node.attspec,Node.mapspec_)
   assert Node.mapspec()["relationship"]["concept"]["end_cls"] == {"Concept","Term"}
   t = Term({"value":"boog"})
   t.neoid=6
@@ -104,8 +102,7 @@ def test_rm_queries():
                "props": { "rel" : ":has_property>",
                           "end_cls" : "Property" }
                }}
-  Node._mapspec=None
-  Node.mergespec()
+  (Node.attspec, Node._mapspec) = mergespec('Node',Node.attspec,Node.mapspec_)
   assert Node.mapspec()["relationship"]["concept"]["end_cls"] == {"Concept","Term"}
   with pytest.raises(ArgError,match="object must be mapped"):
     m.rm_q(n)

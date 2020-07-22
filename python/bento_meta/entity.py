@@ -9,7 +9,7 @@ This module contains
 """
 
 import re
-from copy import deepcopy
+# from copy import deepcopy
 from pdb import set_trace
 from collections import UserDict
 
@@ -76,8 +76,8 @@ declared.
     self.dirty=1
     self.removed_entities=[]
     self.belongs = {}
-    # merge to universal map
-    type(self).mergespec()
+    # merge to universal map - no, do in the subclasses
+    # type(self).mergespec()
 
     if init:
       if isinstance(init,Entity):
@@ -95,24 +95,24 @@ declared.
     if type(self).versioning_on:
       self._from = type(self).version_count
           
-  @classmethod
-  def mergespec(cls):
-    """Merge subclass attribute and mapping specification dicts with the
-base class's. Not for human consumption."""
-    cls.attspec.update(Entity.attspec_)
-    mo=deepcopy(Entity.mapspec_)
-    cs=cls.mapspec_
-    if "label" in cs:
-      mo["label"] = cs["label"]
-    if "key" in cs:
-      mo["key"] = cs["key"]
-    if "property" in cs:
-      mo["property"].update(cs["property"])
-    if "relationship" in cs:
-      mo["relationship"].update(cs["relationship"])    
-    mo["relationship"]["_next"]["end_cls"]={cls.__name__}
-    mo["relationship"]["_prev"]["end_cls"]={cls.__name__}
-    cls._mapspec=mo
+#   @classmethod
+#   def mergespec(cls):
+#     """Merge subclass attribute and mapping specification dicts with the
+# base class's. Not for human consumption."""
+#     cls.attspec.update(Entity.attspec_)
+#     mo=deepcopy(Entity.mapspec_)
+#     cs=cls.mapspec_
+#     if "label" in cs:
+#       mo["label"] = cs["label"]
+#     if "key" in cs:
+#       mo["key"] = cs["key"]
+#     if "property" in cs:
+#       mo["property"].update(cs["property"])
+#     if "relationship" in cs:
+#       mo["relationship"].update(cs["relationship"])    
+#     mo["relationship"]["_next"]["end_cls"]={cls.__name__}
+#     mo["relationship"]["_prev"]["end_cls"]={cls.__name__}
+#     cls._mapspec=mo
 
   @classmethod
   def mapspec(cls):

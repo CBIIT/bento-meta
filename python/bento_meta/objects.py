@@ -9,10 +9,27 @@ in representing the models contained in the `MDB <https://github.com/CBIIT/bento
 import re
 import sys
 sys.path.append('..')
+from copy import deepcopy
 from bento_meta.entity import Entity
 
 from pdb import set_trace
 # tags attr?
+def mergespec(clsname, attspec, mapspec):
+  """Merge subclass attribute and mapping specification dicts with the
+base class's. Not for human consumption."""
+  attspec.update(Entity.attspec_)
+  mo=deepcopy(Entity.mapspec_)
+  if "label" in mapspec:
+    mo["label"] = mapspec["label"]
+  if "key" in mapspec:
+    mo["key"] = mapspec["key"]
+  if "property" in mapspec:
+    mo["property"].update(mapspec["property"])
+  if "relationship" in mapspec:
+    mo["relationship"].update(mapspec["relationship"])    
+  mo["relationship"]["_next"]["end_cls"]={clsname}
+  mo["relationship"]["_prev"]["end_cls"]={clsname}
+  return (attspec, mo)
 
 class Node(Entity):
   """Subclass that models a data node."""
@@ -28,7 +45,7 @@ class Node(Entity):
                "props": { "rel" : ":has_property>",
                           "end_cls" : "Property" }
                }}
-
+  (attspec,_mapspec) = mergespec('Node',attspec,mapspec_)
   def __init__(self, init=None):
     super().__init__(init=init)
     
@@ -51,6 +68,7 @@ class Property(Entity):
                 "value_set": { "rel" : ":has_value_set>",
                                "end_cls" : "ValueSet" }
               }}
+  (attspec,_mapspec) = mergespec('Property',attspec,mapspec_)
   def __init__(self, init=None):
     super().__init__(init=init)
   
@@ -92,7 +110,7 @@ class Edge(Entity):
                 "props": { "rel" : ":has_property>",
                            "end_cls" : "Property" }
               }}
-
+  (attspec,_mapspec) = mergespec('Edge',attspec,mapspec_)
   def __init__(self, init=None):
     super().__init__(init=init)
   @property
@@ -119,6 +137,7 @@ class Term(Entity):
                 "origin": { "rel" : ":has_origin>",
                             "end_cls" : "Origin" }
               }}
+  (attspec,_mapspec) = mergespec('Term',attspec,mapspec_)
   def __init__(self, init=None):
     super().__init__(init=init)
 
@@ -143,6 +162,7 @@ Essentially a container for :class:`Term` instances.
                "origin": { "rel" : ":has_origin>",
                           "end_cls" : "Origin" }
                }}
+  (attspec,_mapspec) = mergespec('ValueSet',attspec,mapspec_)
   def __init__(self, init=None):
     super().__init__(init=init)
 
@@ -169,6 +189,7 @@ class Concept(Entity):
               "terms" : { "rel":"<:represents",
                          "end_cls":"Term" }
             }}
+  (attspec,_mapspec) = mergespec('Concept',attspec,mapspec_)
   def __init__(self, init=None):
     super().__init__(init=init)
 
@@ -182,6 +203,7 @@ class Origin(Entity):
               "url":"url",
               "is_external":"is_external"
             }}
+  (attspec,_mapspec) = mergespec('Origin',attspec,mapspec_)
   def __init__(self, init=None):
     super().__init__(init=init)
 
@@ -191,6 +213,7 @@ class Tag(Entity):
   mapspec_={"label":"tag",
             "key":"value",
             "property": { "value":"value" }}
+  (attspec,_mapspec) = mergespec('Tag',attspec,mapspec_)
   def __init__(self,init=None):
     super().__init__(init=init)    
   
