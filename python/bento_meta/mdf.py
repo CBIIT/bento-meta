@@ -19,9 +19,10 @@ import option_merge as om
 from collections import ChainMap
 from warnings import warn
 from uuid import uuid4
-from pdb import set_trace # noqa
+from pdb import set_trace  # noqa
 import json
 import sys
+
 sys.path.extend([".", ".."])
 
 

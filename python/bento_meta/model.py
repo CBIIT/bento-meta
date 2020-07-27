@@ -25,8 +25,9 @@ from bento_meta.objects import (
     Origin,
     Tag,
 )
-from pdb import set_trace # noqa
+from pdb import set_trace  # noqa
 import sys
+
 sys.path.append("..")
 
 

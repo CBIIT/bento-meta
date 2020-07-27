@@ -8,7 +8,7 @@ This module contains
 * the `ArgError` exception.
 """
 
-from pdb import set_trace # noqa
+from pdb import set_trace  # noqa
 from collections import UserDict
 from warnings import warn
 
@@ -413,7 +413,8 @@ class Entity(object):
                 warn(
                     "delete - current version count {vct} is <= entity's _to attribute".format(
                         vct=type(self).version_count
-                    ), Warning
+                    ),
+                    Warning,
                 )
         else:
             # unlink from other entities
@@ -537,7 +538,7 @@ class CollValue(UserDict):
             if not self.owner.versioned:
                 return setitem_func(self, name, value)
             elif (Entity.version_count > self.owner._from) and (self.owner._to is None):
-                pass ###.... unsure of this, maybe delete?! # noqa
+                pass  ###.... unsure of this, maybe delete?! # noqa
                 # dup becomes the "old" object and self the "new":
                 dup = self.owner.dup()
                 dup._to = Entity.version_count

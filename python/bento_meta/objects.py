@@ -8,9 +8,10 @@ in representing the models contained in the `MDB <https://github.com/CBIIT/bento
 """
 from copy import deepcopy
 from bento_meta.entity import Entity
-from pdb import set_trace # noqa
+from pdb import set_trace  # noqa
 import sys
-sys.path.append("..") # noqa
+
+sys.path.append("..")  # noqa
 
 
 # tags attr?
