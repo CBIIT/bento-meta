@@ -1,0 +1,8 @@
+-r requirements.txt
+pytest
+docker-compose
+pytest-docker
+requests
+tox
+black
+
