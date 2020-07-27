@@ -328,7 +328,7 @@ Note: Only works on Nodes, Edges, and Properties
       idx = 1 if key == 'src' else 2
       return [self.edges[x] for x in self.edges if x[idx] == item.handle]
     else:
-      return [self.edges[x] for x in self.edge if x[0] == item]
+      return [self.edges[x] for x in self.edges if x[0] == item]
 
   def edges_by_src(self,node):
     """Get all :class:`Edge` that have a given :class:`Node` as their src attribute
