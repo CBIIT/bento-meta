@@ -121,14 +121,23 @@ The model attribute of ``edge`` is set to `Model.handle`
 :param Node|Edge ent: Attach ``prop`` to this entity
 :param Property prop: A :class:`Property` instance
 
-The model attribute of ``prop`` is set to `Model.handle`
+The model attribute of ``prop`` is set to `Model.handle`. Within a model, 
+:class:`Property` entities are unique with respect to their 
+handle (but can be reused). This method will look for an existing 
+property within the model with the given handle, and add an item to 
+Model.props pointing to it if found.
 """
     if not isinstance(ent, (Node, Edge)):
       raise ArgError("arg 1 must be Node or Edge")
     if not prop:
       raise ArgError("arg 2 must be Property, dict, or graph.Node")
     if isinstance(prop, (dict, neo4j.graph.Node)):
-      prop = Property(prop)
+      handle = prop['handle']
+      pkeys = [ x  for x in self.props if handle in x ]
+      if pkeys:
+        prop = self.props[pkeys.pop()]
+      else:
+        prop = Property(prop)
     if not prop.model:
       prop.model = self.handle
     key = [ent.handle] if isinstance(ent,Node) else list(ent.triplet)

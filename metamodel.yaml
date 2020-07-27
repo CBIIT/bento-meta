@@ -135,6 +135,8 @@ Relationships:
 UniversalNodeProperties:
   mustHave:
     - id
+    - nanoid6
+    - nanoid8
   mayHave:
     - desc
 
@@ -150,6 +152,14 @@ PropDefinitions:
     Req: true
     Type: string
     Desc: content-free uid for model entities
+  nanoid6:
+    Req: true
+    Type: string
+    Desc: 6char content-free uid for model entities
+  nanoid8:
+    Req: true
+    Type: string
+    Desc: 8char content-free uid for model entities
   model:
     Req: true
     Type: string
