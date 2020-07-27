@@ -32,6 +32,7 @@ class Model(object):
     if not handle:
       raise ArgError("model requires arg 'handle' set")
     self.handle = handle
+    self._drv = None
     self.nodes={}
     self.edges={} # keys are (edge.handle, src.handle, dst.handle) tuples
     self.props={} # keys are ({edge|node}.handle, prop.handle) tuples
@@ -39,12 +40,7 @@ class Model(object):
     self.removed_entities=[]
 
     if drv:
-      if isinstance(drv,(BoltDriver, Neo4jDriver)):
-        self.drv=drv
-        for cls in ( Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag ):
-          cls.object_map=ObjectMap(cls=cls,drv=drv)
-      else:
-        raise ArgError("drv= arg must be Neo4jDriver or BoltDriver (returned from GraphDatabase.driver())")
+      self.drv = drv
     else:
       self.drv=None
 
@@ -70,7 +66,25 @@ Note: this delegates to :meth:`Entity.versioning`.
 Note: this delegates to :meth:`Entity.set_version_count`.
 """
     Entity.set_version_count(ct)
+
+  @property
+  def drv(self):
+    """Neo4j database driver (as returned by :meth:`neo4j.GraphDatabase.driver`) for this model"""
+    return self._drv
+  @drv.setter
+  def drv(self, value):
+    if isinstance(value,(BoltDriver, Neo4jDriver)):
+      self._drv=value
+      for cls in ( Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag ):
+        cls.object_map=ObjectMap(cls=cls,drv=value)
+    elif not value:
+      self._drv = None
+      for cls in ( Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag ):
+        cls.object_map=None
+    else:
+      raise ArgError("drv= arg must be Neo4jDriver or BoltDriver (returned from GraphDatabase.driver())")
     
+          
   def add_node(self, node=None):
     """Add a :class:`Node` to the model.
 
