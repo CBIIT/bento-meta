@@ -11,6 +11,13 @@ from bento_meta.object_map import ObjectMap
 from bento_meta.entity import *
 from bento_meta.objects import *
 
+def addnanoid():
+    """Perl script to add nanoid to all objects in db
+    This is merely proof-of-concept that I can have nanoid as attributes
+    TODO refactor this into python code cleanly
+    """
+    pipe = subprocess.Popen(['perl', "./add-nanoid.pl"])
+
 def test_get(bento_neo4j):
   (b,h)=bento_neo4j
   drv = GraphDatabase.driver(b)

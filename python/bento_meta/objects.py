@@ -42,13 +42,14 @@ class Node(Entity):
         "handle": "simple",
         "model": "simple",
         "category": "simple",
+        "nanoid": "simple",
         "concept": "object",
         "props": "collection",
     }
     mapspec_ = {
         "label": "node",
         "key": "handle",
-        "property": {"handle": "handle", "model": "model", "category": "category"},
+        "property": {"handle": "handle", "model": "model", "category": "category", "nanoid": "nanoid"},
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "props": {"rel": ":has_property>", "end_cls": "Property"},
@@ -70,6 +71,7 @@ class Property(Entity):
         "units": "simple",
         "pattern": "simple",
         "is_required": "simple",
+        "nanoid": "simple",
         "concept": "object",
         "value_set": "object",
     }
@@ -83,6 +85,7 @@ class Property(Entity):
             "pattern": "pattern",
             "units": "units",
             "is_required": "is_required",
+            "nanoid": "nanoid"
         },
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
