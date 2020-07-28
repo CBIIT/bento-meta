@@ -49,7 +49,12 @@ class Node(Entity):
     mapspec_ = {
         "label": "node",
         "key": "handle",
-        "property": {"handle": "handle", "model": "model", "category": "category", "nanoid": "nanoid"},
+        "property": {
+            "handle": "handle",
+            "model": "model",
+            "category": "category",
+            "nanoid": "nanoid",
+        },
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "props": {"rel": ":has_property>", "end_cls": "Property"},
@@ -85,7 +90,7 @@ class Property(Entity):
             "pattern": "pattern",
             "units": "units",
             "is_required": "is_required",
-            "nanoid": "nanoid"
+            "nanoid": "nanoid",
         },
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},

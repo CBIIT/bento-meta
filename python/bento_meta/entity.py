@@ -201,11 +201,12 @@ class Entity(object):
         # this unsets any attribute that is not present in the Node's properties
         for att in [a for a in type(self).attspec if type(self).attspec[a] == "simple"]:
 
-            ## DEBUG - 
+            # DEBUG -
             # TODO - THIS IS TO BE REMOVED
-            if (0):
+            if 0:
                 print(" .. list of Node's mapspec() .. ")
                 import pprint
+
                 pprint.pprint(type(self).mapspec()["property"])
                 print(" .. list of Node's _mapspec .. ")
                 pprint.pprint(type(self)._mapspec)
@@ -229,13 +230,13 @@ class Entity(object):
             # NOTE: 'one-off' munge to allow 'nanoid' attspec for Node
             # P.S.: don't let mom see I coded this...
             # TODO fix this!
-            if (att == "nanoid" and type(self) == "Node"):
+            if att == "nanoid" and type(self) == "Node":
                 patt = "nanoid"
                 if patt in init:
                     setattr(self, att, init[patt])
                 else:
                     setattr(self, att, None)
-                
+
         self.neoid = init.id
 
     def set_with_entity(self, ent):
