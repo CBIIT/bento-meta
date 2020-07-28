@@ -115,7 +115,7 @@ def test_rm_queries():
   qry = m.rm_attr_q(n,'model')
   assert qry=='MATCH (n:node) WHERE id(n)=1 REMOVE n.model RETURN id(n)'
   qry = m.rm_attr_q(n,'props',[':all'])
-  assert qry=='MATCH (n:node)-[r:has_property]->(a) WHERE id(n)=1 DELETE r RETURN id(n),id(a)'
+  assert qry=='MATCH (n:node)-[r:has_property]->(a:property) WHERE id(n)=1 DELETE r RETURN id(n),id(a)'
   qry = m.rm_attr_q(n,'concept',[':all'])
   assert re.match("MATCH \\(n:node\\)-\\[r:has_concept\\]->\\(a\\) WHERE id\\(n\\)=1 AND \\('[a-z]+' IN labels\\(a\\) OR '[a-z]+' IN labels\\(a\\)\\) DELETE r",qry)
   prps = [Property(x) for x in ( {"model":"test","handle":"prop1"},
