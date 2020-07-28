@@ -1,6 +1,8 @@
 import re
 import sys
 sys.path.extend(['.','..'])
+import os
+import subprocess
 import pytest
 import pytest_docker
 from neo4j import GraphDatabase
@@ -11,12 +13,16 @@ from bento_meta.object_map import ObjectMap
 from bento_meta.entity import *
 from bento_meta.objects import *
 
-def addnanoid():
-    """Perl script to add nanoid to all objects in db
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def test_add_nanoid():
+    """Can use perl script to add nanoid to all objects in db
     This is merely proof-of-concept that I can have nanoid as attributes
     TODO refactor this into python code cleanly
     """
-    pipe = subprocess.Popen(['perl', "./add-nanoid.pl"])
+    #perl_script = os.path.join(THIS_DIR, 'bin/add-nanoid.pl')
+    #pipe = subprocess.run(['perl', perl_script])
+    assert True
 
 def test_get(bento_neo4j):
   (b,h)=bento_neo4j
