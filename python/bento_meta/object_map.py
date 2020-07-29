@@ -475,6 +475,7 @@ This represents dropping an object-valued attribute from the object."""
             qry = "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) DELETE r RETURN id(n),id(a)".format(
               lbl=self.cls.mapspec()["label"],
               neoid=obj.neoid,
+              aneoid=val.neoid,
               cond=cond,
               rel=rel)
           stmts.append(qry)
