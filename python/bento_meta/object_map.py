@@ -446,7 +446,7 @@ This represents dropping an object-valued attribute from the object."""
       rel = re.sub('^([^:]?)(:[a-zA-Z0-9_]+)(.*)$',r'\1-[r\2]-\3', spec['rel'])
       if values[0]==':all':
         if len(end_lbls)==1:
-          return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} DELETE r RETURN id(n),id(a)".format(
+          return "MATCH (n:{lbl}){rel}(a:{albl}) WHERE id(n)={neoid} DELETE r RETURN id(n),id(a)".format(
             lbl=self.cls.mapspec()["label"],
             albl=end_lbls[0],
             rel=rel,
@@ -474,7 +474,6 @@ This represents dropping an object-valued attribute from the object."""
           else:
             qry = "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) DELETE r RETURN id(n),id(a)".format(
               lbl=self.cls.mapspec()["label"],
-              albl=end_lbls[0],
               neoid=obj.neoid,
               cond=cond,
               rel=rel)
