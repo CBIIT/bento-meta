@@ -4,8 +4,27 @@ sys.path.extend(['.','..'])
 import pytest
 from pdb import set_trace
 from bento_meta.object_map import ObjectMap
-from bento_meta.entity import *
-from bento_meta.objects import *
+from bento_meta.entity import Entity, ArgError
+from bento_meta.objects import Node,Property,Term,Concept,Origin,ValueSet,Tag,mergespec
+
+# FakeNode for testing ['relationship']['endcls'] = a _tuple_
+class FakeNode(Entity):
+  attspec = {"handle":"simple","model":"simple",
+             "category":"simple", "concept":"object",
+             "props":"collection"}
+  
+  mapspec_={"label":"node",
+             "property": {"handle":"handle","model":"model","category":"category"},
+             "relationship": {
+               "concept": { "rel" : ":has_concept>",
+                            "end_cls" : {"Concept","Term"} },
+               "props": { "rel" : ":has_property>",
+                          "end_cls" : "Property" }
+               }}
+  (attspec, _mapspec) = mergespec('FakeNode',attspec,mapspec_)
+  def __init__(self, init=None):
+    super().__init__(init=init)
+  
 
 def test_class():
   m = ObjectMap(cls=Node)
@@ -36,7 +55,7 @@ def test_get_queries():
   qry = m.get_attr_q(n,'concept')
   assert qry == "MATCH (n:node)-[:has_concept]->(a:concept) WHERE id(n)=1 RETURN a LIMIT 1"  
 
-def test_put_queries():  
+def test_put_queries():
   m = ObjectMap(cls=Node)
   n = Node({"handle":"test","model":"test_model","category":1})
   qry = m.put_q(n)
@@ -72,16 +91,9 @@ def test_put_queries():
   stmts = m.put_attr_q(n,'props',prps)
   assert stmts[0] == "MATCH (n:node),(a:property) WHERE id(n)=1 AND id(a)=5 MERGE (n)-[:has_property]->(a) RETURN id(a)"
   assert len(stmts) == 3
-  Node.mapspec_={"label":"node",
-             "property": {"handle":"handle","model":"model","category":"category"},
-             "relationship": {
-               "concept": { "rel" : ":has_concept>",
-                            "end_cls" : {"Concept","Term"} },
-               "props": { "rel" : ":has_property>",
-                          "end_cls" : "Property" }
-               }}
-  (Node.attspec, Node._mapspec) = mergespec('Node',Node.attspec,Node.mapspec_)
-  assert Node.mapspec()["relationship"]["concept"]["end_cls"] == {"Concept","Term"}
+  m=ObjectMap(cls=FakeNode)
+  n=FakeNode({"handle":"test","model":"test_model","category":1})
+  n.neoid=1
   t = Term({"value":"boog"})
   t.neoid=6
   stmts = m.put_attr_q(n,"concept",[t])
@@ -91,19 +103,9 @@ def test_put_queries():
   pass
 
 def test_rm_queries():
-
-  m = ObjectMap(cls=Node)
-  n = Node({"handle":"test","model":"test_model","category":1})
-  Node.mapspec_={"label":"node",
-             "property": {"handle":"handle","model":"model","category":"category"},
-             "relationship": {
-               "concept": { "rel" : ":has_concept>",
-                            "end_cls" : {"Concept","Term"} },
-               "props": { "rel" : ":has_property>",
-                          "end_cls" : "Property" }
-               }}
-  (Node.attspec, Node._mapspec) = mergespec('Node',Node.attspec,Node.mapspec_)
-  assert Node.mapspec()["relationship"]["concept"]["end_cls"] == {"Concept","Term"}
+  m = ObjectMap(cls=FakeNode)
+  n = FakeNode({"handle":"test","model":"test_model","category":1})
+  assert FakeNode.mapspec()["relationship"]["concept"]["end_cls"] == {"Concept","Term"}
   with pytest.raises(ArgError,match="object must be mapped"):
     m.rm_q(n)
   n.neoid=1
@@ -115,7 +117,7 @@ def test_rm_queries():
   qry = m.rm_attr_q(n,'model')
   assert qry=='MATCH (n:node) WHERE id(n)=1 REMOVE n.model RETURN id(n)'
   qry = m.rm_attr_q(n,'props',[':all'])
-  assert qry=='MATCH (n:node)-[r:has_property]->(a) WHERE id(n)=1 DELETE r RETURN id(n),id(a)'
+  assert qry=='MATCH (n:node)-[r:has_property]->(a:property) WHERE id(n)=1 DELETE r RETURN id(n),id(a)'
   qry = m.rm_attr_q(n,'concept',[':all'])
   assert re.match("MATCH \\(n:node\\)-\\[r:has_concept\\]->\\(a\\) WHERE id\\(n\\)=1 AND \\('[a-z]+' IN labels\\(a\\) OR '[a-z]+' IN labels\\(a\\)\\) DELETE r",qry)
   prps = [Property(x) for x in ( {"model":"test","handle":"prop1"},
@@ -128,6 +130,7 @@ def test_rm_queries():
   stmts = m.rm_attr_q(n,'props',prps)
   assert stmts[0] == "MATCH (n:node)-[r:has_property]->(a:property) WHERE id(n)=1 AND id(a)=5 DELETE r RETURN id(n),id(a)"
   assert len(stmts) == 3
+
 
 
   
