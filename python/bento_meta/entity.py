@@ -198,45 +198,13 @@ class Entity(object):
                     setattr(self, att, init[att])
 
     def set_with_node(self, init):
-        # this unsets any attribute that is not present in the Node's properties
+        """ this unsets any attribute that is not present in the Node's properties """
         for att in [a for a in type(self).attspec if type(self).attspec[a] == "simple"]:
-
-            # DEBUG -
-            # TODO - THIS IS TO BE REMOVED
-            if 0:
-                print(" .. list of Node's mapspec() .. ")
-                import pprint
-
-                pprint.pprint(type(self).mapspec()["property"])
-                print(" .. list of Node's _mapspec .. ")
-                pprint.pprint(type(self)._mapspec)
-                print(" .. list of Node's mapspec_ .. ")
-                pprint.pprint(type(self).mapspec_)
-
-            # WARNING: the node.mapspec()["property"] is NOT reading
-            #          what is defined in objects.py class Node(Entity)
-            #          can add 'nanoid' to attspec and mapspec_ but it will
-            #          NOT show up here, not yet read?
-            # Ergo, code needs to check that the attribute att actually
-            # exists in the mapspec()["property"] dictionary, or else it will
-            # raise KeyError here
-            if att in (type(self).mapspec()["property"]):
-                patt = type(self).mapspec()["property"][att]
-                if patt in init:
-                    setattr(self, att, init[patt])
-                else:
-                    setattr(self, att, None)
-
-            # NOTE: 'one-off' munge to allow 'nanoid' attspec for Node
-            # P.S.: don't let mom see I coded this...
-            # TODO fix this!
-            if att == "nanoid" and type(self) == "Node":
-                patt = "nanoid"
-                if patt in init:
-                    setattr(self, att, init[patt])
-                else:
-                    setattr(self, att, None)
-
+            patt = type(self).mapspec()["property"][att]
+            if patt in init:
+                setattr(self, att, init[patt])
+            else:
+                setattr(self, att, None)
         self.neoid = init.id
 
     def set_with_entity(self, ent):
