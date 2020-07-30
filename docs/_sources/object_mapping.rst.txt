@@ -28,7 +28,7 @@ Two subclass properties declare attributes and specify the mapping: *attspec* an
                 
     class Node(Entity):
       """Subclass that models a data node."""
-      attspec = {"handle":"simple","model":"simple",
+      attspec_ = {"handle":"simple","model":"simple",
                  "category":"simple","concept":"object",
                  "props":"collection"}
       mapspec_ = {"label":"node",
@@ -59,7 +59,7 @@ Looking at the class def for :class:`Property`,
 
     class Property(Entity):
       """Subclass that models a property of a node or relationship (edge)."""
-      attspec = {"handle":"simple","model":"simple",
+      attspec_ = {"handle":"simple","model":"simple",
                  "value_domain":"simple","units":"simple",
                  "pattern":"simple","is_required":"simple",
                  "concept":"object","value_set":"object"}
@@ -88,4 +88,4 @@ we see from the mapspec that :class:`Property` objects are represented by Neo4j 
   # access property from collection attribute with key "myprop"
   assert n.props['myprop'].value_domain == "string"
 
-Changing the attributes declared for an object therefore is a matter of adding the attribute to the ``attspec``, designating the appropriate attribute type, and adding the attribute to ``mapspec_`` (note the underscore) under the ``property`` key (for simple attributes) or the ``relationship`` key (for object or collection attributes).
+Changing the attributes declared for an object therefore is a matter of adding the attribute to the ``attspec_``, designating the appropriate attribute type, and adding the attribute to ``mapspec_`` (*note the underscores*) under the ``property`` key (for simple attributes) or the ``relationship`` key (for object or collection attributes).

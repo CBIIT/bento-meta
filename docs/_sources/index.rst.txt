@@ -14,7 +14,7 @@ MDB. The MDB can store multiple data models in terms of their nodes,
 relationships, and properties. The MDB links these entities according to the structure of
 the individual models:
 
-.. image:: https://raw.githubusercontent.com/CBIIT/bento-meta/master/metamodel.svg?sanitize=true
+.. image:: https://raw.githubusercontent.com/CBIIT/bento-meta/master/metamodel.svg
            :target: https://github.com/CBIIT/bento-meta#bento-meta-db
            :width: 500px
            :height: 600px
