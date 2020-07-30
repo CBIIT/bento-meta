@@ -1,5 +1,5 @@
 import sys
-sys.path.append('..')
+sys.path.insert(1,'..')
 import os
 from bento_meta.entity import Entity
 from bento_meta.objects import *

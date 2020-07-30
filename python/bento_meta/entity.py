@@ -416,18 +416,18 @@ This will set the `neoid` property if not yet set.
 {desc}
 
 """.format(desc=first, cls = cls.__name__)
-    for att in [x for x in cls.attspec if cls.attspec[x] == "simple"]:
+    for att in [x for x in cls.attspec_ if cls.attspec[x] == "simple"]:
       doc += """\
   .. py:attribute:: {att}
        :type: simple
 """.format(att=cls.__name__.lower()+"."+att)
-    for att in [x for x in cls.attspec if cls.attspec[x] == "object"]:
+    for att in [x for x in cls.attspec_ if cls.attspec[x] == "object"]:
       doc += """\
   .. py:attribute:: {att}
        :type: {obj}
 """.format(att=cls.__name__.lower()+"."+att,
            obj= str_for_obj(cls.mapspec_['relationship'][att]['end_cls']) )
-    for att in [x for x in cls.attspec if cls.attspec[x] == "collection"]:
+    for att in [x for x in cls.attspec_ if cls.attspec[x] == "collection"]:
       doc += """\
   .. py:attribute:: {att}
        :type: collection of {obj}
