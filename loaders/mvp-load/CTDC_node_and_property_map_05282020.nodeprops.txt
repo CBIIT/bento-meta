@@ -1,0 +1,81 @@
+Node	Property	NCI Code	NCI PT	NCI DEF		
+nucleic_acid	aliquot_id	C172254	Nucleic Acid Aliquot Unique Identifier	A unique identifier assigned to an aliquot containing a nucleic acid sample.		
+delins_variant; indel_variant; snv_variant	alternative	C97927	Gene Mutant	A variation in the nucleic acid sequence of a specific gene.		
+delins_variant; indel_variant; snv_variant	amino_acid_change	C97928	Gene Product Sequence Variation	A variation in the amino acid sequence of a specific gene product.		
+assignment_report; variant_report	analysis_id	C171180	Source-Specific Sequence Variant Report Unique Identifier	A unique identifier assigned to each variant report by the original data source site.		
+arm	arm_drug	C172236	Protocol Treatment Arm Drug Name	The name of the therapeutic agent or agents administered in a specific arm of a study.		
+arm	arm_id	C171181	Protocol Treatment Arm Unique Identifier	A unique identifier assigned to a protocol treatment arm.		
+arm	arm_target	C172275	Protocol Treatment Arm Molecular Target	A description of the molecular target(s) of a protocol arm.		
+assignment_report	assignment_logic	C171182	Protocol Treatment Arm Assignment Rationale	The rationale used for assigning a subject to a study arm.		
+assignment_report	assignment_outcome	C172271	Patient Status Following Protocol Treatment Arm Assignment	The status of a patient following assignment to a treatment arm.		
+assignment_report	assignment_report_id	C172237	Protocol Treatment Arm Assignment Report Unique Identifier	A unique identifier assigned to a protocol arm assignment report.		
+specimen	biopsy_sequence_number	C171262	Biopsy Sample Unique Identifier	A unique identifier assigned to a subject's biopsy sample.		
+case	case_id	C164324	Case Identifier	A unique alphanumeric identifier assigned to a specific case.		
+variant_report	cellularity	C123556	Cancer Cellularity Measurement	The determination of the ratio of neoplastic cells compared to total cells in a sample. The measurement may be expressed as a ratio or percentage.		
+copy_number_variant; delins_variant; indel_variant; snv_variant	chromosome	C13202	Chromosome	"One of the bodies in the cell nucleus that is the bearer of genes, has the form of a delicate chromatin filament during interphase, contracts to form a compact cylinder segmented into two arms by the centromere during metaphase and anaphase stages of cell division, and is capable of reproducing its physical and chemical structure through successive cell divisions."		
+clinical_trial	clinical_trial_description	C172238	Clinical Trial Description	A description of the clinical trial.		
+clinical_trial	clinical_trial_designation	C172239	Clinical Trial Designation	An abbreviation or short name used as an identifier for a trial.		
+clinical_trial	clinical_trial_id	C172240	Clinicaltrials.gov Identifier	The unique alphanumeric identifier for a trial as assigned by the Clinicaltrials.gov Protocol Registration and Results System (PRS).		
+clinical_trial	clinical_trial_long_name	C171263	Clinical Trial Long Name	The complete name or title of a clinical trial.		
+clinical_trial	clinical_trial_short_name	C171183	Clinical Trial Short Name	An abbreviated form of the name or title of a clinical trial.		
+clinical_trial	clinical_trial_type	C49660	Trial Type	"The type of clinical trial performed e.g. efficacy, safety."		
+case	ctep_category	C171186	Clinical Diagnosis by CTEP Disease Category	A clinical diagnosis designation using a category term in the NCI Cancer Therapeutic Evaluation Program (CTEP) Simplified Disease Classification (SDC) terminology.		
+case	ctep_subcategory	C171187	Clinical Diagnosis by CTEP Disease Sub-Category	A clinical diagnosis designation using a sub-category term in the NCI Cancer Therapeutic Evaluation Program (CTEP) Simplified Disease Classification (SDC) terminology.		
+case	current_step	C16154	Treatment Step	A specific stage of progression through a sequential treatment protocol.		
+case	disease	C2991	Disease or Disorder	"Any abnormal condition of the body or mind that causes discomfort, dysfunction, or distress to the person affected or those in contact with the person. The term is often used broadly to include injuries, disabilities, syndromes, symptoms, deviant behaviors, and atypical variations of structure and function."		
+case	ecog_performance_status	C105721	ECOG Performance Status	A performance status scale designed to assess disease progression and its affect on the daily living abilities of the patient.		
+case	ethnicity	C16564	Ethnic Group	A social group characterized by a distinctive social and cultural tradition that is maintained from generation to generation. Members share a common history and origin and a sense of identification with the group. They have similar and distinctive features in their lifestyle habits and shared experiences. They often have a common genetic heritage which may be reflected in their experience of health and disease.		
+delins_variant; indel_variant; snv_variant	exon	C171188	Variant Exon	The exon of a gene that contains the nucleotide variation that was identified by nucleic acid sequencing.		
+sequencing_assay	experimental_method	C18881	Nucleic Acid Sequencing	The process of determining the sequence of purines and pyrimidines in nucleic acids and polynucleotides.		
+case	extent_of_disease	PENDING				
+copy_number_variant; delins_variant; gene_fusion_variant; indel_variant; snv_variant	external_variant_id	C164813	Genetic Variation Identifier	"BRIDG 5.3 DEF: A unique symbol that establishes the identity of the genetic variation.    EXAMPLE(S): An rs identifier in dbSNP, a mutation identifier in COSMIC, or a variant identifier in OMIM  OTHER NAME(S):  NOTE(S):"		
+file	file_description	C171190	Electronic File Description	A free text field that can be used to document details about an electronic file that may not be captured elsewhere.		
+file	file_format	C171252	Electronic File Format	The format of an electronic file.		
+file	file_location	C47922	Pathname	"The specification of a node (file or directory) in a hierarchical file system, usually specified by listing the nodes top-down."		
+file	file_name	C171191	Electronic File Name	The literal identifier for an electronic file.		
+file	file_size	C171192	Electronic File Size	The size of an electronic file.		
+file	file_status	C171193	Electronic File Status	The condition for an electronic file relative to the current data or file processing step.		
+file	file_type	C172272	Electronic File Content Type	The nature of the content stored in an electronic file.		
+case	gender	C17357	Gender	The assemblage of properties that distinguish people on the basis of the societal roles expected for the two sexes.		
+copy_number_variant; delins_variant; indel_variant; snv_variant	gene	C43568	Gene Symbol	A unique gene name approved by an organism specific nomenclature committee.		
+gene_fusion_variant	gene1	C171250	Fusion Gene Upstream Gene Symbol	The gene symbol that represents the gene that comprises the 5' portion of the coding sequence for a fusion gene.		
+gene_fusion_variant	gene2	C171253	Fusion Gene Downstream Gene Symbol	The gene symbol that represents the gene that comprises the 3' portion of the coding sequence for a fusion gene.		
+delins_variant; indel_variant; snv_variant	genomic_hgvs	C172243	HGVS Genomic Variation Annotation	The designation of an observed genomic variation based on the Human Genome Variation Society (HGVS) nomenclature guidelines.		
+ihc_assay_report	ihc_assay_id	C171272	Immunohistochemistry Assay Unique Identifier	A unique identifier assigned to raw or processed data from a performed immunohistochemistry assay.		
+ihc_assay_report	ihc_test_gene	C171273	Gene Symbol of Target in Immunohistochemistry Assay	The gene symbol that represents the target analyte assayed during an immunohistochemical test.		
+ihc_assay_report	ihc_test_result	C125007	Histopathology Result	The outcome of a microscopic pathologic examination using various cytochemical and immunocytochemical stains.		
+clinical_trial	lead_organization	C63409	Lead Organization	The principal administrative organization responsible for the research conducted.		
+variant_report	mapd	C171275	Copy Number Median Absolute Percentage Deviation	A statistical measure of the accuracy of copy number predictions made by a variant calling pipeline.		
+file	md5sum	C171276	MD5 Checksum	A 32-character hexadecimal number that is computed on a file.		
+case	meddra_code	C117056	MedDRA Preferred Term Code	A coded value specifying the preferred term from the Medical Dictionary for Regulatory Activities (MedDRA).		
+metastatic_site	met_site_id	C172389	Metastatic Site Code	A coded value specifying the anatomic site where metastasis was detected.		
+metastatic_site	metastatic_site_name	C172273	Site of Metastasis at Trial Entry	The anatomical location where metastasis was detected at the time the subject has entered the trial.		
+nucleic_acid	molecular_sequence_number	C171259	Biopsy Molecular Sample Aliquot Unique Identifier	A unique identifier assigned to the aliquot of nucleic acid that was derived from a subject's biopsy.		
+nucleic_acid	nucleic_acid_concentration	C171277	Nucleic Acid Concentration	The measured concentration of nucleic acid in a sample.		
+nucleic_acid	nucleic_acid_type	C171278	Nucleic Acid Sample Type Indicator	"Specifies the type of nucleic acid (DNA, RNA, Pooled, etc.) found in a sample."		
+nucleic_acid	nucleic_acid_volume	C172246	Nucleic Acid Aliquot Volume	The volume of fluid in an aliquot containing nucleic acid extracted from a specimen.		
+copy_number_variant; delins_variant; gene_fusion_variant;  indel_variant; snv_variant	oncomine_variant_class	C172250	Oncomine Variant Type	The variant type assigned by the proprietary Oncomine assay.		
+case	patient_status	C166244	Patient Status	An indicator that provides information on the current health status of a patient.		
+sequencing_assay	platform	C172274	Sequencing Platform Name	The name of the technology platform used to perform nucleic acid sequencing.		
+delins_variant; indel_variant; snv_variant	position	C40342	Gene Physical Location	The physical location of a gene expressed as chromosome and start and end base positions.		
+clinical_trial	principal_investigators	C19924	Principal Investigator	An investigator who is responsible for all aspects of the conduct of a study.		
+case	prior_drugs	C82522	Prior Medication Usage	An indication or description that medications were taken previously.		
+arm	pubmed_id	C127797	PubMed Identifier for Citation Used in Study	"A globally unique identifier for a biomedical article, as assigned by PubMed."		
+sequencing_assay	qc_result	C171338	Sequencing Quality Control Result	Metadata collected during nucleic acid sequencing that can be used as a measure of the quality of the sequencing run.		
+case	race	C17049	Race	"An arbitrary classification of a taxonomic group that is a division of a species. It usually arises as a consequence of geographical isolation within a species and is characterized by shared heredity, physical attributes and behavior, and in the case of humans, by common history, nationality, or geographic distribution."		
+delins_variant; indel_variant; snv_variant	reference	C164388	Genetic Reference Sequence	A published genetic sequence that is used as a reference sequence against which other sequences are compared.		
+variant_report	reference_genome	C164815	Genome Assembly Version	BRIDG 5.3 DEF: The source-specific version of the genome assembly.  EXAMPLE(S):  (Human Genome) Build 35  OTHER NAME(S):  NOTE(S):		
+sequencing_assay	sequencing_assay_id	C171337	Sequencing Assay Unique Identifier	A unique identifier assigned to raw data from a performed nucleic acid sequencing assay.		
+case	source_id	C164337	Patient Identifier	An alphanumeric identifier assigned to a specific patient.		
+specimen	specimen_id	C166393	Specimen Identifier	A unique alphanumeric identifier assigned to a specimen.		
+specimen	specimen_type	C166229	Normal or Tumor Sample Pathology Indicator	Specifies whether a sample is derived from normal or tumor-bearing tissue.		
+assignment_report	step_at_assignment	C172251	MATCH Step at Time of Assignment	The step in the MATCH workflow at which a subject has been assigned to a treatment arm.		
+variant_report	torrent_variant_caller_version	C171336	Torrent Variant Caller Version Text	A string identifying a form or variant of the Ion Torrent variant caller used in a study.		
+delins_variant; indel_variant; snv_variant	transcript_hgvs	C172244	HGVS Transcript Variation Annotation	The designation of an observed transcript variation based on the Human Genome Variation Society (HGVS) nomenclature guidelines.		
+delins_variant; indel_variant; snv_variant	transcript_id	C171335	NCBI Transcript Identifier	An identifier assigned by National Center for Biotechnology Information (NCBI) to an RNA transcript.		
+assignment_report	treatment_outcome	C94536	Best Overall Response	The most clinically favorable response recorded from the start of the study treatment until the end of treatment.		
+copy_number_variant	tumor_suppressor	C171334	Tumor Suppressor Gene Indicator	An indication as to whether a gene or variant is a tumor suppressor.		
+file	uuid	C70663	Unique Identifier	"A set of characters used as a code that is unique in the context or the system for which it is created. It serves as a means of identification and reference (often instead of a name) for an entity, person, thing, function, procedure, activity, variable, or body of data."		
+delins_variant; indel_variant; snv_variant	variant_classification	C17248	Genetic Variation	"Genetic Variation consists of deviation(s) in the nucleotide sequence of the genetic material of an individual from that typical of the group to which the individual belongs, or deviation(s) in the nucleotide sequence of the genetic material of offspring from that of its parents."		
+copy_number_variant; delins_variant; gene_fusion_variant; indel_variant; snv_variant	variant_id	C164813	Genetic Variation Identifier	"BRIDG 5.3 DEF: A unique symbol that establishes the identity of the genetic variation.    EXAMPLE(S): An rs identifier in dbSNP, a mutation identifier in COSMIC, or a variant identifier in OMIM  OTHER NAME(S):  NOTE(S):"		
+variant_report	variant_report_id	C172253	Sequence Variant Report Unique Identifier	A unique identifier assigned to each variant report.		

@@ -1,0 +1,7 @@
+Relationship	Property	NCI Code	NCI PT	NCI DEF
+snv_variant_of; delins_variant_of; indel_variant_of	allele_frequency	C154665	Variant Allele Frequency	The relative rate of occurrence of a specific variant allele within a population.
+copy_number_variant_of	copy_number	C49142	Copy Number	The number of molecules of a particular type on or in a cell or part of a cell. Usually applied to specific genes or to plasmids within a bacterium.
+copy_number_variant_of	copy_number_ci_5	C171184	Estimated Copy Number 5 Percent Confidence Interval	The lower limit of the 95 percent confidence interval for the estimated copy number.
+copy_number_variant_of	copy_number_ci_95	C171185	Estimated Copy Number 95 Percent Confidence Interval	The upper limit of the 95 percent confidence interval for the estimated copy number.
+gene_fusion_variant_of	gene1_read_count	C171254	Fusion Gene Upstream Gene Read Count	The read count for the sequence of the gene that comprises the 5' portion of the coding sequence for a fusion gene.
+gene_fusion_variant_of	gene2_read_count	C171255	Fusion Gene Downstream Gene Read Count	The read count for the sequence of the gene that comprises the 3' portion of the coding sequence for a fusion gene.

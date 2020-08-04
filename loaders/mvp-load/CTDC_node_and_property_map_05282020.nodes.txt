@@ -1,0 +1,17 @@
+Node	NCI Code	NCI PT	NCI DEF
+arm	C15538	Protocol Treatment Arm	A specific treatment plan within a clinical trial that describes the activities a subject will be involved in as he or she progresses through the study.
+assignment_report	C172231	Protocol Treatment Arm Assignment Report	A short document that describes the test results and rationale that determined which treatment arm a subject was assigned to.
+case	C49152	Case	A problem requiring investigation.
+clinical_trial	C71104	Clinical Trial	A research study that prospectively assigns human participants or groups of humans to one or more health-related interventions to evaluate the effects on health outcomes.
+copy_number_variant	C40207	Copy Number Polymorphism	Variation in the number of copies of a particular sequence within the genetic material of an individual. Large-scale copy number polymorphisms are common and widely distributed in the human genome.
+delins_variant	C171175	Delins Mutation	"A change in a nucleotide sequence where nucleotides in a reference sequence are replaced by other nucleotides and which is not a substitution, inversion or conversion."
+file	C171177	Sequencing Data File	An electronic file containing nucleic acid sequencing data.
+gene_fusion_variant	C20195	Gene Fusion	"Any hybrid gene formed from two previously separate genes. Such fusions occur as a result of translocation, intersititial deletion or chromosomal inversion, and often result in gene products with functions different from the two fusion partners. Gene fusions are associated frequently with hematological cancers, sarcomas and prostate cancer."
+ihc_assay_report	C172232	Immunohistochemistry Assay Report	A short document that describes the data related to an immunohistochemical assay performed on a sample.
+indel_variant	C99752	Indel Mutation	"A mutation class that includes insertion mutations, deletion mutations and mutation events where both an insertion and a deletion has occurred."
+metastatic_site	C172233	Site of Metastasis	The anatomical location where metastasis was detected.
+nucleic_acid	C171176	Nucleic Acid Aliquot	A sample comprised of nucleic acids isolated from tissues or cells derived from an experimental subject and disolved in an aqueous solution.
+sequencing_assay	C18881	Nucleic Acid Sequencing	The process of determining the sequence of purines and pyrimidines in nucleic acids and polynucleotides.
+snv_variant	C164674	Single Nucleotide Variant	"A variation of a single nucleotide at a specific location of the genome due to base substitution, which is found at any frequency in the population."
+specimen	C70699	Biospecimen	"Any material sample taken from a biological entity for testing, diagnostic, propagation, treatment or research purposes, including a sample obtained from a living organism or taken from the biological object after halting of all its life functions. Biospecimen can contain one or more components including but not limited to cellular molecules, cells, tissues, organs, body fluids, embryos, and body excretory products."
+variant_report	C171178	Sequence Variant Report	A short document listing the sequence variants found in a sample.
