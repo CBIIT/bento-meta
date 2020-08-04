@@ -40,11 +40,11 @@
 
 * Every Node, Relationship, and Property is associated with a Term via a Concept, and  entity.handle = term.value
 
-	    match (a) where 'node' in labels(a) or 'relationship' in labels(a) or 'property' in labels(a) with collect(a) as aa with aa, size(aa) as n unwind aa as a match (a)-->(:concept)<--(t:term) where t.value = a.handle return count(distinct a) =n; # return TRUE
+        match (a) where 'node' in labels(a) or 'relationship' in labels(a) or 'property' in labels(a) with collect(a) as aa with aa, size(aa) as n unwind aa as a match (a)-->(:concept)<--(t:term) where t.value = a.handle return count(distinct a) =n; # return TRUE
     
    * Each such Term is linked to an Origin such that entity.model = origin.name
 
-	    match (a) where 'node' in labels(a) or 'relationship' in labels(a) or 'property' in labels(a) with collect(a) as aa with aa, size(aa) as n unwind aa as a match (a)-->(:concept)<--(t:term)-->(o:origin) where o.name = a.model return count(distinct a) =n; # return TRUE
+        match (a) where 'node' in labels(a) or 'relationship' in labels(a) or 'property' in labels(a) with collect(a) as aa with aa, size(aa) as n unwind aa as a match (a)-->(:concept)<--(t:term)-->(o:origin) where o.name = a.model return count(distinct a) =n; # return TRUE
 
 * Every Property with `value_domain` == `value_set` is linked (`has_value_set`) to a single ValueSet; no Property with `value_domain` != `value_set` is linked to a ValueSet.
 
@@ -54,6 +54,8 @@
 
 ## Mapped terms
 
-	   match (t:term)-->(o:origin {name:"NCIt"}) with collect(t) as tt with size(tt) as n, tt unwind tt as t match (t)-->(c:concept)<--(u:term)-->(o:origin) where o.name <> 'NCIt' return count(distinct t) = n; # return TRUE
-       ### return FALSE because NCIt for UUID is unmapped; ICDC model needs to add the property definition for uuid.
+* Basic test - each NCIt term should point to a concept that has another term, not NCIt, also pointing to it:
+
+        match (t:term)-->(o:origin {name:"NCIt"}) with collect(t) as tt with size(tt) as n, tt unwind tt as t match (t)-->(c:concept)<--(u:term)-->(o:origin) where o.name <> 'NCIt' return count(distinct t) = n; # return TRUE
+        ### returns FALSE because NCIt for UUID is unmapped; ICDC model needs to add the property definition for uuid.
 
