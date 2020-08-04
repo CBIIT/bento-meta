@@ -44,7 +44,7 @@
     
    * Each such Term is linked to an Origin such that entity.model = origin.name
 
-        match (a) where 'node' in labels(a) or 'relationship' in labels(a) or 'property' in labels(a) with collect(a) as aa with aa, size(aa) as n unwind aa as a match (a)-->(:concept)<--(t:term)-->(o:origin) where o.name = a.model return count(distinct a) =n; # return TRUE
+	    	  match (a) where 'node' in labels(a) or 'relationship' in labels(a) or 'property' in labels(a) with collect(a) as aa with aa, size(aa) as n unwind aa as a match (a)-->(:concept)<--(t:term)-->(o:origin) where o.name = a.model return count(distinct a) =n; # return TRUE
 
 * Every Property with `value_domain` == `value_set` is linked (`has_value_set`) to a single ValueSet; no Property with `value_domain` != `value_set` is linked to a ValueSet.
 
