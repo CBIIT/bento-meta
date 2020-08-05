@@ -1,0 +1,49 @@
+# following line is key to prevent an endless build/deploy cycle
+# when travis commits to pages:
+if: commit_message !~ ^Deploy.*
+dist: xenial
+env:
+  global:
+  - PERL5LIB=/usr/share/perl5
+language: python
+services:
+  - docker
+python:
+  - '3.8'
+branches:
+  only:
+    - "add-travis"
+before_install:
+  - docker pull maj1/icdc:model-tool-perl
+install:
+  - git clone https://github.com/CBIIT/bento-mdf
+  - cp -aR bento-mdf/drivers/Perl/make-model/lib lib
+  - cp -aR bento-mdf/drivers/Perl/make-model/bin bin  
+  - pip install bento-meta/python/requirements-dev.txt
+  - pip install bento-meta/python/requirements.txt
+  
+  
+# Tasks:
+# - create metamodel.svg from metamodel.yaml
+# - test perl driver
+# - test python driver
+# - build python docs
+# - build python package and push
+
+script:
+  # - create metamodel.svg from metamodel.yaml  
+  - docker run --rm -it -v "$PWD":/home/user -w /home/user maj1/icdc:model-tool-perl -Ilib bin/model-tool -g bento-meta/metamodel.svg bento-meta/metamodel.yaml
+  # - test python driver
+  - pushd bento-meta/python
+  - tox
+  
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  target_branch: "add-travis"
+  keep_history: true
+  verbose: true
+  on:
+    branch: "add-travis"
+
