@@ -296,6 +296,9 @@ in the model"""
     elif atts  == 'object':
       oldval = self.__dict__.get(name)
       if oldval:
+        if oldval == value:
+          # a wash
+          return
         if not self.versioned:
           del oldval.belongs[(id(self),name)]
           self.removed_entities.append( (name, oldval) )
@@ -510,6 +513,9 @@ is instrumented for managing versioning.
     if name in self:
       oldval = self.data.get(name)
       if oldval:
+        if oldval == value:
+          # a wash
+          return
         if not self.owner.versioned:
           del oldval.belongs[(id(self.owner),self.owner_key,name)]
           self.owner.removed_entities.append( (self.owner_key, oldval) )

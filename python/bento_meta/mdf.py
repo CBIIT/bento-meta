@@ -56,6 +56,8 @@ class MDF(object):
       if isinstance(f,str):
         if re.match('(?:file|https?)://',f):
           response = requests.get(f)
+          if not response.ok:
+            raise ArgError("Fetching url {} returned code {}".format(response.url,response.status_code))
           response.encoding='utf8'
           f=response.text
         else:

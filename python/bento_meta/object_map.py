@@ -211,20 +211,24 @@ This represents adding an object-valued attribute to the object."""
 This represents dropping an object-valued attribute from the object."""
     if not self.drv:
       raise ArgError("rm() requires Neo4j driver instance")
+    # if the tgt is not in the database, then dropping it is a no-op:
+    if not tgt.neoid:
+      return
     if (tx):
       for qry in self.rm_attr_q(obj, att, tgt):
         result = tx.run(qry)
       s = result.single()
-      if s == None:
+      if s is None:
         warn("drop() - corresponding target db node not found")
-      return s.value()
+      else:
+        return s.value()
     else:
       with self.drv.session() as session:
         result=None
         for qry in self.rm_attr_q(obj, att, tgt):
           result = session.run(qry)
         s = result.single()
-        if s == None:
+        if s is None:
           warn("drop() - corresponding target db node not found")
         else:
           return s.value()
