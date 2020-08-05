@@ -32,9 +32,9 @@ install:
 
 script:
   # - create metamodel.svg from metamodel.yaml  
-  - docker run --rm -it -v "$PWD":/home/user -w /home/user maj1/icdc:model-tool-perl -Ilib bin/model-tool -g bento-meta/metamodel.svg bento-meta/metamodel.yaml
+  - docker run --rm -it -v "$PWD":/home/user -w /home/user maj1/icdc:model-tool-perl -Ilib bin/model-tool -g metamodel.svg metamodel.yaml
   # - test python driver
-  - pushd bento-meta/python
+  - pushd python
   - tox
   
 deploy:
