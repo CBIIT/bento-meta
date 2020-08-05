@@ -19,8 +19,8 @@ install:
   - git clone https://github.com/CBIIT/bento-mdf
   - cp -aR bento-mdf/drivers/Perl/make-model/lib lib
   - cp -aR bento-mdf/drivers/Perl/make-model/bin bin  
-  - pip install -r bento-meta/python/requirements-dev.txt
-  - pip install -r bento-meta/python/requirements.txt
+  - pip install -r python/requirements-dev.txt
+  - pip install -r python/requirements.txt
   
   
 # Tasks:
