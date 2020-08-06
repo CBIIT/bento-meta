@@ -33,10 +33,16 @@ install:
 script:
   # - create metamodel.svg from metamodel.yaml  
   - docker run --rm -it -v "$PWD":/home/user -w /home/user maj1/icdc:model-tool-perl -Ilib bin/model-tool -g metamodel.svg metamodel.yaml
+  # - test perl driver
+  - pushd perl
+  - perl Build.PL
+  - ./Build installdeps --cpan_client cpanm
+  - ./Build test
+  - popd
   # - test python driver
   - pushd python
   - tox
-  
+
 deploy:
   provider: pages
   skip_cleanup: true
