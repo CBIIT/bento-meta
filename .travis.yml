@@ -15,6 +15,8 @@ branches:
     - "add-travis"
 before_install:
   - docker pull maj1/icdc:model-tool-perl
+  - apt install -y cpanminus
+
 install:
   - git clone https://github.com/CBIIT/bento-mdf
   - cp -aR bento-mdf/drivers/Perl/make-model/lib lib
