@@ -15,7 +15,7 @@ branches:
     - "add-travis"
 before_install:
   - docker pull maj1/icdc:model-tool-perl
-  - apt install -y cpanminus
+  - sudo apt install -y cpanminus
 
 install:
   - git clone https://github.com/CBIIT/bento-mdf
