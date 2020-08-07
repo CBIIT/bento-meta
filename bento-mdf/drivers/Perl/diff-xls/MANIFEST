@@ -1,6 +1,0 @@
-bin/flat-model-diff-xls.pl
-Build.PL
-MANIFEST			This list of files
-t/001_runs.t
-META.yml
-META.json

@@ -21,6 +21,7 @@ install:
   - git clone https://github.com/CBIIT/bento-mdf
   - cp -aR bento-mdf/drivers/Perl/make-model/lib lib
   - cp -aR bento-mdf/drivers/Perl/make-model/bin bin  
+  - pip install bento-mdf/validators/mdf-validate
   - pip install -r python/requirements-dev.txt
   - pip install -r python/requirements.txt
   - pip install sphinx
@@ -35,6 +36,8 @@ install:
 # - build python package and push
 
 script:
+  # - check validity of metamodel.yaml
+  - test-mdf.py bento_model_file.yaml bento_model_properties.yaml
   # - create metamodel.svg from metamodel.yaml  
   - docker run --rm -it -v "$PWD":/home/user -w /home/user maj1/icdc:model-tool-perl -Ilib bin/model-tool -g metamodel.svg metamodel.yaml
   # - test perl driver
@@ -48,11 +51,15 @@ script:
   - tox
   # - build package
   - python setup.py sdist
-  - cp dist/*.* ../docs/dist
   - popd
   # - build python docs
   - pushd python/docs
   - ./build-docs.sh
+  - popd
+  # - cleanup
+  - rm -rf bento-mdf
+  - rm -rf bin
+  - rm -rf lib
 
 deploy:
   provider: pages
