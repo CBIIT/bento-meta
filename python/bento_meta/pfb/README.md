@@ -1,5 +1,17 @@
 # "Portable Format for Bioinformatics"
 
+* [The Point](#point)
+  * [Sidebar: Schema vs Instance](#schemavinstance)
+* [Implementation](#Implementation)
+* [PFB Schema](#pfbschema)
+  * [Entity](#Entity)
+  * [Metadata](#Metadata)
+  * [Node and Property](#node-and-property)
+  * [Link](#Link)
+  * [Relation](#Relation)
+  * [User Data Type](#user-data-type)
+* [Worked Example](#worked-example)
+
 <a id="point"/>
 
 ## The Point: To Send/Store Data and its Description _Together_
@@ -11,6 +23,8 @@ The "Portable Format for Bioinformatics" is essentially a simple set of Avro sch
 The "Portable Format for Bioinformatics" essentially supposes a common data structure (a [property graph](https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph)) that is in use or understood among a network of users of the format. The PFB "wrapper schema" contains metadata that is necessary to enable a reciever to reconstruct the graph organization of a larger dataset, of which the custom data in the Avro message is a part.
 
 Because Avro is strict about its naming conventions, and does not allow arbitrary characters in its identifiers (and in particular, in enumerations, which encode the acceptible value sets for properties), PFB also specifies an ad hoc means to encode alternative characters into Avro identifiers so that the original names for things can be reconstituted. This simple encoding is [described here](https://github.com/uc-cdis/pypfb/tree/master/doc#enum).
+
+<a id="schemavinstance"/>
 
 ### Sidebar: Schema vs Instance
 
@@ -29,6 +43,8 @@ The "Portable Format for Bioinformatics" was designed originally by the [Genomic
 The reference implementation of PFB can be found at [this GitHub repository](https://github.com/uc-cdis/pypfb).  This implementation is somewhat obscure and difficult for a new user to grasp. For example, the PFB Avro schema is [hard-coded into a Python file](https://github.com/uc-cdis/pypfb/blob/5652cb7abdd152c223d12e2990746d159f55237c/pfb/writer.py#L77), rather than broken out into a separate, more easily maintained JSON file. 
 
 We have replicated this original schema, but in a modular way that takes advantage of the ability of Avro APIs such as [fastavro](https://fastavro.readthedocs.io/en/latest/schema.html) to assemble separate, simple schemas into a more complex one, using schema namespaces in [complex types](https://avro.apache.org/docs/current/spec.html#schema_complex) and [named schema references](https://avro.apache.org/docs/current/idl.html#schema_references) to resolve schemas within schemas.
+
+<a id="pfbschema"/>
 
 ## "Portable Format for Bioinformatics" Schema
 
