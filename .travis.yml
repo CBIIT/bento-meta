@@ -15,7 +15,7 @@ branches:
     - "add-travis"
 before_install:
   - docker pull maj1/icdc:model-tool-perl
-  - sudo apt update && sudo apt install -y cpanminus
+  # - sudo apt update && sudo apt install -y cpanminus
 
 install:
   - git clone https://github.com/CBIIT/bento-mdf
@@ -23,9 +23,11 @@ install:
   - cp -aR bento-mdf/drivers/Perl/make-model/bin bin  
   - pip install -r python/requirements-dev.txt
   - pip install -r python/requirements.txt
-  
+  - pip install sphinx
+  - pip install sphinx-rtd-theme
   
 # Tasks:
+# - check validity of metamodel.yaml
 # - create metamodel.svg from metamodel.yaml
 # - test perl driver
 # - test python driver
@@ -36,14 +38,21 @@ script:
   # - create metamodel.svg from metamodel.yaml  
   - docker run --rm -it -v "$PWD":/home/user -w /home/user maj1/icdc:model-tool-perl -Ilib bin/model-tool -g metamodel.svg metamodel.yaml
   # - test perl driver
-  - pushd perl
-  - perl Build.PL
-  - ./Build installdeps --cpan_client cpanm
-  - ./Build test
-  - popd
+  # - pushd perl
+  # - perl Build.PL
+  # - ./Build installdeps --cpan_client cpanm
+  # - ./Build test
+  # - popd
   # - test python driver
   - pushd python
   - tox
+  # - build package
+  - python setup.py sdist
+  - cp dist/*.* ../docs/dist
+  - popd
+  # - build python docs
+  - pushd python/docs
+  - ./build-docs.sh
 
 deploy:
   provider: pages
