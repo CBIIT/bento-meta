@@ -12,7 +12,13 @@ The metamodel database (MDB) records
 
 The production instance of MDB will contain the "official" representation of a data model, in that it will record the curated external terminology mappings and official sets of valid terms for each relevant property. In this way, the MDB is an extension of the [MDF](https://github.com/CBIIT/bento-mdf) for any model it contains.
 
-As the central location for official mappings to external vocabularies, the MDC can (should) be used as part of software modules that convert between the data physically stored in the production database and external standards. For example, an API known as the Simple Terminology Service [STS](https://github.com/CBIIT/icdc-sts), using MDB as its backend, will be used for simple queries about a given model and validation of incoming data.
+As the central location for official mappings to external vocabularies, the MDC can (should) be used as part of software modules that convert between the data physically stored in the production database and external standards. For example, an API known as the Simple Terminology Service [STS](https://github.com/CBIIT/bento-sts), using MDB as its backend, is used for simple queries about a given model and validation of incoming data.
+
+## Programming APIs
+
+APIs for working with the MDB are available in [Python](./python) and [Perl](./perl). 
+
+[See the Python documentation.](https://cbiit.github.io/bento-meta/)
 
 ## Structure
 

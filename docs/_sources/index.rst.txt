@@ -3,6 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. image:: _static/forkme_right_green_007200.svg
+	   :align: right
+	   :scale: 75%
+	   :alt: Fork me on GitHub
+	   :target: https://github.com/CBIIT/bento-meta
+
 bento_meta  
 ================
 
