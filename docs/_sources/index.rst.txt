@@ -5,7 +5,7 @@
 
 .. image:: _static/forkme_right_green_007200.svg
 	   :align: right
-	   :scale: 75%
+	   :scale: 80%
 	   :alt: Fork me on GitHub
 	   :target: https://github.com/CBIIT/bento-meta
 
