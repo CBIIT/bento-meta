@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/CBIIT/bento-meta.svg?branch=master)](https://travis-ci.org/CBIIT/bento-meta)
+
 # Bento Meta DB 
 
 [Example Queries](#example-queries)
