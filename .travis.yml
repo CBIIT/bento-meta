@@ -37,7 +37,7 @@ install:
 
 script:
   # - check validity of metamodel.yaml
-  - test-mdf.py bento_model_file.yaml bento_model_properties.yaml
+  - test-mdf.py metamodel.yaml
   # - create metamodel.svg from metamodel.yaml  
   - docker run --rm -it -v "$PWD":/home/user -w /home/user maj1/icdc:model-tool-perl -Ilib bin/model-tool -g metamodel.svg metamodel.yaml
   # - test perl driver
