@@ -3,8 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-bento_meta 
+bento_meta  
 ================
+
+.. image:: https://travis-ci.org/CBIIT/bento-meta.svg?branch=master
+	   :alt: Build Status
+	   :target: https://travis-ci.org/CBIIT/bento-meta
 
 **bento_meta** provides an object representation of 
 `property graph <https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph>`_
