@@ -1,0 +1,39 @@
+{
+   "abstract" : "Create Excel file diff between latest and earlier model flatfiles",
+   "author" : [
+      "Mark A. Jensen"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.4229",
+   "license" : [
+      "unknown"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "diff-xls",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "IPC::Run" : "0",
+            "Test::Exception" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Excel::Writer::XLSX" : "0",
+            "IPC::Run" : "0",
+            "Pod::Usage" : "0"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "version" : "0.1",
+   "x_serialization_backend" : "JSON::PP version 2.27300_01"
+}

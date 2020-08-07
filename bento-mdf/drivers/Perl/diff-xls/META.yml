@@ -1,0 +1,22 @@
+---
+abstract: 'Create Excel file diff between latest and earlier model flatfiles'
+author:
+  - 'Mark A. Jensen'
+build_requires:
+  IPC::Run: '0'
+  Test::Exception: '0'
+configure_requires:
+  Module::Build: '0'
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4229, CPAN::Meta::Converter version 2.150010'
+license: unknown
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: diff-xls
+requires:
+  Excel::Writer::XLSX: '0'
+  IPC::Run: '0'
+  Pod::Usage: '0'
+version: '0.1'
+x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

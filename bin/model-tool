@@ -1,0 +1,101 @@
+#!/usr/bin/env perl
+use v5.10;
+use lib '../lib';
+use Log::Log4perl qw/:easy/;
+use Bento::MakeModel;
+use JSON;
+use Getopt::Long qw/:config auto_abbrev auto_version auto_help bundling/;
+use Pod::Usage;
+use Try::Tiny;
+use strict;
+use warnings;
+
+my $J = JSON->new->pretty;
+my $verbose = 0;
+my $make_graph = undef;
+my $output_table = undef;
+my $include_unlinked;
+my ($warn, $dry_run);
+my @search_dirs = ('init');
+my @V = ($FATAL,$ERROR, $WARN, $INFO, $DEBUG );
+my $logger = get_logger("");
+GetOptions (
+  'graph|g:s' => \$make_graph,
+  'table|T:s' => \$output_table,
+  'verbose|v+' => \$verbose,
+  'warn|W' => \$warn,
+  'dry-run|dry_run' => \$dry_run,
+  'all-nodes|all_nodes|a!' => \$include_unlinked, 
+ ) or pod2usage(1);
+
+if ($dry_run) {
+    $verbose=2;
+}
+
+if ( !$dry_run && defined $make_graph && !$make_graph ) {
+  FATAL "Option --graph requires an argument\n";
+  pod2usage(3);
+}
+
+if ( !$dry_run &&  defined $output_table && !$output_table ) {
+  FATAL "Option --output_table requires an argument\n";
+  pod2usage(3);
+}
+
+unless ($dry_run || $make_graph ||
+	  $output_table ) {
+  FATAL "Nothing to do!\n";
+  pod2usage(2);
+}
+
+
+if ($warn) { # set verbosity to WARN
+  $verbose = 2;
+}
+unless (@ARGV) {
+   FATAL "No input files specified\n";
+  pod2usage(3);
+}
+
+my $mm = Bento::MakeModel->new(LOG_LEVEL=>$V[$verbose]);
+
+try {
+  $mm->read_input(@ARGV);
+} catch {
+  $logger->logdie(FATAL $_);
+};
+
+if ($make_graph && !$dry_run) {
+  $make_graph ne '-' ? $mm->viz($make_graph) : $mm->viz;
+}
+
+if ($output_table && !$dry_run) {
+  $output_table ne '-' ? $mm->table($output_table) : $mm->table;
+}
+
+# end script
+
+=head1 NAME
+
+model-tool - Perform useful functions with MDF models
+
+=head1 SYNOPSIS
+
+  model-tool [-g <graph-out-file>] [-s <output-dir>] [-j <json-out-file>] 
+             [-T <table-out-file>] <input.yaml> [<input2.yaml> ...]
+     [-d dir_to_search [-d another_dir...]]
+  -g : create an SVG of model defined in input.yamls
+  -T : output a TSV table of nodes, relationships, properties
+  -a : output all nodes, including unlinked nodes
+  -v : verbosity (-v little ... -vvvv lots)
+  -W : show all warnings ( = -vvv )
+  --dry-run : emit log msg, but no output files
+
+=head1 AUTHOR
+
+ Mark A. Jensen < mark -dot- jensen -at- nih -dot- gov > 
+ FNLCR
+
+=cut
+
+1;

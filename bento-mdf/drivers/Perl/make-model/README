@@ -1,0 +1,5 @@
+Bento::MakeModel - Perform useful functions on an MDF-defined graph model
+To install:
+ $ cd <directory with Build.PL in it>
+ $ cpanm .
+ 

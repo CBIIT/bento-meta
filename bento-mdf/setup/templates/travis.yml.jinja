@@ -1,0 +1,61 @@
+# following line is key to prevent an endless build/deploy cycle
+# when travis commits to pages:
+if: commit_message !~ ^Deploy.*
+dist: xenial
+env:
+  global:
+  - PERL5LIB=/usr/share/perl5
+language: python
+services:
+  - docker
+python:
+branches:
+  only:
+    - master
+before_install:
+  - docker pull maj1/icdc:model-tool-perl
+  - sudo apt-get install sed
+install:
+  - pip install bento-mdf/validators/mdf-validate
+before_script:
+  - pushd model-desc
+  - test-mdf.py {{ mdfs|join(' ') }}
+script:
+  - cp -aR ../bento-mdf/drivers/Perl/make-model/lib lib
+  - cp -aR ../bento-mdf/drivers/Perl/make-model/bin bin
+  - cp -a ../bento-mdf/drivers/Perl/diff-xls/bin/flat-model-diff-xls.pl bin
+  # run model-tool with pre-built perl - fast
+  - docker run --rm -it -v "$PWD":/home/user -w /home/user maj1/icdc:model-tool-perl -Ilib bin/model-tool -g update-model.svg -T update-model.txt {{ mdfs|join(' ') }}
+  - echo repo $(git remote get-url origin) > update-info.txt
+  # second to last commit is ours, last commit is travis'
+  - echo commit $(git log -2 --pretty=format:"%h" | tail -1) >> update-info.txt
+  - cat update-info.txt
+  - cat update-info.txt update-model.txt > x.txt
+  - cp -f x.txt update-model.txt
+  - cp {{ mdfs|join(' ') }} ../docs/model-desc
+  - cp update-model.txt ../docs/model-desc/{{ base }}.txt
+  - sed -e '1,6d' update-model.svg > ../docs/model-desc/{{ base }}.svg
+  - docker run --rm -it -v "$PWD":/home/user -w /home/user maj1/icdc:model-tool-perl bin/flat-model-diff-xls.pl --working
+  - cp diff*.xlsx ../docs/model-desc/diff-xls
+  - rm -f update-model.svg update-info.txt x.txt update-model.txt
+  - pushd ../docs
+  - cat ./README.md.content > ./README.md
+  - echo "<div id='graph' style='display:off;'>" >> ./README.md
+  - cat ./model-desc/{{ base }}.svg >> ./README.md
+  - echo "</div>" >> ./README.md
+  - pushd model-desc
+  - n=$(ls -t diff-xls | head  -1) ; perl -i -ne "BEGIN {\$n='$n'}" -e 'if (/Diff/) { print ; $_ = <> ; print ; print "  <li> <a href=\"./diff-xls/$n\">$n</li>\n" ; } else { print; }' index.html 
+  - popd
+  - popd
+  - rm -rf lib bin
+  - rm -rf __pycache__
+  
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  target_branch: master
+  keep_history: true
+  verbose: true
+  on:
+    branch: master

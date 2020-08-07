@@ -1,0 +1,17 @@
+# test delete on overlay
+
+Nodes:
+  /cycle: null
+  demographic:
+    Props:
+      - '/breed'
+      - species
+  prior_therapy:
+    Props:
+      - '/total_dose'
+      - '/therapy_type'
+      - '/total_number_of_doses_steroid'
+      - fred
+      
+      
+      

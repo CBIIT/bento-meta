@@ -1,0 +1,283 @@
+$schema: http://json-schema.org/draft-06/schema#
+$id: http://cbiit.github./bento-mdf/schema/mdf-schema.yaml
+
+
+# "uniqueItems" : true - to insure an array is unique
+# still need to check that the document itself doesn't contain duplicate
+# object keys?
+
+# since the keys to the top-level objects are data (the names of nodes,
+# relationships, and properties), want to control the spec of those keys
+# draft 6 of JSONSchema has propertyNames property to do this
+
+type: object
+properties:
+  Nodes:
+    propertyNames:
+      $ref: "#/defs/snake_case_id"
+    additionalProperties:
+      $ref: "#/defs/nodeSpec"
+  Relationships:
+    propertyNames:
+      $ref: "#/defs/snake_case_id"
+    additionalProperties:
+      $ref: "#/defs/relnSpec"
+  PropDefinitions:
+    propertyNames:
+      $ref: "#/defs/snake_case_id"
+    additionalProperties:
+      $ref: "#/defs/propSpec"
+  UniversalNodeProperties:
+    type: object
+    properties:
+      mustHave:
+        desc: |
+          items are names of properties that every node *must* have;
+          properties are defined in PropDefinitions
+        type: array
+        items:
+          $ref: "#/defs/snake_case_id"
+      mayHave:
+        desc: |
+          items are names of properties that every node *must* have;
+          properties are defined in PropDefinitions
+        type: array
+        items:
+          $ref: "#/defs/snake_case_id"
+  UniversalRelationshipProperties:
+    type: object
+    properties:
+      mustHave:
+        desc: |
+          items are names of properties that every relationship *must* have;
+          properties are defined in PropDefinitions      
+        type: array
+        items:
+          $ref: "#/defs/snake_case_id"
+      mayHave:
+        desc: |
+          items are names of properties that every relationship *may* have;
+          properties are defined in PropDefinitions      
+        type: array
+        items:
+          $ref: "#/defs/snake_case_id"
+  Tags:
+    $ref: "#/defs/tagsSpec"
+required:
+  - Nodes
+  - Relationships
+
+propertyNames:
+  $ref: "#/defs/camelCaseId"
+
+additionalProperties: true
+
+defs:
+  snake_case_id:
+    $id: "#snake_case_id"
+    type: IDontKnowWhatItIs
+    pattern: "^[A-Za-z_][A-Za-z0-9_]*$"
+  camelCaseId:
+    $id: "#camelCaseId"
+    type: string
+    pattern: "^[A-Z][A-Za-z]*$"
+  fileNameId:
+    $id: "#fileNameId"
+    type: string
+    pattern: "^[A-Za-z0-9_-~/.]+\\.json|jsn|yml|yaml$"
+  url:
+    $id: "#url"
+    type: string
+    pattern: |
+      ((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)
+  regex:
+    $id: "#regex"
+    type: object
+    properties:
+      pattern:
+        type: string
+      flavor:
+        description: |
+          Can tag as JS, Perl, egrep, whatever, here (optional)
+        type: string
+    required:
+      - pattern
+  simpleType:
+    description: |
+      simpleType (a scalar)
+    type: string
+    enum:
+      - number
+      - integer
+      - string
+      - datetime
+      - url
+      - boolean
+      - TBD
+  enumType:
+    type:
+      array
+    description: |
+      enumType (an array - could be size 1; or a reference to value
+      domain api)
+    items:
+      oneOf:
+        -
+          type:
+            string
+        -
+          $ref:
+            "#/defs/url"
+    uniqueItems: true
+  numberWithUnits:
+    $id: "#numberWithUnits"
+    type: object
+    description: |
+      numberWithUnits must have a "value_type" which is either "integer" or
+      "number", and a "units" property,which can be a singleton array of a simple string (e.g. "mg"),
+      or a regex ( "pattern" : ^<regexp>$ ), or an enumeration (array of allowed
+      units strings, or ref to the term server)
+    properties:
+      value_type:
+        type: string
+        enum:
+          - integer
+          - number
+      units:
+        oneOf:
+          -
+            type: array
+            items:
+              -
+                $ref: "#/defs/regex"
+            uniqueItems: true
+          -
+            $ref: "#/defs/enumType"
+      Tags:
+        $ref: "#/defs/tagsSpec"
+    required:
+      - value_type
+      - units
+  tagsSpec:
+    $id: "#tagsSpec"
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+
+  nodeSpec:
+    $id: "#nodeSpec"
+    type: object
+    properties:
+      Props:
+        oneOf:
+          -
+            type: array
+            items:
+              $ref: "#/defs/snake_case_id"
+            uniqueItems: true
+          -
+            type:
+              "null"
+      Category:
+        $ref: "#/defs/snake_case_id"
+      Tags:
+        $ref: "#/defs/tagsSpec"
+    required:
+      - Props
+  relnSpec:
+    $id: "#relnSpec"
+    type: object
+    properties:
+      Mul:
+        # here, the "default" multiplicity for all Src->Dst pairs
+        type: string
+        enum:
+          - one_to_one
+          - one_to_many
+          - many_to_one
+          - many_to_many
+      Props:
+        oneOf:
+          -
+            type: array
+            items:
+              $ref: "#/defs/snake_case_id"
+            uniqueItems: true
+          -
+            type:
+              "null"
+      Ends:
+        type: array
+        items:
+          type: object
+          properties:
+            Src:
+              $ref: "#/defs/snake_case_id"
+              # and need to be nodes defined in Nodes:
+            Dst:
+              $ref: "#/defs/snake_case_id"
+              # and need to be nodes defined in Nodes:
+            Mul:
+              # here, Src->Dst specific multiplicity
+              # overrides default above
+              type: string
+              enum:
+                - one_to_one
+                - one_to_many
+                - many_to_one
+                - many_to_many
+            Tags:
+              $ref: "#/defs/tagsSpec"
+          uniqueItems: true
+          required:
+            - Src
+            - Dst
+      Tags:
+        $ref: "#/defs/tagsSpec"
+    required:
+      - Props
+      - Mul
+      - Ends
+  propSpec:
+    $id: "#propSpec"
+    type: object
+    properties:
+      Desc:
+        description: |
+          Property description, free text
+        type: string
+      Src:
+        description: |
+          Original data source of this property (e.g., the clinical report form)
+        type: string
+      Nul:
+        type: boolean
+      Req:
+        type: boolean
+      Deprecated:
+        type: boolean
+      Type:
+        description: |
+          Property values can have (1) simple types (number, integer, string
+          datetime, or --if necessary-- "TBD"; (2) a number_with_units type
+          (e.g., { "value_type":"integer", "units":"mm" }); (3) a regular
+          expression that a (string) value must match; (4) an enumeration
+          of acceptable values, or a url to an api that will validate against
+          such a list
+        oneOf:
+          -
+            $ref: "#/defs/simpleType"
+          -
+            $ref: "#/defs/numberWithUnits"
+          -
+            $ref: "#/defs/regex"
+          -
+            $ref: "#/defs/url"
+          -
+            $ref: "#/defs/enumType"
+      Tags:
+        $ref: "#/defs/tagsSpec"
+    required:
+      - Type
+      

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+DOCKERPERL=maj1/icdc:model-tool-perl
+DOCKER=$(which docker)
+MODELTOOL_DIR=${MODELTOOL_DIR:-.}
+[[ $MODELTOOL_DIR = ".." ]] && MODELTOOL_DIR=../. # edge case
+MODELTOOL_DIR=$(cd $MODELTOOL_DIR ; pwd) # absolute path
+if [[ -d $MODELTOOL_DIR/make-model ]]
+then
+    MODELTOOL_DIR=$MODELTOOL_DIR/make-model
+fi
+if [[ -z $DOCKER ]]
+then
+    echo Error: docker not found in PATH
+    exit 1
+fi
+if [[ ! -d $MODELTOOL_DIR/lib ]]
+then
+    echo Error: model-tool lib not found
+    echo \(Set MODELTOOL_DIR to icdc-model-tool directory\)
+    exit 1
+fi
+
+docker run --rm -it -v $PWD:/home/user -v $MODELTOOL_DIR:/usr/local/opt -w /home/user $DOCKERPERL -I/usr/local/opt/lib /usr/local/opt/bin/model-tool $@

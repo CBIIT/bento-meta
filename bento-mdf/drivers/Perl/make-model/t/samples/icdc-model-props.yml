@@ -1,0 +1,849 @@
+PropDefinitions:
+# adverse_event props
+  adverse_event_description:
+    Desc: freetext
+    Src: adverse events form
+    Type: string
+  adverse_event_grade:
+    Desc: enum
+    Src: adverse events form
+    Type: string
+  adverse_event_grade_description:
+    Desc: enum (nec?)
+    Src: adverse events form
+    Type: string
+  adverse_event_term:
+    Desc: enum vocab?
+    Src: adverse events form
+    Type:
+    - http://localhost/terms/domain/adverse_events
+  ae_agent_name:
+    Src: adverse events form
+    Type:
+    - http://localhost/terms/domain/agent_name
+  ae_dose:
+    Src: adverse events form
+    Type:
+      units: mg/kg
+      value_type: number
+  ae_other:
+    Desc: What is?
+    Src: adverse events form
+    Type: TBD
+  attribution_to_commercial:
+    Desc: What is?
+    Src: adverse events form
+    Type: TBD
+  attribution_to_disease:
+    Desc: What is?
+    Src: adverse events form
+    Type: TBD
+  attribution_to_ind:
+    Desc: What is?
+    Src: adverse events form
+    Type: TBD
+  attribution_to_other:
+    Desc: What is?
+    Src: adverse events form
+    Type: TBD
+  attribution_to_research:
+    Desc: What is?
+    Src: adverse events form
+    Type: TBD
+  crf_id:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  date_resolved:
+    Src: adverse events form
+    Type: datetime
+  day_in_cycle:
+    Src: adverse events form
+    Type: integer
+  dose_limiting_toxicity:
+    Desc: bool
+    Src: adverse events form
+    Type: TBD
+  unexpected_adverse_event:
+    Desc: bool
+    Src: adverse events form
+    Type: TBD
+# agent props
+  document_number:
+    Tags:
+      - at_property
+    Desc: S/N of the executed CRF
+    Src: ALL
+    Type:
+      pattern: "^R[0-9]+$\n"
+  medication:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type:
+    - http://localhost/terms/domain/medication
+# agent_administration props
+  comment:
+    Desc: generic comment
+    Type: string
+  crf_id:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  date_of_missed_dose:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type: datetime
+  dose_level:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type:
+      units: mg/kg
+      value_type: number
+  dose_units_of_measure:
+    Deprecated: true
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type: string
+  medication:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type:
+    - http://localhost/terms/domain/medication
+  medication_actual_dose:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type:
+      units: mg/kg
+      value_type: number
+  medication_actual_units_of_measure:
+    Deprecated: true
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type: string
+  medication_course_number:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type: string
+  medication_duration:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type:
+      units:
+      - days
+      - hr
+      - min
+      value_type: number
+  medication_lot_number:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type: string
+  medication_missed_dose:
+    Desc: Q.- form has "medication"
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type:
+    - http://localhost/terms/domain/agent_name
+  medication_units_of_measure:
+    Deprecated: true
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type: string
+  medication_vial_id:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type: string
+  missed_dose_amount:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type:
+      units: mg/kg
+      value_type: number
+  missed_dose_units_of_measure:
+    Deprecated: true
+    Desc: Q.- form has "dose uom_ful"
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type: string
+  phase:
+    Desc: Where should this live?/What is?
+    Src: COURSE INIT/CINIT/1
+    Type: TBD
+  route_of_administration:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type:
+    - http://localhost/terms/domain/route_of_administration
+  start_time:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type: datetime
+  stop_time:
+    Src: STUDY_MED_ADMIN/SDAD/1
+    Type: datetime
+# case props
+  case_id:
+    Desc: globally unique ID by which the system can unambiguously identify and display a specific patient even across studies/trials. Likely to be a concatenation of a study identifier and patient_id below.
+    Src: to be provided by the data submitter, generated during data transformation as necessary
+    Type: string
+    Req: true
+  crf_id:
+    Desc: globally unique ID for the specific instance of the COTC Enrollment case report form via which the patient was enrolled into the study/trial
+    Src: ENROLLMENT/ENROLL/1
+    Type: TBD
+  patient_first_name:
+    Desc: patient's first name, in full
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  patient_id:
+    Desc: ID by which data owner can uniquely identify a specific patient, at least within a single study/trial, maintained exactly in the submitter's format. This may or may not be globally unique. 
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+    Req: true
+# cohort props
+  cohort_description:
+    Desc: actually, a list of agent and dose
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  cohort_dose:
+    Desc: intended or protocol dose
+    Type:
+      units: mg/kg
+      value_type: number
+# cycle props
+  cycle_number:
+    Src: COURSE INIT/CINIT/1
+    Type: integer
+  date_of_cycle_end:
+    Src: COURSE INIT/CINIT/1
+    Type: datetime
+  date_of_cycle_start:
+    Src: COURSE INIT/CINIT/1
+    Type: datetime
+# demographic props
+  breed:
+    Src: ENROLLMENT/ENROLL/1
+    Type:
+    - http://localhost/terms/domain/breed
+  crf_id:
+    Desc: globally unique ID for the specific instance of the Enrollment case report form via which the patient was enrolled into the study/trial, and which records key demographics
+    Src: ENROLLMENT/ENROLL/1
+    Type: TBD
+  date_of_birth:
+    Src: ENROLLMENT/ENROLL/1
+    Type: datetime
+  neutered_indicator:
+    Desc: Boolean indicator as to whther the patient has been either spayed (female patients)or neutered (male patients)
+    Src: '?'
+    Type: TBD
+  patient_age_at_enrollment:
+    Src: ENROLLMENT/ENROLL/1
+    Req: true
+    Type:
+      units: years
+      value_type: number
+  sex:
+    Desc: gender, needs enum
+    Src: ENROLLMENT/ENROLL/1
+    Type:
+    - M
+    - F
+  weight:
+    Desc: the subject's weight at the time the subject was enrolled and/or biospecimens were acquired, at least in the case of studies that are not longitudinal in nature
+    Src: '?'
+    Type: TBD
+# diagnosis props
+  concurrent_disease:
+    Desc: Boolean indicator as to whether the patient is has any significant secondary disease condition(s)
+    Src: '?'
+    Type: boolean
+  concurrent_disease_type:
+    Desc: specifics of any notable secondary disease condition(s) within the patient
+    Src: '?'
+    Type: string
+  crf_id:
+    Desc: globally unique ID for the specific instance of the COTC Enrollment case report form via which the patient was enrolled into the study/trial, and which records key information as to diagnosis
+    Src: ENROLLMENT/ENROLL/1
+    Type: TBD
+  date_of_diagnosis:
+    Src: ENROLLMENT/ENROLL/1
+    Type: datetime
+  date_of_histology_confirmation:
+    Src: ENROLLMENT/ENROLL/1
+    Type: datetime
+  disease_term:
+    Src: ENROLLMENT/ENROLL/1
+    Type:
+    - http://localhost/terms/domain/disease_term
+    Req: true
+  follow_up_data:
+    Desc: Boolean indicator as to whether follow up data for the patient exists
+    Src: '?'
+    Type: boolean
+  histological_grade:
+    Src: ENROLLMENT/ENROLL/1
+    Type:
+    - http://localhost/terms/domain/histological_grade
+  histology_cytopathology:
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  pathology_report:
+    Desc: Boolean indicator as to whether a detailed pathology report upon which the diagnosis was based exists
+    Src: '?'
+    Type: boolean
+  primary_disease_site:
+    Src: ENROLLMENT/ENROLL/1
+    Type:
+    - http://localhost/terms/domain/primary_disease_site
+  stage_of_disease:
+    Src: ENROLLMENT/ENROLL/1
+    Type:
+    - http://localhost/terms/domain/stage_of_disease
+  treatment_data:
+    Desc: Boolean indicator as to whether treatment data for the patient exists
+    Src: '?'
+    Type: boolean
+# disease_extent props
+  crf_id:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  date_of_evaluation:
+    Desc: inferred from evaluation inputs (e.g.,PE)
+    Type: datetime
+  evaluation_code:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  evaluation_number:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  lesion_description:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  lesion_number:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  lesion_site:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  longest_measurement:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  measurable_lesion:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  measured_how:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  previously_irradiated:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  previously_treated:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  target_lesion:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+# enrollment props
+  cohort_description:
+    Desc: essentially, the name of the agent under test and the dose at which it is being used
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  date_of_informed_consent:
+    Src: ENROLLMENT/ENROLL/1
+    Type: datetime
+  date_of_registration:
+    Src: ENROLLMENT/ENROLL/1
+    Type: datetime
+  enrollment_document_number:
+    Desc: globally unique ID for the specific instance of the COTC Enrollment case report form via which the patient was enrolled into the study/trial
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  initials:
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  patient_subgroup:
+    Desc: short description as to the reason for the patient being enrolled in the study/trial
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  registering_institution:
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  site_short_name:
+    Desc: widely accepted acronym for the university at which the patient was enrolled into the study/trial, and then treated under the appropriate veterinary medicine program
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  veterinary_medical_center:
+    Desc: full name of the university at which the patient was enrolled into the study/trial, and then treated under the appropriate veterinary medicine program, together with the site's city and state
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+# evaluation props
+  date_of_evaluation:
+    Desc: inferred from evaluation inputs (e.g.,PE)
+    Type: datetime
+# follow_up props
+  contact_type:
+    Desc: need vocab
+    Src: FOLLOW_UP/FLWU/1
+    Type: string
+  crf_id:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  date_of_last_contact:
+    Src: FOLLOW_UP/FLWU/1
+    Type: datetime
+  explain_unknown_status:
+    Desc: free text?
+    Src: FOLLOW_UP/FLWU/1
+    Type: string
+  patient_status:
+    Desc: need vocab
+    Src: FOLLOW_UP/FLWU/1
+    Type: string
+  physical_exam_changes:
+    Desc: How described? Relative to data already stored in "physical_exam" node?
+    Src: FOLLOW_UP/FLWU/1
+    Type: TBD
+  physical_exam_performed:
+    Desc: y/n
+    Src: FOLLOW_UP/FLWU/1
+    Type: boolean
+  treatment_since_last_contact:
+    Desc: y/n
+    Src: FOLLOW_UP/FLWU/1
+    Type: boolean
+# off_study props
+  best_resp_vet_tx_tp_best_response:
+    Src: OFF_STUDY/OSSM/1
+    Type: TBD
+  best_resp_vet_tx_tp_secondary_response:
+    Src: OFF_STUDY/OSSM/1
+    Type: TBD
+  date_last_medication_administration:
+    Src: OFF_STUDY/OSSM/1
+    Type: datetime
+  date_of_best_response:
+    Src: OFF_STUDY/OSSM/1
+    Type: datetime
+  date_of_disease_progression:
+    Src: OFF_STUDY/OSSM/1
+    Type: datetime
+  date_off_study:
+    Src: OFF_STUDY/OSSM/1
+    Type: datetime
+  date_off_treatment:
+    Src: OFF_STUDY/OSSM/1
+    Type: datetime
+  reason_off_study:
+    Src: OFF_STUDY/OSSM/1
+    Type: string
+# off_treatment props
+  best_resp_vet_tx_tp_best_response:
+    Src: OFF_STUDY/OSSM/1
+    Type: TBD
+  best_resp_vet_tx_tp_secondary_response:
+    Src: OFF_STUDY/OSSM/1
+    Type: TBD
+  date_last_medication_administration:
+    Src: OFF_STUDY/OSSM/1
+    Type: datetime
+  date_of_best_response:
+    Src: OFF_STUDY/OSSM/1
+    Type: datetime
+  date_of_disease_progression:
+    Src: OFF_STUDY/OSSM/1
+    Type: datetime
+  date_off_treatment:
+    Src: OFF_STUDY/OSSM/1
+    Type: datetime
+  reason_off_treatment:
+    Src: OFF_STUDY/OSSM/1
+    Type: string
+# physical_exam props
+  assessment_timepoint:
+    Src: PHYSICAL_EXAM/PE/1
+    Type: integer
+  body_system:
+    Desc: Body system examined; up to 12 in a visit
+    Src: PHYSICAL_EXAM/PE/1
+    Type:
+    - Attitude
+    - Eyes/Ears/Nose/Throat
+    - Respiratory
+    - Cardiovascular
+    - Gastrointestinal
+    - Musculoskeletal
+    - Integumentary
+    - Lymphatic
+    - Endocrine
+    - Genitourinary
+    - Neurologic
+    - Other
+  crf_id:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  date_of_examination:
+    Src: PHYSICAL_EXAM/PE/1
+    Type: datetime
+  day_in_cycle:
+    Src: adverse events form
+    Type: integer
+  pe_comment:
+    Src: PHYSICAL_EXAM/PE/1
+    Type: string
+  pe_finding:
+    Desc: Clinical exam result for the body system examined. Finding_results on form.
+    Src: PHYSICAL_EXAM/PE/1
+    Type: string
+  phase_pe:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+# principal_investigator props
+  pi_first_name:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  pi_last_name:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  pi_middle_initial:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+# prior_surgery props
+  anatomical_site_of_surgery:
+    Desc: Site_FUL on form
+    Src: PRIOR_SURG_SUPP/PSRG/1
+    Type:
+    - https://localhost/term/domain/anatomical_site
+  crf_id:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  date_of_surgery:
+    Src: PRIOR_SURG_SUPP/PSRG/1
+    Type: datetime
+  procedure:
+    Src: PRIOR_SURG_SUPP/PSRG/1
+    Type:
+    - https://localhost/term/domain/procedure
+  residual_disease:
+    Src: PRIOR_SURG_SUPP/PSRG/1
+    Type: TBD
+  surgical_finding:
+    Desc: Findings_FUL on form
+    Src: PRIOR_SURG_SUPP/PSRG/1
+    Type: string
+  therapeutic_indicator:
+    Src: PRIOR_SURG_SUPP/PSRG/1
+    Type: TBD
+# prior_therapy props
+  agent_name:
+    Src: PRIOR_THRPY_SUPP/PTHR/1
+    Type:
+    - http://localhost/terms/domain/agent_name
+  agent_units_of_measure:
+    Deprecated: true
+    Desc: Agent UOM_FUL in form
+    Src: PRIOR_THRPY_SUPP/PTHR/1
+    Type: string
+  any_therapy:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: boolean
+  best_response:
+    Src: PRIOR_THRPY_SUPP/PTHR/1
+    Type: TBD
+  date_of_first_dose:
+    Src: PRIOR_THRPY_SUPP/PTHR/1
+    Type: datetime
+  date_of_last_dose:
+    Src: PRIOR_THRPY_SUPP/PTHR/1
+    Type: datetime
+  date_of_last_dose_any_therapy:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: datetime
+  date_of_last_dose_nsaid:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: datetime
+  date_of_last_dose_steroid:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: datetime
+  dose_schedule:
+    Desc: Schedule_FUL in form
+    Src: PRIOR_THRPY_SUPP/PTHR/1
+    Type: TBD
+  min_rsdl_dz_tx_ind_nsaids_treatment_pe:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: TBD
+  nonresponse_therapy_type:
+    Src: PRIOR_THRPY_SUPP/PTHR/1
+    Type: string
+  number_of_prior_regimens_any_therapy:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: integer
+  number_of_prior_regimens_nsaid:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: integer
+  number_of_prior_regimens_steroid:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: integer
+  prior_nsaid_exposure:
+    Desc: Has the patient ever been on NSAIDS? in form
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: boolean
+  prior_steroid_exposure:
+    Desc: Has the patient ever been on steroids? in form
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: boolean
+  prior_therapy_type:
+    Src: PRIOR_THRPY_SUPP/PTHR/1
+    Type: string
+  therapy_type:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: string
+  total_dose:
+    Src: PRIOR_THRPY_SUPP/PTHR/1
+    Type:
+      units: mg
+      value_type: number
+  total_number_of_doses_any_therapy:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: integer
+  total_number_of_doses_nsaid:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: integer
+  total_number_of_doses_steroid:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: integer
+  treatment_performed_at_site:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: boolean
+  treatment_performed_in_minimal_residual:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: boolean
+  tx_loc_geo_loc_ind_nsaid:
+    Src: PRIOR_TREAT_SUMM/PTX/1
+    Type: TBD
+# program props
+  program_acronym:
+    Desc: official acronym for the name of the program as it should be displayed within the UI
+    Src: curated
+    Type: string
+  program_external_url:
+    Desc: external url to which users should be directed to learn more about the program
+    Src: curated
+    Type: string
+  program_full_description:
+    Desc: full length (multiple sentence) version of the program description
+    Src: curated
+    Type: string
+    Req: true
+  program_name:
+    Desc: name of the program
+    Src: curated
+    Type: string
+    Req: true
+  program_short_description:
+    Desc: abbreviated (single sentence) version of the program description
+    Src: curated
+    Type: string
+    Req: true
+  program_sort_order:
+    Desc: value upon which to arbitrarily prioritize display of the program within the UI
+    Src: curated
+    Type: integer
+# sample props
+  analysis_area:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  analysis_area_percentage_glass:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  analysis_area_percentage_pigmented_tumor:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  analysis_area_percentage_stroma:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  analysis_area_percentage_tumor:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  comment:
+    Desc: generic comment
+    Type: string
+  date_of_sample_collection:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  general_sample_pathology:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  length_of_tumor:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  necropsy_sample:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  non_tumor_tissue_area:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  percentage_stroma:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  percentage_tumor:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  sample_id:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  sample_type:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  total_tissue_area:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  tumor_tissue_area:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  width_of_tumor:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+# study props
+  clinical_study_description:
+    Desc: short summary of what the study/trial was intended to determine and how it was conducted
+    Src: curated
+    Type: string
+    Req: true
+  clinical_study_designation:
+    Desc: unique, human-friendly alpha-numeric ID for the study
+    Src: COURSE INIT/CINIT/1
+    Type: string
+    Req: true
+  clinical_study_id:
+    Desc: numerical ID for the study as generated by the source database
+    Src: COURSE INIT/CINIT/1
+    Type: string
+  clinical_study_name:
+    Desc: name of the study/trial as it should be displayed within the UI
+    Src: curated
+    Type: string
+    Req: true
+  clinical_study_type:
+    Desc: arbitrary designation of the study to indicate its underlying nature, e.g. clinical trial, transcriptomics study, etc.
+    Src: curated
+    Type: string
+    Req: true
+  date_of_iacuc_approval:
+    Desc: if applicable, date upon which the trial/study was approved by the IACUC
+    Src: curated
+    Type: datetime
+  dates_of_conduct:
+    Desc: indicator of the general time period during which the study/trial was active, e.g. (from) month and year (to) month and year 
+    Src: curated
+    Type: string
+# study_arm props
+  arm:
+    Src: COURSE INIT/CINIT/1
+    Type: TBD
+  ctep_treatment_assignment_code:
+    Src: COURSE INIT/CINIT/1
+    Type:
+      pattern: "^.+$\n"
+# study_site props
+  registering_institution:
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  site_short_name:
+    Desc: "'site' on form\n"
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+  veterinary_medical_center:
+    Src: ENROLLMENT/ENROLL/1
+    Type: string
+# visit props
+  visit_date:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  visit_number:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+# vital_signs props
+  assessment_timepoint:
+    Src: PHYSICAL_EXAM/PE/1
+    Type: integer
+  body_surface_area:
+    Desc: Called "bsa" in form
+    Src: PHYSICAL_EXAM/PE/1
+    Type:
+      units: sq meters
+      value_type: number
+  body_temperature:
+    Src: PHYSICAL_EXAM/PE/1
+    Type:
+      units:
+      - degrees F
+      - degrees C
+      value_type: number
+  crf_id:
+    Desc: '?'
+    Src: '?'
+    Type: TBD
+  date_of_vital_signs:
+    Desc: actually visit date
+    Src: PHYSICAL_EXAM/PE/1
+    Type: datetime
+  ecg:
+    Src: PHYSICAL_EXAM/PE/1
+    Type: boolean
+  modified_ecog:
+    Src: PHYSICAL_EXAM/PE/1
+    Type:
+    - http://localhost/terms/domain/modified_ecog
+  patient_weight:
+    Src: PHYSICAL_EXAM/PE/1
+    Type:
+      units: kg
+      value_type: number
+  phase:
+    Desc: Where should this live?/What is?
+    Src: COURSE INIT/CINIT/1
+    Type: TBD
+  pulse:
+    Src: PHYSICAL_EXAM/PE/1
+    Type:
+      units: bpm
+      value_type: integer
+  pulse_ox:
+    Src: PHYSICAL_EXAM/PE/1
+    Type:
+      units: '%'
+      value_type: number
+  respiration_pattern:
+    Src: PHYSICAL_EXAM/PE/1
+    Type:
+    - http://localhost/terms/domain/respiration_pattern
+  respiration_rate:
+    Src: PHYSICAL_EXAM/PE/1
+    Type:
+      units: breaths/min
+      value_type: integer
+  systolic_bp:
+    Src: PHYSICAL_EXAM/PE/1
+    Type:
+      units: mm Hg
+      value_type: integer

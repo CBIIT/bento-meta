@@ -208,7 +208,11 @@ without a Neo4j database connection.</p>
 </ul>
 </dd>
 </dl>
-<p>The model attribute of <code class="docutils literal notranslate"><span class="pre">prop</span></code> is set to <cite>Model.handle</cite></p>
+<p>The model attribute of <code class="docutils literal notranslate"><span class="pre">prop</span></code> is set to <cite>Model.handle</cite>. Within a model, 
+<a class="reference internal" href="the_object_model.html#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a> entities are unique with respect to their 
+handle (but can be reused). This method will look for an existing 
+property within the model with the given handle, and add an item to 
+Model.props pointing to it if found.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -267,6 +271,12 @@ without a Neo4j database connection.</p>
 <code class="sig-name descname">dput</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.model.Model.dput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Push this Model’s objects to MDB.</p>
 <p>Note: is a noop if <cite>Model.drv</cite> is unset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.model.Model.drv">
+<em class="property">property </em><code class="sig-name descname">drv</code><a class="headerlink" href="#bento_meta.model.Model.drv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Neo4j database driver (as returned by <code class="xref py py-meth docutils literal notranslate"><span class="pre">neo4j.GraphDatabase.driver()</span></code>) for this model</p>
 </dd></dl>
 
 <dl class="py method">

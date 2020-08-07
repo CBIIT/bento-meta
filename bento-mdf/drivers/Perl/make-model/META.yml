@@ -1,0 +1,52 @@
+---
+abstract: 'Manipulate and display models in MDF'
+author:
+  - 'Mark A. Jensen'
+build_requires:
+  IPC::Run: '0'
+  JSON: '0'
+  List::MoreUtils: '0'
+  Log::Log4perl::Level: '0'
+  Set::Scalar: '0'
+  Test::Exception: '0'
+  Tie::IxHash: '0'
+configure_requires:
+  Module::Build: '0'
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4229, CPAN::Meta::Converter version 2.150010'
+license: unknown
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: Bento-MakeModel
+provides:
+  Bento::MakeModel:
+    file: lib/Bento/MakeModel.pm
+    version: '0.15'
+  Bento::MakeModel::Config:
+    file: lib/Bento/MakeModel/Config.pm
+  Bento::MakeModel::Model:
+    file: lib/Bento/MakeModel/Model.pm
+  Bento::MakeModel::Model::Edge:
+    file: lib/Bento/MakeModel/Model.pm
+  Bento::MakeModel::Model::EdgeType:
+    file: lib/Bento/MakeModel/Model.pm
+  Bento::MakeModel::Model::Node:
+    file: lib/Bento/MakeModel/Model.pm
+  Bento::MakeModel::Model::Property:
+    file: lib/Bento/MakeModel/Model.pm
+  Bento::MakeModel::Schema:
+    file: lib/Bento/MakeModel/Schema.pm
+recommends:
+  GraphViz2: '0'
+requires:
+  Clone: '0'
+  Hash::Merge: '0.300'
+  JSON: '0'
+  JSON::PP: '0'
+  Log::Log4perl: '0'
+  Tie::IxHash: '0'
+  Try::Tiny: '0'
+  YAML::PP: '0.018'
+version: '0.15'
+x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

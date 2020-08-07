@@ -1,0 +1,17 @@
+<html>
+  <head></head>
+  <body>
+    <ul>
+      {% for mdf in mdfs %}
+      <li> <a href="./{{ mdf }}">{{ mdf }}</a></li>
+      {% endfor %}
+      <li> <a href="./{{ base }}.svg">{{ base }}.svg</a></li>
+      <li> <a href="./{{ base }}.txt">{{ base }}.txt</a></li>  
+    </ul>
+    <p>
+      Diff Excels:
+      <ul>
+        <li></li>
+      </ul>
+  </body>
+</html>

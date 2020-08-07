@@ -1,0 +1,77 @@
+# project_id should be equal to clinical_study_designation everywhere when submitting data
+
+Nodes:
+  study_site:
+    SystemProps:
+      - project_id
+  aliquot:
+    SystemProps:
+      - project_id
+  sample:
+    SystemProps:
+      - project_id
+  case:
+    SystemProps:
+      - project_id
+  cohort:
+    SystemProps:
+      - project_id
+  experiment:
+    SystemProps:
+      - project_id
+    Props:
+      - name
+  study_arm:
+    SystemProps:
+      - project_id
+  study:
+    SystemProps:
+      - project_id
+  project:
+    Props:
+      - name
+      # 'code' is 'project_id 'everywhere else (I think)
+      - code
+  program:
+    Props:
+      - dbgap_accession_number
+  file:
+    Category: data_file
+    SystemProps:
+      - project_id
+    Props:
+      - project_id
+      - object_id
+      - file_name
+      - data_category
+      - data_format
+      - data_type
+      - file_size
+  image:
+    Category: data_file
+    SystemProps:
+      - project_id
+    Props:
+      - object_id
+      - file_name
+      - data_category
+      - data_format
+      - data_type
+      - file_size
+Relationships:
+  member_of:
+    Ends:
+      - Src: aliquot
+        Dst: sample
+      - Src: sample
+        Dst: case
+      - Src: cohort
+        Dst: experiment
+      - Src: experiment
+        Dst: study_arm
+      - Src: study
+        Dst: project
+      - Src: experiment
+        Dst: project
+      - Src: project
+        Dst: program
