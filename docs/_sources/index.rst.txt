@@ -74,9 +74,9 @@ different kinds. This and related documentation will attempt to
 distinguish these concepts as follows.
 
 * A "graph node" is a instance of the node concept in the
-   property graph model, that usually represents a category or item of
-   interest in the real world, and has associate properties that
-   distinguish it from other instances.
+  property graph model, that usually represents a category or item of
+  interest in the real world, and has associate properties that
+  distinguish it from other instances.
 * A "model node" is a graph node within a specific data model, and
   represents groups of data items (properties) and can be related to
   other model nodes via model relationships. 
