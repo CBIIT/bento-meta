@@ -1,0 +1,33 @@
+{
+  "type": "record",
+  "name": "Entity",
+  "namespace": "pfb",
+  "fields": [
+    {
+      "name": "id",
+      "type": [
+	"null",
+	"string"
+      ],
+      "default":null
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "object",
+      "type": [
+	"pfb.Metadata"
+      ]
+    },
+    {
+      "name": "relations",
+      "type": {
+	"type": "array",
+	"items": "pfb.Relation"
+      },
+      "default": []
+    }
+  ]
+}
