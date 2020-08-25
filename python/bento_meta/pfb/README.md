@@ -6,9 +6,9 @@
 
 The "Portable Format for Bioinformatics" is essentially a simple set of Avro schemas. Together, these define a "wrapper of metadata" around custom data objects (nodes and their properties, along with links betwen nodes) whose schemas are created by the user.
 
-The "Portable Format for Bioinformatics" essentially supposes a common data structure (a [property graph](https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph) that is in use or understood among a network of users of the format. The PFB "wrapper schema" contains metadata that is necessary to enable a reciever to reconstruct the graph organization of a larger dataset, of which the custom data in the Avro message is a part.
+The "Portable Format for Bioinformatics" essentially supposes a common data structure (a [property graph](https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph)) that is in use or understood among a network of users of the format. The PFB "wrapper schema" contains metadata that is necessary to enable a reciever to reconstruct the graph organization of a larger dataset, of which the custom data in the Avro message is a part.
 
-Because Avro is strict about its naming conventions, and does not allow arbitrary characters in its identifiers (and in particular, in enumerations), PFB also specifies a means to encode alternative characters into Avro identifiers so that the original names for things can be reconstituted. This simple encoding is [described here](https://github.com/uc-cdis/pypfb/tree/master/doc#enum).
+Because Avro is strict about its naming conventions, and does not allow arbitrary characters in its identifiers (and in particular, in enumerations, which encode the acceptible value sets for properties), PFB also specifies a means to encode alternative characters into Avro identifiers so that the original names for things can be reconstituted. This simple encoding is [described here](https://github.com/uc-cdis/pypfb/tree/master/doc#enum).
 
 # Implementation
 
@@ -65,7 +65,7 @@ The ``Entity`` is the basic unit of schema+data in PFB. It is an Avro "record", 
 
 ## Metadata
 
-The ``Metadata`` schema defines a fairly non-specific container for information about the user's custom data types. An instance of ``Metadata`` will contain aspects of the terminology in the custom data type, such as the terminology source, the source's identifier for the term, and other aspects. (Note that the specification refers to 'ontologies', but any term source -- the [caDSR](https://cdebrowser.nci.nih.gov), for example -- may be the referent.)
+The [``Metadata``](./pfb.Metadata.avsc) schema defines a fairly non-specific container for information about the user's custom data types. An instance of ``Metadata`` will contain aspects of the terminology in the custom data type, such as the terminology source, the source's identifier for the term, and other aspects. (Note that the specification refers to 'ontologies', but any term source -- the [caDSR](https://cdebrowser.nci.nih.gov), for example -- may be the referent.)
 
     {
       "type": "record",
@@ -95,7 +95,7 @@ The ``Metadata`` schema defines a fairly non-specific container for information 
 
 ## Node and Property
 
-The ``Node`` schema contains not only terminological metadata, but also key information for reconstituting the graph structure of the original data. In particular, ``Node.links`` describe how
+The [``Node``](./pfb.Node.avsc) schema contains not only terminological metadata, but also key information for reconstituting the graph structure of the original data. In particular, ``Node.links`` describe how
 the node data being sent should be connected by "edges", "links", or "relationships" to other nodes of different types. See [below](#link).
 
     {
@@ -157,11 +157,11 @@ the node data being sent should be connected by "edges", "links", or "relationsh
 
 According to the [spec documentation](https://github.com/uc-cdis/pypfb/tree/master/doc), ``Node.values`` is a key/value structure meant to contain addition terminological information such as term IDs, urls, and other such details in an ad hoc way.
 
-``Node.properties`` is a structure for describing terminological metadata for the properties ("variables", "slots") associated with the given custom node. The ``Property`` schema is similar to the ``Node`` schema in this regard.
+``Node.properties`` is a structure for describing terminological metadata for the properties ("variables", "slots") associated with the given custom node. The [``Property``](./pfb.Property.avsc) schema is similar to the ``Node`` schema in this regard.
 
 ## Link
 
-The ``Link`` schema provides a way to describe how the accompanying data is connected to other data nodes within the property graph. 
+The [``Link``](./pfb.Link.avsc) schema provides a way to describe how the accompanying data is connected to other data nodes within the property graph. 
 
 Note that ``Link`` (in the version of PFB at [this release](https://github.com/uc-cdis/pypfb/releases/tag/0.4.3)) does not allow a complete description of the property graph:
 
@@ -205,7 +205,7 @@ The ``Link`` name is (surprise) ``Link.name``. Note here that terminological inf
 
 ## Relation
 
-The ``Relation`` schema (apparently) exists to contain the identifiers of the precise _instances_ of graph nodes to which the accompanying data node(s) link.  ``Link`` generically defines the local graph structure, while ``Relation`` imparts the instance information. There are probably other ways to do it.
+The [``Relation``](./pfb.Relation.avsc) schema (apparently) exists to contain the identifiers of the precise _instances_ of graph nodes to which the accompanying data node(s) link.  ``Link`` generically defines the local graph structure, while ``Relation`` imparts the instance information. There are probably other ways to do it.
 
     {
       "name": "Relation",
