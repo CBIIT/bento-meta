@@ -20,6 +20,8 @@ This empty PDF form is the "schema" for the specific information about the form 
 
 The "Portable Format for Bioinformatics" then is a set of forms for data, elaborated according to the Avro schema standard. The work of the user is then to understand the structure and the meaning of these forms, then to transform her data the same structure. The Avro tools will then be able to validate that data (i.e., insure that the right kinds of data are in the right form fields) and also package that data, along with the structure, to create an instance that can be stored or sent, and reconstituted correctly by a recipient system.
 
+One final point: an Avro document, whether it represents a schema or an instance, is just [JSON](https://en.wikipedia.org/wiki/JSON), albeit highly constrained JSON. This makes these documents very easy to work with in programs.
+
 # Implementation
 
 The "Portable Format for Bioinformatics" was designed originally by the [Genomics Data Commons](https://gdc.cancer.gov) engineering team at the University of Chicago. It has been proposed as a format to enable interoperability among various large data repositories and services supported by the NIH.
@@ -69,9 +71,9 @@ The root of the PFB schema structure is the [``Entity``](./pfb.Entity.avsc). In 
       ]
     }
 
-The ``Entity`` is the basic unit of schema+data in PFB. It is an Avro "record", that is, a set of keys and values. The components of the ``Entity`` are given by its keys: ``id``, ``name``, ``object``, and ``relations``. These are defined in the ``fields`` array. 
+The ``Entity`` is the basic unit of schema+data in PFB. It is an Avro "record", that is, a named set of keys and values. The components of the ``Entity`` are given by its keys: ``id``, ``name``, ``object``, and ``relations``. (These are defined in the ``fields`` array above.)
 
-``Entity.object`` defined the container for data. It represents a _union_ or choice among possible schemas. One of these choices is always a ``Metadata`` subentity.  The others are custom objects defined by the user. User-defined custom objects are not present in the basic schema; these are built by users from their own data and models. These are described [below](./User Data Types). Tools to do this for the Bento system will appear in this repository.
+``Entity.object`` defines the container for data. It represents a _union_ or choice among possible schemas. One of these choices is always a ``Metadata`` subentity.  The others are custom objects defined by the user. User-defined custom objects are not present in the basic schema; these are built by users from their own data and models. These are described [below](./User Data Types). Tools to do this for the Bento system will appear in this repository.
 
 ## Metadata
 
@@ -105,8 +107,7 @@ The [``Metadata``](./pfb.Metadata.avsc) schema defines a fairly non-specific con
 
 ## Node and Property
 
-The [``Node``](./pfb.Node.avsc) schema contains not only terminological metadata, but also key information for reconstituting the graph structure of the original data. In particular, ``Node.links`` describe how
-the node data being sent should be connected by "edges", "links", or "relationships" to other nodes of different types. See [below](#Link).
+The [``Node``](./pfb.Node.avsc) schema contains not only terminological metadata, but also key information for reconstituting the graph structure of the original data. In particular, the ``Node.links`` array describes how the node data being sent should be connected by "edges", "links", or "relationships" to other nodes of different types. See [below](#Link).
 
     {
       "name": "Node",
@@ -179,7 +180,7 @@ The [``Link``](./pfb.Link.avsc) schema provides a way to describe how the accomp
 Note that ``Link`` (in the version of PFB at [this release](https://github.com/uc-cdis/pypfb/releases/tag/0.4.3)) does not allow a complete description of the property graph:
 
 * There is no facility for describing properties associated with the _link_ (as opposed to nodes)
-* There is no schema analogous to ``Node`` and ``Property`` for describing the terminological information associated with the _link_, which may itself have defined semantics.
+* There is no schema analogous to ``Node`` and ``Property`` for describing the terminological information associated with the _link_, which may itself have externally defined semantics.
 
 These omissions would be relatively straightforward to correct.
 
@@ -212,9 +213,13 @@ These omissions would be relatively straightforward to correct.
       ]
     }
 
-Similarly to the so-called ["Gen 3" schema system](https://github.com/NCI-GDC/gdcdictionary/tree/develop/gdcdictionary/schemas), links are essentially attributes of nodes, rather than first-class entities. The ``Link`` schema assumes that the "source" node is the ``Node`` that contains the ``Link``. The "destination" ``Node`` is named in ``Link.dst``. The cardinality of the link is given by ``Link.multiplicity`` -- again, the "left-hand side" of the term (e.g. ``ONE`` in ``ONE_TO_MANY``) is assumed to refer to the containing  ``Node``.
+Similarly to the so-called ["Gen 3" schema system](https://github.com/NCI-GDC/gdcdictionary/tree/develop/gdcdictionary/schemas), links are essentially attributes of nodes, rather than first-class entities. 
 
-The ``Link`` name is (surprise) ``Link.name``. Note here that terminological information is not provided (but could be added here in an update to the specification). 
+The ``Link`` schema assumes that the "source" node is the ``Node`` that contains the ``Link``. The "destination" ``Node`` is named in ``Link.dst``.
+
+The cardinality of the link is given by ``Link.multiplicity`` -- again, the "left-hand side" of the term (e.g. ``ONE`` in ``ONE_TO_MANY``) is assumed to refer to the containing  ``Node``.
+
+The ``Link`` name is (surprise) ``Link.name``. Note again that no slots for terminological information are provided (but could be added here in an update to the specification). 
 
 ## Relation
 
@@ -236,10 +241,17 @@ The [``Relation``](./pfb.Relation.avsc) schema (apparently) exists to contain th
       ]
     }
 
-
 ## User Data Type
 
-PFB assumes a (not entirely general) property graph structure, that is encoded in a particular way. Taking the components described above together, the PFB is essentially designed to describe a series of graph nodes. Each node is described with its properties, property value data types, and outgoing edges or links. Users defining schemas to transmit their own data must consider their data and data types in terms of this structure.
+PFB assumes a (not entirely general) property graph structure, that is encoded in a particular way. Taking the components described above together, the PFB is essentially designed to describe a series of graph nodes. Each node is described with its 
+
+* properties, 
+* property value data types, and 
+* outgoing edges or links. 
+
+Users defining schemas to transmit their own data must consider their data and data types in terms of this structure.
+
+### Worked Example
 
 Consider the following example. In the [Integrated Canine Data Commons (ICDC) model](https://cbiit.github.io/icdc-model-tool/), a subject of a study is called a _case_, and a case has the following properties (variable, slots for data) associated with it:
 
@@ -282,71 +294,82 @@ Every node, regardless of type, also entails an internal _id_ field.
 
 Avro schemas that will encode the nodes _case_ and _cohort_ are straightforward enough. These are the User Data Types.
 
-    { "name": "case",
-      "fields": [
-        { "name": "id",
-          "type": "string" },
-        { "name": "case_id",
-          "type": "string" },
-        { "name": "patient_id",
-          "type" ; "string" },
-        { "name": "patient_first_name",
-          "type": "string" }
-      ]
-    }
-    { "name": "cohort",
-      "fields": [
-        { "name": "id",
-          "type": "string" },
-        { "name": "cohort_description",
-          "type": "string" },
-        { "name": "cohort_dose",
-          "type": "string" }
-      ]
-    }
+    icdc_case_schema =
+		{ 
+          "name": "case",
+          "type": "record",
+		  "fields": [
+			{ "name": "id",
+			  "type": "string" },
+			{ "name": "case_id",
+			  "type": "string" },
+			{ "name": "patient_id",
+			  "type" ; "string" },
+			{ "name": "patient_first_name",
+			  "type": "string" }
+		  ]
+		}
+
+    icdc_cohort_schema =
+		{
+          "name": "cohort",
+          "type": "record",
+		  "fields": [
+			{ "name": "id",
+			  "type": "string" },
+			{ "name": "cohort_description",
+			  "type": "string" },
+			{ "name": "cohort_dose",
+			  "type": "string" }
+		  ]
+		}
+
+These schemas need to be included in the ``Entity`` schema at the time the PFB message is created.
 
 ### Metadata schemas and links
 
 To encode these data nodes in PFB, we also must construct corresponding ``Node`` and ``Property`` metadata schemas, according to [the spec above](#node_and_property). An example using the ``cohort`` node is as follows. Note this is an _instance_ of the ``Node`` _schema_ above. The instance is an Avro record (a JSON object), and it has acceptable keys ``name``, ``ontology_reference``, ``values``, ``links``, and ``properties``.  
 
 The ``cohort`` as a node type does not have an external terminology reference as yet, so ``ontology_reference`` and ``values`` are not used. It does not have any outgoing links in the model, so ``links`` is not used. ICDC properties are associated with NCI Thesaurus codes, so these are provided in the ``properties`` schemas.
-    icdc_cohort =
-    { 
-      "name": "cohort",
-      "properties": [
-        { 
-          "name": "cohort_description",
-          "ontology_reference": "NCIT",
-          "values": {
-            "concept_code": "C166209"
+
+    icdc_cohort_meta =
+	  { 
+		"name": "cohort",
+		"properties": [
+		  { 
+			"name": "cohort_description",
+			"ontology_reference": "NCIT",
+			"values": {
+			  "concept_code": "C166209"
+			}
           },
-        { 
-          "name": "cohort_dose",
-          "ontology_reference": "NCIT",
-          "values": {
-            "concept_code": "C166210"
-          }
-        }
-      ]
-    }
-  }
+		  { 
+			"name": "cohort_dose",
+			"ontology_reference": "NCIT",
+			"values": {
+			  "concept_code": "C166210"
+			}
+		  }
+		]
+	  }
+
 
 For the ``case`` node, we also need to describe the outgoing link to the ``cohort``. Here, the ``properties`` schemas are constructed similarly to the above example, so we'll leave these out.
 
-    icdc_case =
-    {
-      "name": "case",
-      "properties": [
-        ...
-      ],
-      "links": [
-        {
-          "name": "member_of",
-          "dst": "cohort",
-          "multiplicity": "MANY_TO_ONE"
-        }
-      ]
-    }
+    icdc_case_meta =
+		{
+		  "name": "case",
+		  "properties": [
+			...
+		  ],
+		  "links": [
+			{
+			  "name": "member_of",
+			  "dst": "cohort",
+			  "multiplicity": "MANY_TO_ONE"
+			}
+		  ]
+		}
 
 ## A Complete PFB Message of Two Entity Instances
 
@@ -364,18 +387,19 @@ Now consider some data to encode for transmission: a case and its cohort.
       "cohort_dose": "10mg/kg"
     }
 
+
 Two ``Entity`` instances must be sent in the PFB, one for each node, along with the metadata for each node type. The final component of the ``Entity``, an array of a single ``Relation`` instance, must accompany the case ``Entity``, to ensure that is connected to the cohort on the other side of the wire.
 
-The PFB would look like:
+The PFB payload would look like:
 
     [
       { 
-        "name": "metadata", ???
-        "object": icdc_cohort
+        "name": "Metadata",
+        "object": icdc_cohort_meta
       },
       {
-        "name": "metadata", ???
-        "object": icdc_case
+        "name": "Metadata", 
+        "object": icdc_case_meta
       },
       {
         "name": "cohort",
@@ -394,9 +418,8 @@ The PFB would look like:
         },
         "relations": [
           "dst_name": "cohort",
-          "dst_id": n201
+          "dst_id": "n201"
         ]
       }
     ]
 
-    
