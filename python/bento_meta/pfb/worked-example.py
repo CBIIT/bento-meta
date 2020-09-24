@@ -7,9 +7,10 @@ from tempfile import NamedTemporaryFile
 from pdb import set_trace
 import json
 
-# the following gyrations enable * the PFB schema to be modularized with
-# named types, * the addition the custom data types to the pfb.Entity schema,
-# and * the recursive loading of the named type schemas by fastavro.
+# the following gyrations enable
+# * the PFB schema to be modularized with named types,
+# * the addition the custom data types to the pfb.Entity schema, and
+# * the recursive loading of the named type schemas by fastavro.
 
 pfb_schema = None
 with open("pfb.Entity.avsc","r") as Entity:
@@ -61,26 +62,26 @@ icdc_case_meta = {
     "values": {},
     "properties": [
         { 
-			"name": "case_id",
-			"ontology_reference": "NCIT",
-			"values": {
-			  "concept_code": "C164324"
-			}
+            "name": "case_id",
+            "ontology_reference": "NCIT",
+            "values": {
+              "concept_code": "C164324"
+            }
         },
         { 
-			"name": "patient_id",
-			"ontology_reference": "NCIT",
-			"values": {
-			  "concept_code": "C164337"
-			}
+            "name": "patient_id",
+            "ontology_reference": "NCIT",
+            "values": {
+              "concept_code": "C164337"
+            }
         }
         ],
         "links": [
-			{
+            {
                 "name": "member_of",
                 "dst": "cohort",
                 "multiplicity": "MANY_TO_ONE"
-			}
+            }
         ]
 }
 
@@ -163,6 +164,5 @@ with open("worked-example.avro","wb") as out:
 with open("worked-example.avro","rb") as inf:
     rdr = fastavro.reader(inf)
     for rec in rdr:
-        set_trace()
-        pass
-pass
+        print(rec)
+
