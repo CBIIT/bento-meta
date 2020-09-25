@@ -1,6 +1,7 @@
 # "Portable Format for Bioinformatics"
 
 <a id="point"/>
+
 ## The Point: To Send/Store Data and its Description _Together_
 
 [Avro](https://avro.apache.org/docs/current/spec.html) is a specification for defining data structures and "transporting" data according to those structures in a way that preserves both the data and the structure. A data object whose structure is defined by an Avro schema may be [serialized](https://en.wikipedia.org/wiki/Serialization), that is, saved or transmitted, using Avro-compliant clients. An Avro compliant client can restore the transmitted data to a structured data object that is equivalent to the original data object in both structure and content. This is possible, because the Avro protocol is designed to send messages containing not only the data, but the data's schema as well.
