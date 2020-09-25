@@ -3,6 +3,7 @@
 * [The Point](#point)
   * [Sidebar: Schema vs Instance](#schemavinstance)
 * [Implementation](#Implementation)
+  * [Improvements](#improvements)
 * [PFB Schema](#pfbschema)
   * [Entity](#Entity)
   * [Metadata](#Metadata)
@@ -41,6 +42,8 @@ So, the "Portable Format for Bioinformatics" is a set of forms for data, elabora
 The "Portable Format for Bioinformatics" was designed originally by the [Genomics Data Commons](https://gdc.cancer.gov) engineering team at the University of Chicago. It has been proposed as a format to enable interoperability among various large data repositories and services supported by the NIH.
 
 The reference implementation of PFB can be found at [this GitHub repository](https://github.com/uc-cdis/pypfb).  This implementation is somewhat obscure and difficult for a new user to grasp. For example, the PFB Avro schema is [hard-coded into a Python file](https://github.com/uc-cdis/pypfb/blob/5652cb7abdd152c223d12e2990746d159f55237c/pfb/writer.py#L77), rather than broken out into a separate, more easily maintained JSON file. 
+
+### Improvements
 
 We have replicated this original schema, but in a modular way that takes advantage of the ability of Avro APIs such as [fastavro](https://fastavro.readthedocs.io/en/latest/schema.html) to assemble separate, simple schemas into a more complex one, using schema namespaces in [complex types](https://avro.apache.org/docs/current/spec.html#schema_complex) and [named schema references](https://avro.apache.org/docs/current/idl.html#schema_references) to resolve schemas within schemas.
 
