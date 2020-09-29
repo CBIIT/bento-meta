@@ -1,0 +1,15 @@
+{ 
+  "name": "case",
+  "namespace": "icdc",
+  "type": "record",
+  "fields": [
+    { "name": "id",
+      "type": "string" },
+    { "name": "case_id",
+      "type": "string" },
+    { "name": "patient_id",
+      "type": "string" },
+    { "name": "patient_first_name",
+      "type": "string" }
+  ]
+}

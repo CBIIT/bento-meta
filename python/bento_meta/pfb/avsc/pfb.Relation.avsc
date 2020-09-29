@@ -1,0 +1,15 @@
+{
+  "name": "Relation",
+  "type": "record",
+  "namespace": "pfb",
+  "fields": [
+    {
+      "name": "dst_id",
+      "type": "string"
+    },
+    {
+      "name": "dst_name",
+      "type": "string"
+    }
+  ]
+}
