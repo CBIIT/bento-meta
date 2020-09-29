@@ -272,4 +272,4 @@ Users defining schemas to transmit their own data must consider their data and d
 
 ## Worked Example
 
-While the above details the schema, the [point](#point) of PFB is to encode _data_ with it, so that it can be stored and sent. A complete worked example using the ICDC data model, with further explanatory text and runnable code, is available in [this Jupyter notebook](../example/icdc-pfb-example.ipynb). 
+While the above details the schema, the [point](#point) of PFB is to encode _data_ with it, so that it can be stored and sent. A complete worked example using the ICDC data model, with further explanatory text and runnable code, is available in [this Jupyter notebook](./example/icdc-pfb-example.ipynb). 
