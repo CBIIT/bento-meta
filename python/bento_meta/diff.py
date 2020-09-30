@@ -8,8 +8,29 @@ from bento_meta.entity import Entity
 from warnings import warn
 from pdb import set_trace
 
+
+
+
+def valuesets_are_different(vs_a, vs_b):
+
+    # compare sets of terms
+    # a_att.terms
+    #   {'FFPE': <bento_meta.objects.Term object at 0x10..>, 'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}
+    # set(a_att.terms)
+    #   {'Snap Frozen', 'FFPE'}
+    terms_in_a = set(vs_a.terms)
+    terms_in_b = set(vs_b.terms)
+
+    if terms_in_a == terms_in_b:
+        return False
+    else:
+        return True
+
+
 def diff_models(mdl_a, mdl_b):
-    set_trace()
+    #set_trace()
+
+    '''This will eventually hold the diff results'''
     sets = { "nodes": {},
                  "edges": {},
                  "props": {} }
@@ -18,6 +39,7 @@ def diff_models(mdl_a, mdl_b):
                   "edges":Edge,
                   "props":Property }
     result = {}
+
     def update_result(thing,entk,att,a_att,b_att):
         if not thing in result:
             result[thing]={}
@@ -27,41 +49,51 @@ def diff_models(mdl_a, mdl_b):
             result[thing][entk][att] = {}
         result[thing][entk][att]["a"] = a_att
         result[thing][entk][att]["b"] = b_att
-        
+
+    # populate the diff results into "sets"
     for thing in sets:
         aset = set(getattr(mdl_a,thing))
         bset = set(getattr(mdl_b,thing))
-        sets[thing]["a"] = aset- bset
-        sets[thing]["b"] = bset-aset
+        sets[thing]["a"] = aset - bset
+        sets[thing]["b"] = bset - aset
         sets[thing]["common"] = aset & bset
+
+
     for thing in sets:
+        # cls becomes a "Node" object, "Edge" object, etc
         cls = clss[thing]
         simple_atts =  [ x for x in cls.attspec_ if cls.attspec_[x] == "simple" ]
         obj_atts = [ x for x in cls.attspec_ if cls.attspec_[x] == "object" ]
         coll_atts = [ x for x in cls.attspec_ if cls.attspec_[x] == "collection" ]
+
         for entk in sets[thing]["common"]:
             a_ent = getattr(mdl_a,thing)[entk]
             b_ent = getattr(mdl_b,thing)[entk]
+
+            # try and see if the simple attributes are the same
             for att in simple_atts:
                 if getattr(a_ent,att) == getattr(b_ent,att):
                     continue
                 else:
                     update_result(thing,entk,att,getattr(a_ent,att),getattr(b_ent,att))
+
+            # try and see if the "object" type is the same?
+            #     a_att,b_att are things like "valuesets", "properties"
             for att in obj_atts:
                 a_att = getattr(a_ent,att)
                 b_att = getattr(b_ent,att)
-                if a_att == b_att: # only if both 'None'
+
+                if a_att == b_att: # only if both 'None' *or* is same object
                     continue
                 if not a_att or not b_att: # one is 'None'
                     update_result(thing,entk,att,a_att,b_att)
                     continue
+
                 if type(a_att) == type(b_att):
                     if type(a_att) == ValueSet:  # kludge for ValueSet+Terms
-                        set_trace()
-                        aset = set(a_att.terms)
-                        bset = set(b_att.terms)
-                        if (aset != bset):
-                            update_result(thing,entk,att,aset-bset,bset-aset)
+                        if valuesets_are_different(a_att, b_att):
+                            update_result(thing,entk,att, set(a_att.terms) - set(b_att.terms), set(b_att.terms) - set(a_att.terms))
+                    # items are something-other-than-valuesets
                     elif getattr(a_att,"handle"):
                         if a_att.handle == b_att.handle:
                             continue
@@ -71,12 +103,18 @@ def diff_models(mdl_a, mdl_b):
                         warn("can't handle attribute with type {}".format(type(a_att).__name__))
                 else:
                     update_result(thing,entk,att,a_att,b_att)
+
+            # try and see if the "collection" set is the same?
             for att in coll_atts:
                 aset = set(getattr(a_ent,att))
                 bset = set(getattr(b_ent,att))
                 if aset != bset:
                     update_result(thing,entk,att,aset-bset,bset-aset)
+
     return result
+
+
+
 
 if __name__ == '__main__':
     # m = hashlib.md5();
