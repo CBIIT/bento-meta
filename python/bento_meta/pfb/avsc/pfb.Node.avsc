@@ -1,0 +1,36 @@
+{
+  "name": "Node",
+  "type": "record",
+  "namespace": "pfb",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "ontology_reference",
+      "type": "string"
+    },
+    {
+      "name": "values",
+      "type": {
+        "type": "map",
+        "values": "string"
+      }
+    },
+    {
+      "name": "links",
+      "type": {
+	"type":"array",
+	"items": "pfb.Link"
+      }
+    },
+    {
+      "name": "properties",
+      "type": {
+        "type": "array",
+        "items": "pfb.Property"
+      }
+    }
+  ]
+}

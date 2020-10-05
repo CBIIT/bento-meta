@@ -1,0 +1,13 @@
+{
+  "name": "cohort",
+  "namespace": "icdc",
+  "type": "record",
+  "fields": [
+    { "name": "id",
+      "type": "string" },
+    { "name": "cohort_description",
+      "type": "string" },
+    { "name": "cohort_dose",
+      "type": "string" }
+  ]
+}
