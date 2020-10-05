@@ -45,6 +45,32 @@ def test_diff_of_extra_node_edge_and_property():
     expected = {'nodes': {'a': set(), 'b': {'outcome'}}, 'edges': {'a': set(), 'b': {('end_result', 'diagnosis', 'outcome')}}, 'props': {'a': set(), 'b': {('outcome', 'fatal')}}}
     assert actual == expected
 
+def test_diff_of_extra_node():
+    '''a_f'''
+    a = MDF('tests/samples/test-model-a.yml', handle='test')
+    b = MDF('tests/samples/test-model-f.yml', handle='test')
+    actual = diff_models(a.model, b.model)
+    expected = {'nodes': {'a': {'diagnosis'}, 'b': set()}, 'edges': {'a': {('of_case', 'diagnosis', 'case')}, 'b': set()}, 'props': {'a': {('diagnosis', 'disease')}, 'b': set()}}
+    assert actual == expected
+
+
+def test_diff_of_missing_node():
+    '''a_g'''
+    a = MDF('tests/samples/test-model-a.yml', handle='test')
+    b = MDF('tests/samples/test-model-g.yml', handle='test')
+    actual = diff_models(a.model, b.model)
+    expected = {'nodes': {'a': set(), 'b': {'outcome'}}, 'props': {'a': set(), 'b': {('outcome', 'disease')}}}
+    assert actual == expected
+
+
+def test_diff_of_swapped_nodeprops():
+    '''a_h'''
+    a = MDF('tests/samples/test-model-a.yml', handle='test')
+    b = MDF('tests/samples/test-model-h.yml', handle='test')
+    actual = diff_models(a.model, b.model)
+    expected = {'nodes': {'file': {'props': {'a': {'file_name', 'file_size', 'md5sum'}, 'b': {'disease'}}}, 'diagnosis': {'props': {'a': {'disease'}, 'b': {'file_name', 'file_size', 'md5sum'}}}}, 'props': {'a': {('file', 'file_name'), ('file', 'file_size'), ('diagnosis', 'disease'), ('file', 'md5sum')}, 'b': {('diagnosis', 'file_name'), ('file', 'disease'), ('diagnosis', 'file_size'), ('diagnosis', 'md5sum')}}}
+    assert actual == expected
+
 
 def test_diff_where_yaml_has_extra_term():
     '''c_d'''

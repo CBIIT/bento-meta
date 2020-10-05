@@ -1,0 +1,81 @@
+Nodes:
+  case:
+    Props:
+      - case_id
+      - patient_id
+  sample:
+    Props:
+      - sample_type
+      - amount
+  file:
+    Props:
+      - md5sum
+      - file_name
+      - file_size
+Relationships:
+  of_case:
+    Mul: one_to_one
+    Ends:
+      - Src: sample
+        Dst: case
+        Mul: many_to_one
+        Props:
+          - days_to_sample
+  of_sample:
+    Mul: one_to_one
+    Ends:
+      - Src: file
+        Dst: sample
+        Mul: many_to_many
+  derived_from:
+    Mul: one_to_many
+    Props:
+      - id
+    Ends:
+      - Src: file
+        Dst: file
+        Props:
+          - workflow_id
+      - Src: sample
+        Dst: sample
+PropDefinitions:
+  case_id:
+    Type:
+      pattern: "^CASE-[0-9]+$"
+  patient_id:
+    Type: string
+  sample_type:
+    Type:
+      - normal
+      - tumor
+  amount:
+    Type:
+      units:
+        - mg
+      value_type: number
+  md5sum:
+    Type:
+      pattern: "^[a-f0-9]{40}"
+  file_name:
+    Type: string
+  file_size:
+    Type:
+      units:
+        - Gb
+        - Mb
+      value_type: integer
+  disease:
+    Type: url
+  days_to_sample:
+    Type:
+      units:
+        - days
+      value_type: integer
+  id:
+    Type: string
+  workflow_id:
+    Type:
+      # uuid
+      pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+      
+  
