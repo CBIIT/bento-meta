@@ -4,87 +4,226 @@ sys.path.extend(['.','..'])
 import pytest
 #from pdb import set_trace
 from bento_meta.mdf import MDF
-from bento_meta.diff import diff_models
+from bento_meta.diff import valuesets_are_different, diff_models
 #from bento_meta.entity import ArgError
-#from bento_meta.model import Model
-#from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin
+from bento_meta.model import Model
+from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin
 
 
-def test_diff_of_same_yaml():
-    '''diff of a yml against a copy of itself better darn be empty'''
-    a = MDF('tests/samples/test-model.yml', handle='test')
-    b = MDF('tests/samples/test-model-a.yml', handle='test')
-    actual = diff_models(a.model, b.model)
-    expected = {}
+
+
+def test_valuesets_are_different__a():
+    '''test using sets as input'''
+    # compare sets of terms
+    # a_att.terms
+    #   {'FFPE': <bento_meta.objects.Term object at 0x10..>, 'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}    # set(a_att.terms)
+    #   {'Snap Frozen', 'FFPE'}
+    p_1 = Property({"handle":"States"})
+    p_2 = Property({"handle":"Estados"})
+    vs_1 = ValueSet({"_id":"1"})
+    vs_2 = ValueSet({"_id":"2"})
+
+    term_a = Term({"value":"Merida"})
+    term_b = Term({"value":"Cumana"})
+    term_c = Term({"value":"Maracaibo"})
+    term_d = Term({"value":"Ciudad Bolivar"})
+    term_e = Term({"value":"Barcelona"})
+    term_f = Term({"value":"Barquisimeto"})
+
+    vs_1.terms['Merida'] = term_a
+    vs_1.terms['Cumana'] = term_b
+    vs_1.terms['Maracaibo'] = term_c
+    vs_1.terms['Ciudad Bolivar'] = term_d
+    vs_2.terms['Merida'] = term_a
+    vs_2.terms['Cumana'] = term_b
+    vs_2.terms['Maracaibo'] = term_c
+    vs_2.terms['Ciudad Bolivar'] = term_d
+
+    p_1.value_set = vs_1
+    p_2.value_set = vs_2
+
+    actual = valuesets_are_different(vs_1, vs_2)
+    expected = False
     assert actual == expected
 
 
-def test_diff_of_extra_node_properties_and_terms():
-    '''a_b'''
-    a = MDF('tests/samples/test-model-a.yml', handle='test')
-    b = MDF('tests/samples/test-model-b.yml', handle='test')
-    actual = diff_models(a.model, b.model)
-    expected = {'nodes': {'file': {'props': {'a': set(), 'b': {'encryption_type'}}}}, 'props': {('sample', 'sample_type'): {'value_set': {'a': set(), 'b': {'not a tumor'}}}, 'a': set(), 'b': {('file', 'encryption_type')}}}
+def test_valuesets_are_different__b():
+    '''test using sets as input'''
+    # compare sets of terms
+    # a_att.terms
+    #   {'FFPE': <bento_meta.objects.Term object at 0x10..>, 'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}    # set(a_att.terms)
+    #   {'Snap Frozen', 'FFPE'}
+    p_1 = Property({"handle":"States"})
+    p_2 = Property({"handle":"Estados"})
+    vs_1 = ValueSet({"_id":"1"})
+    vs_2 = ValueSet({"_id":"2"})
+
+    term_a = Term({"value":"Merida"})
+    term_b = Term({"value":"Cumana"})
+    term_c = Term({"value":"Maracaibo"})
+    term_d = Term({"value":"Ciudad Bolivar"})
+    term_e = Term({"value":"Barcelona"})
+    term_f = Term({"value":"Barquisimeto"})
+
+    vs_1.terms['Merida'] = term_a
+    vs_1.terms['Cumana'] = term_b
+    vs_1.terms['Maracaibo'] = term_c
+    vs_1.terms['Ciudad Bolivar'] = term_d
+
+    vs_2.terms['Merida'] = term_a
+    vs_2.terms['Cumana'] = term_b
+    vs_2.terms['Maracaibo'] = term_c
+
+    p_1.value_set = vs_1
+    p_2.value_set = vs_2
+
+    actual = valuesets_are_different(vs_1, vs_2)
+    expected = True
     assert actual == expected
 
 
-def test_diff_of_extra_node_property():
-    '''a_d'''
-    a = MDF('tests/samples/test-model-a.yml', handle='test')
-    b = MDF('tests/samples/test-model-d.yml', handle='test')
-    actual = diff_models(a.model, b.model)
-    expected = {'nodes': {'diagnosis': {'props': {'a': set(), 'b': {'fatal'}}}}, 'props': {'a': set(), 'b': {('diagnosis', 'fatal')}}}
+def test_valuesets_are_different__c():
+    '''test using sets as input'''
+    # compare sets of terms
+    # a_att.terms
+    #   {'FFPE': <bento_meta.objects.Term object at 0x10..>, 'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}    # set(a_att.terms)
+    #   {'Snap Frozen', 'FFPE'}
+    p_1 = Property({"handle":"States"})
+    p_2 = Property({"handle":"Estados"})
+    vs_1 = ValueSet({"_id":"1"})
+    vs_2 = ValueSet({"_id":"2"})
+
+    term_a = Term({"value":"Merida"})
+    term_b = Term({"value":"Cumana"})
+    term_c = Term({"value":"Maracaibo"})
+    term_d = Term({"value":"Ciudad Bolivar"})
+    term_e = Term({"value":"Barcelona"})
+    term_f = Term({"value":"Barquisimeto"})
+
+    vs_1.terms['Merida'] = term_a
+    vs_1.terms['Cumana'] = term_b
+    vs_1.terms['Maracaibo'] = term_c
+    vs_1.terms['Ciudad Bolivar'] = term_d
+
+    vs_2.terms['Merida'] = term_a
+    vs_2.terms['Cumana'] = term_b
+    vs_2.terms['Maracaibo'] = term_c
+    vs_2.terms['Ciudad Bolivar'] = term_d
+    vs_2.terms['Barcelona'] = term_e
+
+    p_1.value_set = vs_1
+    p_2.value_set = vs_2
+
+    actual = valuesets_are_different(vs_1, vs_2)
+    expected = True
+    assert actual == expected
+
+def test_valuesets_are_different__d():
+    '''test using sets as input'''
+    # compare sets of terms
+    # a_att.terms
+    #   {'FFPE': <bento_meta.objects.Term object at 0x10..>, 'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}    # set(a_att.terms)
+    #   {'Snap Frozen', 'FFPE'}
+    p_1 = Property({"handle":"States"})
+    p_2 = Property({"handle":"Estados"})
+    vs_1 = ValueSet({"_id":"1"})
+    vs_2 = ValueSet({"_id":"2"})
+
+    term_a = Term({"value":"Merida"})
+    term_b = Term({"value":"Cumana"})
+    term_c = Term({"value":"Maracaibo"})
+    term_d = Term({"value":"Ciudad Bolivar"})
+    term_e = Term({"value":"Barcelona"})
+    term_f = Term({"value":"Barquisimeto"})
+
+    #vs_1.terms['Merida'] = term_a
+    #vs_1.terms['Cumana'] = term_b
+    #vs_1.terms['Maracaibo'] = term_c
+    #vs_1.terms['Ciudad Bolivar'] = term_d
+
+    #vs_2.terms['Merida'] = term_a
+    #vs_2.terms['Cumana'] = term_b
+    #vs_2.terms['Maracaibo'] = term_c
+    #vs_2.terms['Ciudad Bolivar'] = term_d
+    #vs_2.terms['Barcelona'] = term_e
+
+    p_1.value_set = vs_1
+    p_2.value_set = vs_2
+
+    actual = valuesets_are_different(vs_1, vs_2)
+    expected = False
     assert actual == expected
 
 
-def test_diff_of_extra_node_edge_and_property():
-    '''a_e'''
-    a = MDF('tests/samples/test-model-a.yml', handle='test')
-    b = MDF('tests/samples/test-model-e.yml', handle='test')
-    actual = diff_models(a.model, b.model)
-    expected = {'nodes': {'a': set(), 'b': {'outcome'}}, 'edges': {'a': set(), 'b': {('end_result', 'diagnosis', 'outcome')}}, 'props': {'a': set(), 'b': {('outcome', 'fatal')}}}
-    assert actual == expected
+def test_valuesets_are_different__e():
+    '''test using sets as input'''
+    # compare sets of terms
+    # a_att.terms
+    #   {'FFPE': <bento_meta.objects.Term object at 0x10..>, 'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}    # set(a_att.terms)
+    #   {'Snap Frozen', 'FFPE'}
+    p_1 = Property({"handle":"States"})
+    p_2 = Property({"handle":"Estados"})
+    vs_1 = ValueSet({"_id":"1"})
+    vs_2 = ValueSet({"_id":"2"})
 
-def test_diff_of_extra_node():
-    '''a_f'''
-    a = MDF('tests/samples/test-model-a.yml', handle='test')
-    b = MDF('tests/samples/test-model-f.yml', handle='test')
-    actual = diff_models(a.model, b.model)
-    expected = {'nodes': {'a': {'diagnosis'}, 'b': set()}, 'edges': {'a': {('of_case', 'diagnosis', 'case')}, 'b': set()}, 'props': {'a': {('diagnosis', 'disease')}, 'b': set()}}
-    assert actual == expected
+    term_a = Term({"value":"Merida"})
+    term_b = Term({"value":"Cumana"})
+    term_c = Term({"value":"Maracaibo"})
+    term_d = Term({"value":"Ciudad Bolivar"})
+    term_e = Term({"value":"Barcelona"})
+    term_f = Term({"value":"Barquisimeto"})
 
+    vs_1.terms['Merida'] = term_a
+    vs_1.terms['Cumana'] = term_b
+    vs_1.terms['Maracaibo'] = term_c
+    vs_1.terms['Ciudad Bolivar'] = term_d
 
-def test_diff_of_missing_node():
-    '''a_g'''
-    a = MDF('tests/samples/test-model-a.yml', handle='test')
-    b = MDF('tests/samples/test-model-g.yml', handle='test')
-    actual = diff_models(a.model, b.model)
-    expected = {'nodes': {'a': set(), 'b': {'outcome'}}, 'props': {'a': set(), 'b': {('outcome', 'disease')}}}
-    assert actual == expected
+    #vs_2.terms['Merida'] = term_a
+    #vs_2.terms['Cumana'] = term_b
+    #vs_2.terms['Maracaibo'] = term_c
 
+    p_1.value_set = vs_1
+    p_2.value_set = vs_1
 
-def test_diff_of_swapped_nodeprops():
-    '''a_h'''
-    a = MDF('tests/samples/test-model-a.yml', handle='test')
-    b = MDF('tests/samples/test-model-h.yml', handle='test')
-    actual = diff_models(a.model, b.model)
-    expected = {'nodes': {'file': {'props': {'a': {'file_name', 'file_size', 'md5sum'}, 'b': {'disease'}}}, 'diagnosis': {'props': {'a': {'disease'}, 'b': {'file_name', 'file_size', 'md5sum'}}}}, 'props': {'a': {('file', 'file_name'), ('file', 'file_size'), ('diagnosis', 'disease'), ('file', 'md5sum')}, 'b': {('diagnosis', 'file_name'), ('file', 'disease'), ('diagnosis', 'file_size'), ('diagnosis', 'md5sum')}}}
-    assert actual == expected
-
-
-def test_diff_where_yaml_has_extra_term():
-    '''c_d'''
-    a = MDF('tests/samples/test-model-c.yml', handle='test')
-    b = MDF('tests/samples/test-model-d.yml', handle='test')
-    actual = diff_models(a.model, b.model)
-    expected = {'props': {('diagnosis', 'fatal'): {'value_set': {'a': set(), 'b': {'unknown'}}}}}
+    actual = valuesets_are_different(vs_1, vs_1)
+    expected = False
     assert actual == expected
 
 
-def test_diff_of_assorted_changes():
-    '''d_e'''
-    a = MDF('tests/samples/test-model-d.yml', handle='test')
-    b = MDF('tests/samples/test-model-e.yml', handle='test')
-    actual = diff_models(a.model, b.model)
-    expected = {'nodes': {'diagnosis': {'props': {'a': {'fatal'}, 'b': set()}}, 'a': set(), 'b': {'outcome'}}, 'edges': {'a': set(), 'b': {('end_result', 'diagnosis', 'outcome')}}, 'props': {'a': {('diagnosis', 'fatal')}, 'b': {('outcome', 'fatal')}}}
+def test_valuesets_are_different__f():
+    '''test using sets as input'''
+    # compare sets of terms
+    # a_att.terms
+    #   {'FFPE': <bento_meta.objects.Term object at 0x10..>, 'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}    # set(a_att.terms)
+    #   {'Snap Frozen', 'FFPE'}
+    p_1 = Property({"handle":"States"})
+    p_2 = Property({"handle":"Estados"})
+    vs_1 = ValueSet({"_id":"1"})
+    vs_2 = ValueSet({"_id":"2"})
+
+    term_a = Term({"value":"Merida"})
+    term_b = Term({"value":"Cumana"})
+    term_c = Term({"value":"Maracaibo"})
+    term_d = Term({"value":"Ciudad Bolivar"})
+    term_e = Term({"value":"Barcelona"})
+    term_f = Term({"value":"Barquisimeto"})
+
+    vs_1.terms['Merida'] = term_a
+    vs_1.terms['Cumana'] = term_b
+    vs_1.terms['Maracaibo'] = term_c
+    vs_1.terms['Ciudad Bolivar'] = term_d
+
+    vs_2.terms['Merida'] = term_a
+    vs_2.terms['Cumana'] = term_b
+    vs_2.terms['Maracaibo'] = term_c
+    vs_2.terms['Ciudad Bolivar'] = term_d
+
+    p_1.value_set = vs_1
+    p_2.value_set = vs_2
+
+    actual = valuesets_are_different(p_1.value_set, p_2.value_set)
+    expected = False
     assert actual == expected
+
+
+
