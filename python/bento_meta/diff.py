@@ -10,22 +10,9 @@ from bento_meta.entity import Entity
 from warnings import warn
 from pdb import set_trace
 
-
-def valuesets_are_different(vs_a, vs_b):
-
-    # compare sets of terms
-    # a_att.terms
-    #   {'FFPE': <bento_meta.objects.Term object at 0x10..>, 'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}
-    # set(a_att.terms)
-    #   {'Snap Frozen', 'FFPE'}
-    set_of_terms_in_a = set(vs_a.terms)
-    set_of_terms_in_b = set(vs_b.terms)
-
-    if set_of_terms_in_a == set_of_terms_in_b:
-        return False
-    else:
-        return True
-
+# NOTE: the diff class was changed from keeping the final data structure "result"
+#       from being 'set' based to being 'list' so that it could be dumped into
+#       json structure (which is incompatible with sets)
 
 class diff:
     """for manipulating the final result data structure when diff models"""
