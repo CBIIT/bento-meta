@@ -14,7 +14,9 @@ from pdb import set_trace
 #       from being 'set' based to being 'list' so that it could be dumped into
 #       json structure (which is incompatible with sets)
 
-class diff:
+
+
+class Diff:
     """for manipulating the final result data structure when diff models"""
 
     def __init__(self):
@@ -60,6 +62,21 @@ class diff:
         else:
             return None
 
+    def valuesets_are_different(self, vs_a, vs_b):
+        '''see if the group of terms in each value set is different'''
+
+        # compare sets of terms
+        # a_att.terms
+        #   {'FFPE': <bento_meta.objects.Term object at 0x10..>, 'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}
+        # set(a_att.terms)
+        #   {'Snap Frozen', 'FFPE'}
+        set_of_terms_in_a = set(vs_a.terms)
+        set_of_terms_in_b = set(vs_b.terms)
+
+        if set_of_terms_in_a == set_of_terms_in_b:
+            return False
+        else:
+            return True
 
     def finalize_result(self):
         """adds info for uniq nodes, edges, props from self.sets back to self.result"""
@@ -73,7 +90,7 @@ class diff:
                 if (value["a"] != set()) or (value["b"] != set()):
                     cleaned_a = self.sanitize_empty(value['a'])
                     cleaned_b = self.sanitize_empty(value['b'])
-    
+
                     # the key (node/edges/prop) may not be in results (b/c no common diff yet found!)
                     if key not in self.result.keys():
                         self.result[key] = {}
@@ -94,9 +111,9 @@ def diff_models(mdl_a, mdl_b):
     populate the diff results into "sets" and keep some final stuff in result.result
     """
 
-    result = diff()
-    sets = result.sets
-    clss = result.clss
+    diff_ = Diff()
+    sets = diff_.sets
+    clss = diff_.clss
 
     logging.info("point A")
     # set_trace()
@@ -140,7 +157,7 @@ def diff_models(mdl_a, mdl_b):
                     logging.info("...comparing simple {}".format(getattr(b_ent, att)))
                     continue
                 else:
-                    result.update_result(
+                    diff_.update_result(
                         thing, entk, att, sorted(getattr(a_ent, att)), sorted(getattr(b_ent, att))
                     )
 
@@ -154,13 +171,13 @@ def diff_models(mdl_a, mdl_b):
                 if a_att == b_att:  # only if both 'None' *or* is same object
                     continue
                 if not a_att or not b_att:  # one is 'None'
-                    result.update_result(thing, entk, att, sorted(a_att), sorted(b_att))
+                    diff_.update_result(thing, entk, att, sorted(a_att), sorted(b_att))
                     continue
 
                 if type(a_att) == type(b_att):
                     if type(a_att) == ValueSet:  # kludge for ValueSet+Terms
-                        if valuesets_are_different(a_att, b_att):
-                            result.update_result(
+                        if diff_.valuesets_are_different(a_att, b_att):
+                            diff_.update_result(
                                 thing,
                                 entk,
                                 att,
@@ -172,7 +189,7 @@ def diff_models(mdl_a, mdl_b):
                         if a_att.handle == b_att.handle:
                             continue
                         else:
-                            result.update_result(thing, entk, att, sorted(a_att), sorted(b_att))
+                            diff_.update_result(thing, entk, att, sorted(a_att), sorted(b_att))
                     else:
                         warn(
                             "can't handle attribute with type {}".format(
@@ -185,7 +202,7 @@ def diff_models(mdl_a, mdl_b):
                             )
                         )
                 else:
-                    result.update_result(thing, entk, att, sorted(a_att), sorted(b_att))
+                    diff_.update_result(thing, entk, att, sorted(a_att), sorted(b_att))
 
             # try and see if the "collection" set is the same?
             logging.info("...collection")
@@ -193,11 +210,11 @@ def diff_models(mdl_a, mdl_b):
                 aset = set(getattr(a_ent, att))
                 bset = set(getattr(b_ent, att))
                 if aset != bset:
-                    result.update_result(thing, entk, att, sorted(list(set(aset - bset))), sorted(list(set(bset - aset))))
+                    diff_.update_result(thing, entk, att, sorted(list(set(aset - bset))), sorted(list(set(bset - aset))))
 
     logging.info("done")
-    result.finalize_result()
-    return result.result
+    diff_.finalize_result()
+    return diff_.result
 
 
 if __name__ == "__main__":
