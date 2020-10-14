@@ -12,8 +12,10 @@ Nodes:
       - md5sum
       - file_name
       - file_size
-      - encryption_type
   diagnosis:
+    Props:
+      - disease
+  outcome:
     Props:
       - disease
 Relationships:
@@ -54,7 +56,6 @@ PropDefinitions:
     Type:
       - normal
       - tumor
-      - not a tumor
   amount:
     Type:
       units:
@@ -80,10 +81,6 @@ PropDefinitions:
       value_type: integer
   id:
     Type: string
-  encryption_type:
-    Type:
-        - password
-        - certificate
   workflow_id:
     Type:
       # uuid
