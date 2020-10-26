@@ -9,34 +9,32 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 1490)">
 <title>Perl</title>
 <polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-1490 1035.5492,-1490 1035.5492,4 -4,4"/>
-<!-- relationship -->
+<!-- term -->
 <g id="node1" class="node">
-<title>relationship</title>
-<path fill="none" stroke="#000000" d="M618.0492,-1301.5C618.0492,-1301.5 837.0492,-1301.5 837.0492,-1301.5 843.0492,-1301.5 849.0492,-1307.5 849.0492,-1313.5 849.0492,-1313.5 849.0492,-1473.5 849.0492,-1473.5 849.0492,-1479.5 843.0492,-1485.5 837.0492,-1485.5 837.0492,-1485.5 618.0492,-1485.5 618.0492,-1485.5 612.0492,-1485.5 606.0492,-1479.5 606.0492,-1473.5 606.0492,-1473.5 606.0492,-1313.5 606.0492,-1313.5 606.0492,-1307.5 612.0492,-1301.5 618.0492,-1301.5"/>
-<text text-anchor="middle" x="657.0492" y="-1389.8" font-family="Times,serif" font-size="14.00" fill="#000000">relationship</text>
-<polyline fill="none" stroke="#000000" points="708.0492,-1301.5 708.0492,-1485.5 "/>
-<text text-anchor="middle" x="718.5492" y="-1389.8" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
-<polyline fill="none" stroke="#000000" points="729.0492,-1301.5 729.0492,-1485.5 "/>
-<text text-anchor="middle" x="778.5492" y="-1470.3" font-family="Times,serif" font-size="14.00" fill="#000000">desc</text>
-<polyline fill="none" stroke="#000000" points="729.0492,-1462.5 828.0492,-1462.5 "/>
-<text text-anchor="middle" x="778.5492" y="-1447.3" font-family="Times,serif" font-size="14.00" fill="#000000">handle</text>
-<polyline fill="none" stroke="#000000" points="729.0492,-1439.5 828.0492,-1439.5 "/>
-<text text-anchor="middle" x="778.5492" y="-1424.3" font-family="Times,serif" font-size="14.00" fill="#000000">id</text>
-<polyline fill="none" stroke="#000000" points="729.0492,-1416.5 828.0492,-1416.5 "/>
-<text text-anchor="middle" x="778.5492" y="-1401.3" font-family="Times,serif" font-size="14.00" fill="#000000">is_required</text>
-<polyline fill="none" stroke="#000000" points="729.0492,-1393.5 828.0492,-1393.5 "/>
-<text text-anchor="middle" x="778.5492" y="-1378.3" font-family="Times,serif" font-size="14.00" fill="#000000">model</text>
-<polyline fill="none" stroke="#000000" points="729.0492,-1370.5 828.0492,-1370.5 "/>
-<text text-anchor="middle" x="778.5492" y="-1355.3" font-family="Times,serif" font-size="14.00" fill="#000000">multiplicity</text>
-<polyline fill="none" stroke="#000000" points="729.0492,-1347.5 828.0492,-1347.5 "/>
-<text text-anchor="middle" x="778.5492" y="-1332.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid6</text>
-<polyline fill="none" stroke="#000000" points="729.0492,-1324.5 828.0492,-1324.5 "/>
-<text text-anchor="middle" x="778.5492" y="-1309.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid8</text>
-<polyline fill="none" stroke="#000000" points="828.0492,-1301.5 828.0492,-1485.5 "/>
-<text text-anchor="middle" x="838.5492" y="-1389.8" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
+<title>term</title>
+<path fill="none" stroke="#000000" d="M191.0492,-403.5C191.0492,-403.5 394.0492,-403.5 394.0492,-403.5 400.0492,-403.5 406.0492,-409.5 406.0492,-415.5 406.0492,-415.5 406.0492,-552.5 406.0492,-552.5 406.0492,-558.5 400.0492,-564.5 394.0492,-564.5 394.0492,-564.5 191.0492,-564.5 191.0492,-564.5 185.0492,-564.5 179.0492,-558.5 179.0492,-552.5 179.0492,-552.5 179.0492,-415.5 179.0492,-415.5 179.0492,-409.5 185.0492,-403.5 191.0492,-403.5"/>
+<text text-anchor="middle" x="204.5492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000">term</text>
+<polyline fill="none" stroke="#000000" points="230.0492,-403.5 230.0492,-564.5 "/>
+<text text-anchor="middle" x="240.5492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
+<polyline fill="none" stroke="#000000" points="251.0492,-403.5 251.0492,-564.5 "/>
+<text text-anchor="middle" x="318.0492" y="-549.3" font-family="Times,serif" font-size="14.00" fill="#000000">desc</text>
+<polyline fill="none" stroke="#000000" points="251.0492,-541.5 385.0492,-541.5 "/>
+<text text-anchor="middle" x="318.0492" y="-526.3" font-family="Times,serif" font-size="14.00" fill="#000000">id</text>
+<polyline fill="none" stroke="#000000" points="251.0492,-518.5 385.0492,-518.5 "/>
+<text text-anchor="middle" x="318.0492" y="-503.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid6</text>
+<polyline fill="none" stroke="#000000" points="251.0492,-495.5 385.0492,-495.5 "/>
+<text text-anchor="middle" x="318.0492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid8</text>
+<polyline fill="none" stroke="#000000" points="251.0492,-472.5 385.0492,-472.5 "/>
+<text text-anchor="middle" x="318.0492" y="-457.3" font-family="Times,serif" font-size="14.00" fill="#000000">origin_definition</text>
+<polyline fill="none" stroke="#000000" points="251.0492,-449.5 385.0492,-449.5 "/>
+<text text-anchor="middle" x="318.0492" y="-434.3" font-family="Times,serif" font-size="14.00" fill="#000000">origin_id</text>
+<polyline fill="none" stroke="#000000" points="251.0492,-426.5 385.0492,-426.5 "/>
+<text text-anchor="middle" x="318.0492" y="-411.3" font-family="Times,serif" font-size="14.00" fill="#000000">value</text>
+<polyline fill="none" stroke="#000000" points="385.0492,-403.5 385.0492,-564.5 "/>
+<text text-anchor="middle" x="395.5492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
 </g>
 <!-- concept -->
-<g id="node3" class="node">
+<g id="node4" class="node">
 <title>concept</title>
 <path fill="none" stroke="#000000" d="M477.5492,-225C477.5492,-225 643.5492,-225 643.5492,-225 649.5492,-225 655.5492,-231 655.5492,-237 655.5492,-237 655.5492,-305 655.5492,-305 655.5492,-311 649.5492,-317 643.5492,-317 643.5492,-317 477.5492,-317 477.5492,-317 471.5492,-317 465.5492,-311 465.5492,-305 465.5492,-305 465.5492,-237 465.5492,-237 465.5492,-231 471.5492,-225 477.5492,-225"/>
 <text text-anchor="middle" x="502.5492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000">concept</text>
@@ -53,15 +51,75 @@
 <polyline fill="none" stroke="#000000" points="634.5492,-225 634.5492,-317 "/>
 <text text-anchor="middle" x="645.0492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
 </g>
-<!-- relationship&#45;&gt;concept -->
-<g id="edge10" class="edge">
-<title>relationship&#45;&gt;concept</title>
-<path fill="none" stroke="#000000" d="M635.9322,-1301.4519C630.3066,-1295.2824 624.8019,-1289.0969 619.5492,-1283 541.8442,-1192.8048 535.0616,-1154.0916 513.5492,-1037 475.5502,-830.1718 527.2648,-774.4038 546.5492,-565 554.1416,-482.5564 557.7315,-386.7049 559.3439,-327.4408"/>
-<polygon fill="#000000" stroke="#000000" points="562.8498,-327.2609 559.6134,-317.1724 555.8522,-327.0771 562.8498,-327.2609"/>
-<text text-anchor="middle" x="558.5492" y="-776.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_concept</text>
+<!-- term&#45;&gt;concept -->
+<g id="edge20" class="edge">
+<title>term&#45;&gt;concept</title>
+<path fill="none" stroke="#000000" d="M324.9683,-403.3389C332.1719,-391.2178 340.6686,-379.5876 350.5492,-370 359.4152,-361.397 407.952,-338.3287 456.1295,-316.6231"/>
+<polygon fill="#000000" stroke="#000000" points="457.7402,-319.7366 465.4293,-312.4476 454.873,-313.3507 457.7402,-319.7366"/>
+<text text-anchor="middle" x="389.5492" y="-373.8" font-family="Times,serif" font-size="14.00" fill="#000000">represents</text>
+</g>
+<!-- tag -->
+<g id="node7" class="node">
+<title>tag</title>
+<path fill="none" stroke="#000000" d="M494.5492,-.5C494.5492,-.5 626.5492,-.5 626.5492,-.5 632.5492,-.5 638.5492,-6.5 638.5492,-12.5 638.5492,-12.5 638.5492,-126.5 638.5492,-126.5 638.5492,-132.5 632.5492,-138.5 626.5492,-138.5 626.5492,-138.5 494.5492,-138.5 494.5492,-138.5 488.5492,-138.5 482.5492,-132.5 482.5492,-126.5 482.5492,-126.5 482.5492,-12.5 482.5492,-12.5 482.5492,-6.5 488.5492,-.5 494.5492,-.5"/>
+<text text-anchor="middle" x="502.5492" y="-65.8" font-family="Times,serif" font-size="14.00" fill="#000000">tag</text>
+<polyline fill="none" stroke="#000000" points="522.5492,-.5 522.5492,-138.5 "/>
+<text text-anchor="middle" x="533.0492" y="-65.8" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
+<polyline fill="none" stroke="#000000" points="543.5492,-.5 543.5492,-138.5 "/>
+<text text-anchor="middle" x="580.5492" y="-123.3" font-family="Times,serif" font-size="14.00" fill="#000000">desc</text>
+<polyline fill="none" stroke="#000000" points="543.5492,-115.5 617.5492,-115.5 "/>
+<text text-anchor="middle" x="580.5492" y="-100.3" font-family="Times,serif" font-size="14.00" fill="#000000">id</text>
+<polyline fill="none" stroke="#000000" points="543.5492,-92.5 617.5492,-92.5 "/>
+<text text-anchor="middle" x="580.5492" y="-77.3" font-family="Times,serif" font-size="14.00" fill="#000000">key</text>
+<polyline fill="none" stroke="#000000" points="543.5492,-69.5 617.5492,-69.5 "/>
+<text text-anchor="middle" x="580.5492" y="-54.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid6</text>
+<polyline fill="none" stroke="#000000" points="543.5492,-46.5 617.5492,-46.5 "/>
+<text text-anchor="middle" x="580.5492" y="-31.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid8</text>
+<polyline fill="none" stroke="#000000" points="543.5492,-23.5 617.5492,-23.5 "/>
+<text text-anchor="middle" x="580.5492" y="-8.3" font-family="Times,serif" font-size="14.00" fill="#000000">value</text>
+<polyline fill="none" stroke="#000000" points="617.5492,-.5 617.5492,-138.5 "/>
+<text text-anchor="middle" x="628.0492" y="-65.8" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
+</g>
+<!-- term&#45;&gt;tag -->
+<g id="edge11" class="edge">
+<title>term&#45;&gt;tag</title>
+<path fill="none" stroke="#000000" d="M308.9391,-403.4312C324.6528,-340.6998 353.1416,-253.8503 400.5492,-190 420.3691,-163.3059 447.7018,-139.7432 474.1711,-120.6963"/>
+<polygon fill="#000000" stroke="#000000" points="476.1919,-123.5541 482.3488,-114.9317 472.1588,-117.8327 476.1919,-123.5541"/>
+<text text-anchor="middle" x="428.5492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
+</g>
+<!-- origin -->
+<g id="node8" class="node">
+<title>origin</title>
+<path fill="none" stroke="#000000" d="M96.5492,-190.5C96.5492,-190.5 268.5492,-190.5 268.5492,-190.5 274.5492,-190.5 280.5492,-196.5 280.5492,-202.5 280.5492,-202.5 280.5492,-339.5 280.5492,-339.5 280.5492,-345.5 274.5492,-351.5 268.5492,-351.5 268.5492,-351.5 96.5492,-351.5 96.5492,-351.5 90.5492,-351.5 84.5492,-345.5 84.5492,-339.5 84.5492,-339.5 84.5492,-202.5 84.5492,-202.5 84.5492,-196.5 90.5492,-190.5 96.5492,-190.5"/>
+<text text-anchor="middle" x="114.0492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000">origin</text>
+<polyline fill="none" stroke="#000000" points="143.5492,-190.5 143.5492,-351.5 "/>
+<text text-anchor="middle" x="154.0492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
+<polyline fill="none" stroke="#000000" points="164.5492,-190.5 164.5492,-351.5 "/>
+<text text-anchor="middle" x="212.0492" y="-336.3" font-family="Times,serif" font-size="14.00" fill="#000000">desc</text>
+<polyline fill="none" stroke="#000000" points="164.5492,-328.5 259.5492,-328.5 "/>
+<text text-anchor="middle" x="212.0492" y="-313.3" font-family="Times,serif" font-size="14.00" fill="#000000">id</text>
+<polyline fill="none" stroke="#000000" points="164.5492,-305.5 259.5492,-305.5 "/>
+<text text-anchor="middle" x="212.0492" y="-290.3" font-family="Times,serif" font-size="14.00" fill="#000000">is_external</text>
+<polyline fill="none" stroke="#000000" points="164.5492,-282.5 259.5492,-282.5 "/>
+<text text-anchor="middle" x="212.0492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000">name</text>
+<polyline fill="none" stroke="#000000" points="164.5492,-259.5 259.5492,-259.5 "/>
+<text text-anchor="middle" x="212.0492" y="-244.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid6</text>
+<polyline fill="none" stroke="#000000" points="164.5492,-236.5 259.5492,-236.5 "/>
+<text text-anchor="middle" x="212.0492" y="-221.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid8</text>
+<polyline fill="none" stroke="#000000" points="164.5492,-213.5 259.5492,-213.5 "/>
+<text text-anchor="middle" x="212.0492" y="-198.3" font-family="Times,serif" font-size="14.00" fill="#000000">url</text>
+<polyline fill="none" stroke="#000000" points="259.5492,-190.5 259.5492,-351.5 "/>
+<text text-anchor="middle" x="270.0492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
+</g>
+<!-- term&#45;&gt;origin -->
+<g id="edge7" class="edge">
+<title>term&#45;&gt;origin</title>
+<path fill="none" stroke="#000000" d="M237.7841,-403.4988C234.175,-397.3239 230.7206,-391.1144 227.5492,-385 223.5632,-377.3148 219.7075,-369.1928 216.0413,-360.967"/>
+<polygon fill="#000000" stroke="#000000" points="219.1872,-359.4246 211.9859,-351.6534 212.7693,-362.2193 219.1872,-359.4246"/>
+<text text-anchor="middle" x="265.0492" y="-373.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_origin</text>
 </g>
 <!-- property -->
-<g id="node5" class="node">
+<g id="node2" class="node">
 <title>property</title>
 <path fill="none" stroke="#000000" d="M534.5492,-806.5C534.5492,-806.5 746.5492,-806.5 746.5492,-806.5 752.5492,-806.5 758.5492,-812.5 758.5492,-818.5 758.5492,-818.5 758.5492,-1024.5 758.5492,-1024.5 758.5492,-1030.5 752.5492,-1036.5 746.5492,-1036.5 746.5492,-1036.5 534.5492,-1036.5 534.5492,-1036.5 528.5492,-1036.5 522.5492,-1030.5 522.5492,-1024.5 522.5492,-1024.5 522.5492,-818.5 522.5492,-818.5 522.5492,-812.5 528.5492,-806.5 534.5492,-806.5"/>
 <text text-anchor="middle" x="562.0492" y="-917.8" font-family="Times,serif" font-size="14.00" fill="#000000">property</text>
@@ -90,158 +148,15 @@
 <polyline fill="none" stroke="#000000" points="737.5492,-806.5 737.5492,-1036.5 "/>
 <text text-anchor="middle" x="748.0492" y="-917.8" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
 </g>
-<!-- relationship&#45;&gt;property -->
-<g id="edge7" class="edge">
-<title>relationship&#45;&gt;property</title>
-<path fill="none" stroke="#000000" d="M640.942,-1301.1634C630.1358,-1285.1204 620.726,-1267.8279 614.5492,-1250 592.1047,-1185.2186 596.3712,-1109.1018 607.2592,-1046.4582"/>
-<polygon fill="#000000" stroke="#000000" points="610.7202,-1046.9878 609.0605,-1036.5237 603.8325,-1045.7389 610.7202,-1046.9878"/>
-<text text-anchor="middle" x="662.0492" y="-1165.3" font-family="Times,serif" font-size="14.00" fill="#000000">has_property</text>
-</g>
-<!-- node -->
-<g id="node7" class="node">
-<title>node</title>
-<path fill="none" stroke="#000000" d="M731.0492,-1088.5C731.0492,-1088.5 880.0492,-1088.5 880.0492,-1088.5 886.0492,-1088.5 892.0492,-1094.5 892.0492,-1100.5 892.0492,-1100.5 892.0492,-1237.5 892.0492,-1237.5 892.0492,-1243.5 886.0492,-1249.5 880.0492,-1249.5 880.0492,-1249.5 731.0492,-1249.5 731.0492,-1249.5 725.0492,-1249.5 719.0492,-1243.5 719.0492,-1237.5 719.0492,-1237.5 719.0492,-1100.5 719.0492,-1100.5 719.0492,-1094.5 725.0492,-1088.5 731.0492,-1088.5"/>
-<text text-anchor="middle" x="744.5492" y="-1165.3" font-family="Times,serif" font-size="14.00" fill="#000000">node</text>
-<polyline fill="none" stroke="#000000" points="770.0492,-1088.5 770.0492,-1249.5 "/>
-<text text-anchor="middle" x="780.5492" y="-1165.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
-<polyline fill="none" stroke="#000000" points="791.0492,-1088.5 791.0492,-1249.5 "/>
-<text text-anchor="middle" x="831.0492" y="-1234.3" font-family="Times,serif" font-size="14.00" fill="#000000">category</text>
-<polyline fill="none" stroke="#000000" points="791.0492,-1226.5 871.0492,-1226.5 "/>
-<text text-anchor="middle" x="831.0492" y="-1211.3" font-family="Times,serif" font-size="14.00" fill="#000000">desc</text>
-<polyline fill="none" stroke="#000000" points="791.0492,-1203.5 871.0492,-1203.5 "/>
-<text text-anchor="middle" x="831.0492" y="-1188.3" font-family="Times,serif" font-size="14.00" fill="#000000">handle</text>
-<polyline fill="none" stroke="#000000" points="791.0492,-1180.5 871.0492,-1180.5 "/>
-<text text-anchor="middle" x="831.0492" y="-1165.3" font-family="Times,serif" font-size="14.00" fill="#000000">id</text>
-<polyline fill="none" stroke="#000000" points="791.0492,-1157.5 871.0492,-1157.5 "/>
-<text text-anchor="middle" x="831.0492" y="-1142.3" font-family="Times,serif" font-size="14.00" fill="#000000">model</text>
-<polyline fill="none" stroke="#000000" points="791.0492,-1134.5 871.0492,-1134.5 "/>
-<text text-anchor="middle" x="831.0492" y="-1119.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid6</text>
-<polyline fill="none" stroke="#000000" points="791.0492,-1111.5 871.0492,-1111.5 "/>
-<text text-anchor="middle" x="831.0492" y="-1096.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid8</text>
-<polyline fill="none" stroke="#000000" points="871.0492,-1088.5 871.0492,-1249.5 "/>
-<text text-anchor="middle" x="881.5492" y="-1165.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
-</g>
-<!-- relationship&#45;&gt;node -->
-<g id="edge2" class="edge">
-<title>relationship&#45;&gt;node</title>
-<path fill="none" stroke="#000000" d="M776.5362,-1301.469C779.0903,-1295.2953 781.4594,-1289.1043 783.5492,-1283 786.1253,-1275.4755 788.4299,-1267.5623 790.4856,-1259.559"/>
-<polygon fill="#000000" stroke="#000000" points="793.9033,-1260.3165 792.871,-1249.7721 787.1024,-1258.6588 793.9033,-1260.3165"/>
-<text text-anchor="middle" x="815.0492" y="-1271.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_src</text>
-</g>
-<!-- relationship&#45;&gt;node -->
-<g id="edge13" class="edge">
-<title>relationship&#45;&gt;node</title>
-<path fill="none" stroke="#000000" d="M717.6409,-1301.4301C718.6421,-1289.9676 720.7758,-1278.5708 724.5492,-1268 725.6691,-1264.8628 726.9358,-1261.7533 728.3284,-1258.6791"/>
-<polygon fill="#000000" stroke="#000000" points="731.5397,-1260.0819 732.8623,-1249.5699 725.273,-1256.9627 731.5397,-1260.0819"/>
-<text text-anchor="middle" x="752.0492" y="-1271.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_dst</text>
-</g>
-<!-- tag -->
-<g id="node8" class="node">
-<title>tag</title>
-<path fill="none" stroke="#000000" d="M494.5492,-.5C494.5492,-.5 626.5492,-.5 626.5492,-.5 632.5492,-.5 638.5492,-6.5 638.5492,-12.5 638.5492,-12.5 638.5492,-126.5 638.5492,-126.5 638.5492,-132.5 632.5492,-138.5 626.5492,-138.5 626.5492,-138.5 494.5492,-138.5 494.5492,-138.5 488.5492,-138.5 482.5492,-132.5 482.5492,-126.5 482.5492,-126.5 482.5492,-12.5 482.5492,-12.5 482.5492,-6.5 488.5492,-.5 494.5492,-.5"/>
-<text text-anchor="middle" x="502.5492" y="-65.8" font-family="Times,serif" font-size="14.00" fill="#000000">tag</text>
-<polyline fill="none" stroke="#000000" points="522.5492,-.5 522.5492,-138.5 "/>
-<text text-anchor="middle" x="533.0492" y="-65.8" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
-<polyline fill="none" stroke="#000000" points="543.5492,-.5 543.5492,-138.5 "/>
-<text text-anchor="middle" x="580.5492" y="-123.3" font-family="Times,serif" font-size="14.00" fill="#000000">desc</text>
-<polyline fill="none" stroke="#000000" points="543.5492,-115.5 617.5492,-115.5 "/>
-<text text-anchor="middle" x="580.5492" y="-100.3" font-family="Times,serif" font-size="14.00" fill="#000000">id</text>
-<polyline fill="none" stroke="#000000" points="543.5492,-92.5 617.5492,-92.5 "/>
-<text text-anchor="middle" x="580.5492" y="-77.3" font-family="Times,serif" font-size="14.00" fill="#000000">key</text>
-<polyline fill="none" stroke="#000000" points="543.5492,-69.5 617.5492,-69.5 "/>
-<text text-anchor="middle" x="580.5492" y="-54.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid6</text>
-<polyline fill="none" stroke="#000000" points="543.5492,-46.5 617.5492,-46.5 "/>
-<text text-anchor="middle" x="580.5492" y="-31.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid8</text>
-<polyline fill="none" stroke="#000000" points="543.5492,-23.5 617.5492,-23.5 "/>
-<text text-anchor="middle" x="580.5492" y="-8.3" font-family="Times,serif" font-size="14.00" fill="#000000">value</text>
-<polyline fill="none" stroke="#000000" points="617.5492,-.5 617.5492,-138.5 "/>
-<text text-anchor="middle" x="628.0492" y="-65.8" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
-</g>
-<!-- relationship&#45;&gt;tag -->
-<g id="edge15" class="edge">
-<title>relationship&#45;&gt;tag</title>
-<path fill="none" stroke="#000000" d="M849.3697,-1338.3156C912.0876,-1300.7759 975.5492,-1244.2091 975.5492,-1169 975.5492,-1169 975.5492,-1169 975.5492,-271 975.5492,-226.9798 950.6661,-220.1046 918.5492,-190 844.2177,-120.3257 728.2607,-90.8389 648.5742,-78.4228"/>
-<polygon fill="#000000" stroke="#000000" points="648.9631,-74.942 638.5548,-76.9215 647.9257,-81.8648 648.9631,-74.942"/>
-<text text-anchor="middle" x="1003.5492" y="-681.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
-</g>
-<!-- term -->
-<g id="node2" class="node">
-<title>term</title>
-<path fill="none" stroke="#000000" d="M191.0492,-403.5C191.0492,-403.5 394.0492,-403.5 394.0492,-403.5 400.0492,-403.5 406.0492,-409.5 406.0492,-415.5 406.0492,-415.5 406.0492,-552.5 406.0492,-552.5 406.0492,-558.5 400.0492,-564.5 394.0492,-564.5 394.0492,-564.5 191.0492,-564.5 191.0492,-564.5 185.0492,-564.5 179.0492,-558.5 179.0492,-552.5 179.0492,-552.5 179.0492,-415.5 179.0492,-415.5 179.0492,-409.5 185.0492,-403.5 191.0492,-403.5"/>
-<text text-anchor="middle" x="204.5492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000">term</text>
-<polyline fill="none" stroke="#000000" points="230.0492,-403.5 230.0492,-564.5 "/>
-<text text-anchor="middle" x="240.5492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
-<polyline fill="none" stroke="#000000" points="251.0492,-403.5 251.0492,-564.5 "/>
-<text text-anchor="middle" x="318.0492" y="-549.3" font-family="Times,serif" font-size="14.00" fill="#000000">desc</text>
-<polyline fill="none" stroke="#000000" points="251.0492,-541.5 385.0492,-541.5 "/>
-<text text-anchor="middle" x="318.0492" y="-526.3" font-family="Times,serif" font-size="14.00" fill="#000000">id</text>
-<polyline fill="none" stroke="#000000" points="251.0492,-518.5 385.0492,-518.5 "/>
-<text text-anchor="middle" x="318.0492" y="-503.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid6</text>
-<polyline fill="none" stroke="#000000" points="251.0492,-495.5 385.0492,-495.5 "/>
-<text text-anchor="middle" x="318.0492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid8</text>
-<polyline fill="none" stroke="#000000" points="251.0492,-472.5 385.0492,-472.5 "/>
-<text text-anchor="middle" x="318.0492" y="-457.3" font-family="Times,serif" font-size="14.00" fill="#000000">origin_definition</text>
-<polyline fill="none" stroke="#000000" points="251.0492,-449.5 385.0492,-449.5 "/>
-<text text-anchor="middle" x="318.0492" y="-434.3" font-family="Times,serif" font-size="14.00" fill="#000000">origin_id</text>
-<polyline fill="none" stroke="#000000" points="251.0492,-426.5 385.0492,-426.5 "/>
-<text text-anchor="middle" x="318.0492" y="-411.3" font-family="Times,serif" font-size="14.00" fill="#000000">value</text>
-<polyline fill="none" stroke="#000000" points="385.0492,-403.5 385.0492,-564.5 "/>
-<text text-anchor="middle" x="395.5492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
-</g>
-<!-- term&#45;&gt;concept -->
+<!-- property&#45;&gt;concept -->
 <g id="edge1" class="edge">
-<title>term&#45;&gt;concept</title>
-<path fill="none" stroke="#000000" d="M324.9683,-403.3389C332.1719,-391.2178 340.6686,-379.5876 350.5492,-370 359.4152,-361.397 407.952,-338.3287 456.1295,-316.6231"/>
-<polygon fill="#000000" stroke="#000000" points="457.7402,-319.7366 465.4293,-312.4476 454.873,-313.3507 457.7402,-319.7366"/>
-<text text-anchor="middle" x="389.5492" y="-373.8" font-family="Times,serif" font-size="14.00" fill="#000000">represents</text>
-</g>
-<!-- origin -->
-<g id="node6" class="node">
-<title>origin</title>
-<path fill="none" stroke="#000000" d="M96.5492,-190.5C96.5492,-190.5 268.5492,-190.5 268.5492,-190.5 274.5492,-190.5 280.5492,-196.5 280.5492,-202.5 280.5492,-202.5 280.5492,-339.5 280.5492,-339.5 280.5492,-345.5 274.5492,-351.5 268.5492,-351.5 268.5492,-351.5 96.5492,-351.5 96.5492,-351.5 90.5492,-351.5 84.5492,-345.5 84.5492,-339.5 84.5492,-339.5 84.5492,-202.5 84.5492,-202.5 84.5492,-196.5 90.5492,-190.5 96.5492,-190.5"/>
-<text text-anchor="middle" x="114.0492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000">origin</text>
-<polyline fill="none" stroke="#000000" points="143.5492,-190.5 143.5492,-351.5 "/>
-<text text-anchor="middle" x="154.0492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
-<polyline fill="none" stroke="#000000" points="164.5492,-190.5 164.5492,-351.5 "/>
-<text text-anchor="middle" x="212.0492" y="-336.3" font-family="Times,serif" font-size="14.00" fill="#000000">desc</text>
-<polyline fill="none" stroke="#000000" points="164.5492,-328.5 259.5492,-328.5 "/>
-<text text-anchor="middle" x="212.0492" y="-313.3" font-family="Times,serif" font-size="14.00" fill="#000000">id</text>
-<polyline fill="none" stroke="#000000" points="164.5492,-305.5 259.5492,-305.5 "/>
-<text text-anchor="middle" x="212.0492" y="-290.3" font-family="Times,serif" font-size="14.00" fill="#000000">is_external</text>
-<polyline fill="none" stroke="#000000" points="164.5492,-282.5 259.5492,-282.5 "/>
-<text text-anchor="middle" x="212.0492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000">name</text>
-<polyline fill="none" stroke="#000000" points="164.5492,-259.5 259.5492,-259.5 "/>
-<text text-anchor="middle" x="212.0492" y="-244.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid6</text>
-<polyline fill="none" stroke="#000000" points="164.5492,-236.5 259.5492,-236.5 "/>
-<text text-anchor="middle" x="212.0492" y="-221.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid8</text>
-<polyline fill="none" stroke="#000000" points="164.5492,-213.5 259.5492,-213.5 "/>
-<text text-anchor="middle" x="212.0492" y="-198.3" font-family="Times,serif" font-size="14.00" fill="#000000">url</text>
-<polyline fill="none" stroke="#000000" points="259.5492,-190.5 259.5492,-351.5 "/>
-<text text-anchor="middle" x="270.0492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
-</g>
-<!-- term&#45;&gt;origin -->
-<g id="edge5" class="edge">
-<title>term&#45;&gt;origin</title>
-<path fill="none" stroke="#000000" d="M237.7841,-403.4988C234.175,-397.3239 230.7206,-391.1144 227.5492,-385 223.5632,-377.3148 219.7075,-369.1928 216.0413,-360.967"/>
-<polygon fill="#000000" stroke="#000000" points="219.1872,-359.4246 211.9859,-351.6534 212.7693,-362.2193 219.1872,-359.4246"/>
-<text text-anchor="middle" x="265.0492" y="-373.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_origin</text>
-</g>
-<!-- term&#45;&gt;tag -->
-<g id="edge14" class="edge">
-<title>term&#45;&gt;tag</title>
-<path fill="none" stroke="#000000" d="M308.9391,-403.4312C324.6528,-340.6998 353.1416,-253.8503 400.5492,-190 420.3691,-163.3059 447.7018,-139.7432 474.1711,-120.6963"/>
-<polygon fill="#000000" stroke="#000000" points="476.1919,-123.5541 482.3488,-114.9317 472.1588,-117.8327 476.1919,-123.5541"/>
-<text text-anchor="middle" x="428.5492" y="-267.3" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
-</g>
-<!-- concept&#45;&gt;tag -->
-<g id="edge17" class="edge">
-<title>concept&#45;&gt;tag</title>
-<path fill="none" stroke="#000000" d="M560.5492,-224.7718C560.5492,-202.308 560.5492,-174.6692 560.5492,-148.9668"/>
-<polygon fill="#000000" stroke="#000000" points="564.0493,-148.8503 560.5492,-138.8504 557.0493,-148.8504 564.0493,-148.8503"/>
-<text text-anchor="middle" x="588.5492" y="-160.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
+<title>property&#45;&gt;concept</title>
+<path fill="none" stroke="#000000" d="M625.4665,-806.2723C617.5061,-744.5334 607.722,-667.1521 599.5492,-598 587.5846,-496.7639 587.2433,-471.1472 574.5492,-370 572.8099,-356.1405 570.7807,-341.2124 568.8158,-327.2568"/>
+<polygon fill="#000000" stroke="#000000" points="572.2726,-326.7046 567.4015,-317.296 565.3421,-327.6888 572.2726,-326.7046"/>
+<text text-anchor="middle" x="644.5492" y="-586.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_concept</text>
 </g>
 <!-- value_set -->
-<g id="node4" class="node">
+<g id="node5" class="node">
 <title>value_set</title>
 <path fill="none" stroke="#000000" d="M204.5492,-616.5C204.5492,-616.5 380.5492,-616.5 380.5492,-616.5 386.5492,-616.5 392.5492,-622.5 392.5492,-628.5 392.5492,-628.5 392.5492,-742.5 392.5492,-742.5 392.5492,-748.5 386.5492,-754.5 380.5492,-754.5 380.5492,-754.5 204.5492,-754.5 204.5492,-754.5 198.5492,-754.5 192.5492,-748.5 192.5492,-742.5 192.5492,-742.5 192.5492,-628.5 192.5492,-628.5 192.5492,-622.5 198.5492,-616.5 204.5492,-616.5"/>
 <text text-anchor="middle" x="234.5492" y="-681.8" font-family="Times,serif" font-size="14.00" fill="#000000">value_set</text>
@@ -262,26 +177,125 @@
 <polyline fill="none" stroke="#000000" points="371.5492,-616.5 371.5492,-754.5 "/>
 <text text-anchor="middle" x="382.0492" y="-681.8" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
 </g>
+<!-- property&#45;&gt;value_set -->
+<g id="edge5" class="edge">
+<title>property&#45;&gt;value_set</title>
+<path fill="none" stroke="#000000" d="M522.3432,-876.3681C473.04,-854.1868 417.027,-824.3449 372.5492,-788 363.3313,-780.4676 354.5164,-771.689 346.3296,-762.4973"/>
+<polygon fill="#000000" stroke="#000000" points="348.7858,-759.9861 339.6054,-754.6974 343.484,-764.5568 348.7858,-759.9861"/>
+<text text-anchor="middle" x="422.5492" y="-776.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_value_set</text>
+</g>
+<!-- property&#45;&gt;tag -->
+<g id="edge12" class="edge">
+<title>property&#45;&gt;tag</title>
+<path fill="none" stroke="#000000" d="M672.3179,-806.463C707.1966,-657.9166 747.9719,-394.2357 664.5492,-190 658.362,-174.8524 649.4733,-160.2655 639.4637,-146.7904"/>
+<polygon fill="#000000" stroke="#000000" points="641.9823,-144.3252 633.1006,-138.5487 636.4415,-148.6031 641.9823,-144.3252"/>
+<text text-anchor="middle" x="742.5492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
+</g>
+<!-- relationship -->
+<g id="node3" class="node">
+<title>relationship</title>
+<path fill="none" stroke="#000000" d="M609.0492,-1301.5C609.0492,-1301.5 828.0492,-1301.5 828.0492,-1301.5 834.0492,-1301.5 840.0492,-1307.5 840.0492,-1313.5 840.0492,-1313.5 840.0492,-1473.5 840.0492,-1473.5 840.0492,-1479.5 834.0492,-1485.5 828.0492,-1485.5 828.0492,-1485.5 609.0492,-1485.5 609.0492,-1485.5 603.0492,-1485.5 597.0492,-1479.5 597.0492,-1473.5 597.0492,-1473.5 597.0492,-1313.5 597.0492,-1313.5 597.0492,-1307.5 603.0492,-1301.5 609.0492,-1301.5"/>
+<text text-anchor="middle" x="648.0492" y="-1389.8" font-family="Times,serif" font-size="14.00" fill="#000000">relationship</text>
+<polyline fill="none" stroke="#000000" points="699.0492,-1301.5 699.0492,-1485.5 "/>
+<text text-anchor="middle" x="709.5492" y="-1389.8" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
+<polyline fill="none" stroke="#000000" points="720.0492,-1301.5 720.0492,-1485.5 "/>
+<text text-anchor="middle" x="769.5492" y="-1470.3" font-family="Times,serif" font-size="14.00" fill="#000000">desc</text>
+<polyline fill="none" stroke="#000000" points="720.0492,-1462.5 819.0492,-1462.5 "/>
+<text text-anchor="middle" x="769.5492" y="-1447.3" font-family="Times,serif" font-size="14.00" fill="#000000">handle</text>
+<polyline fill="none" stroke="#000000" points="720.0492,-1439.5 819.0492,-1439.5 "/>
+<text text-anchor="middle" x="769.5492" y="-1424.3" font-family="Times,serif" font-size="14.00" fill="#000000">id</text>
+<polyline fill="none" stroke="#000000" points="720.0492,-1416.5 819.0492,-1416.5 "/>
+<text text-anchor="middle" x="769.5492" y="-1401.3" font-family="Times,serif" font-size="14.00" fill="#000000">is_required</text>
+<polyline fill="none" stroke="#000000" points="720.0492,-1393.5 819.0492,-1393.5 "/>
+<text text-anchor="middle" x="769.5492" y="-1378.3" font-family="Times,serif" font-size="14.00" fill="#000000">model</text>
+<polyline fill="none" stroke="#000000" points="720.0492,-1370.5 819.0492,-1370.5 "/>
+<text text-anchor="middle" x="769.5492" y="-1355.3" font-family="Times,serif" font-size="14.00" fill="#000000">multiplicity</text>
+<polyline fill="none" stroke="#000000" points="720.0492,-1347.5 819.0492,-1347.5 "/>
+<text text-anchor="middle" x="769.5492" y="-1332.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid6</text>
+<polyline fill="none" stroke="#000000" points="720.0492,-1324.5 819.0492,-1324.5 "/>
+<text text-anchor="middle" x="769.5492" y="-1309.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid8</text>
+<polyline fill="none" stroke="#000000" points="819.0492,-1301.5 819.0492,-1485.5 "/>
+<text text-anchor="middle" x="829.5492" y="-1389.8" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
+</g>
+<!-- relationship&#45;&gt;property -->
+<g id="edge9" class="edge">
+<title>relationship&#45;&gt;property</title>
+<path fill="none" stroke="#000000" d="M631.942,-1301.1634C621.1358,-1285.1204 611.726,-1267.8279 605.5492,-1250 583.0926,-1185.1837 589.2586,-1109.2292 602.2042,-1046.6915"/>
+<polygon fill="#000000" stroke="#000000" points="605.6564,-1047.2858 604.3368,-1036.7735 598.8128,-1045.8143 605.6564,-1047.2858"/>
+<text text-anchor="middle" x="653.0492" y="-1165.3" font-family="Times,serif" font-size="14.00" fill="#000000">has_property</text>
+</g>
+<!-- relationship&#45;&gt;concept -->
+<g id="edge2" class="edge">
+<title>relationship&#45;&gt;concept</title>
+<path fill="none" stroke="#000000" d="M626.3695,-1301.3811C620.9111,-1295.2553 615.5945,-1289.0965 610.5492,-1283 535.6197,-1192.4577 533.1066,-1152.8873 513.5492,-1037 478.5552,-829.6422 527.2648,-774.4038 546.5492,-565 554.1416,-482.5564 557.7315,-386.7049 559.3439,-327.4408"/>
+<polygon fill="#000000" stroke="#000000" points="562.8498,-327.2609 559.6134,-317.1724 555.8522,-327.0771 562.8498,-327.2609"/>
+<text text-anchor="middle" x="559.5492" y="-776.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_concept</text>
+</g>
+<!-- node -->
+<g id="node6" class="node">
+<title>node</title>
+<path fill="none" stroke="#000000" d="M722.0492,-1088.5C722.0492,-1088.5 871.0492,-1088.5 871.0492,-1088.5 877.0492,-1088.5 883.0492,-1094.5 883.0492,-1100.5 883.0492,-1100.5 883.0492,-1237.5 883.0492,-1237.5 883.0492,-1243.5 877.0492,-1249.5 871.0492,-1249.5 871.0492,-1249.5 722.0492,-1249.5 722.0492,-1249.5 716.0492,-1249.5 710.0492,-1243.5 710.0492,-1237.5 710.0492,-1237.5 710.0492,-1100.5 710.0492,-1100.5 710.0492,-1094.5 716.0492,-1088.5 722.0492,-1088.5"/>
+<text text-anchor="middle" x="735.5492" y="-1165.3" font-family="Times,serif" font-size="14.00" fill="#000000">node</text>
+<polyline fill="none" stroke="#000000" points="761.0492,-1088.5 761.0492,-1249.5 "/>
+<text text-anchor="middle" x="771.5492" y="-1165.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
+<polyline fill="none" stroke="#000000" points="782.0492,-1088.5 782.0492,-1249.5 "/>
+<text text-anchor="middle" x="822.0492" y="-1234.3" font-family="Times,serif" font-size="14.00" fill="#000000">category</text>
+<polyline fill="none" stroke="#000000" points="782.0492,-1226.5 862.0492,-1226.5 "/>
+<text text-anchor="middle" x="822.0492" y="-1211.3" font-family="Times,serif" font-size="14.00" fill="#000000">desc</text>
+<polyline fill="none" stroke="#000000" points="782.0492,-1203.5 862.0492,-1203.5 "/>
+<text text-anchor="middle" x="822.0492" y="-1188.3" font-family="Times,serif" font-size="14.00" fill="#000000">handle</text>
+<polyline fill="none" stroke="#000000" points="782.0492,-1180.5 862.0492,-1180.5 "/>
+<text text-anchor="middle" x="822.0492" y="-1165.3" font-family="Times,serif" font-size="14.00" fill="#000000">id</text>
+<polyline fill="none" stroke="#000000" points="782.0492,-1157.5 862.0492,-1157.5 "/>
+<text text-anchor="middle" x="822.0492" y="-1142.3" font-family="Times,serif" font-size="14.00" fill="#000000">model</text>
+<polyline fill="none" stroke="#000000" points="782.0492,-1134.5 862.0492,-1134.5 "/>
+<text text-anchor="middle" x="822.0492" y="-1119.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid6</text>
+<polyline fill="none" stroke="#000000" points="782.0492,-1111.5 862.0492,-1111.5 "/>
+<text text-anchor="middle" x="822.0492" y="-1096.3" font-family="Times,serif" font-size="14.00" fill="#000000">nanoid8</text>
+<polyline fill="none" stroke="#000000" points="862.0492,-1088.5 862.0492,-1249.5 "/>
+<text text-anchor="middle" x="872.5492" y="-1165.3" font-family="Times,serif" font-size="14.00" fill="#000000"> </text>
+</g>
+<!-- relationship&#45;&gt;node -->
+<g id="edge8" class="edge">
+<title>relationship&#45;&gt;node</title>
+<path fill="none" stroke="#000000" d="M767.5362,-1301.469C770.0903,-1295.2953 772.4594,-1289.1043 774.5492,-1283 777.1253,-1275.4755 779.4299,-1267.5623 781.4856,-1259.559"/>
+<polygon fill="#000000" stroke="#000000" points="784.9033,-1260.3165 783.871,-1249.7721 778.1024,-1258.6588 784.9033,-1260.3165"/>
+<text text-anchor="middle" x="806.0492" y="-1271.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_src</text>
+</g>
+<!-- relationship&#45;&gt;node -->
+<g id="edge18" class="edge">
+<title>relationship&#45;&gt;node</title>
+<path fill="none" stroke="#000000" d="M708.6409,-1301.4301C709.6421,-1289.9676 711.7758,-1278.5708 715.5492,-1268 716.6691,-1264.8628 717.9358,-1261.7533 719.3284,-1258.6791"/>
+<polygon fill="#000000" stroke="#000000" points="722.5397,-1260.0819 723.8623,-1249.5699 716.273,-1256.9627 722.5397,-1260.0819"/>
+<text text-anchor="middle" x="743.0492" y="-1271.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_dst</text>
+</g>
+<!-- relationship&#45;&gt;tag -->
+<g id="edge15" class="edge">
+<title>relationship&#45;&gt;tag</title>
+<path fill="none" stroke="#000000" d="M840.2757,-1341.9741C906.7023,-1304.8795 975.5492,-1247.4986 975.5492,-1169 975.5492,-1169 975.5492,-1169 975.5492,-271 975.5492,-226.9798 950.6661,-220.1046 918.5492,-190 844.2177,-120.3257 728.2607,-90.8389 648.5742,-78.4228"/>
+<polygon fill="#000000" stroke="#000000" points="648.9631,-74.942 638.5548,-76.9215 647.9257,-81.8648 648.9631,-74.942"/>
+<text text-anchor="middle" x="1003.5492" y="-681.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
+</g>
+<!-- concept&#45;&gt;tag -->
+<g id="edge14" class="edge">
+<title>concept&#45;&gt;tag</title>
+<path fill="none" stroke="#000000" d="M560.5492,-224.7718C560.5492,-202.308 560.5492,-174.6692 560.5492,-148.9668"/>
+<polygon fill="#000000" stroke="#000000" points="564.0493,-148.8503 560.5492,-138.8504 557.0493,-148.8504 564.0493,-148.8503"/>
+<text text-anchor="middle" x="588.5492" y="-160.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
+</g>
 <!-- value_set&#45;&gt;term -->
-<g id="edge4" class="edge">
+<g id="edge19" class="edge">
 <title>value_set&#45;&gt;term</title>
 <path fill="none" stroke="#000000" d="M292.5492,-616.437C292.5492,-603.0525 292.5492,-588.8373 292.5492,-574.8773"/>
 <polygon fill="#000000" stroke="#000000" points="296.0493,-574.7729 292.5492,-564.7729 289.0493,-574.773 296.0493,-574.7729"/>
 <text text-anchor="middle" x="326.0492" y="-586.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_term</text>
 </g>
 <!-- value_set&#45;&gt;concept -->
-<g id="edge9" class="edge">
+<g id="edge3" class="edge">
 <title>value_set&#45;&gt;concept</title>
 <path fill="none" stroke="#000000" d="M375.0723,-616.3597C389.916,-600.7402 403.9986,-583.3153 414.5492,-565 451.6769,-500.5486 423.4955,-469.6326 456.5492,-403 470.3503,-375.1785 490.656,-347.671 509.6705,-325.0268"/>
 <polygon fill="#000000" stroke="#000000" points="512.498,-327.1053 516.3295,-317.2276 507.1745,-322.56 512.498,-327.1053"/>
 <text text-anchor="middle" x="501.5492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000">has_concept</text>
-</g>
-<!-- value_set&#45;&gt;origin -->
-<g id="edge6" class="edge">
-<title>value_set&#45;&gt;origin</title>
-<path fill="none" stroke="#000000" d="M192.4061,-649.4944C154.7671,-630.505 115.9413,-603.0611 94.5492,-565 59.2721,-502.2344 73.6848,-471.9106 94.5492,-403 98.9359,-388.512 105.4951,-374.1606 113.0918,-360.5551"/>
-<polygon fill="#000000" stroke="#000000" points="116.223,-362.1328 118.2214,-351.7281 110.1707,-358.6157 116.223,-362.1328"/>
-<text text-anchor="middle" x="132.0492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000">has_origin</text>
 </g>
 <!-- value_set&#45;&gt;tag -->
 <g id="edge16" class="edge">
@@ -290,54 +304,40 @@
 <polygon fill="#000000" stroke="#000000" points="473.0448,-83.379 482.5029,-78.6045 472.1318,-76.4388 473.0448,-83.379"/>
 <text text-anchor="middle" x="30.5492" y="-373.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
 </g>
-<!-- property&#45;&gt;concept -->
-<g id="edge11" class="edge">
-<title>property&#45;&gt;concept</title>
-<path fill="none" stroke="#000000" d="M625.4665,-806.2723C617.5061,-744.5334 607.722,-667.1521 599.5492,-598 587.5846,-496.7639 587.2433,-471.1472 574.5492,-370 572.8099,-356.1405 570.7807,-341.2124 568.8158,-327.2568"/>
-<polygon fill="#000000" stroke="#000000" points="572.2726,-326.7046 567.4015,-317.296 565.3421,-327.6888 572.2726,-326.7046"/>
-<text text-anchor="middle" x="644.5492" y="-586.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_concept</text>
+<!-- value_set&#45;&gt;origin -->
+<g id="edge6" class="edge">
+<title>value_set&#45;&gt;origin</title>
+<path fill="none" stroke="#000000" d="M192.4061,-649.4944C154.7671,-630.505 115.9413,-603.0611 94.5492,-565 59.2721,-502.2344 73.6848,-471.9106 94.5492,-403 98.9359,-388.512 105.4951,-374.1606 113.0918,-360.5551"/>
+<polygon fill="#000000" stroke="#000000" points="116.223,-362.1328 118.2214,-351.7281 110.1707,-358.6157 116.223,-362.1328"/>
+<text text-anchor="middle" x="132.0492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000">has_origin</text>
 </g>
-<!-- property&#45;&gt;value_set -->
-<g id="edge3" class="edge">
-<title>property&#45;&gt;value_set</title>
-<path fill="none" stroke="#000000" d="M522.3432,-876.3681C473.04,-854.1868 417.027,-824.3449 372.5492,-788 363.3313,-780.4676 354.5164,-771.689 346.3296,-762.4973"/>
-<polygon fill="#000000" stroke="#000000" points="348.7858,-759.9861 339.6054,-754.6974 343.484,-764.5568 348.7858,-759.9861"/>
-<text text-anchor="middle" x="422.5492" y="-776.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_value_set</text>
+<!-- node&#45;&gt;property -->
+<g id="edge10" class="edge">
+<title>node&#45;&gt;property</title>
+<path fill="none" stroke="#000000" d="M709.8066,-1099.9234C693.4183,-1086.2129 680.4425,-1074.6093 677.5492,-1070 672.8796,-1062.5606 668.799,-1054.5663 665.2331,-1046.2843"/>
+<polygon fill="#000000" stroke="#000000" points="668.4057,-1044.793 661.4219,-1036.8258 661.913,-1047.4092 668.4057,-1044.793"/>
+<text text-anchor="middle" x="725.0492" y="-1058.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_property</text>
 </g>
-<!-- property&#45;&gt;tag -->
-<g id="edge19" class="edge">
-<title>property&#45;&gt;tag</title>
-<path fill="none" stroke="#000000" d="M672.3179,-806.463C707.1966,-657.9166 747.9719,-394.2357 664.5492,-190 658.362,-174.8524 649.4733,-160.2655 639.4637,-146.7904"/>
-<polygon fill="#000000" stroke="#000000" points="641.9823,-144.3252 633.1006,-138.5487 636.4415,-148.6031 641.9823,-144.3252"/>
-<text text-anchor="middle" x="742.5492" y="-480.3" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
+<!-- node&#45;&gt;concept -->
+<g id="edge4" class="edge">
+<title>node&#45;&gt;concept</title>
+<path fill="none" stroke="#000000" d="M791.6518,-1088.4993C789.1181,-1040.113 786.5492,-977.2974 786.5492,-921.5 786.5492,-921.5 786.5492,-921.5 786.5492,-590.5 786.5492,-506.9347 815.8147,-474.4931 772.5492,-403 747.8712,-362.2212 705.2924,-332.1233 664.7383,-311.0531"/>
+<polygon fill="#000000" stroke="#000000" points="666.0843,-307.8118 655.5803,-306.4267 662.9279,-314.0598 666.0843,-307.8118"/>
+<text text-anchor="middle" x="831.5492" y="-681.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_concept</text>
+</g>
+<!-- node&#45;&gt;tag -->
+<g id="edge17" class="edge">
+<title>node&#45;&gt;tag</title>
+<path fill="none" stroke="#000000" d="M851.6566,-1088.3254C878.2825,-1041.6918 904.5492,-980.6879 904.5492,-921.5 904.5492,-921.5 904.5492,-921.5 904.5492,-271 904.5492,-152.4399 750.5309,-102.3256 648.6091,-82.1422"/>
+<polygon fill="#000000" stroke="#000000" points="649.0885,-78.6704 638.6082,-80.2241 647.7699,-85.5451 649.0885,-78.6704"/>
+<text text-anchor="middle" x="932.5492" y="-586.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
 </g>
 <!-- origin&#45;&gt;tag -->
-<g id="edge20" class="edge">
+<g id="edge13" class="edge">
 <title>origin&#45;&gt;tag</title>
 <path fill="none" stroke="#000000" d="M217.0766,-190.2383C225.2579,-177.7605 235.0335,-166.0394 246.5492,-157 281.6075,-129.4806 392.3972,-102.7003 472.453,-86.1678"/>
 <polygon fill="#000000" stroke="#000000" points="473.4519,-89.5361 482.548,-84.1035 472.0495,-82.678 473.4519,-89.5361"/>
 <text text-anchor="middle" x="274.5492" y="-160.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
-</g>
-<!-- node&#45;&gt;concept -->
-<g id="edge12" class="edge">
-<title>node&#45;&gt;concept</title>
-<path fill="none" stroke="#000000" d="M796.2162,-1088.3061C791.4112,-1039.9879 786.5492,-977.3083 786.5492,-921.5 786.5492,-921.5 786.5492,-921.5 786.5492,-590.5 786.5492,-506.9347 815.8147,-474.4931 772.5492,-403 747.8712,-362.2212 705.2924,-332.1233 664.7383,-311.0531"/>
-<polygon fill="#000000" stroke="#000000" points="666.0843,-307.8118 655.5803,-306.4267 662.9279,-314.0598 666.0843,-307.8118"/>
-<text text-anchor="middle" x="831.5492" y="-681.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_concept</text>
-</g>
-<!-- node&#45;&gt;property -->
-<g id="edge8" class="edge">
-<title>node&#45;&gt;property</title>
-<path fill="none" stroke="#000000" d="M718.8816,-1098.6968C714.0639,-1095.0389 709.2646,-1091.4523 704.5492,-1088 692.9125,-1079.4802 685.8525,-1081.7922 677.5492,-1070 672.3257,-1062.5815 667.8373,-1054.4998 663.9809,-1046.0638"/>
-<polygon fill="#000000" stroke="#000000" points="667.1708,-1044.621 660.0396,-1036.7854 660.728,-1047.3579 667.1708,-1044.621"/>
-<text text-anchor="middle" x="725.0492" y="-1058.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_property</text>
-</g>
-<!-- node&#45;&gt;tag -->
-<g id="edge18" class="edge">
-<title>node&#45;&gt;tag</title>
-<path fill="none" stroke="#000000" d="M855.7743,-1088.2945C880.2803,-1041.4036 904.5492,-980.1583 904.5492,-921.5 904.5492,-921.5 904.5492,-921.5 904.5492,-271 904.5492,-152.4399 750.5309,-102.3256 648.6091,-82.1422"/>
-<polygon fill="#000000" stroke="#000000" points="649.0885,-78.6704 638.6082,-80.2241 647.7699,-85.5451 649.0885,-78.6704"/>
-<text text-anchor="middle" x="932.5492" y="-586.8" font-family="Times,serif" font-size="14.00" fill="#000000">has_tag</text>
 </g>
 </g>
 </svg>
