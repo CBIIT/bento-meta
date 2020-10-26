@@ -39,6 +39,11 @@ def test_get(bento_neo4j):
   assert concept.belongs[(id(node), 'concept')] == node
   owners = node_map.get_owners(node)
   assert len(owners) == 1
+  cncpt = Concept()
+  Concept.object_map.get_by_id(cncpt,"a5b87a02-1eb3-4ec9-881d-f4479ab917ac")
+  assert cncpt.terms[0] == concept.terms[0]
+  pass
+
 
 def test_put_rm(bento_neo4j):  
   (b,h)=bento_neo4j
@@ -89,5 +94,3 @@ def test_put_rm(bento_neo4j):
     result = session.run("match (t:term {value:'ferb'})<-[r]-(v:value_set) return r")
     assert result.single() == None
   old_term = vs.terms['belpit']
-
-

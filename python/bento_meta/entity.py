@@ -138,6 +138,17 @@ declared.
     if not isinstance(ct, int) or ct < 0:
       raise ArgError("arg must be a positive integer")
     cls.version_count=ct
+
+  @classmethod
+  def get_by_id(cls,id):
+    """Get an object from the db with the id attribute (not the Neo4j id). Returns a new object.
+:param string id: value of id for desired object
+"""
+    if (cls.object_map):
+      return type(self).object_map.get_by_id(self,id)
+    else:
+      pass
+    
   @property
   def dirty(self):
     """Flag whether this instance has been changed since retrieval from 

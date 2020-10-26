@@ -75,6 +75,22 @@ class ObjectMap(object):
       else:
         return "\"{val}\"".format(val=value) # quote
 
+  def get_by_id(self, obj, id, refresh=False):
+      """Get an entity given an id attribute value (not the Neo4j id)"""
+      neoid = None
+      if not self.drv:
+          raise ArgError("get_by_id() requires Neo4j driver instance")
+      with self.drv.session() as session:
+          result = session.run( self.get_by_id_q(), {"id":id} )
+          rec = result.single() # should be unique - this call will warn if there are more than one
+          if not rec is None:
+              neoid = rec['id(n)']
+      if not neoid is None:
+          obj.neoid = neoid
+          return self.get(obj, refresh=True)
+      else:
+          return
+
   def get(self,obj, refresh=False):
     """Get the data for an object instance from the db and load the instance with it"""
     if not self.drv:
@@ -264,6 +280,10 @@ This represents dropping an object-valued attribute from the object."""
       raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
     return "MATCH (n:{lbl}) WHERE id(n)={neoid} RETURN n,id(n)".format(
         lbl=self.cls.mapspec()["label"], neoid=obj.neoid)
+
+  def get_by_id_q(self):
+    return "MATCH (n:{lbl}) WHERE n.id=$id RETURN id(n)".format(
+        lbl=self.cls.mapspec()["label"])
 
   def get_attr_q(self, obj, att):
     if not isinstance(obj, self.cls):
