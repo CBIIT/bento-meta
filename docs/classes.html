@@ -612,6 +612,13 @@ This will set the <cite>neoid</cite> property if not yet set.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="bento_meta.entity.Entity.get_by_id">
+<em class="property">classmethod </em><code class="sig-name descname">get_by_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.get_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an object from the db with the id attribute (not the Neo4j id). Returns a new object.
+:param string id: value of id for desired object</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="bento_meta.entity.Entity.mapspec">
 <em class="property">classmethod </em><code class="sig-name descname">mapspec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.entity.Entity.mapspec" title="Permalink to this definition">¶</a></dt>
 <dd><p>The object to database mapping specification. Is a class method, not a property.</p>
@@ -712,6 +719,12 @@ This represents dropping an object-valued attribute from the object.</p>
 <dt id="bento_meta.object_map.ObjectMap.get">
 <code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">refresh</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the data for an object instance from the db and load the instance with it</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="bento_meta.object_map.ObjectMap.get_by_id">
+<code class="sig-name descname">get_by_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">refresh</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an entity given an id attribute value (not the Neo4j id)</p>
 </dd></dl>
 
 <dl class="py method">
