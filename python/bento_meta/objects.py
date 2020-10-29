@@ -213,7 +213,7 @@ class Tag(Entity):
   attspec_={"value":"simple"}
   mapspec_={"label":"tag",
             "key":"value",
-            "property": { "value":"value" }}
+            "property": { "key":"key", "value":"value" }}
   (attspec,_mapspec) = mergespec('Tag',attspec_,mapspec_)
   def __init__(self,init=None):
     super().__init__(init=init)    
