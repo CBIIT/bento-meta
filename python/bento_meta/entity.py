@@ -136,16 +136,8 @@ class Entity(object):
         """Get an object from the db with the id attribute (not the Neo4j id). Returns a new object.
         :param string id: value of id for desired object
         """
-<<<<<<< HEAD
-        print('now in entity.get_by_id')
-        print('   cls is {}'.format(cls))
-        if cls.object_map:
-            print('    *YES* cls.object_map detected')
-            return cls.object_map.get_by_id(cls, id)
-=======
         if self.object_map:
             return self.object_map.get_by_id(self, id)
->>>>>>> refactor/pep8
         else:
             print('    _NO_ cls.object_map detected')
             pass
