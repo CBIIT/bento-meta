@@ -7,11 +7,6 @@ This module contains
 * the `CollValue` class to manage collection-valued attributes, and 
 * the `ArgError` exception.
 """
-<<<<<<< HEAD
-
-# from copy import deepcopy
-=======
->>>>>>> refactor/pep8
 # from pdb import set_trace
 from warnings import warn
 from collections import UserDict
