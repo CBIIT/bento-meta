@@ -16,7 +16,6 @@ One ObjectMap instance should be generated for each Entity subclass (see, e.g.,
 :class:`bento_meta.model.Model`)
 
 """
-import re
 import sys
 
 sys.path.append("..")
@@ -24,7 +23,7 @@ from bento_meta.entity import *
 from bento_meta.objects import *
 from neo4j import BoltDriver, Neo4jDriver
 from warnings import warn
-from pdb import set_trace
+# from pdb import set_trace
 
 
 class ObjectMap(object):
@@ -72,7 +71,7 @@ class ObjectMap(object):
 
     @classmethod
     def _quote_val(cls, value, single=None):  # double quote unless single is set
-        if value == None:
+        if value is None:
             return
         if isinstance(value, (int, float)):
             return value  # no quote
@@ -84,18 +83,59 @@ class ObjectMap(object):
 
     def get_by_id(self, obj, id, refresh=False):
         """Get an entity given an id attribute value (not the Neo4j id)"""
+        print('  > now entering object_map.get_by_id')
+        print('      >> self is {}'.format(self))
+        print('      >> obj  is {}'.format(obj))
+
         neoid = None
-        if not self.drv:
+
+        if self.drv is None:
             raise ArgError("get_by_id() requires Neo4j driver instance")
+
         with self.drv.session() as session:
+            print('      now working with session')
+            print('      >> now going to call object_map.get_by_id')
             result = session.run(self.get_by_id_q(), {"id": id})
             rec = (
                 result.single()
             )  # should be unique - this call will warn if there are more than one
-            if not rec is None:
-                neoid = rec["id(n)"]
-        if not neoid is None:
+
+            if rec is not None:
+                neoid = rec['id(n)']
+
+        if neoid is not None:
             obj.neoid = neoid
+            return self.get(obj, refresh=True)
+        else:
+            return
+
+    def get_by_node_nanoid_q(self):
+        """PROTOTYPE"""
+        return "MATCH (n:node) WHERE n.id=$id RETURN id(n)"
+
+
+    def get_by_node_nanoid(self, obj, id, refresh=False):
+        """PROTOTYPE
+        Get an entity given an id attribute value (not the Neo4j id)
+        """
+        print('now entering get_by_node_nanoid')
+        print('    1: ')
+
+        nanoid = None
+
+        if not self.drv:
+            raise ArgError("get_by_id() requires Neo4j driver instance")
+
+        with self.drv.session() as session:
+            result = session.run(self.get_by_node_nanoid_q(), {"id": id})
+            rec = (
+                result.single()
+            )  # should be unique - this call will warn if there are more than one
+            if not rec is None:
+                nanoid = rec["id(n)"]
+
+        if nanoid is None:
+            obj.nanoid = nanoid
             return self.get(obj, refresh=True)
         else:
             return
@@ -253,7 +293,9 @@ class ObjectMap(object):
         # if the tgt is not in the database, then dropping it is a no-op:
         if not tgt.neoid:
             return
+
         if tx:
+            result = None
             for qry in self.rm_attr_q(obj, att, tgt):
                 result = tx.run(qry)
             s = result.single()
@@ -308,7 +350,7 @@ class ObjectMap(object):
         )
 
     def get_by_id_q(self):
-        return "MATCH (n:{lbl}) WHERE n.id=$id RETURN id(n)".format(
+        return "MATCH (n:{lbl}) WHERE n.nanoid=$id RETURN n.nanoid".format(
             lbl=self.cls.mapspec()["label"]
         )
 

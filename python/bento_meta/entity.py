@@ -8,10 +8,9 @@ This module contains
 * the `ArgError` exception.
 """
 
-import re
-
 # from copy import deepcopy
-from pdb import set_trace
+# from pdb import set_trace
+from warnings import warn
 from collections import UserDict
 
 
@@ -140,9 +139,13 @@ class Entity(object):
         """Get an object from the db with the id attribute (not the Neo4j id). Returns a new object.
         :param string id: value of id for desired object
         """
+        print('now in entity.get_by_id')
+        print('   cls is {}'.format(cls))
         if cls.object_map:
-            return type(self).object_map.get_by_id(self, id)
+            print('    *YES* cls.object_map detected')
+            return cls.object_map.get_by_id(cls, id)
         else:
+            print('    _NO_ cls.object_map detected')
             pass
 
     @property
