@@ -6,14 +6,12 @@ This module contains the subclasses of :class:`Entity` which are used
 in representing the models contained in the `MDB <https://github.com/CBIIT/bento-mdf>`_.
 
 """
-import re
 import sys
-
 sys.path.append("..")
 from copy import deepcopy
 from bento_meta.entity import Entity
+# from pdb import set_trace
 
-from pdb import set_trace
 
 # tags attr?
 def mergespec(clsname, attspec, mapspec):

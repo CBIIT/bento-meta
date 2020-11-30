@@ -1,15 +1,10 @@
 import sys
 import logging
 import os.path
-
 sys.path.append("..")
-# import hashlib
 from bento_meta.mdf import MDF
 from bento_meta.objects import *
-from bento_meta.entity import Entity
 from warnings import warn
-from pdb import set_trace
-
 # NOTE: the diff class was changed from keeping the final data structure "result"
 #       from being 'set' based to being 'list' so that it could be dumped into
 #       json structure (which is incompatible with sets)
@@ -32,11 +27,11 @@ class Diff:
                 thing, entk, att
             )
         )
-        if not thing in self.result:
+        if thing not in self.result:
             self.result[thing] = {}
-        if not entk in self.result[thing]:
+        if entk not in self.result[thing]:
             self.result[thing][entk] = {}
-        if not att in self.result[thing][entk]:
+        if att not in self.result[thing][entk]:
             self.result[thing][entk][att] = {}
         cleaned_a_att = self.sanitize_empty(a_att)
         cleaned_b_att = self.sanitize_empty(b_att)
@@ -65,7 +60,8 @@ class Diff:
 
         # compare sets of terms
         # a_att.terms
-        #   {'FFPE': <bento_meta.objects.Term object at 0x10..>, 'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}
+        #   {'FFPE': <bento_meta.objects.Term object at 0x10..>,
+        #    'Snap Frozen': <bento_meta.objects.Term object at 0x10..>}
         # set(a_att.terms)
         #   {'Snap Frozen', 'FFPE'}
         set_of_terms_in_a = set(vs_a.terms)
@@ -200,7 +196,7 @@ def diff_models(mdl_a, mdl_b):
                                 type(a_att).__name__
                             )
                         )
-                        logging.warn(
+                        logging.warning(
                             "can't handle attribute with type {}".format(
                                 type(a_att).__name__
                             )
