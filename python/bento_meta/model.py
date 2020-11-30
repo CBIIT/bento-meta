@@ -10,12 +10,11 @@ without a Neo4j database connection.
 """
 import re
 import sys
+sys.path.append("..")
 from uuid import uuid4
 from warnings import warn
 from neo4j import BoltDriver, Neo4jDriver
 import neo4j.graph
-
-sys.path.append("..")
 from bento_meta.object_map import ObjectMap
 from bento_meta.entity import Entity, ArgError
 from bento_meta.objects import (
@@ -28,8 +27,7 @@ from bento_meta.objects import (
     Origin,
     Tag,
 )
-
-from pdb import set_trace
+# from pdb import set_trace
 
 
 class Model(object):
@@ -37,7 +35,7 @@ class Model(object):
         """Model constructor.
 
         :param str handle: A string name for the model. Corresponds to the model property in MDB database nodes.
-        :param neo4j.Driver drv: A `neo4j.Driver` object describing the database connection (see :class:`neo4j.GraphDatabase`)
+        :param neo4j.Driver drv: A `neo4j.Driver` object describing the db connection (see :class:`neo4j.GraphDatabase`)
         """
         if not handle:
             raise ArgError("model requires arg 'handle' set")
@@ -62,7 +60,7 @@ class Model(object):
 
         Note: this delegates to :meth:`Entity.versioning`.
         """
-        if on == None:
+        if on is None:
             return Entity.versioning_on
         Entity.versioning_on = on
         return Entity.versioning_on
@@ -215,7 +213,7 @@ class Model(object):
         if not self.contains(node):
             warn(
                 "node '{node}' not contained in model '{model}'".format(
-                    node=node.handle, model=model.handle
+                    node=node.handle, model=self.handle
                 )
             )
             return
@@ -247,7 +245,7 @@ class Model(object):
         if not self.contains(edge):
             warn(
                 "edge '{edge}' not contained in model '{model}'".format(
-                    edge=edge.triplet, model=model.handle
+                    edge=edge.triplet, model=self.handle
                 )
             )
             return
@@ -277,7 +275,7 @@ class Model(object):
         if not self.contains(prop):
             warn(
                 "prop '{prop}' not contained in model '{model}'".format(
-                    prop=prop.handle, model=model.handle
+                    prop=prop.handle, model=self.handle
                 )
             )
             return
@@ -311,7 +309,7 @@ class Model(object):
             raise ArgError("edge= must an Edge object")
         if not isinstance(node, Node):
             raise ArgError("node= must a Node object")
-        if not end in ["src", "dst"]:
+        if end not in ["src", "dst"]:
             raise ArgError("end= must be one of 'src' or 'dst'")
         if not self.contains(edge) or not self.contains(node):
             warn("model must contain both edge and node")
@@ -362,7 +360,7 @@ class Model(object):
         pass
 
     def edges_by(self, key, item):
-        if not key in ["src", "dst", "type"]:
+        if key not in ["src", "dst", "type"]:
             raise ArgError("arg 'key' must be one of src|dst|type")
         if isinstance(item, Node):
             idx = 1 if key == "src" else 2
@@ -407,7 +405,8 @@ class Model(object):
             ObjectMap.clear_cache()
         with self.drv.session() as session:
             result = session.run(
-                "match p = (s:node)<-[:has_src]-(r:relationship)-[:has_dst]->(d:node) where s.model=$hndl and r.model=$hndl and d.model=$hndl return p",
+                "match p = (s:node)<-[:has_src]-(r:relationship)-[:has_dst]->(d:node) "
+                "where s.model=$hndl and r.model=$hndl and d.model=$hndl return p",
                 {"hndl": self.handle},
             )
             for rec in result:
@@ -431,7 +430,7 @@ class Model(object):
             )
             for rec in result:
                 n = ObjectMap.cache.get(rec["id(n)"])
-                if n == None:
+                if n is None:
                     warn(
                         "node with id {nid} not yet retrieved".format(nid=rec["id(n)"])
                     )
@@ -443,12 +442,13 @@ class Model(object):
                 p.dirty = -1
         with self.drv.session() as session:
             result = session.run(
-                "match (r:relationship)-[:has_property]->(p:property) where r.model=$hndl and p.model=$hndl return id(r), p",
+                "match (r:relationship)-[:has_property]->(p:property) "
+                "where r.model=$hndl and p.model=$hndl return id(r), p",
                 {"hndl": self.handle},
             )
             for rec in result:
                 e = ObjectMap.cache.get(rec["id(r)"])
-                if e == None:
+                if e is None:
                     warn(
                         "relationship with id {rid} not yet retrieved".format(
                             rid=rec["id(r)"]

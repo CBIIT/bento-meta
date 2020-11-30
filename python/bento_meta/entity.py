@@ -7,11 +7,8 @@ This module contains
 * the `CollValue` class to manage collection-valued attributes, and 
 * the `ArgError` exception.
 """
-
-import re
-
-# from copy import deepcopy
-from pdb import set_trace
+# from pdb import set_trace
+from warnings import warn
 from collections import UserDict
 
 
@@ -47,7 +44,6 @@ class Entity(object):
     attspec_ = {
         "_id": "simple",
         "desc": "simple",
-        "nanoid": "simple",
         "_next": "object",
         "_prev": "object",
         "_from": "simple",
@@ -58,7 +54,7 @@ class Entity(object):
     mapspec_ = {
         "label": None,
         "key": "_id",
-        "property": {"_id": "id", "desc": "desc", "_from": "_from", "_to": "_to", "nanoid": "nanoid"},
+        "property": {"_id": "id", "desc": "desc", "_from": "_from", "_to": "_to"},
         "relationship": {
             "_next": {"rel": ":_next>", "end_cls": set()},
             "_prev": {"rel": ":_prev>", "end_cls": set()},
@@ -100,7 +96,7 @@ class Entity(object):
             ):  # neo4j.graph.Node - but don't want to import that
                 self.set_with_node(init)
         for att in type(self).attspec:
-            if not att in self.__dict__:
+            if att not in self.__dict__:
                 if self.attspec[att] == "collection":
                     setattr(self, att, CollValue({}, owner=self, owner_key=att))
                 else:
@@ -120,7 +116,7 @@ class Entity(object):
         """Get or set whether versioning is applied to object manipulations
         :param boolean on: True, apply versioning. False, do not.
         """
-        if on == None:
+        if on is None:
             return cls.versioning_on
         cls.versioning_on = on
         return cls.versioning_on
@@ -135,13 +131,13 @@ class Entity(object):
             raise ArgError("arg must be a positive integer")
         cls.version_count = ct
 
-    @classmethod
-    def get_by_id(cls, id):
+    # @classmethod
+    def get_by_id(self, id):
         """Get an object from the db with the id attribute (not the Neo4j id). Returns a new object.
         :param string id: value of id for desired object
         """
-        if cls.object_map:
-            return type(self).object_map.get_by_id(self, id)
+        if self.object_map:
+            return self.object_map.get_by_id(self, id)
         else:
             pass
 
@@ -236,7 +232,7 @@ class Entity(object):
         if name in Entity.pvt_attr:
             return self.__dict__["pvt"][name]
         elif name in type(self).attspec:
-            if not name in self.__dict__ or self.__dict__[name] == None:
+            if name not in self.__dict__ or self.__dict__[name] is None:
                 return None
             if type(self).attspec[name] == "object":
                 # magic - lazy getting
@@ -275,7 +271,7 @@ class Entity(object):
                 return setattr_func(self, name, value)
             if not self.versioned:
                 return setattr_func(self, name, value)
-            elif (type(self).version_count > self._from) and (self._to == None):
+            elif (type(self).version_count > self._from) and (self._to is None):
                 # dup becomes the "old" object and self the "new":
                 dup = self.dup()
                 dup._to = type(self).version_count
@@ -296,7 +292,7 @@ class Entity(object):
                         getattr(owner, att[0]).data[att[1]] = dup
                     else:
                         owner.__dict__[att[0]] = dup
-                setattr_func(self, name, value)  ###
+                setattr_func(self, name, value)  #
                 # this is on version_me's radar- dups the owning entity if nec
                 for okey in self.belongs:
                     owner = self.belongs[okey]
@@ -362,13 +358,13 @@ class Entity(object):
                     or isinstance(value, str)
                     or isinstance(value, float)
                     or isinstance(value, bool)
-                    or value == None
+                    or value is None
                 ):
                     raise ArgError(
                         "value for key '{att}' is not a simple scalar".format(att=att)
                     )
             elif spec == "object":
-                if not (isinstance(value, Entity) or value == None):
+                if not (isinstance(value, Entity) or value is None):
                     raise ArgError(
                         "value for key '{att}' is not an Entity subclass".format(
                             att=att
@@ -419,7 +415,10 @@ class Entity(object):
 
     def dget(self, refresh=False):
         """Update self from the database
-        :param boolean refresh: if True, force a retrieval from db; if False, retrieve from cache; don't disrupt changes already made"""
+        :param boolean refresh: if True, force a retrieval from db;
+            if False, retrieve from cache;
+            don't disrupt changes already made
+        """
         if type(self).object_map:
             return type(self).object_map.get(self, refresh)
         else:
@@ -427,7 +426,8 @@ class Entity(object):
 
     def dput(self):
         """Put self to the database.
-        This will set the `neoid` property if not yet set."""
+        This will set the `neoid` property if not yet set.
+        """
         if type(self).object_map:
             return type(self).object_map.put(self)
         else:
@@ -523,8 +523,8 @@ class CollValue(UserDict):
                 return setitem_func(self, name, value)
             if not self.owner.versioned:
                 return setitem_func(self, name, value)
-            elif (Entity.version_count > self.owner._from) and (self.owner._to == None):
-                pass  ###....
+            elif (Entity.version_count > self.owner._from) and (self.owner._to is None):
+                pass
                 # dup becomes the "old" object and self the "new":
                 dup = self.owner.dup()
                 dup._to = Entity.version_count
@@ -543,7 +543,7 @@ class CollValue(UserDict):
                         getattr(owner, att[0]).data[att[1]] = dup
                     else:
                         owner.__dict__[att[0]] = dup
-                setitem_func(self, name, value)  ###
+                setitem_func(self, name, value)
                 for okey in self.owner.belongs:
                     owner = self.owner.belongs[okey]
                     (oid, *att) = okey
@@ -586,7 +586,7 @@ class CollValue(UserDict):
         return
 
     def __getitem__(self, name):
-        if not name in self.data:
+        if name not in self.data:
             return
         if self.data[name].dirty < 0:
             self.data[name].dget()

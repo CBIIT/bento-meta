@@ -18,13 +18,11 @@ One ObjectMap instance should be generated for each Entity subclass (see, e.g.,
 """
 import re
 import sys
-
 sys.path.append("..")
+from neo4j import BoltDriver, Neo4jDriver
 from bento_meta.entity import *
 from bento_meta.objects import *
-from neo4j import BoltDriver, Neo4jDriver
-from warnings import warn
-from pdb import set_trace
+# from pdb import set_trace
 
 
 class ObjectMap(object):
@@ -72,7 +70,7 @@ class ObjectMap(object):
 
     @classmethod
     def _quote_val(cls, value, single=None):  # double quote unless single is set
-        if value == None:
+        if value is None:
             return
         if isinstance(value, (int, float)):
             return value  # no quote
@@ -92,9 +90,9 @@ class ObjectMap(object):
             rec = (
                 result.single()
             )  # should be unique - this call will warn if there are more than one
-            if not rec is None:
+            if rec is not None:
                 neoid = rec["id(n)"]
-        if not neoid is None:
+        if neoid is not None:
             obj.neoid = neoid
             return self.get(obj, refresh=True)
         else:
@@ -115,7 +113,7 @@ class ObjectMap(object):
                 raise RuntimeError(
                     "object with id {neoid} not found in db".format(neoid=obj.neoid)
                 )
-        if not obj.neoid in ObjectMap.cache:
+        if obj.neoid not in ObjectMap.cache:
             ObjectMap.cache[obj.neoid] = obj
         with self.drv.session() as session:
             for att in self.cls.mapspec()["relationship"]:
@@ -177,7 +175,7 @@ class ObjectMap(object):
                 for qry in self.put_q(obj):
                     result = tx.run(qry)
                 obj.neoid = result.single().value("id(n)")
-                if obj.neoid == None:
+                if obj.neoid is None:
                     raise RuntimeError(
                         "no neo4j id retrived on put for obj '{name}'".format(
                             name=getattr(obj, self.cls.mapspec()["key"])
@@ -192,13 +190,13 @@ class ObjectMap(object):
                     else:
                         items = [values]
                     for val in items:
-                        if val.neoid != None:
+                        if val.neoid is not None:
                             continue
                         # put val as a node
                         for qry in ObjectMap(cls=type(val), drv=self.drv).put_q(val):
                             result = tx.run(qry)
                         val.neoid = result.single().value("id(n)")
-                        if val.neoid == None:
+                        if val.neoid is None:
                             raise RuntimeError(
                                 "no neo4j id retrived on put for obj '{name}'".format(
                                     name=val[type(val).mapspec()["key"]]
@@ -220,12 +218,12 @@ class ObjectMap(object):
         """'Delete' the object's mapped node from the database"""
         if not self.drv:
             raise ArgError("rm() requires Neo4j driver instance")
-        if obj.neoid == None:
+        if obj.neoid is None:
             raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
         with self.drv.session() as session:
             result = session.run(self.rm_q(obj, force))
             s = result.single()
-            if s == None:
+            if s is None:
                 warn("rm() - corresponding db node not found")
             else:
                 return s.value()
@@ -240,7 +238,7 @@ class ObjectMap(object):
             for qry in self.put_attr_q(obj, att, tgt):
                 result = session.run(qry)
             tgt_id = result.single().value()
-            if tgt_id == None:
+            if tgt_id is None:
                 warn("add() - corresponding db node not found")
             return tgt_id
 
@@ -254,6 +252,7 @@ class ObjectMap(object):
         if not tgt.neoid:
             return
         if tx:
+            result = None
             for qry in self.rm_attr_q(obj, att, tgt):
                 result = tx.run(qry)
             s = result.single()
@@ -301,7 +300,7 @@ class ObjectMap(object):
             raise ArgError(
                 "arg1 must be object of class {cls}".format(cls=self.cls.__name__)
             )
-        if obj.neoid == None:
+        if obj.neoid is None:
             raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
         return "MATCH (n:{lbl}) WHERE id(n)={neoid} RETURN n,id(n)".format(
             lbl=self.cls.mapspec()["label"], neoid=obj.neoid
@@ -317,7 +316,7 @@ class ObjectMap(object):
             raise ArgError(
                 "arg1 must be object of class {cls}".format(cls=self.cls.__name__)
             )
-        if obj.neoid == None:
+        if obj.neoid is None:
             return ""
         label = self.cls.mapspec()["label"]
         if att in self.cls.mapspec()["property"]:
@@ -359,7 +358,7 @@ class ObjectMap(object):
             raise ArgError(
                 "arg1 must be object of class {cls}".format(cls=self.cls.__name__)
             )
-        if obj.neoid == None:
+        if obj.neoid is None:
             raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
         label = self.cls.mapspec()["label"]
         return "MATCH (n:{lbl})<-[r]-(a) WHERE id(n)={neoid} RETURN TYPE(r) as reln, a".format(
@@ -374,12 +373,12 @@ class ObjectMap(object):
         props = {}
         null_props = []
         for pr in self.cls.mapspec()["property"]:
-            if getattr(obj, pr) == None:
+            if getattr(obj, pr) is None:
                 null_props.append(self.cls.mapspec()["property"][pr])
             else:
                 props[self.cls.mapspec()["property"][pr]] = getattr(obj, pr)
         stmts = []
-        if obj.neoid != None:
+        if obj.neoid is not None:
             set_clause = []
             for pr in props:
                 set_clause.append(
@@ -417,7 +416,7 @@ class ObjectMap(object):
             raise ArgError(
                 "arg1 must be object of class {cls}".format(cls=self.cls.__name__)
             )
-        if obj.neoid == None:
+        if obj.neoid is None:
             raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
         if not isinstance(values, (Entity, list, CollValue)):
             raise ArgError(
@@ -437,7 +436,8 @@ class ObjectMap(object):
         elif att in self.cls.mapspec()["relationship"]:
             if not self._check_values_list(att, values):
                 raise ArgError(
-                    "'values' must be a list of mapped Entity objects of the appropriate subclass for attribute '{att}'".format(
+                    "'values' must be a list of mapped Entity objects of "
+                    "the appropriate subclass for attribute '{att}'".format(
                         att=att
                     )
                 )
@@ -455,7 +455,8 @@ class ObjectMap(object):
             for avalue in values:
                 if len(end_lbls) == 1:
                     stmts.append(
-                        "MATCH (n:{lbl}),(a:{albl}) WHERE id(n)={neoid} AND id(a)={aneoid} MERGE (n){rel}(a) RETURN id(a)".format(
+                        "MATCH (n:{lbl}),(a:{albl}) WHERE id(n)={neoid} AND id(a)={aneoid} "
+                        "MERGE (n){rel}(a) RETURN id(a)".format(
                             lbl=self.cls.mapspec()["label"],
                             albl=end_lbls[0],
                             neoid=obj.neoid,
@@ -465,7 +466,8 @@ class ObjectMap(object):
                     )
                 else:
                     stmts.append(
-                        "MATCH (n:{lbl}),(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) MERGE (n){rel}(a) RETURN id(a)".format(
+                        "MATCH (n:{lbl}),(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) "
+                        "MERGE (n){rel}(a) RETURN id(a)".format(
                             lbl=self.cls.mapspec()["label"],
                             cond=cond,
                             neoid=obj.neoid,
@@ -487,7 +489,7 @@ class ObjectMap(object):
             raise ArgError(
                 "arg1 must be object of class {cls}".format(cls=self.cls.__name__)
             )
-        if obj.neoid == None:
+        if obj.neoid is None:
             raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
         dlt = "DETACH DELETE n" if detach else "DELETE n"
         qry = "MATCH (n:{lbl}) WHERE id(n)={neoid} ".format(
@@ -501,7 +503,7 @@ class ObjectMap(object):
             raise ArgError(
                 "arg1 must be object of class {cls}".format(cls=self.cls.__name__)
             )
-        if obj.neoid == None:
+        if obj.neoid is None:
             raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
         if values and not isinstance(values, list):
             values = [values]
@@ -541,28 +543,27 @@ class ObjectMap(object):
 
                 if not self._check_values_list(att, values):
                     raise ArgError(
-                        "'values' must be a list of mapped Entity objects of the appropriate subclass for attribute '{att}'".format(
-                            att=att
-                        )
+                        "'values' must be a list of mapped Entity objects of the "
+                        "appropriate subclass for attribute '{att}'".format(att=att)
                     )
                 for val in values:
                     qry = ""
                     if len(end_lbls) == 1:
-                        qry = "MATCH (n:{lbl}){rel}(a:{albl}) WHERE id(n)={neoid} AND id(a)={aneoid} DELETE r RETURN id(n),id(a)".format(
-                            lbl=self.cls.mapspec()["label"],
-                            albl=end_lbls[0],
-                            neoid=obj.neoid,
-                            aneoid=val.neoid,
-                            rel=rel,
-                        )
+                        qry = "MATCH (n:{lbl}){rel}(a:{albl}) WHERE id(n)={neoid} AND id(a)={aneoid} " \
+                              "DELETE r RETURN id(n),id(a)".format(
+                                  lbl=self.cls.mapspec()["label"],
+                                  albl=end_lbls[0],
+                                  neoid=obj.neoid,
+                                  aneoid=val.neoid,
+                                  rel=rel)
                     else:
-                        qry = "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) DELETE r RETURN id(n),id(a)".format(
-                            lbl=self.cls.mapspec()["label"],
-                            neoid=obj.neoid,
-                            aneoid=val.neoid,
-                            cond=cond,
-                            rel=rel,
-                        )
+                        qry = "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) " \
+                              "DELETE r RETURN id(n),id(a)".format(
+                                  lbl=self.cls.mapspec()["label"],
+                                  neoid=obj.neoid,
+                                  aneoid=val.neoid,
+                                  cond=cond,
+                                  rel=rel)
                     stmts.append(qry)
                 return stmts
         else:
@@ -576,7 +577,7 @@ class ObjectMap(object):
         v = values
         if isinstance(values, CollValue):
             v = values.values()
-        chk = [x.neoid == None for x in v]
+        chk = [x.neoid is None for x in v]
         if True in chk:
             return False
         end_cls = self.cls.mapspec()["relationship"][att]["end_cls"]
