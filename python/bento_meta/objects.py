@@ -41,13 +41,14 @@ class Node(Entity):
         "handle": "simple",
         "model": "simple",
         "category": "simple",
+        "nanoid": "simple",
         "concept": "object",
         "props": "collection",
     }
     mapspec_ = {
         "label": "node",
         "key": "handle",
-        "property": {"handle": "handle", "model": "model", "category": "category"},
+        "property": {"handle": "handle", "model": "model", "category": "category", "nanoid": "nanoid"},
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "props": {"rel": ":has_property>", "end_cls": "Property"},
@@ -65,6 +66,7 @@ class Property(Entity):
     attspec_ = {
         "handle": "simple",
         "model": "simple",
+        "nanoid": "simple",
         "value_domain": "simple",
         "units": "simple",
         "pattern": "simple",
@@ -78,6 +80,7 @@ class Property(Entity):
         "property": {
             "handle": "handle",
             "model": "model",
+            "nanoid": "nanoid",
             "value_domain": "value_domain",
             "pattern": "pattern",
             "units": "units",
@@ -118,6 +121,7 @@ class Edge(Entity):
     attspec_ = {
         "handle": "simple",
         "model": "simple",
+        "nanoid": "simple",
         "multiplicity": "simple",
         "is_required": "simple",
         "src": "object",
@@ -131,6 +135,7 @@ class Edge(Entity):
         "property": {
             "handle": "handle",
             "model": "model",
+            "nanoid": "nanoid",
             "multiplicity": "multiplicity",
             "is_required": "is_required",
         },
@@ -160,6 +165,7 @@ class Term(Entity):
 
     attspec_ = {
         "value": "simple",
+        "nanoid": "simple",
         "origin_id": "simple",
         "origin_definition": "simple",
         "concept": "object",
@@ -170,6 +176,7 @@ class Term(Entity):
         "key": "value",
         "property": {
             "value": "value",
+            "nanoid": "nanoid",
             "origin_id": "origin_id",
             "origin_definition": "origin_definition",
         },
@@ -193,6 +200,7 @@ class ValueSet(Entity):
     """
     attspec_ = {
         "handle": "simple",
+        "nanoid": "simple",
         "url": "simple",
         "prop": "object",
         "origin": "object",
@@ -200,7 +208,7 @@ class ValueSet(Entity):
     }
     mapspec_ = {
         "label": "value_set",
-        "property": {"handle": "handle", "url": "url"},
+        "property": {"handle": "handle", "url": "url", "nanoid": "nanoid",},
         "relationship": {
             "prop": {"rel": "<:has_value_set", "end_cls": "Property"},
             "terms": {"rel": ":has_term>", "end_cls": "Term"},
@@ -245,11 +253,11 @@ class Concept(Entity):
 class Origin(Entity):
     """Subclass that models a :class:`Term` 's authoritative source."""
 
-    attspec_ = {"url": "simple", "is_external": "simple", "name": "simple"}
+    attspec_ = {"url": "simple", "is_external": "simple", "name": "simple", "nanoid": "simple",}
     mapspec_ = {
         "label": "origin",
         "key": "name",
-        "property": {"name": "name", "url": "url", "is_external": "is_external"},
+        "property": {"name": "name", "url": "url", "is_external": "is_external", "nanoid": "nanoid",},
     }
     (attspec, _mapspec) = mergespec("Origin", attspec_, mapspec_)
 
