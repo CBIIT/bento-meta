@@ -82,30 +82,19 @@ class ObjectMap(object):
 
     def get_by_id(self, obj, id, refresh=False):
         """Get an entity given an id attribute value (not the Neo4j id)"""
-        print('  > now entering object_map.get_by_id')
-        print('      >> self is {}'.format(self))
-        print('      >> self self.cls is {}'.format(self.cls))
-        print('      >> obj  is {}'.format(obj))
-
         neoid = None
 
         if self.drv is None:
             raise ArgError("get_by_id() requires Neo4j driver instance")
 
         with self.drv.session() as session:
-            print('      now working with session A')
-            print('      >> now going to call object_map.get_by_id')
-            print('      >> query get_by_id_q is {}'.format(self.get_by_id_q()))
             result = session.run(self.get_by_id_q(), {"id": id})
             rec = (
                 result.single()
             )  # should be unique - this call will warn if there are more than one
 
-            print('      >><< note got back {}'.format(rec))
-
             if rec is not None:
                 neoid = rec["id(n)"]
-                print('      >> now found id {}'.format(neoid))
 
         if neoid is not None:
             obj.neoid = neoid
@@ -117,8 +106,6 @@ class ObjectMap(object):
         """PROTOTYPE
         Get an entity given an id attribute value (not the Neo4j id)
         """
-        print('now entering get_by_node_nanoid')
-        print('    1: ')
 
         neo4jid = None
 
@@ -132,10 +119,8 @@ class ObjectMap(object):
             )  # should be unique - this call will warn if there are more than one
             if rec is not None:
                 neo4jid = rec["id(n)"]
-                print('      >> now found id {}'.format(neo4jid))
-
+           
         if neo4jid is None:
-            print('      >>> so, about to go and try and get the object for id {}'.format(neo4jid))
             obj.neoid = neo4jid
             return self.get(obj, refresh=True)
         else:
@@ -152,16 +137,12 @@ class ObjectMap(object):
             return obj
 
         with self.drv.session() as session:
-            print('      >>>> now in get()! with self {}'.format(self))
-            print('      >>>>    with obj {}'.format(obj))
-            print('      >>>> .. query is get_q {}'.format(self.get_q(obj)))
             result = session.run(self.get_q(obj))
             rec = result.single()
             if not rec:
                 raise RuntimeError(
                     "object with id {neoid} not found in db".format(neoid=obj.neoid)
                 )
-            print('      >>>> welp. got back red {}'.format(rec))
 
         if obj.neoid not in ObjectMap.cache:
             ObjectMap.cache[obj.neoid] = obj
@@ -214,7 +195,6 @@ class ObjectMap(object):
 
         obj.clear_removed_entities()
         obj.dirty = 0
-        print('      >>>> now leaving get()! with obj {}'.format(obj))
         return obj
 
     def put(self, obj):
