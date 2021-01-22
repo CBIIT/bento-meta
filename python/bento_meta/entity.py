@@ -43,6 +43,7 @@ class Entity(object):
     ]
     attspec_ = {
         "_id": "simple",
+        "nanoid": "simple",
         "desc": "simple",
         "_next": "object",
         "_prev": "object",
@@ -54,7 +55,7 @@ class Entity(object):
     mapspec_ = {
         "label": None,
         "key": "_id",
-        "property": {"_id": "id", "desc": "desc", "_from": "_from", "_to": "_to"},
+        "property": {"_id": "id", "desc": "desc", "_from": "_from", "_to": "_to", "nanoid": "nanoid"},
         "relationship": {
             "_next": {"rel": ":_next>", "end_cls": set()},
             "_prev": {"rel": ":_prev>", "end_cls": set()},
@@ -137,8 +138,11 @@ class Entity(object):
         :param string id: value of id for desired object
         """
         if self.object_map:
+            print('  > now in entity.get_by_id where self is {}'.format(self))
+            print('  > and class is {}'.format(self.__class__))
             return self.object_map.get_by_id(self, id)
         else:
+            print('    _NO_ cls.object_map detected')
             pass
 
     @property
