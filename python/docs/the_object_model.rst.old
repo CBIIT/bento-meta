@@ -222,9 +222,11 @@ ____________________________
 
 .. py:class:: Entity
 
-Base class for all metamodel objects.  Posesses the following attributes:
+Base class for all metamodel objects. Posesses the following attributes:
 
   .. py:attribute:: entity._id
+       :type: simple
+  .. py:attribute:: entity.nanoid
        :type: simple
   .. py:attribute:: entity.desc
        :type: simple
@@ -249,6 +251,8 @@ Subclass that models a data node. Posesses all :class:`Entity` attributes, plus 
        :type: simple
   .. py:attribute:: node.category
        :type: simple
+  .. py:attribute:: node.nanoid
+       :type: simple
   .. py:attribute:: node.concept
        :type: Concept
   .. py:attribute:: node.props
@@ -261,6 +265,8 @@ Subclass that models a relationship between model nodes. Posesses all :class:`En
   .. py:attribute:: edge.handle
        :type: simple
   .. py:attribute:: edge.model
+       :type: simple
+  .. py:attribute:: edge.nanoid
        :type: simple
   .. py:attribute:: edge.multiplicity
        :type: simple
@@ -283,6 +289,8 @@ Subclass that models a property of a node or relationship (edge). Posesses all :
        :type: simple
   .. py:attribute:: property.model
        :type: simple
+  .. py:attribute:: property.nanoid
+       :type: simple
   .. py:attribute:: property.value_domain
        :type: simple
   .. py:attribute:: property.units
@@ -301,6 +309,8 @@ Subclass that models a property of a node or relationship (edge). Posesses all :
 Subclass that models a term from a terminology. Posesses all :class:`Entity` attributes, plus the following:
 
   .. py:attribute:: term.value
+       :type: simple
+  .. py:attribute:: term.nanoid
        :type: simple
   .. py:attribute:: term.origin_id
        :type: simple
@@ -327,6 +337,8 @@ Subclass that models a :class:`Term` 's authoritative source. Posesses all :clas
   .. py:attribute:: origin.is_external
        :type: simple
   .. py:attribute:: origin.name
+       :type: simple
+  .. py:attribute:: origin.nanoid
        :type: simple
 
 .. py:class:: Tag

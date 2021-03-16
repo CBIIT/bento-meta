@@ -345,6 +345,8 @@ Subclass that models a :class:`Term` 's authoritative source. Posesses all :clas
 
 Subclass that allows simple key-value tagging of a model at arbitrary points. Posesses all :class:`Entity` attributes, plus the following:
 
+  .. py:attribute:: tag.key
+       :type: simple
   .. py:attribute:: tag.value
        :type: simple
 
