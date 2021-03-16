@@ -268,7 +268,7 @@ class Origin(Entity):
 class Tag(Entity):
     """Subclass that allows simple key-value tagging of a model at arbitrary points."""
 
-    attspec_ = {"value": "simple"}
+    attspec_ = {"key":"simple", "value": "simple"}
     mapspec_ = {
         "label": "tag",
         "key": "value",
