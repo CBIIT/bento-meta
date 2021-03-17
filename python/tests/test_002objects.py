@@ -36,7 +36,38 @@ def test_init_and_link_objects():
   [o] = [x for x in term.belongs.values()]
   assert o == concept
   assert of_sample.src.concept.terms["sample"].value == "sample"
+
+def test_tags_on_objects():
+  nodeTag = Tag({"key":"name","value":"Neddy"})
+  relnTag = Tag({"key":"name","value":"Robby"})
+  conceptTag = Tag({"key":"name","value":"Catty"})
+  conceptTag2 = Tag({"key":"aka","value":"Jehoshaphat"})
+  termTag = Tag({"key":"name","value":"Termy"})
+  propTag = Tag({"key":"name","value":"Puppy"})
   
+  case = Node({"model":"test","handle":"case"})
+  of_sample = Edge({"model":"test","handle":"of_sample"})
+  sample = Node({"model":"test","handle":"sample"})  
+  of_sample.src = sample
+  of_sample.dst = case
+  term = Term({"value":"sample"})
+  concept = Concept();
+  term.concept = concept
+  concept.terms["sample"]=term
+  sample.concept = concept
+  sample.props['this'] = Property({"that":"this"})
+
+  case.tags[nodeTag.key] = nodeTag
+  of_sample.tags[relnTag.key] = relnTag
+  term.tags[termTag.key] = termTag
+  concept.tags[conceptTag.key] = conceptTag
+  concept.tags[conceptTag2.key] = conceptTag2
+  sample.props['this'].tags['name'] = propTag
+
+  names = [x.tags['name'].value for x in [case,of_sample,term,concept,sample.props['this']]];
+  assert names == ["Neddy","Robby","Termy","Catty","Puppy"]
+  assert concept.tags['aka'].value == "Jehoshaphat"
+
 def test_some_object_methods():
   p = Property({"handle":"complaint"})
   assert p

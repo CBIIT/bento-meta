@@ -13,7 +13,6 @@ from bento_meta.entity import Entity
 # from pdb import set_trace
 
 
-# tags attr?
 def mergespec(clsname, attspec, mapspec):
     """Merge subclass attribute and mapping specification dicts with the
     base class's. Not for human consumption.
@@ -52,6 +51,7 @@ class Node(Entity):
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "props": {"rel": ":has_property>", "end_cls": "Property"},
+            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
         },
     }
     (attspec, _mapspec) = mergespec("Node", attspec_, mapspec_)
@@ -89,6 +89,7 @@ class Property(Entity):
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "value_set": {"rel": ":has_value_set>", "end_cls": "ValueSet"},
+            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
         },
     }
     (attspec, _mapspec) = mergespec("Property", attspec_, mapspec_)
@@ -144,6 +145,7 @@ class Edge(Entity):
             "dst": {"rel": ":has_dst>", "end_cls": "Node"},
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "props": {"rel": ":has_property>", "end_cls": "Property"},
+            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
         },
     }
     (attspec, _mapspec) = mergespec("Edge", attspec_, mapspec_)
@@ -183,6 +185,7 @@ class Term(Entity):
         "relationship": {
             "concept": {"rel": ":represents>", "end_cls": "Concept"},
             "origin": {"rel": ":has_origin>", "end_cls": "Origin"},
+            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
         },
     }
     (attspec, _mapspec) = mergespec("Term", attspec_, mapspec_)
@@ -213,6 +216,7 @@ class ValueSet(Entity):
             "prop": {"rel": "<:has_value_set", "end_cls": "Property"},
             "terms": {"rel": ":has_term>", "end_cls": "Term"},
             "origin": {"rel": ":has_origin>", "end_cls": "Origin"},
+            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
         },
     }
     (attspec, _mapspec) = mergespec("ValueSet", attspec_, mapspec_)
@@ -242,7 +246,10 @@ class Concept(Entity):
     attspec_ = {"terms": "collection"}
     mapspec_ = {
         "label": "concept",
-        "relationship": {"terms": {"rel": "<:represents", "end_cls": "Term"}},
+        "relationship": {
+            "terms": {"rel": "<:represents", "end_cls": "Term"},
+            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}            
+        },
     }
     (attspec, _mapspec) = mergespec("Concept", attspec_, mapspec_)
 
@@ -257,7 +264,15 @@ class Origin(Entity):
     mapspec_ = {
         "label": "origin",
         "key": "name",
-        "property": {"name": "name", "url": "url", "is_external": "is_external", "nanoid": "nanoid",},
+        "property": {
+            "name": "name",
+            "url": "url",
+            "is_external": "is_external",
+            "nanoid": "nanoid",
+        },
+        "relationship": {
+            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
+        }
     }
     (attspec, _mapspec) = mergespec("Origin", attspec_, mapspec_)
 
