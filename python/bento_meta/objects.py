@@ -286,7 +286,7 @@ class Tag(Entity):
     attspec_ = {"key":"simple", "value": "simple"}
     mapspec_ = {
         "label": "tag",
-        "key": "value",
+        "key": "key",
         "property": {"key": "key", "value": "value"},
     }
     (attspec, _mapspec) = mergespec("Tag", attspec_, mapspec_)
