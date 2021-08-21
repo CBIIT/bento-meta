@@ -7,6 +7,8 @@ from bento_meta.mdf import MDF
 from bento_meta.entity import ArgError
 from bento_meta.model import Model
 from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin
+import yaml
+from yaml import Loader as yloader
 
 def test_class():
   m = MDF(handle='test')
@@ -73,3 +75,30 @@ def test_created_model():
   assert sample_type.value_domain == 'value_set'
   assert isinstance(sample_type.value_set, ValueSet)
   assert set(sample_type.values) == {'tumor','normal'}
+
+def test_write_mdf():
+  yml = yaml.load(open('tests/samples/test-model.yml','r'),Loader=yloader)
+  m = MDF('tests/samples/test-model.yml',handle='test')
+  wr_m = MDF(model=m.model)
+  assert isinstance(wr_m.model,Model)
+  mdf = wr_m.write_mdf()
+  assert isinstance(mdf,dict)
+  assert set(yml) == set(mdf)
+  assert set(yml["Nodes"]) == set(mdf["Nodes"])
+  assert set(yml["Relationships"]) == set(mdf["Relationships"])
+  assert set(yml["PropDefinitions"]) == set(mdf["PropDefinitions"])
+  for n in yml["Nodes"]:
+    if yml["Nodes"][n].get("Props"):
+      assert set(yml["Nodes"][n]["Props"]) == set(mdf["Nodes"][n]["Props"])
+  for n in yml["Relationships"]:
+    if yml["Relationships"][n].get("Props"):
+      assert set(yml["Relationships"][n]["Props"]) == set(mdf["Relationships"][n]["Props"])
+  yp = yml["PropDefinitions"]
+  mp = mdf["PropDefinitions"]
+  assert yp["case_id"]["Type"]["pattern"] == mp["case_id"]["Type"]["pattern"]
+  assert yp["patient_id"]["Type"] == mp["patient_id"]["Type"]
+  assert set(yp["sample_type"]["Type"]) == set(mp["sample_type"]["Type"])
+  assert set(yp["amount"]["Type"]["units"]) == set(mp["amount"]["Type"]["units"])  
+  assert set(yp["file_size"]["Type"]["units"]) == set(mp["file_size"]["Type"]["units"])  
+  assert yp["file_size"]["Type"]["value_type"] == mp["file_size"]["Type"]["value_type"]    
+  pass

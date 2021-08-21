@@ -3,22 +3,19 @@ bento_meta.mdf
 ==============
 
 This module contains :class:`MDF`, a class for reading a graph data model in
-Model Description Format into a :class:`bento_meta.model.Model` object.
+Model Description Format into a :class:`bento_meta.model.Model` object, and 
+writing the opposite way.
 
 """
 import sys
-
-sys.path.extend([".", ".."])
 from bento_meta.model import Model
 from bento_meta.entity import ArgError, CollValue
 from bento_meta.objects import (
     Node,
-    Property,
     Edge,
+    Property,
     Term,
     ValueSet,
-    Concept,
-    Origin,
     Tag,
 )
 import re
@@ -31,35 +28,43 @@ from collections import ChainMap
 from warnings import warn
 from uuid import uuid4
 import json
-
 # from pdb import set_trace
+
+sys.path.extend([".", ".."])
 
 
 class MDF(object):
-    default_mult = "one_to_one"
-    default_type = "TBD"
-
-    def __init__(self, *yaml_files, handle=None):
-        """Create a :class:`Model` from MDF YAML files.
-        :param str|file|url *yaml_files: MDF filenames or file objects, in desired merge order
+    def __init__(self, *yaml_files, handle=None, model=None):
+        """Create a :class:`Model` from MDF YAML files/Write a :class:`Model` to YAML
+        :param str|file|url *yaml_files: MDF filenames or file objects, 
+        in desired merge order
         :param str handle: Handle (name) for the resulting Model
+        :param :class:`Model` model: Model to convert to MDF
         :attribute model: the :class:`bento_meta.model.Model` created"""
-        if not handle or not isinstance(handle, str):
+        if not model and (not handle or not isinstance(handle, str)):
             raise ArgError("arg handle= must be a str - name for model")
-        self.handle = handle
+        if model and not isinstance(model,Model):
+            raise ArgError("arg model= must be a Model instance")
+            
         self.files = yaml_files
         self.schema = om.MergedOptions()
-        self._model = None
+        self._model = model
+        if model:
+            self.handle = model.handle
+        else:
+            self.handle = handle
         if self.files:
             self.load_yaml()
             self.create_model()
         else:
-            warn("No MDF files provided to constructor")
-        pass
+            if not model:
+                warn("No MDF files or model provided to constructor")
+                pass
 
     @property
     def model(self):
-        """The :class:`bento_meta.model.Model` object created from the MDF input"""
+        """The :class:`bento_meta.model.Model` object created from the 
+           MDF input"""
         return self._model
 
     def load_yaml(self):
@@ -93,7 +98,8 @@ class MDF(object):
 
     def create_model(self):
         """Create :class:`Model` instance from loaded YAML
-        Note: This is brittle, since the syntax of MDF is hard-coded into this method."""
+        Note: This is brittle, since the syntax of MDF is hard-coded
+        into this method."""
         if not self.schema.keys():
             raise ValueError("attribute 'schema' not set - are yamls loaded?")
         self._model = Model(handle=self.handle)
@@ -126,7 +132,7 @@ class MDF(object):
                     "dst": self._model.nodes[ends["Dst"]],
                     "multiplicity": ends.get("Mul")
                     or ye.get("Mul")
-                    or MDF.default_mult,
+                    or Edge.default("multiplicity"),
                     "desc": ends.get("Desc") or ye.get("Desc"),
                 }
                 edge = self._model.add_edge(init)
@@ -177,7 +183,7 @@ class MDF(object):
                     if ypdef.get("Type"):
                         init.update(self.calc_value_domain(ypdef["Type"]))
                     else:
-                        init["value_domain"] = MDF.default_type
+                        init["value_domain"] = Property.default("value_domain")
                     prop = self._model.add_prop(ent, init)
                     ent.props[prop.handle] = prop
                     if ypdef.get("Tags"):
@@ -213,5 +219,91 @@ class MDF(object):
                 for t in typedef:
                     vs.terms[t] = Term({"value": t})
             return {"value_domain": "value_set", "value_set": vs}
+        elif isinstance(typedef, str):
+            return {"value_domain": typedef}
         else:
-            return {"value_domain": MDF.default_type}
+            return {"value_domain": Property.default("value_domain")}
+
+    def write_mdf(self,file=None):
+        """Write a :class:`Model` to a model description file (MDF)
+        :param :class:`Model` model: Model to convert
+        :param str|file file: File name or object to write to (default is None; just return the MDF as dict)
+        :returns: MDF as dict"""
+        model = self.model
+        mdf = {"Nodes":{},
+               "Relationships":{},
+               "PropDefinitions":{},
+               "Handle":model.handle}
+        for nd in sorted(model.nodes):
+            node = model.nodes[nd]
+            mdf_node = {}
+            mdf["Nodes"][nd] = mdf_node
+            mdf_node["Props"] = [prop for prop in sorted(node.props)]
+            if node.category:
+                mdf_node["Category"] = node.category
+            if node.nanoid:
+                mdf_node["NanoID"] = node.nanoid
+            if node.desc:
+                mdf_node["Desc"] = node.desc
+        for rl in sorted(model.edges):
+            edge = model.edges[rl]
+            mdf_edge = {}
+            mdf["Relationships"][edge.handle] = mdf_edge
+            mdf_edge["Mul"] = edge.multiplicity or Edge.default("multiplicity")
+            if edge.is_required:
+                mdf_edge["Req"] = True
+            if edge.props:
+                mdf_edge["Props"] = [prop for prop in sorted(edge.props)]
+            if edge.nanoid:
+                mdf_edge["NanoID"] = edge.nanoid
+            if edge.desc:
+                mdf_edge["Desc"] = edge.desc
+        prnames = []
+        props = {}
+        for pr in model.props:
+            prname = pr[len(pr)-1]
+            prnames.append(prname)
+            if props.get(prname):
+                print("Property name collision at {}".format(pr))
+            props[prname] = model.props[pr]
+        for prname in sorted(prnames):
+            prop = props[prname]
+            mdf_prop = {}
+            mdf["PropDefinitions"][prname] = mdf_prop
+            mdf_prop["Type"] = self.calc_prop_type(prop)
+            if prop.is_required:
+                mdf_prop["Req"] = True
+            if prop.nanoid:
+                mdf_prop["NanoID"] = prop.nanoid
+            if prop.desc:
+                mdf_prop["Desc"] = prop.desc
+
+        if file:
+            fh = file
+            if isinstance(file,str):
+                fh = open(file, "w")
+            yaml.dump(mdf, stream=fh, indent=4)
+            
+        return mdf
+
+    def calc_prop_type(self,prop):
+        if not prop.value_domain:
+            return Property.default("value_domain")
+        if prop.value_domain == "regexp":
+            if not prop.pattern:
+                warn("Property {} has 'regexp' value domain, but no pattern specified".format(prop.handle))
+                return {"pattern":"^.*$"}
+            else:
+                return {"pattern":prop.pattern}
+        if prop.units:
+            return {"value_type":prop.value_domain, "units":prop.units.split(';')}
+        if prop.value_domain == "value_set":
+            if not prop.value_set:
+                warn("Property {} has 'value_set' value domain, but value_set attribute is None".format(prop.handle))
+                return "string"
+            values = []
+            for trm in sorted(prop.terms):
+                values.append(trm)
+            return values
+        # otherwise 
+        return prop.value_domain
