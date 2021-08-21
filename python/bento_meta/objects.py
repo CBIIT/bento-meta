@@ -93,7 +93,8 @@ class Property(Entity):
         },
     }
     (attspec, _mapspec) = mergespec("Property", attspec_, mapspec_)
-
+    defaults = { "value_domain":"TBD" }
+    
     def __init__(self, init=None):
         super().__init__(init=init)
 
@@ -118,7 +119,9 @@ class Property(Entity):
 
 class Edge(Entity):
     """Subclass that models a relationship between model nodes."""
-
+    defaults = {
+        "multiplicity": "many_to_many",
+    }
     attspec_ = {
         "handle": "simple",
         "model": "simple",
@@ -149,7 +152,7 @@ class Edge(Entity):
         },
     }
     (attspec, _mapspec) = mergespec("Edge", attspec_, mapspec_)
-
+     
     def __init__(self, init=None):
         super().__init__(init=init)
 

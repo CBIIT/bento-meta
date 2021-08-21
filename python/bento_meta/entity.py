@@ -41,6 +41,7 @@ class Entity(object):
         "mapspec",
         "belongs",
     ]
+    defaults = {},
     attspec_ = {
         "_id": "simple",
         "nanoid": "simple",
@@ -132,6 +133,15 @@ class Entity(object):
             raise ArgError("arg must be a positive integer")
         cls.version_count = ct
 
+    @classmethod
+    def default(cls, propname):
+        """Returns a default value for the property named, or None if no default defined."""
+        if cls.defaults.get(propname):
+            return cls.defaults[propname]
+        else:
+            return None
+        
+
     # @classmethod
     def get_by_id(self, id):
         """Get an object from the db with the id attribute (not the Neo4j id). Returns a new object.
@@ -173,7 +183,7 @@ class Entity(object):
 
     @property
     def belongs(self):
-        """Dict that stored information on the owners (referents) of this instance
+        """Dict that stores information on the owners (referents) of this instance
         in the model
         """
         return self.pvt["belongs"]
