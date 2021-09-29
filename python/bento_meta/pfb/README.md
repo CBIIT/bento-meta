@@ -260,7 +260,7 @@ The [``Relation``](./pfb.Relation.avsc) schema (apparently) exists to contain th
       ]
     }
 
-### User Data Type
+### User Data Types
 
 PFB assumes a (not entirely general) property graph structure, that is encoded in a particular way. Taking the components described above together, the PFB is essentially designed to describe a series of graph nodes. Each node is described with its 
 
