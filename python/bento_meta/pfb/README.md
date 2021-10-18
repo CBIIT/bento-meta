@@ -10,7 +10,7 @@
   * [Node and Property](#node-and-property)
   * [Link](#Link)
   * [Relation](#Relation)
-  * [User Data Type](#user-data-type)
+  * [User Data Type](#usertypes)
 * [Worked Example](#worked-example)
 
 <a id="point"/>
@@ -92,7 +92,7 @@ The root of the PFB schema structure is the [``Entity``](./pfb.Entity.avsc). In 
 
 The ``Entity`` is the basic unit of schema+data in PFB. It is an Avro "record", that is, a named set of keys and values. The components of the ``Entity`` are given by its keys: ``id``, ``name``, ``object``, and ``relations``. (These are defined in the ``fields`` array above.)
 
-``Entity.object`` defines the container for data. It represents a _union_ or choice among possible schemas. One of these choices is always a ``Metadata`` subentity.  The others are custom objects defined by the user. User-defined custom objects are not present in the basic schema; these are built by users from their own data and models. These are described [below](#User Data Types). Tools to do this for the Bento system will appear in this repository.
+``Entity.object`` defines the container for data. It represents a _union_ or choice among possible schemas. One of these choices is always a ``Metadata`` subentity.  The others are custom objects defined by the user. User-defined custom objects are not present in the basic schema; these are built by users from their own data and models. These are described [below](#usertypes). Tools to do this for the Bento system will appear in this repository.
 
 ### Metadata
 
@@ -260,7 +260,9 @@ The [``Relation``](./pfb.Relation.avsc) schema (apparently) exists to contain th
       ]
     }
 
-### User Data Type
+<a id="usertypes"/>
+
+### User Data Types
 
 PFB assumes a (not entirely general) property graph structure, that is encoded in a particular way. Taking the components described above together, the PFB is essentially designed to describe a series of graph nodes. Each node is described with its 
 
