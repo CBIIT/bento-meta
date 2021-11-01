@@ -65,6 +65,10 @@ A Value Set node aggregates (links to) a number of Term nodes that define the li
 
 A Concept Group node aggregates (i.e., links to) Concept nodes. Concept Groups might be implicit. A Value Set node, for example, implicitly defines a Concept Group - the set of those Concept nodes that are linked to the Term nodes aggregated by the Value Set.
 
+### Tag
+
+A Tag node represents a simple key/value pair. Any other type of node can be annotated with a Tag node.
+
 ## Information NOT Captured in the MDB
 
 Semantic structure (for example, hierarchical groupings of concepts, or other "facts" or "predicate" relationships), besides synonymy and value set grouping, is not intended to be represented in the MDB. To the extent this information exists, it will be accessible in external services via the relevant Origins (e.g., NCI Thesaurus). External model topologies need not be concordant with the model structure represented in the MDB.
