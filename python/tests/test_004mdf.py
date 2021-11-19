@@ -1,5 +1,6 @@
 import re
 import sys
+import os.path
 sys.path.extend(['.','..'])
 import pytest
 from pdb import set_trace
@@ -10,6 +11,8 @@ from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Or
 import yaml
 from yaml import Loader as yloader
 
+tdir = 'tests/' if os.path.exists('tests') else ''
+
 def test_class():
   m = MDF(handle='test')
   assert isinstance(m,MDF)
@@ -18,8 +21,10 @@ def test_class():
 
 def test_load_yaml():
   m = MDF(handle='test')
-  m.files = ['tests/samples/ctdc_model_file.yaml', 'tests/samples/ctdc_model_properties_file.yaml']
+  m.files = ['{}samples/ctdc_model_file.yaml'.format(tdir),
+             '{}samples/ctdc_model_properties_file.yaml'.format(tdir)]
   m.load_yaml()
+  assert m.schema["Nodes"]
 
 def test_load_yaml_url():
   m = MDF(handle='ICDC')
@@ -30,13 +35,14 @@ def test_load_yaml_url():
 
 def test_create_model():
   m = MDF(handle='test')
-  m.files = ['tests/samples/ctdc_model_file.yaml', 'tests/samples/ctdc_model_properties_file.yaml']
+  m.files = ['{}samples/ctdc_model_file.yaml'.format(tdir),
+             '{}samples/ctdc_model_properties_file.yaml'.format(tdir)]
   m.load_yaml()
   m.create_model()
   assert m.model
 
 def test_created_model():
-  m = MDF('tests/samples/test-model.yml',handle='test')
+  m = MDF('{}samples/test-model.yml'.format(tdir),handle='test')
   assert isinstance(m.model,Model)
   assert set([x.handle for x in m.model.nodes.values()]) == {'case','sample','file','diagnosis'}
   assert set([x.triplet for x in m.model.edges.values()])== {
@@ -75,10 +81,14 @@ def test_created_model():
   assert sample_type.value_domain == 'value_set'
   assert isinstance(sample_type.value_set, ValueSet)
   assert set(sample_type.values) == {'tumor','normal'}
+  assert m.model.nodes['case'].tags['this'].value == 'that'
+  assert m.model.edges[('derived_from','sample','sample')].tags['item1'].value == 'value1'
+  assert m.model.edges[('derived_from','sample','sample')].tags['item2'].value == 'value2'
+  assert m.model.nodes['file'].props['md5sum'].tags['another'].value == 'value3'
 
 def test_write_mdf():
-  yml = yaml.load(open('tests/samples/test-model.yml','r'),Loader=yloader)
-  m = MDF('tests/samples/test-model.yml',handle='test')
+  yml = yaml.load(open('{}samples/test-model.yml'.format(tdir),'r'),Loader=yloader)
+  m = MDF('{}samples/test-model.yml'.format(tdir),handle='test')
   wr_m = MDF(model=m.model)
   assert isinstance(wr_m.model,Model)
   mdf = wr_m.write_mdf()

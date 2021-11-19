@@ -10,7 +10,7 @@ setup(
   packages=find_packages(),
   install_requires=[
     'PyYAML>=5.1.1',
-    'option-merge>=1.6',
+    'delfick-project',
     'neo4j>=4.0',
     'requests'
     ],

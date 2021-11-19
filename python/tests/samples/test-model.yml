@@ -1,6 +1,8 @@
 Handle: test
 Nodes:
   case:
+    Tags:
+      this: that
     Props:
       - case_id
       - patient_id
@@ -34,6 +36,9 @@ Relationships:
         Dst: sample
         Mul: many_to_many
   derived_from:
+    Tags:
+      item1: value1
+      item2: value2
     Mul: one_to_many
     Props:
       - id
@@ -60,6 +65,8 @@ PropDefinitions:
         - mg
       value_type: number
   md5sum:
+    Tags:
+      another: value3
     Type:
       pattern: "^[a-f0-9]{40}"
   file_name:

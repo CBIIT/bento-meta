@@ -23,7 +23,7 @@ import yaml
 from yaml.constructor import ConstructorError
 from yaml.parser import ParserError
 import requests
-import option_merge as om
+import delfick_project.option_merge as om
 from collections import ChainMap
 from warnings import warn
 from uuid import uuid4
@@ -117,10 +117,8 @@ class MDF(object):
                     init[a] = yn[a]
             node = self._model.add_node(init)
             if yn.get("Tags"):
-                tags = CollValue({}, owner=node, owner_key="tags")
                 for t in yn["Tags"]:
-                    tags[t] = Tag({"value": t})
-                node["tags"] = tags
+                    node.tags[t] = Tag({"key":t, "value": yn["Tags"][t]})
         # create edges (relationships)
         for e in yedges:
             ye = yedges[e]
@@ -140,8 +138,7 @@ class MDF(object):
                 if Tags:
                     tags = CollValue({}, owner=edge, owner_key="tags")
                     for t in Tags:
-                        tags[t] = Tag({"value": t})
-                        edge["tags"] = tags
+                        edge.tags[t] = Tag({"key":t,"value": Tags[t]})
         # create properties
         for ent in ChainMap(self._model.nodes, self._model.edges).values():
             if isinstance(ent, Node):
@@ -187,10 +184,8 @@ class MDF(object):
                     prop = self._model.add_prop(ent, init)
                     ent.props[prop.handle] = prop
                     if ypdef.get("Tags"):
-                        tags = CollValue({}, owner=node, owner_key="tags")
                         for t in ypdef["Tags"]:
-                            tags[t] = Tag({"value": t})
-                        prop["tags"] = tags
+                            prop.tags[t] = Tag({"key": t,"value":ypdef["Tags"][t]})
         return self._model
 
     def calc_value_domain(self, typedef):
