@@ -1,7 +1,8 @@
 import re
 import sys
 from pdb import set_trace
-sys.path.append('.')
+sys.path.insert(0,'.')
+sys.path.insert(0,'..')
 import pytest
 from bento_meta.entity import Entity
 from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag

@@ -1,6 +1,7 @@
 import re
 import sys
-sys.path.extend(['.','..'])
+sys.path.insert(0,".")
+sys.path.insert(0,"..")
 import pytest
 import pytest_docker
 from neo4j import GraphDatabase
@@ -11,6 +12,7 @@ from bento_meta.object_map import ObjectMap
 from bento_meta.entity import *
 from bento_meta.objects import *
 
+@pytest.mark.slow
 def test_get(bento_neo4j):
   (b,h)=bento_neo4j
   drv = GraphDatabase.driver(b)
@@ -45,6 +47,7 @@ def test_get(bento_neo4j):
   pass
 
 
+@pytest.mark.slow
 def test_put_rm(bento_neo4j):  
   (b,h)=bento_neo4j
   drv = GraphDatabase.driver(b)

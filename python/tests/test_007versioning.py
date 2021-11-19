@@ -1,6 +1,7 @@
 import re
 import sys
-sys.path.extend(['.','..'])
+sys.path.insert(0,'.')
+sys.path.insert(0,'..')
 import pytest
 from bento_meta.entity import *
 from bento_meta.objects import *

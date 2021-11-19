@@ -1,6 +1,7 @@
 import re
 import sys
-sys.path.extend(['.','..'])
+sys.path.insert(0,'.')
+sys.path.insert(0,'..')
 import pytest
 #from pdb import set_trace
 from bento_meta.mdf import MDF

@@ -1,6 +1,7 @@
 import re
 import sys
-sys.path.append('.')
+sys.path.insert(0,'.')
+sys.path.insert(0,'..')
 import pytest
 from pdb import set_trace
 
