@@ -48,7 +48,7 @@ ____________
 
 Run::
 
-  pip install https://github.com/CBIIT/bento-meta/raw/master/python/dist/bento-meta-0.0.1.tar.gz
+  pip install https://github.com/CBIIT/bento-meta/raw/master/python/dist/bento-meta-0.0.2.tar.gz
 
 
 .. toctree::
