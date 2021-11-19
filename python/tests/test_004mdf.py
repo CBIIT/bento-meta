@@ -110,5 +110,6 @@ def test_write_mdf():
   assert set(yp["sample_type"]["Type"]) == set(mp["sample_type"]["Type"])
   assert set(yp["amount"]["Type"]["units"]) == set(mp["amount"]["Type"]["units"])  
   assert set(yp["file_size"]["Type"]["units"]) == set(mp["file_size"]["Type"]["units"])  
-  assert yp["file_size"]["Type"]["value_type"] == mp["file_size"]["Type"]["value_type"]    
+  assert yp["file_size"]["Type"]["value_type"] == mp["file_size"]["Type"]["value_type"]
+  assert yp["md5sum"]["Tags"]["another"] == mp["md5sum"]["Tags"]["another"]
   pass

@@ -28,6 +28,7 @@ from collections import ChainMap
 from warnings import warn
 from uuid import uuid4
 import json
+
 # from pdb import set_trace
 
 sys.path.extend([".", ".."])
@@ -233,7 +234,12 @@ class MDF(object):
             node = model.nodes[nd]
             mdf_node = {}
             mdf["Nodes"][nd] = mdf_node
+            if node.tags:
+                mdf_node["Tags"] = {}
+                for t in node.tags:
+                    mdf_node["Tags"][t] = node.tags[t].value
             mdf_node["Props"] = [prop for prop in sorted(node.props)]
+
             if node.category:
                 mdf_node["Category"] = node.category
             if node.nanoid:
@@ -245,6 +251,10 @@ class MDF(object):
             mdf_edge = {}
             mdf["Relationships"][edge.handle] = mdf_edge
             mdf_edge["Mul"] = edge.multiplicity or Edge.default("multiplicity")
+            if edge.tags:
+                mdf_edge["Tags"] = {}
+                for t in edge.tags:
+                    mdf_edge["Tags"][t] = edge.tags[t].value
             if edge.is_required:
                 mdf_edge["Req"] = True
             if edge.props:
@@ -265,6 +275,10 @@ class MDF(object):
             prop = props[prname]
             mdf_prop = {}
             mdf["PropDefinitions"][prname] = mdf_prop
+            if prop.tags:
+                mdf_prop["Tags"] = {}
+                for t in prop.tags:
+                    mdf_prop["Tags"][t] = prop.tags[t].value
             mdf_prop["Type"] = self.calc_prop_type(prop)
             if prop.is_required:
                 mdf_prop["Req"] = True
