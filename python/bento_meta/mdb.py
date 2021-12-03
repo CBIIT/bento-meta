@@ -114,15 +114,15 @@ with the class for later use."""
 get all nodes in database.
 Returns [ <node> ]."""
         qry = (
-            "match (n:node) {}"
+            "match (n:node) {} "
             "with n "
             "where not exists(n._to) "
             "return n"
             ).format("where n.model = $model" if model else "")
-        return (qry, {model: "$model"} if model else None, "n")
+        return (qry, {"model": model} if model else None, "n")
     
     @read_txn_data
-    def get_model_nodes_edges(self, handle):
+    def get_model_nodes_edges(self, model):
         """Get all node-relationship-node paths for a given model.
 Returns [ path ]"""
         qry = (
@@ -132,7 +132,7 @@ Returns [ path ]"""
             "where not exists(s._to) and not exists(r._to) and not exists(d._to) "
             "return p as path"
             )
-        return (qry, {"model":handle})
+        return (qry, {"model":model})
 
     @read_txn_data
     def get_node_edges_by_node_id(self, nanoid):
@@ -185,12 +185,13 @@ Returns [ {id, handle, model, props[]} ]"""
 of terms, given the property nanoid.
 Returns [ { id, handle, model, value_domain, prop, node, value_set, terms[] } ]."""
         qry = (
-            "match (p:property {nanoid:$nanoid})<-[:has_property]-(n:node),  "
+            "match (p:property {nanoid:$nanoid})<-[:has_property]-(n:node) "
             "where not exists(p._to) "
             "with p,n "
             "optional match (p)-[:has_value_set]->(vs:value_set)-[:has_term]->(t:term) "
             "return p.nanoid as id, p.handle as handle, p.model as model, "
-            "p.value_domain as value_domain, p as prop, n as node, vs as value_set collect(t) as terms"
+            "p.value_domain as value_domain, p as prop, n as node, "
+            "  vs as value_set, collect(t) as terms"
             )
         return (qry, {"nanoid": nanoid})
 
@@ -200,7 +201,7 @@ Returns [ { id, handle, model, value_domain, prop, node, value_set, terms[] } ].
 that constitute it.
 Returns [ {id, handle, url, terms[], props[]} ]"""
         qry = (
-            "match (vs:value_set {nanoid:$nanoid} "
+            "match (vs:value_set {nanoid:$nanoid}) "
             "with vs "
             "match (t)<-[:has_term]-(vs)-[:has_value_set]->(p:property) "
             "where not exists(t._to) and not exists(p._to) "
@@ -238,7 +239,7 @@ Returns {term, origin}."""
         return (qry, {"nanoid": nanoid})
 
     @read_txn_data
-    def get_prop_terms_by_model(self, model=None):
+    def get_props_and_terms_by_model(self, model=None):
         """Get terms from valuesets associated with properties in a given model
 (or all such terms if model is None).
 Returns [ {prop, terms[]} ]"""
@@ -266,10 +267,9 @@ Returns [ <origin> ]"""
         """Get all tags attached to an entity, given the entity's nanoid.
 Returns [ {model(str), tags[]} ]."""
         qry = (
-            "match (a {nanoid:$nanoid}) "
+            "match (a {nanoid:$nanoid})-[:has_tag]->(g:tag) "
             "where not exists(a._to) "
-            "with a "
-            "optional match (a)-[:has_tag]->(g:tag) "
+            "with a, g "
             "return a.nanoid as id, head(labels(a)) as label, a.handle as handle, "
             "a.model as model, collect(g) as tags"
             )
@@ -280,7 +280,7 @@ Returns [ {model(str), tags[]} ]."""
         """Get all entities tagged with a given key or key:value pair.
 Returns [ {tag_key(str), tag_value(str), entities[]} ]"""
         qry = (
-            "match (t:tag {{key:$key}}) {}"
+            "match (t:tag {{key:$key}}) {} "
             "with t "
             "match (e)-[:has_tag]->(t) "
             "return t.key as tag_key, t.value as tag_value, collect(e) as entities"

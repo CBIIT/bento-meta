@@ -38,3 +38,18 @@ def plain_neo4j(docker_services, docker_ip):
   )
   return (bolt_url,http_url)
 
+@pytest.fixture(scope="session")
+def mdb(docker_services, docker_ip):
+  bolt_port = docker_services.port_for("mdb",7687)
+  http_port = docker_services.port_for("mdb",7474)
+  bolt_url = "bolt://{}:{}".format(docker_ip,bolt_port)
+  http_url = "http://{}:{}".format(docker_ip,http_port)
+  sleep(wait)
+  docker_services.wait_until_responsive(
+    timeout=30.0, pause=0.5, check=lambda: is_responsive(http_url)
+  )
+  return (bolt_url,http_url)
+
+@pytest.fixture(scope="session")
+def mdb_local():
+  return ("bolt://localhost","http://localhost")
