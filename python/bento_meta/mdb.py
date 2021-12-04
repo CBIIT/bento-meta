@@ -203,7 +203,7 @@ Returns [ {id, handle, url, terms[], props[]} ]"""
         qry = (
             "match (vs:value_set {nanoid:$nanoid}) "
             "with vs "
-            "match (t)<-[:has_term]-(vs)-[:has_value_set]->(p:property) "
+            "match (t)<-[:has_term]-(vs)<-[:has_value_set]-(p:property) "
             "where not exists(t._to) and not exists(p._to) "
             "return vs.nanoid as id, vs.handle as handle, vs.url as url, "
             "       collect(t) as terms, collect(p) as props"
