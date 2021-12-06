@@ -251,7 +251,7 @@ Returns [ {prop, terms[]} ]"""
             ).format("and p.model = $model" if model else "")
         return (qry, {"model": model})
 
-    @read_txn_value
+    @read_txn_data
     def get_origins(self):
         """Get all origins.
 Returns [ <origin> ]"""
@@ -260,7 +260,7 @@ Returns [ <origin> ]"""
             "where not exists (o._to) "
             "return o"
             )
-        return (qry, None, "o")
+        return (qry, None)
     
     @read_txn_data
     def get_tags_for_entity_by_id(self, nanoid):
