@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
   name="bento-meta",
-  version="0.0.2",
+  version="0.0.3",
   author="Mark A. Jensen",
   author_email="mark-dot-jensen-at-nih-dot-gov",
   description="object model for bento metamodel database",
