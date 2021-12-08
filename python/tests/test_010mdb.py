@@ -1,28 +1,25 @@
 import sys
-sys.path.insert(0,".")
-sys.path.insert(0,"..")
+sys.path.insert(0, ".")
+sys.path.insert(0, "..")
 import pytest
 import pytest_docker
-import neo4j.graph
-from neo4j import GraphDatabase
-from neo4j.exceptions import Neo4jError
 from pdb import set_trace
 from bento_meta.mdb import MDB
 
-
+@pytest.mark.slow
 def test_mdb(mdb_local):
     (b, h) = mdb_local
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")
     assert mdb
 
-    
+@pytest.mark.slow
 def test_rd_txns(mdb_local):
     (b, h) = mdb_local
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")
     result = mdb.get_model_handles()
     assert set(result) == {"ICDC", "CTDC", "Bento"}
     result = mdb.get_origins()
-    assert set([x["name"] for x in result]) == {"ICDC", "CTDC", "Bento", "NCIt"}
+    assert {x["o"]["name"] for x in result} == {"ICDC", "CTDC", "Bento", "NCIt"}
     result = mdb.get_nodes_by_model()
     assert len(result) == 65
     result = mdb.get_nodes_by_model("CTDC")
@@ -35,7 +32,7 @@ def test_rd_txns(mdb_local):
     result = mdb.get_node_and_props_by_node_id("gpKKCs")
     assert len(result[0]['props']) == 6
     result = mdb.get_nodes_and_props_by_model("Bento")
-    assert len(result)==19
+    assert len(result) == 19
     assert len([x for x in result if x['handle'] == "diagnosis"][0]["props"]) == 124
     result = mdb.get_prop_node_and_domain_by_prop_id("JcAf94")  # no valueset
     assert result[0]['value_domain'] == "TBD"
@@ -49,5 +46,5 @@ def test_rd_txns(mdb_local):
     result = mdb.get_props_and_terms_by_model("ICDC")
     result = mdb.get_tags_for_entity_by_id("o3wWJX")
     assert result == []
-    result = mdb.get_entities_by_tag(key="gleb",value="blurg")
+    result = mdb.get_entities_by_tag(key="gleb", value="blurg")
     assert result == []
