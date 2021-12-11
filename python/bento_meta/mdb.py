@@ -2,10 +2,40 @@
 bento_meta.mdb
 ==============
 
-This module contains machinery for efficiently querying a Neo4j instance
+This module contains :class:`MDF`, with machinery for efficiently querying a Neo4j instance
 of a Metamodel Database.
+
+.. automethod:: bento_meta.mdb.MDB.get_model_handles()
+
+.. automethod:: bento_meta.mdb.MDB.get_nodes_by_model(model)
+
+.. automethod:: bento_meta.mdb.MDB.get_model_nodes_edges(model)
+
+.. automethod:: bento_meta.mdb.MDB.get_node_edges_by_node_id(nanoid)
+
+.. automethod:: bento_meta.mdb.MDB.get_node_and_props_by_node_id(nanoid)
+
+.. automethod:: bento_meta.mdb.MDB.get_nodes_and_props_by_model(model)
+
+.. automethod:: bento_meta.mdb.MDB.get_prop_node_and_domain_by_prop_id(nanoid)
+
+.. automethod:: bento_meta.mdb.MDB.get_valueset_by_id(nanoid)
+
+.. automethod:: bento_meta.mdb.MDB.get_valuesets_by_model(model)
+
+.. automethod:: bento_meta.mdb.MDB.get_term_by_id(nanoid)
+
+.. automethod:: bento_meta.mdb.MDB.get_props_and_terms_by_model(model)
+
+.. automethod:: bento_meta.mdb.MDB.get_origins()
+
+.. automethod:: bento_meta.mdb.MDB.get_tags_for_entity_by_id(nanoid)
+
+.. automethod:: bento_meta.mdb.MDB.get_entities_by_tag(key, value)
+
 """
 import os
+from functools import wraps
 from neo4j import GraphDatabase 
 from pdb import set_trace
 
@@ -19,7 +49,11 @@ class MDB:
         self.driver = GraphDatabase.driver(self.uri,
                                            auth=(self.user, self.password))
         self._txfns = {}
-
+        """ Create a :class:`MDB`, with a connection to a Neo4j instance of a metamodel database.
+        :param bolt_url uri: The Bolt protocol endpoint to the Neo4j instance (default, use the
+        ``NEO4J_MDB_URI`` env variable)
+        :param str user: Username for Neo4j access (default, use the ``NEO4J_MDB_USER`` env variable)
+        :param str password: Password for user (default, use the ``NEO4J_MDB_PASS`` env variable)"""
     def close(self):
         self.driver.close()
 
@@ -28,10 +62,10 @@ class MDB:
     
     def read_txn(func):
         """Decorates a query function to run a read transaction based on
-its query.
-Query function should return a tuple (qry_string, param_dict).
-Returns list of driver Records."""
-
+        its query.
+        Query function should return a tuple (qry_string, param_dict).
+        Returns list of driver Records."""
+        @wraps(func)
         def rd(self, *args, **kwargs):
             def txn_q(tx):
                 (qry,parms)=func(self, *args, **kwargs)
@@ -44,10 +78,10 @@ Returns list of driver Records."""
 
     def read_txn_value(func):
         """Decorates a query function to run a read transaction based on
-its query.
-Query function should return a tuple (qry_string, param_dict, values_key).
-Returns list of values for key specified by query function."""
-
+        its query.
+        Query function should return a tuple (qry_string, param_dict, values_key).
+        Returns list of values for key specified by query function."""
+        @wraps(func)
         def rd(self, *args, **kwargs):
             def txn_q(tx):
                 (qry,parms,values_key)=func(self, *args, **kwargs)
@@ -60,10 +94,10 @@ Returns list of values for key specified by query function."""
 
     def read_txn_data(func):
         """Decorates a query function to run a read transaction based on
-its query.
-Query function should return a tuple (qry_string, param_dict).
-Returns records as a list of simple dicts."""
-
+        its query.
+        Query function should return a tuple (qry_string, param_dict).
+        Returns records as a list of simple dicts."""
+        @wraps(func)
         def rd(self, *args, **kwargs):
             (qry,parms)=func(self, *args, **kwargs)
             def txn_q(tx):
@@ -76,8 +110,9 @@ Returns records as a list of simple dicts."""
 
     def write_txn(func):
         """Decorates a query function to run a write transaction based
-on its query.
-Query function should return a tuple (qry_string, param_dict)."""
+        on its query.
+        Query function should return a tuple (qry_string, param_dict)."""
+        @wraps(func)
         def wr(self, *args, **kwargs):
             def txn_q(tx):
                 (qry,parms)=func(self, *args, **kwargs)
@@ -90,9 +125,8 @@ Query function should return a tuple (qry_string, param_dict)."""
 
     def register_txfn(self, name, fn):
         """Register a transaction function
-
-(see https://neo4j.com/docs/api/python-driver/current/api.html#managed-transactions-transaction-functions) # noqa E501
-with the class for later use."""
+        (see https://neo4j.com/docs/api/python-driver/current/api.html#managed-transactions-transaction-functions)
+        with the class for later use."""
 
         self._txfns[name] = fn
 
@@ -111,8 +145,8 @@ with the class for later use."""
     @read_txn_value
     def get_nodes_by_model(self, model=None):
         """Get all nodes for a given model. If :param:model is None, 
-get all nodes in database.
-Returns [ <node> ]."""
+        get all nodes in database.
+        Returns [ <node> ]."""
         qry = (
             "match (n:node) {} "
             "with n "
@@ -124,7 +158,7 @@ Returns [ <node> ]."""
     @read_txn_data
     def get_model_nodes_edges(self, model):
         """Get all node-relationship-node paths for a given model.
-Returns [ path ]"""
+        Returns [ path ]"""
         qry = (
             "match p = (s:node {model: $model})<-[:has_src]-"
             "          (r:relationship {model: $model})-[:has_dst]->"
@@ -137,8 +171,8 @@ Returns [ path ]"""
     @read_txn_data
     def get_node_edges_by_node_id(self, nanoid):
         """Get incoming and outgoing relationship information for a node, 
-given its nanoid.
-Returns [ {id, handle, model, near_type, far_type, rln, far_node} ]."""
+        given its nanoid.
+        Returns [ {id, handle, model, near_type, far_type, rln, far_node} ]."""
         qry = (
             "match (n:node {nanoid:$nanoid}) "
             "where not exists(n._to) "
@@ -153,7 +187,7 @@ Returns [ {id, handle, model, near_type, far_type, rln, far_node} ]."""
     @read_txn_data
     def get_node_and_props_by_node_id(self, nanoid):
         """Get a node and its properties, given the node nanoid.
-Returns [ {id, handle, model, node, props[]} ]."""
+        Returns [ {id, handle, model, node, props[]} ]."""
         qry = (
             "match (n:node {nanoid:$nanoid}) "
             "where not exists(n._to) "
@@ -168,8 +202,8 @@ Returns [ {id, handle, model, node, props[]} ]."""
     @read_txn_data
     def get_nodes_and_props_by_model(self, model=None):
         """Get all nodes with associated properties given a model handle. If
-model is None, get all nodes with their properties.
-Returns [ {id, handle, model, props[]} ]"""
+        model is None, get all nodes with their properties.
+        Returns [ {id, handle, model, props[]} ]"""
         qry = (
             "match (n:node)-[:has_property]->(p:property) "
             "where not exists(n._to) and not exists(p._to) {} "
@@ -182,8 +216,8 @@ Returns [ {id, handle, model, props[]} ]"""
     @read_txn_data
     def get_prop_node_and_domain_by_prop_id(self, nanoid):
         """Get a property, its node, and its value domain or value set
-of terms, given the property nanoid.
-Returns [ { id, handle, model, value_domain, prop, node, value_set, terms[] } ]."""
+        of terms, given the property nanoid.
+        Returns [ { id, handle, model, value_domain, prop, node, value_set, terms[] } ]."""
         qry = (
             "match (p:property {nanoid:$nanoid})<-[:has_property]-(n:node) "
             "where not exists(p._to) "
@@ -198,8 +232,8 @@ Returns [ { id, handle, model, value_domain, prop, node, value_set, terms[] } ].
     @read_txn_data
     def get_valueset_by_id(self, nanoid):
         """Get a valueset with the properties that use it and the terms
-that constitute it.
-Returns [ {id, handle, url, terms[], props[]} ]"""
+        that constitute it.
+        Returns [ {id, handle, url, terms[], props[]} ]"""
         qry = (
             "match (vs:value_set {nanoid:$nanoid}) "
             "with vs "
@@ -213,9 +247,9 @@ Returns [ {id, handle, url, terms[], props[]} ]"""
     @read_txn_data
     def get_valuesets_by_model(self, model=None):
         """Get all valuesets that are used by properties in the given
-model (or all valuesets if model is None). Also return list of properties using
-each valueset.
-Returns [ {value_set, props[]} ]."""
+        model (or all valuesets if model is None). Also return list of properties using
+        each valueset.
+        Returns [ {value_set, props[]} ]."""
         qry = (
             "match (vs:value_set)<-[:has_value_set]-(p:property) "
             "where not exists(vs._to) and not exists(p._to) {} "
@@ -227,7 +261,7 @@ Returns [ {value_set, props[]} ]."""
     @read_txn_data
     def get_term_by_id(self, nanoid):
         """Get a term having the given nanoid, with its origin.
-Returns {term, origin}."""
+        Returns {term, origin}."""
         qry = (
             "match (t:term {nanoid:$nanoid}) "
             "where not exists(t._to) "
@@ -241,8 +275,8 @@ Returns {term, origin}."""
     @read_txn_data
     def get_props_and_terms_by_model(self, model=None):
         """Get terms from valuesets associated with properties in a given model
-(or all such terms if model is None).
-Returns [ {prop, terms[]} ]"""
+        (or all such terms if model is None).
+        Returns [ {prop, terms[]} ]"""
         qry = (
             "match (p:property)-[:has_value_set]->(v:value_set)"
             "-[:has_term]->(t:term) "
@@ -254,7 +288,7 @@ Returns [ {prop, terms[]} ]"""
     @read_txn_data
     def get_origins(self):
         """Get all origins.
-Returns [ <origin> ]"""
+        Returns [ <origin> ]"""
         qry = (
             "match (o:origin) "
             "where not exists (o._to) "
@@ -265,7 +299,7 @@ Returns [ <origin> ]"""
     @read_txn_data
     def get_tags_for_entity_by_id(self, nanoid):
         """Get all tags attached to an entity, given the entity's nanoid.
-Returns [ {model(str), tags[]} ]."""
+        Returns [ {model(str), tags[]} ]."""
         qry = (
             "match (a {nanoid:$nanoid})-[:has_tag]->(g:tag) "
             "where not exists(a._to) "
@@ -278,7 +312,7 @@ Returns [ {model(str), tags[]} ]."""
     @read_txn_data
     def get_entities_by_tag(self, key, value=None):
         """Get all entities tagged with a given key or key:value pair.
-Returns [ {tag_key(str), tag_value(str), entities[]} ]"""
+        Returns [ {tag_key(str), tag_value(str), entities[]} ]"""
         qry = (
             "match (t:tag {{key:$key}}) {} "
             "with t "
@@ -289,17 +323,3 @@ Returns [ {tag_key(str), tag_value(str), entities[]} ]"""
         if value:
             parms["value"]=value
         return (qry, parms)
-
-    
-if __name__ == "__main__":
-    mdb = MDB(uri="bolt://localhost",
-              user="neo4j",
-              password="1cDcj4oen")
-    set_trace()
-    result = mdb.get_model_handles()
-    result = mdb.get_model("ICDC")
-    result = mdb.get_node_and_props_by_node_id("Ufwtax") # a property
-    result = mdb.get_node_and_props_by_node_id("9pPHzh") # a node
-    result = mdb.get_node_edges_by_node_id("9pPHzh") # a node
-    result = mdb.get_prop_domain_by_prop_id("gsQc3K") # a property
-    pass
