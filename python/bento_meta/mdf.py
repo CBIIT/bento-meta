@@ -220,12 +220,13 @@ class MDF(object):
         else:
             return {"value_domain": Property.default("value_domain")}
 
-    def write_mdf(self,file=None):
+    def write_mdf(self, model=None, file=None):
         """Write a :class:`Model` to a model description file (MDF)
-        :param :class:`Model` model: Model to convert
+        :param :class:`Model` model: Model to convert (if None, use the model attribute of the MDF object)
         :param str|file file: File name or object to write to (default is None; just return the MDF as dict)
         :returns: MDF as dict"""
-        model = self.model
+        if not model:
+            model = self.model
         mdf = {"Nodes":{},
                "Relationships":{},
                "PropDefinitions":{},

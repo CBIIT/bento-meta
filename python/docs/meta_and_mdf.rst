@@ -53,6 +53,12 @@ URLs that resolve to MDF files can also be used. To load the latest CTDC model, 
 Squirting a Model into MDF YAML
 _______________________________
 
-Coming soon.
+The :meth:`MDF.write_mdf` returns a MDF-structured dictionary for a :class:`Model` object, and optionally
+writes a YAML file encoding this dictionary::
 
+  mdf_dict = MDF.write_mdf(model=your_model)
+  # write to file
+  MDF.write_mdf(model=your_model, file=open("your_mdf.yaml", "w"))
 
+The MDF will be written as a single file. Property definitions, for example, will be included with everything
+else.

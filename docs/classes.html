@@ -704,9 +704,9 @@ MDF input</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bento_meta.mdf.MDF.write_mdf">
-<span class="sig-name descname"><span class="pre">write_mdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdf.MDF.write_mdf" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">write_mdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdf.MDF.write_mdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> to a model description file (MDF)
-:param <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> model: Model to convert
+:param <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> model: Model to convert (if None, use the model attribute of the MDF object)
 :param str|file file: File name or object to write to (default is None; just return the MDF as dict)
 :returns: MDF as dict</p>
 </dd></dl>

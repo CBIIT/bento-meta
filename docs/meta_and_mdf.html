@@ -213,7 +213,15 @@ nodes and relationships are defined in one file, and the properties in a separat
 </div>
 <div class="section" id="squirting-a-model-into-mdf-yaml">
 <h2>Squirting a Model into MDF YAML<a class="headerlink" href="#squirting-a-model-into-mdf-yaml" title="Permalink to this headline">¶</a></h2>
-<p>Coming soon.</p>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">MDF.write_mdf()</span></code> returns a MDF-structured dictionary for a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> object, and optionally
+writes a YAML file encoding this dictionary:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mdf_dict</span> <span class="o">=</span> <span class="n">MDF</span><span class="o">.</span><span class="n">write_mdf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">your_model</span><span class="p">)</span>
+<span class="c1"># write to file</span>
+<span class="n">MDF</span><span class="o">.</span><span class="n">write_mdf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">your_model</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;your_mdf.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The MDF will be written as a single file. Property definitions, for example, will be included with everything
+else.</p>
 </div>
 </div>
 
