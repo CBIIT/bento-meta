@@ -627,61 +627,101 @@ MDF input</p>
 <h2>bento_meta.mdb<a class="headerlink" href="#bento-meta-mdb" title="Permalink to this headline"></a></h2>
 <p>This module contains <code class="xref py py-class docutils literal notranslate"><span class="pre">MDF</span></code>, with machinery for efficiently querying a Neo4j instance
 of a Metamodel Database.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">MDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_entities_by_tag">
+<span class="sig-name descname"><span class="pre">get_entities_by_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_entities_by_tag" title="Permalink to this definition"></a></dt>
+<dd><p>Get all entities tagged with a given key or key:value pair.
+Returns [ {tag_key(str), tag_value(str), entities[]} ]</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_model_handles">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_model_handles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_model_handles" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_model_handles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_model_handles" title="Permalink to this definition"></a></dt>
 <dd><p>Return a simple list of model handles available.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_nodes_by_model">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_nodes_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_nodes_by_model" title="Permalink to this definition"></a></dt>
-<dd><p>Get all nodes for a given model. If :param:model is None, 
-get all nodes in database.
-Returns [ &lt;node&gt; ].</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_model_nodes_edges">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_model_nodes_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_model_nodes_edges" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_model_nodes_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_model_nodes_edges" title="Permalink to this definition"></a></dt>
 <dd><p>Get all node-relationship-node paths for a given model.
 Returns [ path ]</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_node_and_props_by_node_id">
+<span class="sig-name descname"><span class="pre">get_node_and_props_by_node_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_node_and_props_by_node_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get a node and its properties, given the node nanoid.
+Returns [ {id, handle, model, node, props[]} ].</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_node_edges_by_node_id">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_node_edges_by_node_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_node_edges_by_node_id" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_node_edges_by_node_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_node_edges_by_node_id" title="Permalink to this definition"></a></dt>
 <dd><p>Get incoming and outgoing relationship information for a node, 
 given its nanoid.
 Returns [ {id, handle, model, near_type, far_type, rln, far_node} ].</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_node_and_props_by_node_id">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_node_and_props_by_node_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_node_and_props_by_node_id" title="Permalink to this definition"></a></dt>
-<dd><p>Get a node and its properties, given the node nanoid.
-Returns [ {id, handle, model, node, props[]} ].</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_nodes_and_props_by_model">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_nodes_and_props_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_nodes_and_props_by_model" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_nodes_and_props_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_nodes_and_props_by_model" title="Permalink to this definition"></a></dt>
 <dd><p>Get all nodes with associated properties given a model handle. If
 model is None, get all nodes with their properties.
 Returns [ {id, handle, model, props[]} ]</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_nodes_by_model">
+<span class="sig-name descname"><span class="pre">get_nodes_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_nodes_by_model" title="Permalink to this definition"></a></dt>
+<dd><p>Get all nodes for a given model. If :param:model is None, 
+get all nodes in database.
+Returns [ &lt;node&gt; ].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_origins">
+<span class="sig-name descname"><span class="pre">get_origins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_origins" title="Permalink to this definition"></a></dt>
+<dd><p>Get all origins.
+Returns [ &lt;origin&gt; ]</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_prop_node_and_domain_by_prop_id">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_prop_node_and_domain_by_prop_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_prop_node_and_domain_by_prop_id" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_prop_node_and_domain_by_prop_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_prop_node_and_domain_by_prop_id" title="Permalink to this definition"></a></dt>
 <dd><p>Get a property, its node, and its value domain or value set
 of terms, given the property nanoid.
 Returns [ { id, handle, model, value_domain, prop, node, value_set, terms[] } ].</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_props_and_terms_by_model">
+<span class="sig-name descname"><span class="pre">get_props_and_terms_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_props_and_terms_by_model" title="Permalink to this definition"></a></dt>
+<dd><p>Get terms from valuesets associated with properties in a given model
+(or all such terms if model is None).
+Returns [ {prop, terms[]} ]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_tags_for_entity_by_id">
+<span class="sig-name descname"><span class="pre">get_tags_for_entity_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_tags_for_entity_by_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get all tags attached to an entity, given the entity’s nanoid.
+Returns [ {model(str), tags[]} ].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_term_by_id">
+<span class="sig-name descname"><span class="pre">get_term_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_term_by_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get a term having the given nanoid, with its origin.
+Returns {term, origin}.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_valueset_by_id">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_valueset_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_valueset_by_id" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_valueset_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_valueset_by_id" title="Permalink to this definition"></a></dt>
 <dd><p>Get a valueset with the properties that use it and the terms
 that constitute it.
 Returns [ {id, handle, url, terms[], props[]} ]</p>
@@ -689,152 +729,7 @@ Returns [ {id, handle, url, terms[], props[]} ]</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_valuesets_by_model">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_valuesets_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_valuesets_by_model" title="Permalink to this definition"></a></dt>
-<dd><p>Get all valuesets that are used by properties in the given
-model (or all valuesets if model is None). Also return list of properties using
-each valueset.
-Returns [ {value_set, props[]} ].</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_term_by_id">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_term_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_term_by_id" title="Permalink to this definition"></a></dt>
-<dd><p>Get a term having the given nanoid, with its origin.
-Returns {term, origin}.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_props_and_terms_by_model">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_props_and_terms_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_props_and_terms_by_model" title="Permalink to this definition"></a></dt>
-<dd><p>Get terms from valuesets associated with properties in a given model
-(or all such terms if model is None).
-Returns [ {prop, terms[]} ]</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_origins">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_origins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_origins" title="Permalink to this definition"></a></dt>
-<dd><p>Get all origins.
-Returns [ &lt;origin&gt; ]</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_tags_for_entity_by_id">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_tags_for_entity_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_tags_for_entity_by_id" title="Permalink to this definition"></a></dt>
-<dd><p>Get all tags attached to an entity, given the entity’s nanoid.
-Returns [ {model(str), tags[]} ].</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_entities_by_tag">
-<span class="sig-prename descclassname"><span class="pre">MDB.</span></span><span class="sig-name descname"><span class="pre">get_entities_by_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_entities_by_tag" title="Permalink to this definition"></a></dt>
-<dd><p>Get all entities tagged with a given key or key:value pair.
-Returns [ {tag_key(str), tag_value(str), entities[]} ]</p>
-</dd></dl>
-
-</section>
-<dl class="py class">
-<dt class="sig sig-object py" id="bento_meta.mdb.MDB">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">MDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB" title="Permalink to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">get_entities_by_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
-<dd><p>Get all entities tagged with a given key or key:value pair.
-Returns [ {tag_key(str), tag_value(str), entities[]} ]</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">get_model_handles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
-<dd><p>Return a simple list of model handles available.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">get_model_nodes_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
-<dd><p>Get all node-relationship-node paths for a given model.
-Returns [ path ]</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id3">
-<span class="sig-name descname"><span class="pre">get_node_and_props_by_node_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id3" title="Permalink to this definition"></a></dt>
-<dd><p>Get a node and its properties, given the node nanoid.
-Returns [ {id, handle, model, node, props[]} ].</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">get_node_edges_by_node_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id4" title="Permalink to this definition"></a></dt>
-<dd><p>Get incoming and outgoing relationship information for a node, 
-given its nanoid.
-Returns [ {id, handle, model, near_type, far_type, rln, far_node} ].</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id5">
-<span class="sig-name descname"><span class="pre">get_nodes_and_props_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id5" title="Permalink to this definition"></a></dt>
-<dd><p>Get all nodes with associated properties given a model handle. If
-model is None, get all nodes with their properties.
-Returns [ {id, handle, model, props[]} ]</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id6">
-<span class="sig-name descname"><span class="pre">get_nodes_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id6" title="Permalink to this definition"></a></dt>
-<dd><p>Get all nodes for a given model. If :param:model is None, 
-get all nodes in database.
-Returns [ &lt;node&gt; ].</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id7">
-<span class="sig-name descname"><span class="pre">get_origins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id7" title="Permalink to this definition"></a></dt>
-<dd><p>Get all origins.
-Returns [ &lt;origin&gt; ]</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id8">
-<span class="sig-name descname"><span class="pre">get_prop_node_and_domain_by_prop_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id8" title="Permalink to this definition"></a></dt>
-<dd><p>Get a property, its node, and its value domain or value set
-of terms, given the property nanoid.
-Returns [ { id, handle, model, value_domain, prop, node, value_set, terms[] } ].</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id9">
-<span class="sig-name descname"><span class="pre">get_props_and_terms_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id9" title="Permalink to this definition"></a></dt>
-<dd><p>Get terms from valuesets associated with properties in a given model
-(or all such terms if model is None).
-Returns [ {prop, terms[]} ]</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id10">
-<span class="sig-name descname"><span class="pre">get_tags_for_entity_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id10" title="Permalink to this definition"></a></dt>
-<dd><p>Get all tags attached to an entity, given the entity’s nanoid.
-Returns [ {model(str), tags[]} ].</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id11">
-<span class="sig-name descname"><span class="pre">get_term_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id11" title="Permalink to this definition"></a></dt>
-<dd><p>Get a term having the given nanoid, with its origin.
-Returns {term, origin}.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id12">
-<span class="sig-name descname"><span class="pre">get_valueset_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id12" title="Permalink to this definition"></a></dt>
-<dd><p>Get a valueset with the properties that use it and the terms
-that constitute it.
-Returns [ {id, handle, url, terms[], props[]} ]</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="id13">
-<span class="sig-name descname"><span class="pre">get_valuesets_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id13" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_valuesets_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.get_valuesets_by_model" title="Permalink to this definition"></a></dt>
 <dd><p>Get all valuesets that are used by properties in the given
 model (or all valuesets if model is None). Also return list of properties using
 each valueset.
