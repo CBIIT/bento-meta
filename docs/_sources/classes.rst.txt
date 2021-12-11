@@ -19,6 +19,8 @@ ___________________
 .. autoclass:: bento_meta.mdf.MDF
                :members:
 
+.. autoclass:: bento_meta.mdb.MDB
+
 .. automodule:: bento_meta.object_map
                :members:
                   
