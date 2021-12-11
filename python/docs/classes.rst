@@ -20,6 +20,7 @@ ___________________
                :members:
 
 .. autoclass:: bento_meta.mdb.MDB
+	       :members:
 
 .. automodule:: bento_meta.object_map
                :members:

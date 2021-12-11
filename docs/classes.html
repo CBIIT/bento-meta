@@ -716,7 +716,50 @@ MDF input</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bento_meta.mdb.MDB">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">MDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.read_txn">
+<span class="sig-name descname"><span class="pre">read_txn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.read_txn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorates a query function to run a read transaction based on
+its query.
+Query function should return a tuple (qry_string, param_dict).
+Returns list of driver Records.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.read_txn_data">
+<span class="sig-name descname"><span class="pre">read_txn_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.read_txn_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorates a query function to run a read transaction based on
+its query.
+Query function should return a tuple (qry_string, param_dict).
+Returns records as a list of simple dicts.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.read_txn_value">
+<span class="sig-name descname"><span class="pre">read_txn_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.read_txn_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorates a query function to run a read transaction based on
+its query.
+Query function should return a tuple (qry_string, param_dict, values_key).
+Returns list of values for key specified by query function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.register_txfn">
+<span class="sig-name descname"><span class="pre">register_txfn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.register_txfn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a transaction function</p>
+<p>(see <a class="reference external" href="https://neo4j.com/docs/api/python-driver/current/api.html#managed-transactions-transaction-functions">https://neo4j.com/docs/api/python-driver/current/api.html#managed-transactions-transaction-functions</a>) # noqa E501
+with the class for later use.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.write_txn">
+<span class="sig-name descname"><span class="pre">write_txn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.MDB.write_txn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorates a query function to run a write transaction based
+on its query.
+Query function should return a tuple (qry_string, param_dict).</p>
+</dd></dl>
+
+</dd></dl>
 
 <span class="target" id="module-bento_meta.object_map"></span><div class="section" id="bento-meta-object-map">
 <h2>bento_meta.object_map<a class="headerlink" href="#bento-meta-object-map" title="Permalink to this headline">¶</a></h2>
