@@ -50,13 +50,16 @@ class Entity(object):
         "_prev": "object",
         "_from": "simple",
         "_to": "simple",
+        "_commit": "simple",
         "tags": "collection",
     }
     attspec = attspec_
     mapspec_ = {
         "label": None,
         "key": "_id",
-        "property": {"_id": "id", "desc": "desc", "_from": "_from", "_to": "_to", "nanoid": "nanoid"},
+        "property": {"_id": "id", "desc": "desc",
+                     "_from": "_from", "_to": "_to",
+                     "_commit": "_commit", "nanoid": "nanoid"},
         "relationship": {
             "_next": {"rel": ":_next>", "end_cls": set()},
             "_prev": {"rel": ":_prev>", "end_cls": set()},

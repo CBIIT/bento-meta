@@ -39,7 +39,6 @@ class Node(Entity):
     attspec_ = {
         "handle": "simple",
         "model": "simple",
-        "category": "simple",
         "nanoid": "simple",
         "concept": "object",
         "props": "collection",
@@ -47,7 +46,7 @@ class Node(Entity):
     mapspec_ = {
         "label": "node",
         "key": "handle",
-        "property": {"handle": "handle", "model": "model", "category": "category", "nanoid": "nanoid"},
+        "property": {"handle": "handle", "model": "model", "nanoid": "nanoid"},
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "props": {"rel": ":has_property>", "end_cls": "Property"},
@@ -172,6 +171,7 @@ class Term(Entity):
         "value": "simple",
         "nanoid": "simple",
         "origin_id": "simple",
+        "origin_version": "simple",
         "origin_definition": "simple",
         "concept": "object",
         "origin": "object",
@@ -183,6 +183,7 @@ class Term(Entity):
             "value": "value",
             "nanoid": "nanoid",
             "origin_id": "origin_id",
+            "origin_version": "origin_version",
             "origin_definition": "origin_definition",
         },
         "relationship": {
