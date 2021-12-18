@@ -13,8 +13,8 @@ import sys
 sys.path.append("..")
 from uuid import uuid4
 from warnings import warn
-from neo4j import BoltDriver, Neo4jDriver
 import neo4j.graph
+from bento_meta.mdb import MDB
 from bento_meta.object_map import ObjectMap
 from bento_meta.entity import Entity, ArgError
 from bento_meta.objects import (
@@ -31,26 +31,26 @@ from bento_meta.objects import (
 
 
 class Model(object):
-    def __init__(self, handle=None, drv=None):
+    def __init__(self, handle=None, mdb=None):
         """Model constructor.
 
         :param str handle: A string name for the model. Corresponds to the model property in MDB database nodes.
-        :param neo4j.Driver drv: A `neo4j.Driver` object describing the db connection (see :class:`neo4j.GraphDatabase`)
+        :param bento_meta.mdb.MDB mdb: An MDB object containing the db connection (see :class:`bento_meta.mdb.MDB`)
         """
         if not handle:
             raise ArgError("model requires arg 'handle' set")
         self.handle = handle
-        self._drv = None
+        self._mdb = None
         self.nodes = {}
         self.edges = {}  # keys are (edge.handle, src.handle, dst.handle) tuples
         self.props = {}  # keys are ({edge|node}.handle, prop.handle) tuples
         self.terms = {}
         self.removed_entities = []
 
-        if drv:
-            self.drv = drv
+        if mdb:
+            self._mdb = mdb
         else:
-            self.drv = None
+            self._mdb = None
 
     @classmethod
     def versioning(cls, on=None):
@@ -77,22 +77,26 @@ class Model(object):
 
     @property
     def drv(self):
-        """Neo4j database driver (as returned by :meth:`neo4j.GraphDatabase.driver`) for this model"""
-        return self._drv
+        """Neo4j database driver from MDB object"""
+        return self._mdb.driver if self._mdb else None
 
-    @drv.setter
-    def drv(self, value):
-        if isinstance(value, (BoltDriver, Neo4jDriver)):
-            self._drv = value
+    @property
+    def mdb(self):
+        return self._mdb
+    
+    @mdb.setter
+    def mdb(self, value):
+        if isinstance(value, MDB):
+            self._mdb = value
             for cls in (Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag):
-                cls.object_map = ObjectMap(cls=cls, drv=value)
+                cls.object_map = ObjectMap(cls=cls, drv=value.driver)
         elif not value:
-            self._drv = None
+            self._mdb = None
             for cls in (Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag):
                 cls.object_map = None
         else:
             raise ArgError(
-                "drv= arg must be Neo4jDriver or BoltDriver (returned from GraphDatabase.driver())"
+                "mdb= arg must be a bento_meta.mdb.MDB object"
             )
 
     def add_node(self, node=None):
@@ -397,9 +401,9 @@ class Model(object):
     def dget(self, refresh=False):
         """Pull model from MDB into this Model instance, based on its handle
 
-        Note: is a noop if `Model.drv` is unset.
+        Note: is a noop if `Model.mdb` is unset.
         """
-        if not self.drv:
+        if not self.mdb:
             return
         if refresh:
             ObjectMap.clear_cache()
@@ -467,9 +471,9 @@ class Model(object):
     def dput(self):
         """Push this Model's objects to MDB.
 
-        Note: is a noop if `Model.drv` is unset.
+        Note: is a noop if `Model.mdb` is unset.
         """
-        if not self.drv:
+        if not self.mdb:
             return
         seen = {}
 
