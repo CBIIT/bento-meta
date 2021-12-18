@@ -195,6 +195,8 @@ class MDF(object):
                             "_commit": self._commit}
                     if ypdef.get("Type"):
                         init.update(self.calc_value_domain(ypdef["Type"]))
+                    elif ypdef.get("Enum"):
+                        init.update(self.calc_value_domain(ypdef["Enum"]))
                     else:
                         init["value_domain"] = Property.default("value_domain")
                     prop = self._model.add_prop(ent, init)
