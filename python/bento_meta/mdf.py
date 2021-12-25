@@ -194,9 +194,9 @@ class MDF(object):
                             "model": self.handle,
                             "_commit": self._commit}
                     if ypdef.get("Type"):
-                        init.update(self.calc_value_domain(ypdef["Type"]))
+                        init.update(self.calc_value_domain(ypdef["Type"],pname))
                     elif ypdef.get("Enum"):
-                        init.update(self.calc_value_domain(ypdef["Enum"]))
+                        init.update(self.calc_value_domain(ypdef["Enum"],pname))
                     else:
                         init["value_domain"] = Property.default("value_domain")
                     prop = self._model.add_prop(ent, init)
@@ -208,7 +208,7 @@ class MDF(object):
                                                 "_commit": self._commit})
         return self._model
 
-    def calc_value_domain(self, typedef):
+    def calc_value_domain(self, typedef,pname=None):
         if isinstance(typedef, dict):
             if typedef.get("pattern"):
                 return {"value_domain": "regexp", "pattern": typedef["pattern"]}
@@ -229,8 +229,13 @@ class MDF(object):
         elif isinstance(typedef, list):  # a valueset: create value set and term objs
             vs = ValueSet({"nanoid": make_nano(), "_commit": self._commit})
             vs.handle = self.handle + vs.nanoid
-            if re.match("^(?:https?|bolt)://", typedef[0]):  # looks like url
-                vs.url = typedef[0]
+            try:
+                if re.match("^(?:https?|bolt)://", typedef[0]):  # looks like url
+                    vs.url = typedef[0]
+            except TypeError as e:
+                print(typedef[0])
+                print("{} wot? ".format(pname))
+                raise e;
             else:  # an enum
                 for t in typedef:
                     vs.terms[t] = Term({"value": t, "_commit": self._commit})

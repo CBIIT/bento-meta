@@ -1,10 +1,8 @@
 Nodes:
   node:
     Props:
-      - id
       - handle
       - model
-      - category
   relationship:
     Props:
       - handle
@@ -25,7 +23,7 @@ Nodes:
       - url
   concept:
     Props:
-      - id
+      - nanoid
   term:
     Props:
       - value
@@ -36,6 +34,11 @@ Nodes:
       - name
       - url
       - is_external
+  model:
+    Props:
+      - handle
+      - name
+      - repository
   tag:
     Props:
       - key
@@ -134,9 +137,7 @@ Relationships:
 
 UniversalNodeProperties:
   mustHave:
-    - id
-    - nanoid6
-    - nanoid8
+    - nanoid
   mayHave:
     - desc
 
@@ -148,18 +149,24 @@ PropDefinitions:
       the name of the entity in local vocabulary; not necessarily the term
       per se. For a Relationship, the handle is the "relationship
       type" in a Neo4j representation
-  id:
+  desc:
+    Type: string
+    Desc:
+      A human-readable description of the entity.
+  value:
     Req: true
     Type: string
-    Desc: content-free uid for model entities
-  nanoid6:
+    Desc:
+      A code or other data representation of the Term.
+  key:
+    Req: True
+    Type: string
+    Desc:
+      A string key.
+  nanoid:
     Req: true
     Type: string
     Desc: 6char content-free uid for model entities
-  nanoid8:
-    Req: true
-    Type: string
-    Desc: 8char content-free uid for model entities
   model:
     Req: true
     Type: string
@@ -167,6 +174,11 @@ PropDefinitions:
   is_external:
     Type: boolean
     Desc: if this Origin represents an external (to BIDS/CTOS) standard (property missing => false)
+  repository:
+    Type: url
+    Desc: |
+      A url pointing to a (GitHub, e.g.) repository where the model is
+      described or defined.
   url:
     Type: url
   pattern:
@@ -176,11 +188,30 @@ PropDefinitions:
     Type: string
     Req: true
     Desc: |
-      the Origin authority\'s identifier for the Term - concept code, term ID, or similar
+      the Origin authority\'s identifier for the Term - concept code,
+      term ID, or similar
   origin_definition:
     Type: string
     Desc: |
       The text definition of the Term as provided by the Origin authority
+  multiplicity:
+    Desc: |
+      Descriptor of the number of these relationships that may exist between
+      source and destination node instances.
+    Type:
+      - one_to_one
+      - many_to_many
+      - one_to_many
+      - many_to_one
+  is_required:
+    Type: boolean
+    Desc: |
+      Indicates whether the property or relationship must be present in
+      instances of the model.
+  name:
+    Type: string
+    Desc: |
+      Human readable identifier for the entity.
   units:
     Desc: |
       For a value_domain of 'number', this property gives the units of the
