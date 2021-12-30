@@ -190,6 +190,11 @@ PropDefinitions:
     Desc: |
       the Origin authority\'s identifier for the Term - concept code,
       term ID, or similar
+  origin_name:
+    Type: string
+    Desc: |
+      the name for the Term's Origin, which should match the
+      name property of an Origin node existing in the MDB.
   origin_definition:
     Type: string
     Desc: |

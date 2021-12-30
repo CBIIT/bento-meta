@@ -79,7 +79,10 @@ class MDB:
                 return result.data()
             with self.driver.session() as session:
                 result = session.read_transaction(txn_q)
-                return result
+                if result.peek():
+                    return result
+                else:
+                    return None
         return rd
 
     def write_txn(func):
@@ -116,6 +119,17 @@ class MDB:
             )
         return (qry, None,"p.model")
 
+    @read_txn_data
+    def get_model_nodes(self, model=None):
+        """Return a list of dicts representing Model nodes."""
+        qry = (
+            "match (m:model) {} "
+            "with m "
+            "where not exists(m._to) "
+            "return m"
+            ).format("where m.handle = $model" if model else "")
+        return(qry, {"model":model} if model else None)
+    
     @read_txn_value
     def get_nodes_by_model(self, model=None):
         """Get all nodes for a given model. If :param:model is None, 
