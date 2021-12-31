@@ -21,12 +21,21 @@ Nodes:
     Props:
       - handle
       - url
+      - origin_name
   concept:
     Props:
       - nanoid
+  predicate:
+    Props:
+      - handle
+    Desc: |
+      The predicate node allows some semantic info to be captured in the MDB.
+      A predicate links concepts by means of has_subject and has_object
+      links. Thus two concepts and a predicate can form a semantic triple.
   term:
     Props:
       - value
+      - origin_name
       - origin_id
       - origin_definition
   origin:
@@ -60,6 +69,9 @@ Relationships:
       - Src: value_set
         Dst: concept
         Req: false
+      - Src: predicate
+        Dst: concept
+        Req: false
   has_origin:
     Mul: many_to_one
     Props: null
@@ -71,6 +83,16 @@ Relationships:
         Dst: origin
         Mul: one_to_one
         Req: false
+  has_model:
+    Mul: one_to_one
+    Props: null
+    Ends:
+      - Src: node
+        Dst: model
+      - Src: relationship
+        Dst: model
+      - Src: property
+        Dst: model
   has_src:
     Mul: one_to_one
     Props: null
@@ -123,6 +145,8 @@ Relationships:
         Dst: tag
       - Src: origin
         Dst: tag
+      - Src: model
+        Dst: tag
   represents:
     Mul: one_to_many
     Props: null
@@ -134,7 +158,20 @@ Relationships:
           different concepts. Then the terms are \"homonyms\", but not \"synonyms\". The difference is in the graph context:
           a term\'s value is not its meaning, but the concept is, and the terms context is the value_set in which it is
           grouped (or the entity, including the entity\'s home model, which is linked to the concept)
-
+  has_subject:
+    Props: null
+    Mul: one_to_many
+    Ends:
+      - Src: predicate
+        Dst: concept
+        Desc: The subject concept of this predicate
+  has_object:
+    Props: null
+    Mul: one_to_many
+    Ends:
+      - Src: predicate
+        Dst: concept
+        Desc: The object concept of this predicate
 UniversalNodeProperties:
   mustHave:
     - nanoid
