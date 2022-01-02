@@ -219,10 +219,18 @@ class MDF(object):
                 }
             elif typedef.get("item_type"):
                 if (typedef["value_type"] == 'list'):
-                    return {
-                        "value_domain": "list",
-                        "item_type": typedef["item_type"]
-                   }
+                    i_domain = self.calc_value_domain(typedef["item_type"])
+                    ret = { "value_domain": "list",
+                            "item_domain": i_domain["value_domain"]}
+                    if i_domain.get("pattern"):
+                        ret["pattern"] = i_domain["pattern"]
+                    if i_domain.get("units"):
+                        ret["units"] = i_domain["units"]
+                    if i_domain.get("value_set"):
+                        ret["value_set"] = i_domain["value_set"]
+                    return ret
+                else:
+                    warn("MDF type descriptor defines item_type, but value_type is {}, not 'list'".format(typedef["value_type"]))
             elif not typedef:
                 warn("MDF type descriptor is null")
             else:

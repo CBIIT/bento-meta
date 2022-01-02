@@ -69,6 +69,7 @@ class Property(Entity):
         "value_domain": "simple",
         "units": "simple",
         "pattern": "simple",
+        "item_domain": "simple",
         "is_required": "simple",
         "concept": "object",
         "value_set": "object",
@@ -83,6 +84,7 @@ class Property(Entity):
             "value_domain": "value_domain",
             "pattern": "pattern",
             "units": "units",
+            "item_domain": "item_domain",
             "is_required": "is_required",
         },
         "relationship": {
