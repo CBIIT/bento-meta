@@ -53,6 +53,7 @@ class MDF(object):
         self.schema = om.MergedOptions()
         self._model = model
         self._commit = _commit
+        self._terms = {}
         if model:
             self.handle = model.handle
         else:
@@ -252,7 +253,9 @@ class MDF(object):
                 raise e;
             else:  # an enum
                 for t in typedef:
-                    vs.terms[t] = Term({"value": t, "_commit": self._commit})
+                    if not self._terms.get(t):
+                        self._terms[t] = Term({"value": t, "_commit": self._commit})
+                    vs.terms[t] = self._terms[t]
             return {"value_domain": "value_set", "value_set": vs}
         elif isinstance(typedef, str):
             return {"value_domain": typedef}
