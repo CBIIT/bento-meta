@@ -2,41 +2,15 @@
 bento_meta.mdb
 ==============
 
-This module contains :class:`MDF`, with machinery for efficiently querying a Neo4j instance
+This module contains :class:`MDB`, with machinery for efficiently querying a Neo4j instance
 of a Metamodel Database.
 
-.. automethod:: bento_meta.mdb.MDB.get_model_handles()
-
-.. automethod:: bento_meta.mdb.MDB.get_nodes_by_model(model)
-
-.. automethod:: bento_meta.mdb.MDB.get_model_nodes_edges(model)
-
-.. automethod:: bento_meta.mdb.MDB.get_node_edges_by_node_id(nanoid)
-
-.. automethod:: bento_meta.mdb.MDB.get_node_and_props_by_node_id(nanoid)
-
-.. automethod:: bento_meta.mdb.MDB.get_nodes_and_props_by_model(model)
-
-.. automethod:: bento_meta.mdb.MDB.get_prop_node_and_domain_by_prop_id(nanoid)
-
-.. automethod:: bento_meta.mdb.MDB.get_valueset_by_id(nanoid)
-
-.. automethod:: bento_meta.mdb.MDB.get_valuesets_by_model(model)
-
-.. automethod:: bento_meta.mdb.MDB.get_term_by_id(nanoid)
-
-.. automethod:: bento_meta.mdb.MDB.get_props_and_terms_by_model(model)
-
-.. automethod:: bento_meta.mdb.MDB.get_origins()
-
-.. automethod:: bento_meta.mdb.MDB.get_tags_for_entity_by_id(nanoid)
-
-.. automethod:: bento_meta.mdb.MDB.get_entities_by_tag(key, value)
 
 """
 import os
 from functools import wraps
-from neo4j import GraphDatabase 
+from neo4j import GraphDatabase
+from nanoid import generate as nanoid_generate
 from pdb import set_trace
 
 class MDB:
@@ -48,8 +22,9 @@ class MDB:
         self.password = password
         self.driver = GraphDatabase.driver(self.uri,
                                            auth=(self.user, self.password))
+
         self._txfns = {}
-        """ Create a :class:`MDB`, with a connection to a Neo4j instance of a metamodel database.
+        """ Create an :class:`MDB` object, with a connection to a Neo4j instance of a metamodel database.
         :param bolt_url uri: The Bolt protocol endpoint to the Neo4j instance (default, use the
         ``NEO4J_MDB_URI`` env variable)
         :param str user: Username for Neo4j access (default, use the ``NEO4J_MDB_USER`` env variable)
@@ -105,7 +80,10 @@ class MDB:
                 return result.data()
             with self.driver.session() as session:
                 result = session.read_transaction(txn_q)
-                return result
+                if len(result):
+                    return result
+                else:
+                    return None
         return rd
 
     def write_txn(func):
@@ -142,6 +120,17 @@ class MDB:
             )
         return (qry, None,"p.model")
 
+    @read_txn_data
+    def get_model_nodes(self, model=None):
+        """Return a list of dicts representing Model nodes."""
+        qry = (
+            "match (m:model) {} "
+            "with m "
+            "where not exists(m._to) "
+            "return m"
+            ).format("where m.handle = $model" if model else "")
+        return(qry, {"model":model} if model else None)
+    
     @read_txn_value
     def get_nodes_by_model(self, model=None):
         """Get all nodes for a given model. If :param:model is None, 
@@ -323,3 +312,38 @@ class MDB:
         if value:
             parms["value"]=value
         return (qry, parms)
+
+    @write_txn
+    def put_term_with_origin(self, term, commit="", _from=1):
+        """Merge a bento-meta Term object, that has an Origin object set,
+        into an MDB. If a new term is created, assign a random 6-char nanoid 
+        to it. The Origin must already be represented in the database.
+        :param Term term: Term object
+        :param str commit: GitHub commit SHA1 associated with the term (if any)"""
+        qry = (
+            "match (o:origin {name:$o_name, nanoid:$o_id}) "
+            "where not exists(o._to) "
+            "merge (t:term {"
+            "  value:$t_value,"
+            "  origin_id:$t_oid,"
+            "  origin_version:$t_oversion,"
+            "  origin_definition:$t_odefn,"
+            "  _from:$from, _commit:$commit}) "
+            "merge (o)<-[:has_origin]-(t) "
+            "on create set t.nanoid = $t_id "
+            "return t.nanoid"
+            )
+        parms = {"o_name": term.origin.name, "o_id": term.origin.nanoid,
+                 "t_value": term.value, "t_oid": term.origin_id,
+                 "t_oversion": term.origin_version,
+                 "t_odefn": term.origin_definition,
+                 "t_id": make_nanoid(), "commit": commit,
+                 "from":_from}
+        return (qry, parms)
+    
+
+
+def make_nanoid(alphabet="abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789",
+           size=6):
+    """Create a random nanoid and return it as a string."""
+    return nanoid_generate(alphabet=alphabet, size=size)

@@ -76,13 +76,13 @@ def test_object_versioning():
   assert r21._prev.handle == "r21"
   assert r21._prev.dst == n21
 
-  n1.category = "blarf"
-  assert n1.category == "blarf"
-  assert not n1._prev.category # prev version attr still empth
+  n1._commit = "blarf"
+  assert n1._commit == "blarf"
+  assert not n1._prev._commit # prev version attr still empth
   assert not n1._prev._prev # only two versions of n1
   assert r1._prev # changing n1 induced a change on r1 (owner of n1)
-  assert r1.src.category == "blarf" # latest r1 src is the latest n1
-  assert not r1._prev.src.category # old r1 src, old n1, has empty category attr
+  assert r1.src._commit == "blarf" # latest r1 src is the latest n1
+  assert not r1._prev.src._commit # old r1 src, old n1, has empty category attr
   assert not r1._prev._prev # only 2 versions of r1
   prev = n1._prev
   n1.model="test2" # change another attr shouldn't dup

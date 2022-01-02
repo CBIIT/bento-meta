@@ -26,16 +26,18 @@ import requests
 import delfick_project.option_merge as om
 from collections import ChainMap
 from warnings import warn
-from uuid import uuid4
+from nanoid import generate
 import json
 
 # from pdb import set_trace
 
 sys.path.extend([".", ".."])
 
+def make_nano():
+    return generate(size=6, alphabet="abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789")    
 
 class MDF(object):
-    def __init__(self, *yaml_files, handle=None, model=None):
+    def __init__(self, *yaml_files, handle=None, model=None, _commit=None):
         """Create a :class:`Model` from MDF YAML files/Write a :class:`Model` to YAML
         :param str|file|url *yaml_files: MDF filenames or file objects, 
         in desired merge order
@@ -50,6 +52,7 @@ class MDF(object):
         self.files = yaml_files
         self.schema = om.MergedOptions()
         self._model = model
+        self._commit = _commit
         if model:
             self.handle = model.handle
         else:
@@ -103,7 +106,12 @@ class MDF(object):
         into this method."""
         if not self.schema.keys():
             raise ValueError("attribute 'schema' not set - are yamls loaded?")
-        self._model = Model(handle=self.handle)
+        if (self.handle):
+            self._model = Model(handle=self.handle)
+        elif (self.schema.get("Handle")):
+            self._model = Model(handle=self.schema["Handle"])
+        else:
+            raise RuntimeError("Model handle not present in MDF nor provided in args")
         ynodes = self.schema["Nodes"]
         yedges = self.schema["Relationships"]
         ypropdefs = self.schema["PropDefinitions"]
@@ -112,14 +120,16 @@ class MDF(object):
         # create nodes
         for n in ynodes:
             yn = ynodes[n]
-            init = {"handle": n, "model": self.handle}
-            for a in ["category", "desc"]:
+            init = {"handle": n, "model": self.handle, "_commit": self._commit}
+            for a in ["desc","nanoid"]:
                 if yn.get(a):
                     init[a] = yn[a]
             node = self._model.add_node(init)
             if yn.get("Tags"):
                 for t in yn["Tags"]:
-                    node.tags[t] = Tag({"key":t, "value": yn["Tags"][t]})
+                    node.tags[t] = Tag({"key": t,
+                                        "value": yn["Tags"][t],
+                                        "_commit": self._commit})
         # create edges (relationships)
         for e in yedges:
             ye = yedges[e]
@@ -133,13 +143,16 @@ class MDF(object):
                     or ye.get("Mul")
                     or Edge.default("multiplicity"),
                     "desc": ends.get("Desc") or ye.get("Desc"),
+                    "_commit": self._commit
                 }
                 edge = self._model.add_edge(init)
                 Tags = ye.get("Tags") or ends.get("Tags")
                 if Tags:
                     tags = CollValue({}, owner=edge, owner_key="tags")
                     for t in Tags:
-                        edge.tags[t] = Tag({"key":t,"value": Tags[t]})
+                        edge.tags[t] = Tag({"key": t,
+                                            "value": Tags[t],
+                                            "_commit": self._commit})
         # create properties
         for ent in ChainMap(self._model.nodes, self._model.edges).values():
             if isinstance(ent, Node):
@@ -177,19 +190,25 @@ class MDF(object):
                             )
                         )
                         break
-                    init = {"handle": pname, "model": self.handle}
+                    init = {"handle": pname,
+                            "model": self.handle,
+                            "_commit": self._commit}
                     if ypdef.get("Type"):
-                        init.update(self.calc_value_domain(ypdef["Type"]))
+                        init.update(self.calc_value_domain(ypdef["Type"],pname))
+                    elif ypdef.get("Enum"):
+                        init.update(self.calc_value_domain(ypdef["Enum"],pname))
                     else:
                         init["value_domain"] = Property.default("value_domain")
                     prop = self._model.add_prop(ent, init)
                     ent.props[prop.handle] = prop
                     if ypdef.get("Tags"):
                         for t in ypdef["Tags"]:
-                            prop.tags[t] = Tag({"key": t,"value":ypdef["Tags"][t]})
+                            prop.tags[t] = Tag({"key": t,
+                                                "value": ypdef["Tags"][t],
+                                                "_commit": self._commit})
         return self._model
 
-    def calc_value_domain(self, typedef):
+    def calc_value_domain(self, typedef,pname=None):
         if isinstance(typedef, dict):
             if typedef.get("pattern"):
                 return {"value_domain": "regexp", "pattern": typedef["pattern"]}
@@ -198,22 +217,34 @@ class MDF(object):
                     "value_domain": typedef.get("value_type"),
                     "units": ";".join(typedef.get("units")),
                 }
+            elif typedef.get("item_type"):
+                if (typedef["value_type"] == 'list'):
+                    return {
+                        "value_domain": "list",
+                        "item_type": typedef["item_type"]
+                   }
+            elif not typedef:
+                warn("MDF type descriptor is null")
             else:
                 # punt
                 warn(
-                    "MDF type descriptor unrecognized: json looks like {j}".format(
-                        j=json.dumps(typedef)
+                    "MDF type descriptor unrecognized: json looks like {}".
+                    format(json.dumps(typedef))
                     )
-                )
                 return {"value_domain": json.dumps(typedef)}
         elif isinstance(typedef, list):  # a valueset: create value set and term objs
-            vs = ValueSet({"_id": str(uuid4())})
-            vs.handle = self.handle + vs._id[0:8]
-            if re.match("^(?:https?|bolt)://", typedef[0]):  # looks like url
-                vs.url = typedef[0]
+            vs = ValueSet({"nanoid": make_nano(), "_commit": self._commit})
+            vs.handle = self.handle + vs.nanoid
+            try:
+                if re.match("^(?:https?|bolt)://", typedef[0]):  # looks like url
+                    vs.url = typedef[0]
+            except TypeError as e:
+                print(typedef[0])
+                print("{} wot? ".format(pname))
+                raise e;
             else:  # an enum
                 for t in typedef:
-                    vs.terms[t] = Term({"value": t})
+                    vs.terms[t] = Term({"value": t, "_commit": self._commit})
             return {"value_domain": "value_set", "value_set": vs}
         elif isinstance(typedef, str):
             return {"value_domain": typedef}
@@ -241,8 +272,6 @@ class MDF(object):
                     mdf_node["Tags"][t] = node.tags[t].value
             mdf_node["Props"] = [prop for prop in sorted(node.props)]
 
-            if node.category:
-                mdf_node["Category"] = node.category
             if node.nanoid:
                 mdf_node["NanoID"] = node.nanoid
             if node.desc:

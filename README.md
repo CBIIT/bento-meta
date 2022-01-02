@@ -12,7 +12,7 @@ The metamodel database (MDB) records
 
 The production instance of MDB will contain the "official" representation of a data model, in that it will record the curated external terminology mappings and official sets of valid terms for each relevant property. In this way, the MDB is an extension of the [MDF](https://github.com/CBIIT/bento-mdf) for any model it contains.
 
-As the central location for official mappings to external vocabularies, the MDC can (should) be used as part of software modules that convert between the data physically stored in the production database and external standards. For example, an API known as the Simple Terminology Service [STS](https://github.com/CBIIT/bento-sts), using MDB as its backend, is used for simple queries about a given model and validation of incoming data.
+As the central location for official mappings to external vocabularies, the MDB can (should) be used as part of software modules that convert between the data physically stored in the production database and external standards. For example, an API known as the Simple Terminology Service [STS](https://github.com/CBIIT/bento-sts), using MDB as its backend, is used for simple queries about a given model and validation of incoming data.
 
 ## Programming APIs
 
@@ -47,6 +47,10 @@ A Property node in the Model DB  represents a property of a model node: for exam
 
 A Concept node represents an intellectual concept. It is abstract, in that it has no human readable name as such; it will however have a unique ID. The Concept node can be thought of as a connecting point for sets of Terms that are identical in meaning (are _synonymous_).
 
+### Predicate 
+
+A Predicate node is a means for semantically relating two Concept nodes, A Predicate itself can also link to a Concept that it represents. Semantic concepts behind a predicate could be, e.g., "contains", "is a child of", "is broader than".
+
 ### Origin
 
 An Origin node represents an entity (institution, internal project, defined standard, recognized body, public database) that defines and/or promulgates a terminology and represents it authoritatively.
@@ -69,13 +73,14 @@ A Concept Group node aggregates (i.e., links to) Concept nodes. Concept Groups m
 
 A Tag node represents a simple key/value pair. Any other type of node can be annotated with a Tag node.
 
-## Information NOT Captured in the MDB
+## Semantic Information in the MDB
 
-Semantic structure (for example, hierarchical groupings of concepts, or other "facts" or "predicate" relationships), besides synonymy and value set grouping, is not intended to be represented in the MDB. To the extent this information exists, it will be accessible in external services via the relevant Origins (e.g., NCI Thesaurus). External model topologies need not be concordant with the model structure represented in the MDB.
+Semantic structure (for example, hierarchical groupings of concepts, or other "facts" or "predicate" relationships), besides synonymy and value set grouping, can be recorded in the MDB using the `predicate` node to link subject and object `concept` nodes.
+In general, to the extent that semantic information exists, it is better to access it by external services via the relevant Origins (e.g., NCI Thesaurus). External model topologies need not be concordant with the model structure represented in the MDB. However, it can be useful to semantically annotate certain concepts within the MDB itself. In particular, parent-child, class-subclass, and more general [SKOS](https://www.w3.org/2004/02/skos/specs) annotations may be useful to have locally for terminology mapping applications.
 
 ## Reading and Writing to the MDB
 
-An object model of the MDB in Perl, [Bento::Meta](/perl), is available and recommended.
+An object model of the MDB in Python, [bento-meta](/python), is available and recommended.
 
 Notes regarding loading the MDB with model description files, and creating external mappings, are [here](./loaders/load-meta.md). See [loaders](./loaders) for a number of initial loading scripts.
 

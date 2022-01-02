@@ -58,26 +58,26 @@ def test_get_queries():
 
 def test_put_queries():
   m = ObjectMap(cls=Node)
-  n = Node({"handle":"test","model":"test_model","category":1})
+  n = Node({"handle":"test","model":"test_model","_commit":1})
   qry = m.put_q(n)
-  assert qry==['CREATE (n:node {handle:"test",model:"test_model",category:1}) RETURN n,id(n)']
+  assert qry==['CREATE (n:node {_commit:1,handle:"test",model:"test_model"}) RETURN n,id(n)']
   n.neoid=2
   stmts = m.put_q(n)
-  assert stmts[0]=='MATCH (n:node) WHERE id(n)=2 SET n.handle="test",n.model="test_model",n.category=1 RETURN n,id(n)'
+  assert stmts[0]=='MATCH (n:node) WHERE id(n)=2 SET n._commit=1,n.handle="test",n.model="test_model" RETURN n,id(n)'
   assert len(stmts[1:]) == len([x for x in Node.attspec if Node.attspec[x] == 'simple'])-3
   for s in stmts[1:]:
     assert re.match('^MATCH \\(n:node\\) WHERE id\\(n\\)=2 REMOVE n.[a-z_]+ RETURN n,id\\(n\\)$',s)
   n.neoid=None
   with pytest.raises(ArgError, match='object must be mapped'):
-    m.put_attr_q(n,'category',2)
+    m.put_attr_q(n,'_commit',2)
   n.neoid=1
   c = Concept({"_id":"blarf"})
   with pytest.raises(ArgError, match="'values' must be a list of mapped Entity objects"):
     m.put_attr_q(n,'concept',c)
   with pytest.raises(ArgError, match="'values' must be a list of mapped Entity objects"):  
     m.put_attr_q(n,'concept',[c])
-  qry = m.put_attr_q(n,'category',[3])
-  assert qry=="MATCH (n:node) WHERE id(n)=1 SET category=3 RETURN id(n)"
+  qry = m.put_attr_q(n,'_commit',[3])
+  assert qry=="MATCH (n:node) WHERE id(n)=1 SET _commit=3 RETURN id(n)"
   c.neoid=2
   stmts = m.put_attr_q(n,'concept',[c])
   assert stmts[0] == "MATCH (n:node),(a:concept) WHERE id(n)=1 AND id(a)=2 MERGE (n)-[:has_concept]->(a) RETURN id(a)"
@@ -136,21 +136,21 @@ def test_rm_queries():
 def test_put_then_rm_queries():
   """test adding then removing attr"""
   m = ObjectMap(cls=Node)
-  n = Node({"handle":"test_","model":"test_model_","category":1})
+  n = Node({"handle":"test_","model":"test_model_","_commit":1})
   qry = m.put_q(n)
-  assert qry==['CREATE (n:node {handle:"test_",model:"test_model_",category:1}) RETURN n,id(n)']
+  assert qry==['CREATE (n:node {_commit:1,handle:"test_",model:"test_model_"}) RETURN n,id(n)']
 
   # manually set neoid
   n.neoid=2
   stmts = m.put_q(n)
-  assert stmts[0]=='MATCH (n:node) WHERE id(n)=2 SET n.handle="test_",n.model="test_model_",n.category=1 RETURN n,id(n)'
+  assert stmts[0]=='MATCH (n:node) WHERE id(n)=2 SET n._commit=1,n.handle="test_",n.model="test_model_" RETURN n,id(n)'
   assert len(stmts[1:]) == len([x for x in Node.attspec if Node.attspec[x] == 'simple'])-3
   for s in stmts[1:]:
     assert re.match('^MATCH \\(n:node\\) WHERE id\\(n\\)=2 REMOVE n.[a-z_]+ RETURN n,id\\(n\\)$',s)
 
   n.neoid=None
   with pytest.raises(ArgError, match='object must be mapped'):
-    m.put_attr_q(n,'category',2)
+    m.put_attr_q(n,'_commit',2)
 
   n.neoid=1
   c = Concept({"_id":"blarfblark"})
@@ -159,8 +159,8 @@ def test_put_then_rm_queries():
   with pytest.raises(ArgError, match="'values' must be a list of mapped Entity objects"):  
     m.put_attr_q(n,'concept',[c])
 
-  qry = m.put_attr_q(n,'category',[3])
-  assert qry=="MATCH (n:node) WHERE id(n)=1 SET category=3 RETURN id(n)"
+  qry = m.put_attr_q(n,'_commit',[3])
+  assert qry=="MATCH (n:node) WHERE id(n)=1 SET _commit=3 RETURN id(n)"
 
   c.neoid=2
   stmts = m.put_attr_q(n,'concept',[c])
@@ -178,7 +178,7 @@ def test_put_then_rm_queries():
   assert stmts[0] == "MATCH (n:node),(a:property) WHERE id(n)=1 AND id(a)=5 MERGE (n)-[:has_property]->(a) RETURN id(a)"
   assert len(stmts) == 3
   Node.mapspec_={"label":"node",
-             "property": {"handle":"handle","model":"model","category":"category"},
+             "property": {"handle":"handle","model":"model"},
              "relationship": {
                "concept": { "rel" : ":has_concept>",
                             "end_cls" : {"Concept","Term"} },
