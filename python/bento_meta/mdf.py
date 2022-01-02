@@ -217,6 +217,12 @@ class MDF(object):
                     "value_domain": typedef.get("value_type"),
                     "units": ";".join(typedef.get("units")),
                 }
+            elif typedef.get("item_type"):
+                if (typedef["value_type"] == 'list'):
+                    return {
+                        "value_domain": "list",
+                        "item_type": typedef["item_type"]
+                   }
             elif not typedef:
                 warn("MDF type descriptor is null")
             else:

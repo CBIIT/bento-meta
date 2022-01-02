@@ -79,7 +79,7 @@ class MDB:
                 return result.data()
             with self.driver.session() as session:
                 result = session.read_transaction(txn_q)
-                if result.peek():
+                if len(result):
                     return result
                 else:
                     return None
