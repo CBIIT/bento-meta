@@ -22,6 +22,7 @@ class MDB:
         self.password = password
         self.driver = GraphDatabase.driver(self.uri,
                                            auth=(self.user, self.password))
+
         self._txfns = {}
         """ Create an :class:`MDB` object, with a connection to a Neo4j instance of a metamodel database.
         :param bolt_url uri: The Bolt protocol endpoint to the Neo4j instance (default, use the

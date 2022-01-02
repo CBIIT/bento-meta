@@ -260,6 +260,22 @@ class Concept(Entity):
     def __init__(self, init=None):
         super().__init__(init=init)
 
+class Predicate(Entity):
+    """Subclass that models a semantic link between concepts."""
+    attspec_ = {"subject": "object", "object": "object"}
+    mapspec_ = {
+        "label": "predicate",
+        "relationship": {
+            "subject": {"rel": ":has_subject>", "end_cls": "Concept"},
+            "object": {"rel": ":has_object>", "end_cls": "Concept"},
+            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}            
+        },
+    }
+    (attspec, _mapspec) = mergespec("Predicate", attspec_, mapspec_)
+
+    def __init__(self, init=None):
+        super().__init__(init=init)
+        
 
 class Origin(Entity):
     """Subclass that models a :class:`Term` 's authoritative source."""

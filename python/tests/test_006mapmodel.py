@@ -4,25 +4,24 @@ sys.path.insert(0,'.')
 sys.path.insert(0,'..')
 import pytest
 import pytest_docker
-from neo4j import GraphDatabase
-import neo4j.graph
 from neo4j.exceptions import Neo4jError
 from pdb import set_trace
 from bento_meta.entity import *
 from bento_meta.objects import *
 from bento_meta.model import Model
 from bento_meta.object_map import ObjectMap
+from bento_meta.mdb import MDB
 
 @pytest.mark.slow
 def test_get_model(bento_neo4j):
   (b,h)=bento_neo4j
-  drv = GraphDatabase.driver(b)
-  assert drv
+  the_mdb = MDB(uri=b)
+  assert the_mdb
   ObjectMap.clear_cache()
-  m = Model('ICDC',drv)
+  m = Model(handle='ICDC',mdb=the_mdb)
   m.dget()
 
-  with drv.session() as session:
+  with m.drv.session() as session:
     result = session.run('match (n:node) where n.model="ICDC" return count(n)')
     assert len(m.nodes) == result.single().value()
     result = session.run('match (n:relationship) where n.model="ICDC" return count(n)')
@@ -59,10 +58,10 @@ def test_get_model(bento_neo4j):
 @pytest.mark.slow
 def test_put_model(bento_neo4j):
   (b,h)=bento_neo4j
-  drv = GraphDatabase.driver(b)
-  assert drv
+  the_mdb = MDB(uri=b)
+  assert the_mdb
   ObjectMap.clear_cache()
-  m = Model('ICDC',drv)
+  m = Model(handle='ICDC',mdb=the_mdb)
   m.dget()
   prop = m.props[('sample','sample_type')]
   sample = m.nodes['sample']
@@ -70,15 +69,14 @@ def test_put_model(bento_neo4j):
   term = Term({"value":"electric_boogaloo"})
   m.add_terms(prop, term)
   node = m.nodes['lab_exam']
-  node.category = 'boog'
   m.dput()
-  with drv.session() as session:
+  with m.drv.session() as session:
     result = session.run('match (v:value_set)-->(t:term {value:"electric_boogaloo"}) return v,t')
     rec = result.single()
     assert rec['v'].id == prop.value_set.neoid
     assert rec['t'].id == term.neoid
     assert rec['t']['value'] == term.value
-    result = session.run('match (n:node {handle:"lab_exam",category:"boog"}) return n')
+    result = session.run('match (n:node {handle:"lab_exam"}) return n')
     rec = result.single()
     assert rec['n'].id == node.neoid
 
@@ -92,7 +90,7 @@ def test_put_model(bento_neo4j):
   assert not term in concept.belongs.values()
   assert ('concept',concept) in term.removed_entities
   m.dput()
-  with drv.session() as session:
+  with m.drv.session() as session:
     result = session.run('match (t:term) where id(t)=$id return t',{"id":term.neoid})
     assert result.single() # term there
     result = session.run('match (c:concept) where id(c)=$id return c',{"id":concept.neoid})
@@ -107,7 +105,7 @@ def test_put_model(bento_neo4j):
 
   m.dput()
 
-  with drv.session() as session:
+  with m.drv.session() as session:
     result = session.run('match (t:term)--(c:concept) where id(t)=$id return c',{"id":term.neoid})
     s = result.single()
     assert s
@@ -122,7 +120,7 @@ def test_put_model(bento_neo4j):
   prop.model = 'ICDC'
   at_enrollment = m.edges[('at_enrollment','prior_surgery','enrollment')]
   prior_surgery = m.nodes['prior_surgery']
-  with drv.session() as session:
+  with m.drv.session() as session:
     result = session.run('match (n:node)<-[:has_src]-(r:relationship {handle:"at_enrollment"})-[:has_dst]->(:node {handle:"enrollment"}) where id(n)=$id return r',{"id":prior_surgery.neoid})
     s = result.single()
     assert s
@@ -132,7 +130,7 @@ def test_put_model(bento_neo4j):
   assert not at_enrollment.dst
   assert not at_enrollment in m.edges_out(prior_surgery)
   m.dput()
-  with drv.session() as session:
+  with m.drv.session() as session:
     result = session.run('match (n:node)<-[:has_src]-(r:relationship {handle:"at_enrollment"})-[:has_dst]->(:node {handle:"enrollment"}) where id(n)=$id return r',{"id":prior_surgery.neoid})
     s = result.single()
     assert not s

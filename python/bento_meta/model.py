@@ -24,6 +24,7 @@ from bento_meta.objects import (
     Term,
     ValueSet,
     Concept,
+    Predicate,
     Origin,
     Tag,
 )
@@ -48,9 +49,7 @@ class Model(object):
         self.removed_entities = []
 
         if mdb:
-            self._mdb = mdb
-        else:
-            self._mdb = None
+            self.mdb = mdb
 
     @classmethod
     def versioning(cls, on=None):
@@ -88,7 +87,7 @@ class Model(object):
     def mdb(self, value):
         if isinstance(value, MDB):
             self._mdb = value
-            for cls in (Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag):
+            for cls in (Node, Property, Edge, Term, ValueSet, Concept, Predicate, Origin, Tag):
                 cls.object_map = ObjectMap(cls=cls, drv=value.driver)
         elif not value:
             self._mdb = None

@@ -57,7 +57,7 @@ class ObjectMap(object):
     def keys_by_cls_and_reln(cls, qcls, reln):
         if not hasattr(cls, "_keysxcls"):
             cls._keysxcls = {}
-            for o in (Node, Edge, Property, ValueSet, Term, Concept, Origin, Tag):
+            for o in (Node, Edge, Property, ValueSet, Term, Concept, Predicate, Origin, Tag):
                 for oatt in [x for x in o.attspec if o.attspec[x] == "object"]:
                     r = o.mapspec()["relationship"][oatt]["rel"]
                     r = re.match("[:<>]*([a-zA-Z_]+)[:<>]*", r).group(1)

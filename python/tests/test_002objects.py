@@ -5,7 +5,7 @@ sys.path.insert(0,'.')
 sys.path.insert(0,'..')
 import pytest
 from bento_meta.entity import Entity
-from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag
+from bento_meta.objects import Node, Property, Edge, Term, ValueSet, Concept, Predicate, Origin, Tag
 
 def test_create_objects():
   for cls in [Node,Property,Edge,Term,ValueSet,Concept,Origin,Tag]:
@@ -31,12 +31,15 @@ def test_init_and_link_objects():
   term = Term({"value":"sample"})
   concept = Concept();
   term.concept = concept
-
+  other_concept = Concept()
   concept.terms["sample"]=term
   sample.concept = concept
   [o] = [x for x in term.belongs.values()]
   assert o == concept
   assert of_sample.src.concept.terms["sample"].value == "sample"
+  pred = Predicate({"subject":concept, "object":other_concept, "handle":"isa"})
+  assert type(pred.subject) == Concept
+  assert type(pred.object) == Concept
 
 def test_tags_on_objects():
   nodeTag = Tag({"key":"name","value":"Neddy"})

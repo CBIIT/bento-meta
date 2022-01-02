@@ -121,7 +121,7 @@ class MDF(object):
         for n in ynodes:
             yn = ynodes[n]
             init = {"handle": n, "model": self.handle, "_commit": self._commit}
-            for a in ["category", "desc"]:
+            for a in ["desc","nanoid"]:
                 if yn.get(a):
                     init[a] = yn[a]
             node = self._model.add_node(init)
@@ -272,8 +272,6 @@ class MDF(object):
                     mdf_node["Tags"][t] = node.tags[t].value
             mdf_node["Props"] = [prop for prop in sorted(node.props)]
 
-            if node.category:
-                mdf_node["Category"] = node.category
             if node.nanoid:
                 mdf_node["NanoID"] = node.nanoid
             if node.desc:

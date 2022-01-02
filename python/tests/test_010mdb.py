@@ -6,15 +6,15 @@ import pytest_docker
 from pdb import set_trace
 from bento_meta.mdb import MDB
 
-@pytest.mark.slow
-def test_mdb(mdb_local):
-    (b, h) = mdb_local
+@pytest.mark.dumb
+def test_mdb(mdb):
+    (b, h) = mdb
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")
     assert mdb
 
-@pytest.mark.slow
-def test_rd_txns(mdb_local):
-    (b, h) = mdb_local
+@pytest.mark.dumb
+def test_rd_txns(mdb):
+    (b, h) = mdb
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")
     result = mdb.get_model_handles()
     assert set(result) == {"ICDC", "CTDC", "Bento"}
@@ -45,6 +45,6 @@ def test_rd_txns(mdb_local):
     result = mdb.get_props_and_terms_by_model()
     result = mdb.get_props_and_terms_by_model("ICDC")
     result = mdb.get_tags_for_entity_by_id("o3wWJX")
-    assert result == []
+    assert result == None
     result = mdb.get_entities_by_tag(key="gleb", value="blurg")
-    assert result == []
+    assert result == None
