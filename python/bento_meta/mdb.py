@@ -2,10 +2,8 @@
 bento_meta.mdb
 ==============
 
-This module contains :class:`MDB`, with machinery for efficiently querying a Neo4j instance
-of a Metamodel Database.
-
-
+This module contains :class:`MDB`, with machinery for efficiently
+querying a Neo4j instance of a Metamodel Database.
 """
 import os
 from functools import wraps
@@ -299,18 +297,34 @@ class MDB:
         return (qry, {"nanoid":nanoid})
 
     @read_txn_data
-    def get_entities_by_tag(self, key, value=None):
-        """Get all entities tagged with a given key or key:value pair.
-        Returns [ {tag_key(str), tag_value(str), entities[]} ]"""
+    def get_tags_and_values(self, key=None):
+        """Get all tag key/value pairs that are present in database.
+        Returns [ { key(str) : values[] } ]"""
+        qry = (
+            "match (t:tag) {} "
+            "return t.key as key, collect(distinct t.value) as values "
+            ).format("where t.key = $key" if key else "")
+        return (qry, {"key": key} if key else {})
+        
+
+    @read_txn_data
+    def get_entities_by_tag(self, key, value=None, model=None):
+        """Get all entities, optionally from a given model,
+        tagged with a given key or key:value pair.
+        Returns [ {tag_key(str), tag_value(str), entity(str - label), entities[]} ]"""
         qry = (
             "match (t:tag {{key:$key}}) {} "
             "with t "
             "match (e)-[:has_tag]->(t) "
-            "return t.key as tag_key, t.value as tag_value, collect(e) as entities"
-            ).format("where t.value = $value" if value else "")
+            "where not exists(e._to) {}"
+            "return t.key as tag_key, t.value as tag_value, head(labels(e)) as entity, collect(e) as entities"
+            ).format("where t.value = $value" if value else "",
+                         "and e.model = $model " if model else "" )
         parms = {"key":key}
         if value:
             parms["value"]=value
+        if model:
+            parms["model"]=model
         return (qry, parms)
 
     @write_txn
