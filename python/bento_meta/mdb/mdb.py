@@ -268,7 +268,17 @@ class MDB:
             "return o"
             )
         return (qry, None)
-    
+
+    @read_txn_value
+    def get_origin_by_id(self, oid):
+        """Get an origin by nanoid."""
+        qry = (
+            "match (o:origin {nanoid:$oid}) "
+            "where not exists (o._to) "
+            "return o "
+            )
+        return (qry, {"oid": oid}, "o")
+
     @read_txn_data
     def get_tags_for_entity_by_id(self, nanoid):
         """Get all tags attached to an entity, given the entity's nanoid.

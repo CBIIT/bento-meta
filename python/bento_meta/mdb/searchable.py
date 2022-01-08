@@ -1,5 +1,13 @@
 """
-mdb.searchable: subclass of `class:bento_meta.mdb.MDB` to support searching fulltext indices on an MDB
+mdb.searchable
+Subclass of `class:bento_meta.mdb.MDB` to support searching fulltext indices on an MDB
+Note: certain fulltext indexes on certain MDB nodes and properties must be present in 
+the Neo4j instance: 
+- entityHandles
+- termValue
+- termDefn
+- termValueDefn
+
 """
 from bento_meta.mdb import read_txn, read_txn_data, read_txn_value
 from bento_meta.mdb import MDB
@@ -60,9 +68,11 @@ class SearchableMDB(MDB):
         result = self.query_index('entityHandle', qstring)
         if not result:
             return None
-        ret = {"node": [], "relationship": [], "property": []}
+        plural = {"node":"nodes", "relationship":"relationships",
+                  "property":"properties"}
+        ret = {"nodes": [], "relationships": [], "properties": []}
         for item in result:
-            ret[item['label']].append({"ent": item['ent'], "score": item['score']}) 
+            ret[plural[item['label']]].append({"ent": item['ent'], "score": item['score']}) 
         return ret
 
     def search_terms(self, qstring, search_values=True,
