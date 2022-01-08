@@ -11,6 +11,60 @@ from neo4j import GraphDatabase
 from nanoid import generate as nanoid_generate
 from pdb import set_trace
 
+# Decorator functions to produce executed transactions based on an
+# underlying query/param function:
+
+def read_txn(func):
+    """Decorates a query function to run a read transaction based on
+    its query.
+    Query function should return a tuple (qry_string, param_dict).
+    Returns list of driver Records."""
+    @wraps(func)
+    def rd(self, *args, **kwargs):
+        def txn_q(tx):
+            (qry,parms)=func(self, *args, **kwargs)
+            result = tx.run(qry,parameters=parms)
+            return [rec for rec in result]
+        with self.driver.session() as session:
+            result = session.read_transaction(txn_q)
+            return result
+    return rd
+
+def read_txn_value(func):
+    """Decorates a query function to run a read transaction based on
+    its query.
+    Query function should return a tuple (qry_string, param_dict, values_key).
+    Returns list of values for key specified by query function."""
+    @wraps(func)
+    def rd(self, *args, **kwargs):
+        def txn_q(tx):
+            (qry,parms,values_key)=func(self, *args, **kwargs)
+            result = tx.run(qry,parameters=parms)
+            return result.value(values_key)
+        with self.driver.session() as session:
+            result = session.read_transaction(txn_q)
+            return result
+    return rd
+
+def read_txn_data(func):
+    """Decorates a query function to run a read transaction based on
+    its query.
+    Query function should return a tuple (qry_string, param_dict).
+    Returns records as a list of simple dicts."""
+    @wraps(func)
+    def rd(self, *args, **kwargs):
+        (qry,parms)=func(self, *args, **kwargs)
+        def txn_q(tx):
+            result = tx.run(qry,parameters=parms)
+            return result.data()
+        with self.driver.session() as session:
+            result = session.read_transaction(txn_q)
+            if len(result):
+                return result
+            else:
+                return None
+    return rd
+
 class MDB:
     def __init__(self, uri=os.environ.get("NEO4J_MDB_URI"),
                  user=os.environ.get("NEO4J_MDB_USER"),
@@ -30,74 +84,6 @@ class MDB:
     def close(self):
         self.driver.close()
 
-    # Decorator functions to produce executed transactions based on an
-    # underlying query/param function:
-    
-    def read_txn(func):
-        """Decorates a query function to run a read transaction based on
-        its query.
-        Query function should return a tuple (qry_string, param_dict).
-        Returns list of driver Records."""
-        @wraps(func)
-        def rd(self, *args, **kwargs):
-            def txn_q(tx):
-                (qry,parms)=func(self, *args, **kwargs)
-                result = tx.run(qry,parameters=parms)
-                return [rec for rec in result]
-            with self.driver.session() as session:
-                result = session.read_transaction(txn_q)
-                return result
-        return rd
-
-    def read_txn_value(func):
-        """Decorates a query function to run a read transaction based on
-        its query.
-        Query function should return a tuple (qry_string, param_dict, values_key).
-        Returns list of values for key specified by query function."""
-        @wraps(func)
-        def rd(self, *args, **kwargs):
-            def txn_q(tx):
-                (qry,parms,values_key)=func(self, *args, **kwargs)
-                result = tx.run(qry,parameters=parms)
-                return result.value(values_key)
-            with self.driver.session() as session:
-                result = session.read_transaction(txn_q)
-                return result
-        return rd
-
-    def read_txn_data(func):
-        """Decorates a query function to run a read transaction based on
-        its query.
-        Query function should return a tuple (qry_string, param_dict).
-        Returns records as a list of simple dicts."""
-        @wraps(func)
-        def rd(self, *args, **kwargs):
-            (qry,parms)=func(self, *args, **kwargs)
-            def txn_q(tx):
-                result = tx.run(qry,parameters=parms)
-                return result.data()
-            with self.driver.session() as session:
-                result = session.read_transaction(txn_q)
-                if len(result):
-                    return result
-                else:
-                    return None
-        return rd
-
-    def write_txn(func):
-        """Decorates a query function to run a write transaction based
-        on its query.
-        Query function should return a tuple (qry_string, param_dict)."""
-        @wraps(func)
-        def wr(self, *args, **kwargs):
-            def txn_q(tx):
-                (qry,parms)=func(self, *args, **kwargs)
-                result = tx.run(qry,parameters=parms)
-                return [rec for rec in result]
-            with self.driver.session() as session:
-                result = session.write_transaction(txn_q)
-                return result
-        return wr
 
     def register_txfn(self, name, fn):
         """Register a transaction function
@@ -326,37 +312,7 @@ class MDB:
         if model:
             parms["model"]=model
         return (qry, parms)
-
-    @write_txn
-    def put_term_with_origin(self, term, commit="", _from=1):
-        """Merge a bento-meta Term object, that has an Origin object set,
-        into an MDB. If a new term is created, assign a random 6-char nanoid 
-        to it. The Origin must already be represented in the database.
-        :param Term term: Term object
-        :param str commit: GitHub commit SHA1 associated with the term (if any)"""
-        qry = (
-            "match (o:origin {name:$o_name, nanoid:$o_id}) "
-            "where not exists(o._to) "
-            "merge (t:term {"
-            "  value:$t_value,"
-            "  origin_id:$t_oid,"
-            "  origin_version:$t_oversion,"
-            "  origin_definition:$t_odefn,"
-            "  _from:$from, _commit:$commit}) "
-            "merge (o)<-[:has_origin]-(t) "
-            "on create set t.nanoid = $t_id "
-            "return t.nanoid"
-            )
-        parms = {"o_name": term.origin.name, "o_id": term.origin.nanoid,
-                 "t_value": term.value, "t_oid": term.origin_id,
-                 "t_oversion": term.origin_version,
-                 "t_odefn": term.origin_definition,
-                 "t_id": make_nanoid(), "commit": commit,
-                 "from":_from}
-        return (qry, parms)
     
-
-
 def make_nanoid(alphabet="abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789",
            size=6):
     """Create a random nanoid and return it as a string."""
