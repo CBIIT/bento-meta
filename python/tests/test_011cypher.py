@@ -6,7 +6,8 @@ sys.path.insert(0, '.')
 sys.path.insert(0, '..')
 from bento_meta.util.cypher import (
     N, N0, R, R0, P, T,
-    _pattern, _as, _condition, _return
+    _pattern, _as, _condition, _return,
+    _plain, _anon, _var_only
 )
 
 def test_entities():
@@ -63,9 +64,9 @@ def test_entities():
     q = P(handle="weight", value=12)
     assert type(q.value) == int
     assert q.value == 12
-    s = P(handle="color", value="blue")
-    assert type(s.value) == str
-    assert s.value == "blue"
+    l = P(handle="color", value="blue")
+    assert type(l.value) == str
+    assert l.value == "blue"
     t = P(handle="spin", value="$parm")
 
 
@@ -74,8 +75,38 @@ def test_entities():
 
     w = N(label="item", props=q)
     assert q.condition() == "{}.weight = 12".format(w.var)
-    
-    
+    assert _condition(q) == "{}.weight = 12".format(w.var)    
+    x = N(label="item", props=l)
+    assert _condition(l) == "{}.color = 'blue'".format(x.var)
+    y = N(label="item", props=t)
+    assert _condition(t) == "{}.spin = $parm".format(y.var)
+
+    z = y.relate_to(r, x)
+    assert isinstance(z, T)
+    assert z.pattern() == (
+        "({}:item {{spin:$parm}})-[{}:has_a]->({}:item "
+        "{{color:'blue'}})"
+        ).format(y.var,r.var,x.var)
+    assert z.pattern() == z.condition()
+    assert _pattern(z) == _condition(z)
+
+    u = s.relate(w, x)
+    assert isinstance(u, T)
+    assert _pattern(_plain(u)) == (
+        "({}:item)-[{}:is_a]->({}:item)"
+        ).format(w.var, s.var, x.var)
+
+    u = _anon(s).relate(w,_anon(x))
+    assert _pattern(_plain(u)) == (
+        "({}:item)-[:is_a]->(:item)"
+        ).format(w.var)
+
+    u = R0().relate(_var_only(w), _var_only(x))
+    assert _pattern(_plain(u)) == (
+        "({})-->({})"
+        ).format(w.var, x.var)
+
+    assert _pattern(R0().relate(N0(),N0())) == "()-->()"
     
 def test_clauses():
     pass

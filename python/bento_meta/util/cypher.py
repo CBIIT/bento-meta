@@ -236,13 +236,19 @@ def _plain(ent):
 
 
 def _anon(ent):
+    """Return entity without variable name."""
+    ret = clone(ent)
+    ret.var = ""
+    return ret
+
+def _var_only(ent):
     """Return entity without label or type."""
     ret = None
     if isinstance(ent, (N, R)):
         ret = clone(ent)
-        if ret.get("label"):
+        if hasattr(ret, "label"):
             ret.label = None
-        if ret.get("Type"):
+        if hasattr(ret, "Type"):
             ret.Type = None
     elif isinstance(ent, T):
         ret = clone(ent)
