@@ -1,3 +1,9 @@
+"""
+bento_meta.util.cypher
+
+Create cypher statements programmatically.
+"""
+
 import re
 from string import Template
 from copy import deepcopy as clone
@@ -7,7 +13,7 @@ def countmaker(max=100):
     return (x for x in range(max))
 
 
-class entity(object):
+class Entity(object):
     """A property graph Entity. Base class."""
     def __init__(self):
         self.As = None
@@ -47,7 +53,7 @@ class entity(object):
         return True
 
 
-class N(entity):
+class N(Entity):
     """A property graph Node."""
     count = countmaker()
 
@@ -82,7 +88,7 @@ class N(entity):
         return ret
 
 
-class R(entity):
+class R(Entity):
     """A property graph Relationship or edge."""
     count = countmaker()
 
@@ -143,7 +149,7 @@ class R0(R):
         return None
 
 
-class P(entity):
+class P(Entity):
     """A property graph Property."""
     count = countmaker()
 
@@ -187,7 +193,7 @@ class P(entity):
             return None
 
 
-class T(entity):
+class T(Entity):
     """A property graph Triple; i.e., (n)-[r]->(m)."""
     count = countmaker()
 
@@ -197,6 +203,12 @@ class T(entity):
         self._to = m
         self._edge = r
 
+    def nodes(self):
+        return [self._from, self._to]
+
+    def edge(self):
+        return self._edge
+
     def pattern(self):
         return self._from.pattern()+self._edge.pattern()+">"+self._to.pattern()
 
@@ -204,7 +216,7 @@ class T(entity):
         return self.pattern()
 
     def Return(self):
-        return None
+        return [x.Return() for x in (self._from, self._to)]
 
 
 def _as(ent, alias):
@@ -241,7 +253,7 @@ def _anon(ent):
     ret.var = ""
     return ret
 
-def _var_only(ent):
+def _var(ent):
     """Return entity without label or type."""
     ret = None
     if isinstance(ent, (N, R)):
@@ -261,15 +273,95 @@ def _var_only(ent):
 
 
 def _pattern(ent):
+    if isinstance(ent, (str, Func)):
+        return str(ent)
     return ent.pattern()
 
 
 def _condition(ent):
+    if isinstance(ent, (str, Func)):
+        return str(ent)
     return ent.condition()
 
 
 def _return(ent):
+    if isinstance(ent, (str, Func)):
+        return str(ent)
     return ent.Return()
+
+
+class Func(object):
+    template = Template("func(${slot1})")
+    joiner = ','
+
+    @staticmethod
+    def context(arg):
+        return _return(arg)
+
+    def __init__(self, arg):
+        self.arg = arg
+
+    def __str__(self):
+        slot = ""
+        if type(self.arg) == list:
+            slot = self.joiner.join([self.context(a) for a in self.arg])
+        else:
+            slot = self.context(self.arg)
+        return self.template.substitute(slot1=slot)
+
+
+class count(Func):
+    template = Template("count($slot1)")
+
+
+class exists(Func):
+    template = Template("exists($slot1)")
+
+
+class Not(Func):
+    template = Template("NOT $slot1")
+
+    @staticmethod
+    def context(arg):
+        return _condition(arg)
+    
+class And(Func):
+    template = Template("$slot1")
+    joiner = " AND "
+
+    @staticmethod
+    def context(arg):
+        return _condition(arg)
+
+    def __init__(self, *args):
+        self.arg = list(args)
+        super().__init__(self.arg)
+
+
+class Or(Func):
+    template = Template("$slot1")
+    joiner = " OR "
+
+    @staticmethod
+    def context(arg):
+        return _condition(arg)
+
+    def __init__(self, *args):
+        self.arg = list(args)
+        super().__init__(self.arg)
+
+
+class group(Func):
+    template = Template("($slot1)")
+    joiner = " "
+
+
+class is_null(Func):
+    template = Template("$slot1 IS NULL")
+
+
+class is_not_null(Func):
+    template = Template("$slot1 IS NOT NULL")
 
 
 class Clause(object):
@@ -286,14 +378,24 @@ class Clause(object):
         self.kwargs = kwargs
 
     def __str__(self):
+        values = []
+        for c in [self.context(x) for x in self.args]:
+            if isinstance(c, str):
+                values.append(c)
+            elif isinstance(c, Func):
+                values.append(str(c))
+            elif isinstance(c,list):
+                values.extend([str(x) for x in c])
+            else:
+                values.append(str(c))
         return self.template.substitute(
-            slot1= self.joiner.join([self.context(x) for x in self.args])
+            slot1= self.joiner.join(values)
             )
 
 
 class Match(Clause):
     """Create a MATCH clause with the arguments."""
-    template = Template("MATCH $slot1 ")
+    template = Template("MATCH $slot1")
 
     @staticmethod
     def context(arg):
@@ -306,7 +408,7 @@ class Match(Clause):
 class Where(Clause):
     """Create a WHERE clause with the arguments
     (joining conditions with 'op')."""
-    template = Template("WHERE $slot1 ")
+    template = Template("WHERE $slot1")
     joiner = " {} "
 
     @staticmethod
@@ -320,13 +422,25 @@ class Where(Clause):
     def __str__(self):
         values = []
         for c in [self.context(x) for x in self.args]:
-            if isinstance(c,list):
-                values.extend(c)
-            else:
+            if isinstance(c, str):
                 values.append(c)
+            elif isinstance(c, Func):
+                values.append(str(c))
+            elif isinstance(c, list):
+                values.extend([str(x) for x in c])
+            else:
+                values.append(str(c))
         return self.template.substitute(
             slot1=self.joiner.format(self.op).join(values)
             )
+
+
+class With(Clause):
+    """Create a WITH clause with the arguments."""
+    template = Template("WITH $slot1")
+
+    def __init__(self, *args):
+        super().__init__(*args)
 
 
 class Return(Clause):
