@@ -6,6 +6,7 @@ sys.path.insert(0, '.')
 sys.path.insert(0, '..')
 from bento_meta.util.cypher import (
     N, N0, R, R0, P, T,
+    Match, Where, Return, Statement,
     _pattern, _as, _condition, _return,
     _plain, _anon, _var_only
 )
@@ -96,7 +97,7 @@ def test_entities():
         "({}:item)-[{}:is_a]->({}:item)"
         ).format(w.var, s.var, x.var)
 
-    u = _anon(s).relate(w,_anon(x))
+    u = _anon(s).relate(w, _anon(x))
     assert _pattern(_plain(u)) == (
         "({}:item)-[:is_a]->(:item)"
         ).format(w.var)
@@ -106,10 +107,16 @@ def test_entities():
         "({})-->({})"
         ).format(w.var, x.var)
 
-    assert _pattern(R0().relate(N0(),N0())) == "()-->()"
-    
+    assert _pattern(R0().relate(N0(), N0())) == "()-->()"
+
+
 def test_clauses():
-    pass
+    n = N(label="node", props={"model": "ICDC", "handle": "diagnosis"})
+    m = N(label="property", props={"handle": "disease_type"})
+
+    match = Match(_anon(R(Type="has_property")).relate(n, m))
+    assert isinstance(match, Match)
+
 
 
 def test_statments():

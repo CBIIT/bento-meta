@@ -273,49 +273,68 @@ def _return(ent):
 
 
 class Clause(object):
-    def __init__(self, template, context, joiner, *args, **kwargs):
-        self.template = template.upper()
-        self.context = context
-        self.joiner = joiner
+    """Represents a generic Cypher clause."""
+    template = Template("$slot1")
+    joiner = ", "
+
+    @staticmethod
+    def context(arg):
+        return _return(arg)
+
+    def __init__(self, *args, **kwargs):
         self.args = list(args)
         self.kwargs = kwargs
 
     def __str__(self):
         return self.template.substitute(
-            slot1=self.joiner.join([self.context(x) for x in self.args])
+            slot1= self.joiner.join([self.context(x) for x in self.args])
             )
 
 
 class Match(Clause):
     """Create a MATCH clause with the arguments."""
+    template = Template("MATCH $slot1 ")
+
+    @staticmethod
+    def context(arg):
+        return _pattern(arg)
+    
     def __init__(self, *args):
-        super().__init__(
-            template=Template("MATCH $slot1 "),
-            context=_pattern,
-            joiner=", ",
-            *args
-            )
+        super().__init__(*args)
 
 
 class Where(Clause):
     """Create a WHERE clause with the arguments
     (joining conditions with 'op')."""
+    template = Template("WHERE $slot1 ")
+    joiner = " {} "
+
+    @staticmethod
+    def context(arg):
+        return _condition(arg)
+
     def __init__(self, *args, op='AND'):
-        super().__init__(
-            template=Template("WHERE $slot1 "),
-            context=_condition,
-            joiner=" {} ".format(op),
-            *args, op=op)
+        super().__init__(*args, op=op)
+        self.op = op
+
+    def __str__(self):
+        values = []
+        for c in [self.context(x) for x in self.args]:
+            if isinstance(c,list):
+                values.extend(c)
+            else:
+                values.append(c)
+        return self.template.substitute(
+            slot1=self.joiner.format(self.op).join(values)
+            )
 
 
 class Return(Clause):
     """Create a RETURN clause with the arguments."""
+    template = Template("RETURN $slot1")
+
     def __init__(self, *args):
-        super().__init__(
-            template=Template("RETURN $slot1"),
-            context=_return,
-            joiner=", ",
-            *args)
+        super().__init__(*args)
 
 
 class Statement(object):
