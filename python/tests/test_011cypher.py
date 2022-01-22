@@ -5,7 +5,7 @@ from pdb import set_trace
 sys.path.insert(0, '.')
 sys.path.insert(0, '..')
 from bento_meta.util.cypher import (
-    N, N0, R, R0, P, T,
+    N, N0, R, R0, P, T, Path,
     Clause, Match, Where, Return, Statement,
     Func, count, exists, group, And, Or, Not,
     _pattern, _as, _condition, _return,
@@ -109,6 +109,20 @@ def test_entities():
         ).format(w.var, x.var)
 
     assert _pattern(R0().relate(N0(), N0())) == "()-->()"
+
+
+def test_paths():
+    # happy paths:
+    # Path(N, R, N), Path(T, T), Path(N, R, T), Path(T, R, N)
+    # Path(N, R, P), Path(Path, R, N)
+    # Path(N, R, N, R, N, R, N), Path(T, Path), Path(Path, T)
+    # Path(Path, Path)
+    # Path(Path, R, N, R, T) ...
+    # unhappy paths: with pytest.raises(Exception)
+    # Path(N), Path(R), Path(N, R), Path(R, N), Path(N, N)
+    # Path(N, T), Path(R, T), Path(N, P), Path(R, P)
+    # Path(N, R, N, R, N, R)
+    pass
 
 
 def test_clauses():
