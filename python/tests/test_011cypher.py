@@ -126,20 +126,47 @@ def test_paths():
              N(label="file")]
     edges = [R(Type="of_case"), R(Type="of_sample"), R(Type="of_aliquot")]
 
-    t1 = edges[0].relate(nodes[1], nodes[0])
-    t2 = edges[1].relate(nodes[2], nodes[1])
-    t3 = edges[2].relate(nodes[3], nodes[2])
+    t1 = edges[0].relate(nodes[1], nodes[0])  # (sample)-[:of_case]->(case)
+    t2 = edges[1].relate(nodes[2], nodes[1])  # (aliquot)-[:of_sample]->(sample)
+    t3 = edges[2].relate(nodes[3], nodes[2])  # (file)-[:of_aliquot]->(aliquot)
 
-    pth0 = G(nodes[0], edges[0], nodes[1])  # G(N, R, N)
+    pth0 = G(nodes[1], edges[0], nodes[0])  # G(N, R, N)
+    assert re.match(
+        "\\(n[0-9]+:sample\\)-\\[r[0-9]+:of_case\\]->\\(n[0-9]+:case\\)",
+        pth0.pattern())
     pth1 = G(t1)  # G(T)
+    assert re.match(
+        "\\(n[0-9]+:sample\\)-\\[r[0-9]+:of_case\\]->\\(n[0-9]+:case\\)",
+        pth1.pattern())
     pth2 = G(t1, t2)  # G(T, T)
+    assert re.match(
+        "\\(n[0-9]+:aliquot\\)-\\[r[0-9]+:of_sample\\]->\\(n[0-9]+:sample\\)-\\[r[0-9]+:of_case\\]->\\(n[0-9]+:case\\)",
+        pth2.pattern()
+        )
     pth3 = G(t2)
     pth4 = G(pth1, pth3)  # G(G, G)
-    pth5 = G(pth4, edges[2], nodes[3])  # G(G, R, N)
+    assert re.match(
+        "\\(n[0-9]+:aliquot\\)-\\[r[0-9]+:of_sample\\]->\\(n[0-9]+:sample\\)-\\[r[0-9]+:of_case\\]->\\(n[0-9]+:case\\)",
+        pth4.pattern()
+        )
+    pth5 = G(t2, nodes[1], edges[2], nodes[3])
+    assert re.match(
+        "\\(n[0-9]+:aliquot\\)-\\[r[0-9]+:of_sample\\]->\\(n[0-9]+:sample\\)-\\[r[0-9]+:of_aliquot\\]->\\(n[0-9]+:file\\)",
+        pth5.pattern())
     pth6 = G(t2, edges[2], nodes[3])  # G(T, R, N)
+    assert re.match(
+        "\\(n[0-9]+:aliquot\\)-\\[r[0-9]+:of_sample\\]->\\(n[0-9]+:sample\\)-\\[r[0-9]+:of_aliquot\\]->\\(n[0-9]+:file\\)",
+        pth6.pattern())
     pth7 = G(nodes[0], edges[0], t2)  # G(N, R, T)
     pth8 = G(pth1, edges[1], nodes[2], edges[2], t3)
-    
+    assert re.match(
+        "\\(n[0-9]+:sample\\)-\\[r[0-9]+:of_case\\]->\\(n[0-9]+:case\\)-\\[r[0-9]+:of_sample\\]->\\(n[0-9]+:aliquot\\)<-\\[r[0-9]+:of_aliquot\\]-\\(n[0-9]+:file\\)",
+        pth8.pattern())
+    pth9 = G(t1,  nodes[2], edges[1], nodes[1], t3)
+    assert re.match(
+        "\\(n[0-9]+:file\\)-\\[r[0-9]+:of_aliquot\\]->\\(n[0-9]+:aliquot\\)-\\[r[0-9]+:of_sample\\]->\\(n[0-9]+:sample\\)-\\[r[0-9]+:of_case\\]->\\(n[0-9]+:case\\)",
+        pth9.pattern())
+
     with pytest.raises(RuntimeError, match="do not define a complete Path"):
         G(nodes[0])  # G(N)
     with pytest.raises(RuntimeError, match="is not valid at arg position 1"):
@@ -154,7 +181,10 @@ def test_paths():
         G(edges[1], t1)  # G(R, T)
     with pytest.raises(RuntimeError, match="do not define a complete Path"):
         G(nodes[0], edges[0], nodes[1], nodes[2], edges[1])  # G(N, R, N, N, R)
-
+    with pytest.raises(RuntimeError, match="from-node is ambiguous"):
+        G(pth4, edges[2], nodes[3])  # G(G, R, N) when num G triples > 1
+    with pytest.raises(RuntimeError, match="to-node is ambiguous"):
+        G(nodes[3], edges[2], pth4)  # G(G, R, N) when num G triples > 1
     # two overlapping triples work: call it a feature
     G(nodes[1], edges[0], nodes[0], nodes[2], edges[1], nodes[1])
     # equivalent

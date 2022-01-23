@@ -97,16 +97,17 @@ class R(Entity):
     """A property graph Relationship or edge."""
     count = countmaker()
 
-    def __init__(self, Type=None, props=None, As=None):
+    def __init__(self, Type=None, props=None, As=None, _dir='_right'):
         super().__init__()
         self.props = {}
         self.Type = Type
         self._add_props(props)
+        self._dir = _dir
         self.As = As
 
     # n --> m direction
     def relate(self, n, m):
-        return T(n, self, m)
+        return T(n, self, m) if self._dir == '_right' else T(m, self, n)
 
     def pattern(self):
         ret = ",".join([p.pattern() for p in
@@ -221,7 +222,7 @@ class T(Entity):
         return self.pattern()
 
     def Return(self):
-        return [x.Return() for x in (self._from, self._to)]
+        return [x.Return() for x in (self._from, self._to) if x.var]
 
 
 class G(Entity):
@@ -231,6 +232,7 @@ class G(Entity):
 
     def __init__(self, *args):
         super().__init__()
+        self._pattern = None
         self.triples = []
         scr = []
         numargs = len(args)
@@ -281,6 +283,11 @@ class G(Entity):
                         if success:
                             success = self._append(ent)
                     elif isinstance(ent, G):
+                        if len(ent.triples) > 1:
+                            raise RuntimeError(
+                                "Can't create start triple, to-node is ambiguous, "
+                                "at arg position {}.".format(numargs-len(args))
+                            )
                         success = self._append(
                             scr[1].relate(scr[0], ent.triples[0]._from))
                     else:
@@ -306,8 +313,13 @@ class G(Entity):
             else:
                 raise RuntimeError("Shouldn't happen.")
         if scr:
-            if len(scr)==2 and isinstance(
+            if len(scr) == 2 and isinstance(
                     scr[0], R) and isinstance(scr[1], N):
+                if len(self.triples) > 1:
+                    raise RuntimeError(
+                        "Can't create end triple, from-node is ambiguous, "
+                        "at arg position {}.".format(numargs-len(args))
+                    )
                 if not self._append(
                         scr[0].relate(self.triples[-1]._to, scr[1])):
                     raise RuntimeError(
@@ -350,6 +362,49 @@ class G(Entity):
         elif isinstance(ent, G):
             self.triples.extend(ent.triples)
         return True
+
+    def pattern(self):
+        def jn(trps, acc, ret):
+            if not trps:
+                ret.append(acc)
+                return ret
+            trp = trps.pop(0)
+            if not acc:
+                return jn(trps, [trp._from, trp._edge, ">", trp._to], ret)
+            else:
+                if trp._from == acc[0]:
+                    acc[0:0] = [trp._to, "<", trp._edge]
+                elif trp._from == acc[-1]:
+                    acc.extend([trp._edge, ">", trp._to])
+                elif trp._to == acc[0]:
+                    acc[0:0] = [trp._from, trp._edge, ">"]
+                elif trp._to == acc[-1]:
+                    acc.extend(["<", trp._edge, trp._from])
+                else:
+                    ret.append(acc)
+                    acc = [trp._from, trp._edge, ">", trp._to]
+                return jn(trps, acc, ret)
+            pass
+        if not self._pattern:
+            trps = clone(self.triples)
+            grps = jn(trps, [], [])
+            pats = []
+            for grp in grps:
+                pats.append(
+                    "".join([x.pattern() if not isinstance(x, str) else x
+                             for x in grp])
+                    )
+            self._pattern = ", ".join(pats)
+        return self._pattern
+
+    def condition(self):
+        return self.pattern()
+
+    def Return(self):
+        s = ()
+        for t in self.triples:
+            s.add(t._from, t._to)
+        return ", ".join([_return(x) for x in s if x.var])
 
 
 def _as(ent, alias):
