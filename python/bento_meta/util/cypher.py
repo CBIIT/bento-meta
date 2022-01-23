@@ -224,16 +224,19 @@ class T(Entity):
         return [x.Return() for x in (self._from, self._to)]
 
 
-def Path(Entity):
+class G(Entity):
     """A property graph Path.
     Defined as an ordered set of partially overlapping triples."""
+    count = countmaker()
+
     def __init__(self, *args):
-        super.__init__(*args)
+        super().__init__()
         self.triples = []
         scr = []
         numargs = len(args)
+        args = list(args)
         while args:
-            ent = args.pop()
+            ent = args.pop(0)
             if len(scr) == 0:
                 if isinstance(ent, N):
                     scr.append(ent)
@@ -245,7 +248,7 @@ def Path(Entity):
                             "Entity '{}' is not valid at arg position {}."
                             .format(ent, numargs-len(args))
                         )
-                elif isinstance(ent, (T, Path)):
+                elif isinstance(ent, (T, G)):
                     if not self._append(ent):
                         raise RuntimeError(
                             "Adjacent triples/paths do not overlap, "
@@ -277,7 +280,7 @@ def Path(Entity):
                                                              ent._from))
                         if success:
                             success = self._append(ent)
-                    elif isinstance(ent, Path):
+                    elif isinstance(ent, G):
                         success = self._append(
                             scr[1].relate(scr[0], ent.triples[0]._from))
                     else:
@@ -292,8 +295,8 @@ def Path(Entity):
                             .format(numargs-len(args))
                         )
                 elif isinstance(scr[0], R):
-                    if not self._append(ent.relate(self.triples[-1]._to,
-                                                   scr[1])):
+                    if not self._append(scr[0].relate(self.triples[-1]._to,
+                                                      scr[1])):
                         raise RuntimeError(
                             "Resulting adjacent triples/paths do not overlap, "
                             "at arg position {}."
@@ -303,15 +306,25 @@ def Path(Entity):
             else:
                 raise RuntimeError("Shouldn't happen.")
         if scr:
-            raise RuntimeError("Args do not define a complete Path.")
+            if len(scr)==2 and isinstance(
+                    scr[0], R) and isinstance(scr[1], N):
+                if not self._append(
+                        scr[0].relate(self.triples[-1]._to, scr[1])):
+                    raise RuntimeError(
+                        "Resulting adjacent triples/paths do not overlap, "
+                        "at arg position {}."
+                        .format(numargs-len(args))
+                    )
+            else:
+                raise RuntimeError("Args do not define a complete Path.")
 
     def _append(self, ent):
         def _overlap(s, t):
             if s == t:
                 return 0b100
-            if isinstance(s, Path):
+            if isinstance(s, G):
                 s = s.triples[-1]
-            if isinstance(t, Path):
+            if isinstance(t, G):
                 t = t.triples[0]
             if s._from == t._from:
                 return 0b000
@@ -323,7 +336,7 @@ def Path(Entity):
                 return 0b011
             return -1
 
-        if not isinstance(ent, (T, Path)):
+        if not isinstance(ent, (T, G)):
             raise RuntimeError("Can't append a {} to a Path."
                                .format(type(ent).__name__))
         if self.triples:
@@ -334,7 +347,7 @@ def Path(Entity):
                 return False  # Adjacent triples/paths do not overlap
         if isinstance(ent, T):
             self.triples.append(ent)
-        elif isinstance(ent, Path):
+        elif isinstance(ent, G):
             self.triples.extend(ent.triples)
         return True
 

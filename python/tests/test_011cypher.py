@@ -5,7 +5,7 @@ from pdb import set_trace
 sys.path.insert(0, '.')
 sys.path.insert(0, '..')
 from bento_meta.util.cypher import (
-    N, N0, R, R0, P, T, Path,
+    N, N0, R, R0, P, T, G,
     Clause, Match, Where, Return, Statement,
     Func, count, exists, group, And, Or, Not,
     _pattern, _as, _condition, _return,
@@ -113,17 +113,59 @@ def test_entities():
 
 def test_paths():
     # happy paths:
-    # Path(N, R, N), Path(T, T), Path(N, R, T), Path(T, R, N)
-    # Path(N, R, P), Path(Path, R, N)
-    # Path(N, R, N, R, N, R, N), Path(T, Path), Path(Path, T)
-    # Path(Path, Path)
-    # Path(Path, R, N, R, T) ...
+    # G(N, R, N), G(T, T), G(N, R, T), G(T, R, N)
+    # G(N, R, P), G(G, R, N)
+    # G(N, R, N, R, N, R, N), G(T, G), G(G, T)
+    # G(G, G)
+    # G(G, R, N, R, T) ...
     # unhappy paths: with pytest.raises(Exception)
-    # Path(N), Path(R), Path(N, R), Path(R, N), Path(N, N)
-    # Path(N, T), Path(R, T), Path(N, P), Path(R, P)
-    # Path(N, R, N, R, N, R)
-    pass
+    # G(N), G(R), G(N, R), G(R, N), G(N, N)
+    # G(N, T), G(R, T), G(N, G), G(R, G)
+    # G(N, R, N, R, N, R)
+    nodes = [N(label="case"), N(label="sample"), N(label="aliquot"),
+             N(label="file")]
+    edges = [R(Type="of_case"), R(Type="of_sample"), R(Type="of_aliquot")]
 
+    t1 = edges[0].relate(nodes[1], nodes[0])
+    t2 = edges[1].relate(nodes[2], nodes[1])
+    t3 = edges[2].relate(nodes[3], nodes[2])
+
+    pth0 = G(nodes[0], edges[0], nodes[1])  # G(N, R, N)
+    pth1 = G(t1)  # G(T)
+    pth2 = G(t1, t2)  # G(T, T)
+    pth3 = G(t2)
+    pth4 = G(pth1, pth3)  # G(G, G)
+    pth5 = G(pth4, edges[2], nodes[3])  # G(G, R, N)
+    pth6 = G(t2, edges[2], nodes[3])  # G(T, R, N)
+    pth7 = G(nodes[0], edges[0], t2)  # G(N, R, T)
+    pth8 = G(pth1, edges[1], nodes[2], edges[2], t3)
+    
+    with pytest.raises(RuntimeError, match="do not define a complete Path"):
+        G(nodes[0])  # G(N)
+    with pytest.raises(RuntimeError, match="is not valid at arg position 1"):
+        G(edges[0])  # G(R)
+    with pytest.raises(RuntimeError, match="do not define a complete Path"):
+        G(nodes[0], edges[0])  # G(N, R)
+    with pytest.raises(RuntimeError, match="is not valid at arg position 2"):
+        G(nodes[0], nodes[1])  # G(N, N)
+    with pytest.raises(RuntimeError, match="is not valid at arg position 2"):
+        G(nodes[0], t1)  # G(N, T)
+    with pytest.raises(RuntimeError, match="is not valid at arg position 1"):
+        G(edges[1], t1)  # G(R, T)
+    with pytest.raises(RuntimeError, match="do not define a complete Path"):
+        G(nodes[0], edges[0], nodes[1], nodes[2], edges[1])  # G(N, R, N, N, R)
+
+    # two overlapping triples work: call it a feature
+    G(nodes[1], edges[0], nodes[0], nodes[2], edges[1], nodes[1])
+    # equivalent
+    G(nodes[2], edges[1], nodes[1], edges[0], nodes[0])
+
+    with pytest.raises(RuntimeError, match="do not overlap"):
+        G(t1, t3)
+    # same semantics as G(t1, t2), but not the same objects:
+    with pytest.raises(RuntimeError, match="do not overlap"):
+        G(t1, R(Type=edges[1].Type).relate(N(label=nodes[2].label),
+                                           N(label=nodes[1].label)))
 
 def test_clauses():
 
