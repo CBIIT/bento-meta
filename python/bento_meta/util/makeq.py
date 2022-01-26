@@ -15,10 +15,26 @@ from bento_meta.util.cypher import (  # noqa E402
 avail_funcs = {x.__name__: x for x in (count, exists, group, And, Or, Not)}
 
 
+def f(pfx, pth):
+    tok = [x for x in pth if x.startswith('$')]
+    if not tok:
+        tok = [x for x in pth if not x.startswith('_')]
+    if not tok:
+        print(pfx)
+        return
+    else:
+        if pth.get('_return'):
+            print(pfx)
+        for t in tok:
+            f('/'.join([pfx, t]), pth[t])
+        return
+
 class Query(object):
     paths = {}
 
     def __init__(self, path):
+        if path.startswith("/"):
+            path = path[1:]
         self.toks = path.split("/")
         self._match = None
         self._condition = None
@@ -106,19 +122,27 @@ class Query(object):
                 return False
             # collect/create items req by block in the pad, and then
             # execute operations on these items in standard order below.
+            if tok == "terms":
+                set_trace()
             for opn in [x for x in pth if x.startswith('_')]:
                 # operations in block
                 if opn == "_node":
-                    pad['_node'] = _process_node(pth['_node'])
+                    if parm:  # processing a parameter
+                        pad['_node'] = pth['_node']
+                    else:
+                        pad['_node'] = _process_node(pth['_node'])
+                elif opn == "_edge":
+                    if parm:  # processing a parameter
+                        pad['edge'] = pth['edge']
+                    else:
+                        pad['_edge'] = _process_edge(pth['_edge'])
                 elif opn == "_prop":
                     # WARN or ERR if pad.get('_prop') is True
                     # - a parm was already handled in that case
                     pad['_prop'] = _process_prop(pth['_prop'], value=tok)
-                elif opn == "_edge":
-                    pad['_edge'] = _process_edge(pth['_edge'])
                 elif opn == "_return":
-                    # pad['_return'] not empty means we're finished
-                    if len(tok) == 1:  # we're on the last token
+                    if len(toks) == 1:  # we're on the last token
+                        # pad['_return'] not empty means we're finished
                         pad['_return'] = pth['_return']
                     else:  # more toks to go...
                         pass  # so ignore it
@@ -134,7 +158,31 @@ class Query(object):
             # pad ready for operations
             new_ent = None
             if (pad.get('_prop')):  # add props to incoming entity
-                ent._add_props(pad['_prop'])
+                if isinstance(ent, (N,R)):
+                    ent._add_props(pad['_prop'])
+                else:
+                    if not pad.get('_node') and not pad.get('_edge'):
+                        return False # ERR, if incoming is path, need to specify the node which gets the property (by label)
+                    else:
+                        if pad.get('_node'):
+                            n = [x for x in ent.nodes()
+                                 if x.label == pad['_node']]
+                            if not n:
+                                return False  # specified node can't be found in ent
+                            else:
+                                n[0]._add_props(pad['_prop'])
+                                pad['_node'] = None
+                                pad['_prop'] = None
+                        if pad.get('_edge'):
+                            e = [x for x in ent.edges()
+                                 if x.Type == pad['_edge']]
+                            if not e:
+                                return False # specified edge not found in ent
+                            else:
+                                e[0]._add_props(pad['_prop'])
+                                pad['_edge'] = None
+                                pad['_prop'] = Node
+                            
             if (pad.get('_node')):  # new entity
                 new_ent = pad['_node']
             if (pad.get('_edge')):
@@ -147,7 +195,7 @@ class Query(object):
                     new_ent = pad['_edge'].relate(ent, new_ent)
                 else:
                     new_ent = G(ent, pad['_edge'], new_ent)
-            if pad['_return']:
+            if pad.get('_return'):
                 set_trace()
                 return True  # made it
             else:
@@ -157,6 +205,6 @@ class Query(object):
                     return _walk(new_ent or ent, toks[1:], pth)
 
         toks = self.toks
-        pth = self.path
+        pth = self.paths
         success = _walk(None, toks, pth)
         return success

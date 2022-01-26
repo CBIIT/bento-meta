@@ -215,6 +215,9 @@ class T(Entity):
     def edge(self):
         return self._edge
 
+    def edges(self):
+        return self.edge()
+    
     def pattern(self):
         return self._from.pattern()+self._edge.pattern()+">"+self._to.pattern()
 
@@ -363,6 +366,19 @@ class G(Entity):
             self.triples.extend(ent.triples)
         return True
 
+    def nodes(self):
+        ret = ()
+        for t in self.triples:
+            ret.add(t._from)
+            ret.add(t._to)
+        return list(ret)
+
+    def edges(self):
+        ret = ()
+        for t in self.triples:
+            ret.add(t._edge)
+        return list(ret)
+    
     def pattern(self):
         def jn(trps, acc, ret):
             if not trps:
