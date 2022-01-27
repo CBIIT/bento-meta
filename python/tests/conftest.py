@@ -1,5 +1,6 @@
 import pytest
 import requests
+import string
 from requests.exceptions import ConnectionError
 from time import sleep
 from pdb import set_trace
@@ -58,3 +59,31 @@ def mdb(docker_services, docker_ip):
 @pytest.fixture(scope="session")
 def mdb_local():
     return ("bolt://localhost", "http://localhost")
+
+@pytest.fixture()
+def test_paths(model="ICDC", handle="diagnosis", phandle="disease_term", key="Class", value="primary"):
+    tpl = [
+        "/models",
+        "/models/count",
+        "/model/$model/nodes",
+        "/model/$model/nodes/count",
+        "/model/$model/node",
+        "/model/$model/node/$handle",
+        "/model/$model/node/$handle/properties",
+        "/model/$model/node/$handle/properties/count",
+        "/model/$model/node/$handle/property/$phandle",
+        "/model/$model/node/$handle/property/$phandle/terms",
+        "/model/$model/node/$handle/property/$phandle/terms/count",
+        "/model/$model/node/$handle/property/$phandle/term/$value",
+        "/tags",
+        "/tags/count",
+        "/tag/$key/$value",
+        "/tag/$key/$value/count",
+        "/term/$value",
+        "/term/$value/count",
+        ]
+    return [string.Template(x).
+            safe_substitute(model=model, handle=handle, phandle=phandle,
+                            key=key, value=value) for x in tpl]
+
+                                               

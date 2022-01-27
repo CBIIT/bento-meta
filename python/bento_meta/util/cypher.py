@@ -217,7 +217,7 @@ class T(Entity):
 
     def edges(self):
         return self.edge()
-    
+
     def pattern(self):
         return self._from.pattern()+self._edge.pattern()+">"+self._to.pattern()
 
@@ -225,7 +225,8 @@ class T(Entity):
         return self.pattern()
 
     def Return(self):
-        return [x.Return() for x in (self._from, self._to) if x.var]
+        return [x.Return() for x
+                in (self._from, self._edge, self._to) if x.var]
 
 
 class G(Entity):
@@ -288,7 +289,8 @@ class G(Entity):
                     elif isinstance(ent, G):
                         if len(ent.triples) > 1:
                             raise RuntimeError(
-                                "Can't create start triple, to-node is ambiguous, "
+                                "Can't create start triple, "
+                                "to-node is ambiguous, "
                                 "at arg position {}.".format(numargs-len(args))
                             )
                         success = self._append(
@@ -367,14 +369,14 @@ class G(Entity):
         return True
 
     def nodes(self):
-        ret = ()
+        ret = set()
         for t in self.triples:
             ret.add(t._from)
             ret.add(t._to)
         return list(ret)
 
     def edges(self):
-        ret = ()
+        ret = set()
         for t in self.triples:
             ret.add(t._edge)
         return list(ret)

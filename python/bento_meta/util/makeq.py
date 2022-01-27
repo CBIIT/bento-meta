@@ -8,7 +8,7 @@ from bento_meta.util.cypher import (  # noqa E402
     N, R, P, N0, R0, G,
     _as, _var, _plain, _anon,
     count, exists, group, And, Or, Not,
-    Match, Where, Return,
+    Match, Where, With, Return,
     Statement
     )
 
@@ -36,9 +36,8 @@ class Query(object):
         if path.startswith("/"):
             path = path[1:]
         self.toks = path.split("/")
-        self._match = None
-        self._condition = None
-        self._return = None
+        self._statement = None
+        self._params = {}
 
     @classmethod
     def set_paths(cls, paths):
@@ -101,9 +100,61 @@ class Query(object):
                                    format(block))
             return ret
 
+        def _create_statement(ent, pad):
+            match_clause = Match(ent)
+            ret_clause = None
+            if isinstance(pad['_return'], str):
+                if pad['_return'] == '_items':
+                    if isinstance(ent, (N, R)):
+                        ret_clause = Return(ent)
+                    else:
+                        ret_clause = Return(*ent.nodes())
+                else:
+                    if isinstance(ent, N) and ent.label == pad['_return'] and ent.var:
+                        a = [ent]
+                    elif isinstance(ent, R) and ent.Type == pad['_return'] and ent.var:
+                        a = [ent]
+                    else:
+                        a = [x for x in ent.nodes()
+                            if x.label == pad['_return'] and x.var]
+                    if not a:
+                        raise RuntimeError(
+                            "No named node to return with label '{}'"
+                            .format(pad['_return']))
+                    else:
+                        ret_clause = Return(*a)
+            elif isinstance(pad['_return'], dict):
+                a = []
+                if pad['_return'].get('_nodes'):
+                    if pad['_return']['_nodes'] == '*':
+                        a = list(
+                            pad['_func']('*') if pad.get('_func') else '*'
+                            )
+                    elif isinstance(ent, N) and ent.label in pad['_return']['_nodes'] and ent.var:
+                        a.append(ent)
+                    else:
+                        a.extend([x for x in ent.nodes()
+                                  if x.label in pad['_return']['_nodes'] and x.var])
+                if pad['_return'].get('_edges'):
+                    if isinstance(ent, R) and ent.Type in pad['_return']['edges'] and ent.var:
+                        a.append(ent)
+                    a.extend([x for x in ent.edges()
+                              if x.Type in pad['_return']['_nodes'] and x.var])
+                if not a:
+                    raise RuntimeError(
+                        "No named nodes or edges matching the path "
+                        "_return specification")
+                else:
+                    ret_clause = Return(*a)
+            else:
+                raise RuntimeError("_return specification not str or dict")
+            self._statement = Statement(match_clause, ret_clause)
+            set_trace()
+            return True
+        
         def _walk(ent, toks, pth):
             if not toks or not pth:
-                return False  # ERR
+                return False  # ERR need non-empty toks and pth
             tok = toks[0]
             pad = {}
             parm = None
@@ -122,8 +173,6 @@ class Query(object):
                 return False
             # collect/create items req by block in the pad, and then
             # execute operations on these items in standard order below.
-            if tok == "terms":
-                set_trace()
             for opn in [x for x in pth if x.startswith('_')]:
                 # operations in block
                 if opn == "_node":
@@ -152,7 +201,7 @@ class Query(object):
                         # the Func subclass:
                         pad['_func'] = avail_funcs[pth['_func']]
                     else:
-                        return False  # ERR
+                        return False  # ERR no such function available
                     pass
 
             # pad ready for operations
@@ -181,7 +230,7 @@ class Query(object):
                             else:
                                 e[0]._add_props(pad['_prop'])
                                 pad['_edge'] = None
-                                pad['_prop'] = Node
+                                pad['_prop'] = None
                             
             if (pad.get('_node')):  # new entity
                 new_ent = pad['_node']
@@ -195,9 +244,9 @@ class Query(object):
                     new_ent = pad['_edge'].relate(ent, new_ent)
                 else:
                     new_ent = G(ent, pad['_edge'], new_ent)
-            if pad.get('_return'):
-                set_trace()
-                return True  # made it
+            if pad.get('_return'):  # we made it
+                _create_statement(new_ent or ent, pad)
+                return True
             else:
                 if len(toks) == 1:
                     return False  # ERR reached end of toks, no _return found
