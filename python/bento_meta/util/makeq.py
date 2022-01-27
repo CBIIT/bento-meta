@@ -103,6 +103,7 @@ class Query(object):
         def _create_statement(ent, pad):
             match_clause = Match(ent)
             ret_clause = None
+            a = []
             if isinstance(pad['_return'], str):
                 if pad['_return'] == '_items':
                     if isinstance(ent, (N, R)):
@@ -111,12 +112,12 @@ class Query(object):
                         ret_clause = Return(*ent.nodes())
                 else:
                     if isinstance(ent, N) and ent.label == pad['_return'] and ent.var:
-                        a = [ent]
+                        a.append(ent)
                     elif isinstance(ent, R) and ent.Type == pad['_return'] and ent.var:
-                        a = [ent]
+                        a.append(ent)
                     else:
-                        a = [x for x in ent.nodes()
-                            if x.label == pad['_return'] and x.var]
+                        a.extend([x for x in ent.nodes()
+                            if x.label == pad['_return'] and x.var])
                     if not a:
                         raise RuntimeError(
                             "No named node to return with label '{}'"
@@ -124,12 +125,9 @@ class Query(object):
                     else:
                         ret_clause = Return(*a)
             elif isinstance(pad['_return'], dict):
-                a = []
                 if pad['_return'].get('_nodes'):
                     if pad['_return']['_nodes'] == '*':
-                        a = list(
-                            pad['_func']('*') if pad.get('_func') else '*'
-                            )
+                        a.append('*')
                     elif isinstance(ent, N) and ent.label in pad['_return']['_nodes'] and ent.var:
                         a.append(ent)
                     else:
@@ -138,24 +136,30 @@ class Query(object):
                 if pad['_return'].get('_edges'):
                     if isinstance(ent, R) and ent.Type in pad['_return']['edges'] and ent.var:
                         a.append(ent)
-                    a.extend([x for x in ent.edges()
-                              if x.Type in pad['_return']['_nodes'] and x.var])
+                    else:
+                        a.extend([x for x in ent.edges()
+                                  if x.Type in pad['_return']['_nodes'] and x.var])
+
                 if not a:
                     raise RuntimeError(
                         "No named nodes or edges matching the path "
                         "_return specification")
                 else:
+                    if pad['_return'].get('_func'):
+                        func = avail_funcs[pad['_return']['_func']]
+                        a = [func(x) for x in a]
                     ret_clause = Return(*a)
             else:
                 raise RuntimeError("_return specification not str or dict")
             self._statement = Statement(match_clause, ret_clause)
-            set_trace()
             return True
         
         def _walk(ent, toks, pth):
             if not toks or not pth:
                 return False  # ERR need non-empty toks and pth
             tok = toks[0]
+            if tok == "disease_term" and len(toks) == 1:
+                set_trace()
             pad = {}
             parm = None
             if tok in pth:
@@ -197,6 +201,7 @@ class Query(object):
                         pass  # so ignore it
                     pass
                 elif opn == "_func":
+                    set_trace()
                     if pth['_func'] in avail_funcs:
                         # the Func subclass:
                         pad['_func'] = avail_funcs[pth['_func']]
@@ -256,4 +261,5 @@ class Query(object):
         toks = self.toks
         pth = self.paths
         success = _walk(None, toks, pth)
+        set_trace()
         return success
