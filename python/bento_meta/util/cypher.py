@@ -12,7 +12,7 @@ Create cypher statements programmatically.
 import re
 from string import Template
 from copy import deepcopy as clone
-
+from pdb import set_trace
 
 def countmaker(max=100):
     return (x for x in range(max))
@@ -158,6 +158,7 @@ class R0(R):
 class P(Entity):
     """A property graph Property."""
     count = countmaker()
+    parameterize = False
 
     def __init__(self, handle, value=None, As=None):
         super().__init__()
@@ -165,29 +166,37 @@ class P(Entity):
         self.value = value
         self.As = As
         self.entity = None
+        self.param = {self.var: value} if value else None
 
     def pattern(self):
         if self.value:
-            if not type(self.value) == str:
-                return "{}:{}".format(self.handle, str(self.value))
-            elif re.match("^\\s*[$]", self.value):
-                return "{}:{}".format(self.handle, self.value)
+            if not self.parameterize:
+                if not type(self.value) == str:
+                    return "{}:{}".format(self.handle, str(self.value))
+                elif re.match("^\\s*[$]", self.value):  # a parameter
+                    return "{}:{}".format(self.handle, self.value)
+                else:
+                    return "{}:'{}'".format(self.handle, self.value)
             else:
-                return "{}:'{}'".format(self.handle, self.value)
+                return "{}:${}".format(self.handle, self.var)
         else:
             return None
 
     def condition(self):
         if self.value and self.entity:
-            if not type(self.value) == str:
-                return "{}.{} = {}".format(self.entity.var, self.handle,
-                                           str(self.value))
-            elif re.match("^\\s*[$]", self.value):
-                return "{}.{} = {}".format(self.entity.var, self.handle,
-                                           self.value)
+            if not self.parameterize:
+                if not type(self.value) == str:
+                    return "{}.{} = {}".format(self.entity.var, self.handle,
+                                               str(self.value))
+                elif re.match("^\\s*[$]", self.value):  # a parameter
+                    return "{}.{} = {}".format(self.entity.var, self.handle,
+                                               self.value)
+                else:
+                    return "{}.{} = '{}'".format(self.entity.var, self.handle,
+                                                 self.value)
             else:
-                return "{}.{} = '{}'".format(self.entity.var, self.handle,
-                                             self.value)
+                return "{}.{} = ${}".format(self.entity.var, self.handle,
+                                            self.var)
         else:
             return None
 
@@ -216,7 +225,7 @@ class T(Entity):
         return self._edge
 
     def edges(self):
-        return self.edge()
+        return [self.edge()]
 
     def pattern(self):
         return self._from.pattern()+self._edge.pattern()+">"+self._to.pattern()
@@ -661,12 +670,44 @@ class Return(Clause):
 
 class Statement(object):
     """Create a Neo4j statement comprised of clauses (and strings) in order."""
-    def __init__(self, *args, terminate=False):
+    def __init__(self, *args, terminate=False, use_params=False):
         self.clauses = args
         self.terminate = terminate
+        self.use_params = use_params
+        self._params = None
 
     def __str__(self):
+        stash = P.parameterize
+        if self.use_params:
+            P.parameterize = True
+        else:
+            P.parameterize = False
         ret = " ".join([str(x) for x in self.clauses])
         if self.terminate:
             ret = ret+";"
+        P.parameterize = stash
         return ret
+
+    # def params(self):
+    #     if not self._params:
+    #         self._params = re.findall("\\$[a-zA-A0-9_]+", str(self))
+    #     return self._params
+    @property
+    def params(self):
+        if self._params is None:
+            self._params = {}
+            for c in self.clauses:
+                for ent in c.args:
+                    if isinstance(ent, (N, R)):
+                        for p in ent.props.values():
+                            self._params[p.var] = p.value
+                    else:
+                        if 'nodes' in vars(type(ent)):
+                            for n in ent.nodes():
+                                for p in n.props:
+                                    self._params[p.var] = p.value
+                        if 'edges' in vars(type(ent)):
+                            for e in ent.edges():
+                                for p in e.props:
+                                    self._params[p.var] = p.value
+        return self._params

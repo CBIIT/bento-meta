@@ -261,6 +261,31 @@ def test_statments():
     assert str(
         Statement(
             Match(_var(_plain(t))),
+            Where(exists(m.props['handle']), n),
+            Return(count(n)),
+            use_params=True
+            )
+        ) == (
+            "MATCH ({n})-[:has_property]->({m}) "
+            "WHERE exists({m}.handle) AND {n}.model = ${p0} AND "
+            "{n}.handle = ${p1} "
+            "RETURN count({n})"
+            ).format(n=n.var, m=m.var, p0=n.props["model"].var,
+                     p1=n.props["handle"].var)
+
+    assert Statement(
+            Match(_var(_plain(t))),
+            Where(exists(m.props['handle']), n),
+            Return(count(n)),
+            use_params=True
+            ).params == {
+                n.props['model'].var: "ICDC",
+                n.props['handle'].var: "diagnosis"
+            }
+
+    assert str(
+        Statement(
+            Match(_var(_plain(t))),
             Where(group(And(exists(m.props['handle']), n.props['model'])),
                   Not(n.props['handle'])),
             Return(p),
