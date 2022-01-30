@@ -61,7 +61,7 @@ def mdb_local():
     return ("bolt://localhost", "http://localhost")
 
 @pytest.fixture()
-def test_paths(model="ICDC", handle="diagnosis", phandle="disease_term", key="Class", value="primary"):
+def test_paths(model="ICDC", handle="diagnosis", phandle="disease_term", key="Class", value="primary", nanoid="abF32k"):
     tpl = [
         "/models",
         "/models/count",
@@ -81,9 +81,10 @@ def test_paths(model="ICDC", handle="diagnosis", phandle="disease_term", key="Cl
         "/tag/$key/$value/count",
         "/term/$value",
         "/term/$value/count",
+        "/id/$nanoid"
         ]
     return [string.Template(x).
             safe_substitute(model=model, handle=handle, phandle=phandle,
-                            key=key, value=value) for x in tpl]
+                            key=key, value=value, nanoid=nanoid) for x in tpl]
 
                                                

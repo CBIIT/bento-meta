@@ -6,6 +6,7 @@ This module contains :class:`MDB`, with machinery for efficiently
 querying a Neo4j instance of a Metamodel Database.
 """
 import os
+import re
 from functools import wraps
 from neo4j import GraphDatabase
 from nanoid import generate as nanoid_generate
@@ -136,7 +137,8 @@ class MDB:
             "match p = (s:node {model: $model})<-[:has_src]-"
             "          (r:relationship {model: $model})-[:has_dst]->"
             "          (d:node {model: $model}) "
-            "where not exists(s._to) and not exists(r._to) and not exists(d._to) "
+            "where not exists(s._to) and not exists(r._to) and "
+            "not exists(d._to) "
             "return p as path"
             )
         return (qry, {"model":model})
@@ -321,6 +323,17 @@ class MDB:
             parms["value"]=value
         if model:
             parms["model"]=model
+        return (qry, parms)
+
+    @read_txn_data
+    def get_with_statement(self, qry, parms={}):
+        """Run an arbitrary read statement and return data."""
+        if not isinstance(qry, str):
+            raise RuntimeError("qry= must be a string")
+        if not re.match(".*return.*", qry, flags=re.I):
+            raise RuntimeError("Read statement needs a RETURN clause.")
+        if not isinstance(parms, dict):
+            raise RuntimeError("parms= must be a dict")
         return (qry, parms)
     
 def make_nanoid(alphabet="abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789",

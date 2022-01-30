@@ -704,10 +704,10 @@ class Statement(object):
                     else:
                         if 'nodes' in vars(type(ent)):
                             for n in ent.nodes():
-                                for p in n.props:
+                                for p in n.props.values():
                                     self._params[p.var] = p.value
                         if 'edges' in vars(type(ent)):
                             for e in ent.edges():
-                                for p in e.props:
+                                for p in e.props.values():
                                     self._params[p.var] = p.value
         return self._params
