@@ -169,8 +169,8 @@ class _engine(object):
         pad = {}
         parm = None
         if tok in pth:
-            # plain key - shouldn't start with _
-            self.key = "/".join([self.key,tok])
+            # plain token - shouldn't start with _
+            self.key = "/".join([self.key, tok]) if self.key else tok
             pth = pth[tok]
         elif any([x.startswith('$') for x in pth]):
             # parameter
@@ -178,7 +178,8 @@ class _engine(object):
             pth = pth[parm]
             # load pad
             pad['_prop'] = P(handle=parm[1:], value=tok)
-            self.key = "/".join([self.key, "${}".format(pad['_prop'].var)])
+            # note that the cache key will be interpreted as a regexp
+            self.key = "/".join([self.key, "([a-zA-Z0-9_]+)"]) if self.key else "([a-zA-Z0-9_]+)"
             pass
         else:
             self.error = {

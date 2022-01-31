@@ -21,4 +21,15 @@ def test_paths(test_paths):
         q = Query(t)
         assert q.statement
         assert isinstance(q.params, dict)
-    pass
+        pass
+
+    assert len(Query.cache) == len(test_paths)
+    for t in test_paths:
+        Query(t)  # should all be found in cache, so
+    assert len(Query.cache) == len(test_paths)
+
+    q1 = Query("/tag/this/that/count")
+    list(q.params.values()) == ["this","that"]
+    q2 = Query("/tag/13/other/count")
+    list(q.params.values()) == [13, "other"]
+    assert q1._engine == q2._engine
