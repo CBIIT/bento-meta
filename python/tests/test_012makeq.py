@@ -17,6 +17,9 @@ from bento_meta.util.makeq import Query
 def test_paths(test_paths):
     assert Query.load_paths(open("samples/query_paths.yml"))
     assert len(test_paths)
+
+    q = Query("/model/ICDC/node/demographic/property/breed/terms")
+    
     for t in test_paths:
         q = Query(t)
         assert q.statement
@@ -33,3 +36,4 @@ def test_paths(test_paths):
     q2 = Query("/tag/13/other/count")
     list(q.params.values()) == [13, "other"]
     assert q1._engine == q2._engine
+

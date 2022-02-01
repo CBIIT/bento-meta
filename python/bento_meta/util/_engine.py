@@ -47,7 +47,7 @@ class _engine(object):
             ret = N(label=block['_label'])
             if block.get('_prop'):
                 ret._add_props(self._process_prop(block['_prop']))
-            if block.get('_edge') and block.get('node'):
+            if block.get('_edge') and block.get('_node'):
                 n = self._process_node(block['_node'])
                 e = self._process_edge(block['_edge'])
                 ret = G(ret, e, n)
@@ -84,6 +84,11 @@ class _engine(object):
             ret = R(Type=block['_type'])
             if block.get('_dir'):
                 ret._dir = block.get('_dir')
+            if block.get('_join'):
+                # when an edge connects two complex paths
+                # define the nodes on the incoming path and new path
+                # to link with this edge
+                ret._join = block['_join']
         else:
             self.error = {
                 "description": "Can't process _edge block",
@@ -189,6 +194,8 @@ class _engine(object):
             return False
         # collect/create items req by block in the pad, and then
         # execute operations on these items in standard order below.
+        if tok == "terms":
+            set_trace()
         for opn in [x for x in pth if x.startswith('_')]:
             # operations in block
             if opn == "_node":

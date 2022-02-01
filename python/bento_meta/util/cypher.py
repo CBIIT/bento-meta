@@ -102,6 +102,7 @@ class R(Entity):
         self.props = {}
         self.Type = Type
         self._add_props(props)
+        self._join = []
         self._dir = _dir
         self.As = As
 
@@ -247,9 +248,12 @@ class G(Entity):
         super().__init__()
         self._pattern = None
         self.triples = []
-        scr = []
-        numargs = len(args)
         args = list(args)
+        self._create_path(args)
+
+    def _create_path(self, args):
+        numargs = len(args)
+        scr = []
         while args:
             ent = args.pop(0)
             if len(scr) == 0:
@@ -269,6 +273,7 @@ class G(Entity):
                             "Adjacent triples/paths do not overlap, "
                             "at arg position {}.".format(numargs-len(args))
                         )
+                    scr = []  # reset parse
                 else:
                     raise RuntimeError(
                         "Entity '{}' is not valid at arg position {}."
@@ -277,8 +282,34 @@ class G(Entity):
             elif len(scr) == 1:
                 if (isinstance(scr[0], N) and isinstance(ent, R)):
                     scr.append(ent)
-                elif (isinstance(scr[0], R) and isinstance(ent, N)):
-                    scr.append(ent)
+                elif isinstance(scr[0], R):
+                    if isinstance(ent, N):
+                        scr.append(ent)
+                    elif isinstance(ent, (T, G)) and scr[0]._join:
+                        # may be able to link self to ent with _join hints
+                        r = scr[0]
+                        n1 = [x for x in self.triples[-1].nodes()
+                              if x.label == r.join[0]]
+                        n2 = [x for x in ent.nodes() if x.label == r.join[1]]
+                        if n1 and n2:
+                            t = r.relate(n1[0], n2[0])
+                            if not self._append(t):
+                                raise RuntimeError("WTF error; this should not fail")
+                            if not self._append(ent):
+                                raise RuntimeError(
+                                    "Found right-hand node but could not append path"
+                                    )
+                            scr = []  # success
+                        else:
+                            raise RuntimeError(
+                                "Can't find endpoint nodes specified in _join for "
+                                "relationship at arg position {}".format(numargs-len(args)-1)
+                                )
+                    else:
+                        raise RuntimeError(
+                            "Ends of relationship are ambiguous; relationship "
+                            "at arg position {} needs _join hints".format(numargs-len(args)-1)
+                            )
                 else:
                     raise RuntimeError(
                         "Entity '{}' is not valid at arg position {}."

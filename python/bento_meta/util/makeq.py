@@ -70,7 +70,7 @@ class Query(object):
     def load_paths(cls, flo):
         p = yaml.load(flo, Loader=yaml.CLoader)
         return cls.set_paths(p)
-        
+
 
     @property
     def statement(self):

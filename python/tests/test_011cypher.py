@@ -167,6 +167,13 @@ def test_paths():
         "\\(n[0-9]+:file\\)-\\[r[0-9]+:of_aliquot\\]->\\(n[0-9]+:aliquot\\)-\\[r[0-9]+:of_sample\\]->\\(n[0-9]+:sample\\)-\\[r[0-9]+:of_case\\]->\\(n[0-9]+:case\\)",
         pth9.pattern())
 
+    with pytest.raises(RuntimeError, match="needs _join hints"):
+        pth10 = G(t1, edges[1], t3)
+    edges[1]._join = ['sample', 'aliquot']
+    assert re.match(
+        "\\(n[0-9]+:file\\)-\\[r[0-9]+:of_aliquot\\]->\\(n[0-9]+:aliquot\\)-\\[r[0-9]+:of_sample\\]->\\(n[0-9]+:sample\\)-\\[r[0-9]+:of_case\\]->\\(n[0-9]+:case\\)",
+        pth9.pattern())
+
     with pytest.raises(RuntimeError, match="do not define a complete Path"):
         G(nodes[0])  # G(N)
     with pytest.raises(RuntimeError, match="is not valid at arg position 1"):
