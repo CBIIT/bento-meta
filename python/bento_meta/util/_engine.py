@@ -194,8 +194,6 @@ class _engine(object):
             return False
         # collect/create items req by block in the pad, and then
         # execute operations on these items in standard order below.
-        if tok == "terms":
-            set_trace()
         for opn in [x for x in pth if x.startswith('_')]:
             # operations in block
             if opn == "_node":

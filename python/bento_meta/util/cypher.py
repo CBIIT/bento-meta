@@ -289,8 +289,8 @@ class G(Entity):
                         # may be able to link self to ent with _join hints
                         r = scr[0]
                         n1 = [x for x in self.triples[-1].nodes()
-                              if x.label == r.join[0]]
-                        n2 = [x for x in ent.nodes() if x.label == r.join[1]]
+                              if x.label == r._join[0]]
+                        n2 = [x for x in ent.nodes() if x.label == r._join[1]]
                         if n1 and n2:
                             t = r.relate(n1[0], n2[0])
                             if not self._append(t):
