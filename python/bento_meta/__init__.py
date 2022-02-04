@@ -1,5 +1,6 @@
 """
 bento-meta
 """
-import bento_meta.util.cypher as cypher
-import bento_meta.util.makeq as makeq
+from . import entity, mdf, model, object_map, objects
+
+
