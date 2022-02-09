@@ -83,8 +83,3 @@ class Query(object):
     def __str__(self):
         return str(self.statement)
 
-    def _parse_toks(self, use_cache):
-        toks = self.toks
-        pth = self.paths
-        success = _walk(None, toks, pth)
-        return success

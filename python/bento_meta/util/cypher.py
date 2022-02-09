@@ -540,6 +540,7 @@ def _return(ent):
 class Func(object):
     template = Template("func(${slot1})")
     joiner = ','
+    As = ""
 
     @staticmethod
     def context(arg):
@@ -554,7 +555,10 @@ class Func(object):
             slot = self.joiner.join([self.context(a) for a in self.arg])
         else:
             slot = self.context(self.arg)
-        return self.template.substitute(slot1=slot)
+        if self.As:
+            return self.template.substitute(slot1=slot)+" as "+self.As
+        else:
+            return self.template.substitute(slot1=slot)
 
 
 class count(Func):

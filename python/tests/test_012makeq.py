@@ -21,9 +21,9 @@ def test_paths(test_paths):
     q = Query("/model/ICDC/node/demographic/property/breed/terms")
     
     for t in test_paths:
-        q = Query(t)
-        assert q.statement
-        assert isinstance(q.params, dict)
+        qq = Query(t)
+        assert qq.statement
+        assert isinstance(qq.params, dict)
         pass
 
     assert len(Query.cache) == len(test_paths)
@@ -31,9 +31,8 @@ def test_paths(test_paths):
         Query(t)  # should all be found in cache, so
     assert len(Query.cache) == len(test_paths)
 
-    q1 = Query("/tag/this/that/count")
+    q1 = Query("/tag/this/that/entities/count")
     list(q.params.values()) == ["this","that"]
-    q2 = Query("/tag/13/other/count")
+    q2 = Query("/tag/13/other/entities/count")
     list(q.params.values()) == [13, "other"]
     assert q1._engine == q2._engine
-

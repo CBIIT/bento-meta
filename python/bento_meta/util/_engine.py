@@ -1,3 +1,4 @@
+import re
 from bento_meta.util.cypher import (  # noqa E402
     N, R, P, N0, R0, G,
     _as, _var, _plain, _anon,
@@ -97,6 +98,33 @@ class _engine(object):
             return False
         return ret
 
+    def _process_func(self, block):
+        ret = {}
+        if isinstance(block, str):
+            as_ = re.split("@",block)
+            ret['_func'] = as_[0]
+            if len(as_) > 1:
+                as_ = as_[1]
+            else:
+                as_ = None
+            if ret['_func'] in avail_funcs:
+                # the Func subclass:
+                ret['_func'] = avail_funcs[ret['_func']]
+                ret['_func_as'] = as_
+            else:
+                self.error = {
+                    "description": "Sorry, no cypher function '{}' is currently defined".format(pth['_func']),
+                    "block": block,
+                    }
+                return False  # ERR no such function available
+        else:
+            self.error = {
+                "description": "Block type other than simple string not yet handled for _func",
+                "block": block,
+                }
+            return False
+        return ret
+                
     def _create_statement(self, ent, pad):
         match_clause = Match(ent)
         ret_clause = None
@@ -125,21 +153,70 @@ class _engine(object):
                 else:
                     ret_clause = Return(*a)
         elif isinstance(pad['_return'], dict):
-            if pad['_return'].get('_nodes'):
-                if pad['_return']['_nodes'] == '*':
+            retblock = pad['_return']
+            if retblock.get('_nodes'):
+                # assume is list-valued
+                if not isinstance(retblock['_nodes'], list):
+                    self.error = {
+                        "description": '_nodes key must point to a list',
+                        "ent": ent,
+                        "pad": pad,
+                        }
+                    return False
+                labels = {x[0]:x[1] for x in [re.split("@",y)+[None] for y in retblock['_nodes']]}
+                if '*' in labels:
                     a.append('*')
-                elif isinstance(ent, N) and ent.label in pad['_return']['_nodes'] and ent.var:
-                    a.append(ent)
+                elif (isinstance(ent, N) and ent.var):
+                    if ent.label in labels:
+                        if labels[ent.label]:
+                            a.append(_as(ent, labels[ent.label]))
+                        else:
+                            a.append(ent)
+                    if '_var' in labels and ent == pad['_var']:
+                        if labels['_var']:
+                            a.append(_as(ent, labels['_var']))
+                        else:
+                            a.append(ent)
                 else:
-                    a.extend([x for x in ent.nodes()
-                              if x.label in pad['_return']['_nodes'] and x.var])
-            if pad['_return'].get('_edges'):
-                if isinstance(ent, R) and ent.Type in pad['_return']['edges'] and ent.var:
-                    a.append(ent)
+                    for n in ent.nodes():
+                        if n.label in labels and n.var:
+                            if labels[n.label]:
+                                a.append(_as(n, labels[n.label]))
+                            else:
+                                a.append(n)
+                        if '_var' in labels and n == pad['_var']:
+                            if labels['_var']:
+                                a.append(_as(n, labels['_var']))
+                            else:
+                                a.append(n)
+                                        
+            if retblock.get('_edges'):
+                if not isinstance(retblock['_edges'], list):
+                    self.error = {
+                        "description": '_edges key must point to a list',
+                        "ent": ent,
+                        "pad": pad,
+                        }
+                    return False
+                types = {x[0]:x[1] for x in [re.split("@",y)+[None] for y in retblock['_edges']]}
+                if isinstance(ent, R) and ent.var:
+                    if ent.Type in types:
+                        if types[ent.Type]:
+                            _as(ent, types[ent.Type])
+                        else:
+                            a.append(ent)
+                    if '_var' in types and ent == pad['_var']:
+                        if types['_var']:
+                            a.append(_as(ent, types['_var']))
+                        else:
+                            a.append(ent)
                 else:
-                    a.extend([x for x in ent.edges()
-                              if x.Type in pad['_return']['_nodes'] and x.var])
-
+                    for e in ent.edges():
+                        if e.Type in types and e.var:
+                            if types[e.Type]:
+                                a.append(_as(e, types[e.Type]))
+                            else:
+                                a.append(e)
             if not a:
                 self.error = {
                     "description": "No named nodes or edges matching the path _return spec",
@@ -148,9 +225,13 @@ class _engine(object):
                     }
                 return False
             else:
-                if pad['_return'].get('_func'):
-                    func = avail_funcs[pad['_return']['_func']]
-                    a = [func(x) for x in a]
+                if retblock.get('_func'):
+                    f = self._process_func(retblock['_func'])
+                    if not f:
+                        return False  # bad _func spec
+                    a = [f['_func'](x) for x in a]
+                    if f.get('_func_as'):
+                        a = [_as(x, f['_func_as']) for x in a]
                 ret_clause = Return(*a)
         else:
             self.error = {
@@ -201,11 +282,15 @@ class _engine(object):
                     pad['_node'] = pth['_node']
                 else:
                     pad['_node'] = self._process_node(pth['_node'])
+                    if pth['_node'] == '_var':
+                        pad['_var'] = pad['_node']
             elif opn == "_edge":
                 if parm:  # processing a parameter
-                    pad['edge'] = pth['edge']
+                    pad['_edge'] = pth['_edge']
                 else:
                     pad['_edge'] = self._process_edge(pth['_edge'])
+                    if pth['_edge'] == '_var':
+                        pad['_var'] == pad['_edge']
             elif opn == "_prop":
                 # WARN or ERR if pad.get('_prop') is True
                 # - a parm was already handled in that case
@@ -218,16 +303,12 @@ class _engine(object):
                     pass  # so ignore it
                 pass
             elif opn == "_func":
-                if pth['_func'] in avail_funcs:
-                    # the Func subclass:
-                    pad['_func'] = avail_funcs[pth['_func']]
-                else:
-                    self.error = {
-                        "description": "Sorry, no cypher function '{}' is currently defined".format(pth['_func']),
-                        "token": tok
-                        }
-                    return False  # ERR no such function available
-                pass
+                _func = self._process_func(pth['_func'])
+                if not _func:
+                    return False # bad _func spec
+                for k in _func:
+                    pad[k] = _func[k]
+            pass
 
         # pad ready for operations
         new_ent = None
@@ -290,8 +371,10 @@ class _engine(object):
             else:
                 new_ent = G(ent, pad['_edge'], new_ent)
         if pad.get('_return'):  # we made it
-            self._create_statement(new_ent or ent, pad)
-            return True
+            if self._create_statement(new_ent or ent, pad):
+                return True
+            else:
+                return False
         else:
             if len(toks) == 1:
                 self.error = {
