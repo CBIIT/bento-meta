@@ -7,7 +7,7 @@ sys.path.insert(0, '..')
 from bento_meta.util.cypher import (
     N, N0, R, R0, P, T, G,
     Clause, Match, Where, Return, Statement,
-    Func, count, exists, group, And, Or, Not,
+    Func, count, exists, labels, group, And, Or, Not,
     _pattern, _as, _condition, _return,
     _plain, _anon, _var
 )
@@ -22,6 +22,8 @@ def test_paths(test_paths):
     
     for t in test_paths:
         qq = Query(t)
+        if t.endswith('entities'):
+            set_trace()
         assert qq.statement
         assert isinstance(qq.params, dict)
         pass

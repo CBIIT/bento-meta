@@ -568,6 +568,9 @@ class count(Func):
 class exists(Func):
     template = Template("exists($slot1)")
 
+class labels(Func):
+    template = Template("labels($slot1)")
+
 
 class Not(Func):
     template = Template("NOT $slot1")

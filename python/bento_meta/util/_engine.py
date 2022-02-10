@@ -2,13 +2,13 @@ import re
 from bento_meta.util.cypher import (  # noqa E402
     N, R, P, N0, R0, G,
     _as, _var, _plain, _anon,
-    count, exists, group, And, Or, Not,
+    count, exists, labels, group, And, Or, Not,
     Match, Where, With, Return,
     Statement
     )
 from pdb import set_trace  # noqa E402
 
-avail_funcs = {x.__name__: x for x in (count, exists, group, And, Or, Not)}
+avail_funcs = {x.__name__: x for x in (count, exists, labels, group, And, Or, Not)}
 
 
 class _engine(object):
@@ -113,7 +113,7 @@ class _engine(object):
                 ret['_func_as'] = as_
             else:
                 self.error = {
-                    "description": "Sorry, no cypher function '{}' is currently defined".format(pth['_func']),
+                    "description": "Sorry, no cypher function '{}' is currently defined".format(ret['_func']),
                     "block": block,
                     }
                 return False  # ERR no such function available
