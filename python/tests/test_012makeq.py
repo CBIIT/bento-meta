@@ -19,11 +19,13 @@ def test_paths(test_paths):
     assert len(test_paths)
 
     q = Query("/model/ICDC/node/demographic/property/breed/terms")
+    q = Query("/tag/Category/values")
+    assert q.path_id == "tag_values"
+    q = Query("/tag/Category/administrative/entities")
+    assert q.path_id == "tag_entities"
     
     for t in test_paths:
         qq = Query(t)
-        if t.endswith('entities'):
-            set_trace()
         assert qq.statement
         assert isinstance(qq.params, dict)
         pass

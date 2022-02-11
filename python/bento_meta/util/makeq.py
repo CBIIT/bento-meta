@@ -80,6 +80,10 @@ class Query(object):
     def params(self):
         return self._engine.params
 
+    @property
+    def path_id(self):
+        return self._engine.path_id
+    
     def __str__(self):
         return str(self.statement)
 

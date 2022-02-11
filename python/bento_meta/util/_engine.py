@@ -20,6 +20,7 @@ class _engine(object):
         self.statement = None
         self.params = None
         self.key = ""
+        self.path_id = None
         pass
 
     @classmethod
@@ -154,6 +155,8 @@ class _engine(object):
                     ret_clause = Return(*a)
         elif isinstance(pad['_return'], dict):
             retblock = pad['_return']
+            if retblock.get('_path_id'):
+                self.path_id = retblock['_path_id']
             if retblock.get('_nodes'):
                 # assume is list-valued
                 if not isinstance(retblock['_nodes'], list):
