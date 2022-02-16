@@ -46,7 +46,7 @@ class Query(object):
                 Q = self.cache[hit[0]]
                 # pull the new parameter values from the path
                 vals = re.match(hit[0], path).groups()
-                keys = Q._engine.params.keys()
+                keys = sorted(Q._engine.params.keys())
                 self._engine = Q._engine
                 for pr in zip(keys, vals):
                     self._engine.params[pr[0]] = pr[1]
