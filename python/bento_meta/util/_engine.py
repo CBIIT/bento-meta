@@ -1,8 +1,13 @@
 import re
-from bento_meta.util.cypher import (  # noqa E402
+from bento_meta.util.cypher.entities import (  # noqa E402
     N, R, P, N0, R0, G,
     _as, _var, _plain, _anon,
+    )
+
+from bento_meta.util.cypher.functions import (
     count, exists, labels, group, And, Or, Not,
+    )
+from bento_meta.util.cypher.clauses import (
     Match, Where, With, Return,
     Statement
     )

@@ -4,12 +4,16 @@ import pytest
 from pdb import set_trace
 sys.path.insert(0, '.')
 sys.path.insert(0, '..')
-from bento_meta.util.cypher import (
+from bento_meta.util.cypher.entities import (
     N, N0, R, R0, P, T, G,
-    Clause, Match, Where, Return, Statement,
-    Func, count, exists, labels, group, And, Or, Not,
     _pattern, _as, _condition, _return,
-    _plain, _anon, _var
+    _plain, _anon, _var,
+    )
+from bento_meta.util.cypher.functions import (
+    Func, count, exists, labels, group, And, Or, Not,
+    )
+from bento_meta.util.cypher.clauses import (
+    Clause, Match, Where, Return, Statement,
 )
 
 from bento_meta.util.makeq import Query

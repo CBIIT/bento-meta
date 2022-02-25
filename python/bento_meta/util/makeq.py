@@ -5,12 +5,16 @@ import yaml
 import re
 from pdb import set_trace
 from bento_meta.util._engine import _engine
-from bento_meta.util.cypher import (  # noqa E402
+from bento_meta.util.cypher.entities import (  # noqa E402
     N, R, P, N0, R0, G,
     _as, _var, _plain, _anon,
+    )
+from bento_meta.util.cypher.functions import (
     count, exists, labels, group, And, Or, Not,
+    )
+from bento_meta.util.cypher.clauses import (
     Match, Where, With, Return,
-    Statement
+    Statement,
     )
 
 avail_funcs = {x.__name__: x for x in (count, exists, labels, group, And, Or, Not)}
