@@ -17,6 +17,7 @@ from bento_meta.objects import (
     Term,
     ValueSet,
     Tag,
+    Origin,
 )
 import re
 import yaml
@@ -244,15 +245,14 @@ class MDF(object):
         elif isinstance(typedef, list):  # a valueset: create value set and term objs
             vs = ValueSet({"nanoid": make_nano(), "_commit": self._commit})
             vs.handle = self.handle + vs.nanoid
-            try:
-                if re.match("^(?:https?|bolt)://", typedef[0]):  # looks like url
+            # interpret boolean values as strings
+            if (isinstance(typedef[0], str) and
+                re.match("^(?:https?|bolt)://", typedef[0])):  # looks like url
                     vs.url = typedef[0]
-            except TypeError as e:
-                print(typedef[0])
-                print("{} wot? ".format(pname))
-                raise e;
             else:  # an enum
                 for t in typedef:
+                    if isinstance(t, bool): # stringify booleans in term context
+                        t = "True" if t else "False"
                     if not self._terms.get(t):
                         self._terms[t] = Term({"value": t, "_commit": self._commit})
                     vs.terms[t] = self._terms[t]
