@@ -272,6 +272,7 @@ class MDF(object):
         mdf = {"Nodes":{},
                "Relationships":{},
                "PropDefinitions":{},
+               "Terms":{},
                "Handle":model.handle}
         for nd in sorted(model.nodes):
             node = model.nodes[nd]
@@ -290,20 +291,37 @@ class MDF(object):
         for rl in sorted(model.edges):
             edge = model.edges[rl]
             mdf_edge = {}
-            mdf["Relationships"][edge.handle] = mdf_edge
-            mdf_edge["Mul"] = edge.multiplicity or Edge.default("multiplicity")
+            ends = {}
+            if mdf["Relationships"].get(edge.handle):
+                mdf_edge = mdf["Relationships"][edge.handle]
+            else:
+                mdf["Relationships"][edge.handle] = mdf_edge
+            ends = {"Src": edge.src.handle,
+                    "Dst": edge.dst.handle}
+            if mdf_edge.get("Ends"):
+                mdf_edge["Ends"].append(ends)
+            else:
+                mdf_edge["Ends"] = [ends]
+            if not mdf_edge.get("Mul"):
+                mdf_edge["Mul"] = edge.multiplicity or Edge.default("multiplicity")
+            else:
+                if mdf_edge["Mul"] != edge.multiplicity:
+                    ends["Mul"] = edge.multiplicity
             if edge.tags:
                 mdf_edge["Tags"] = {}
                 for t in edge.tags:
                     mdf_edge["Tags"][t] = edge.tags[t].value
             if edge.is_required:
-                mdf_edge["Req"] = True
+                ends["Req"] = True
             if edge.props:
-                mdf_edge["Props"] = [prop for prop in sorted(edge.props)]
+                ends["Props"] = [prop for prop in sorted(edge.props)]
             if edge.nanoid:
-                mdf_edge["NanoID"] = edge.nanoid
+                ends["NanoID"] = edge.nanoid
             if edge.desc:
-                mdf_edge["Desc"] = edge.desc
+                if not mdf_edge.get("Desc"):
+                    mdf_edge["Desc"] = edge.desc
+                else:
+                    ends["Desc"] = edge.desc
         prnames = []
         props = {}
         for pr in model.props:
@@ -320,7 +338,18 @@ class MDF(object):
                 mdf_prop["Tags"] = {}
                 for t in prop.tags:
                     mdf_prop["Tags"][t] = prop.tags[t].value
-            mdf_prop["Type"] = self.calc_prop_type(prop)
+            if prop.value_domain == "value_set":
+                mdf_prop["Enum"] = self.calc_prop_type(prop)
+                for t in prop.terms:
+                    if t in mdf["Terms"]:
+                        print("Term collision at {} (property {})".format(t, prop.handle))
+                    mdf["Terms"][t] = {
+                        "Definition": prop.terms[t].origin_definition,
+                        "Origin": prop.terms[t].origin,
+                        "Code": prop.terms[t].origin_id,
+                        }
+            else:
+                mdf_prop["Type"] = self.calc_prop_type(prop)
             if prop.is_required:
                 mdf_prop["Req"] = True
             if prop.nanoid:
