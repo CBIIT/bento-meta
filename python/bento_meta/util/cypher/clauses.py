@@ -9,7 +9,7 @@ from bento_meta.util.cypher.entities import (
     N, R, P, _return, _condition, _pattern
     )
 from bento_meta.util.cypher.functions import Func
-
+from pdb import set_trace
 
 class Clause(object):
     """Represents a generic Cypher clause."""
@@ -93,6 +93,9 @@ class With(Clause):
 class Create(Clause):
     """Create a CREATE clause with the arguments."""
     template = Template("CREATE $slot1")
+    @staticmethod
+    def context(arg):
+        return _pattern(arg)
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -101,6 +104,9 @@ class Create(Clause):
 class Merge(Clause):
     """Create a MERGE clause with the arguments."""
     template = Template("MERGE $slot1")
+    @staticmethod
+    def context(arg):
+        return _pattern(arg)
 
     def __init__(self, *args):
         super().__init__(*args)

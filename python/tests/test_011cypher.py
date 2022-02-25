@@ -13,7 +13,8 @@ from bento_meta.util.cypher.functions import (
     Func, count, exists, group, And, Or, Not,
 )
 from bento_meta.util.cypher.clauses import (
-    Clause, Match, Where, Return, Statement,
+    Clause, Match, Where, Return, Set, Create, Merge,
+    OnMatchSet, OnCreateSet, Statement,
 )
 
 
@@ -248,6 +249,21 @@ def test_clauses():
         "RETURN {n}, {m}"
         ).format(n=n.var, m=m.var)
 
+    st = Set(*n.props.values())
+    assert isinstance(st, Set)
+    assert isinstance(st, Clause)
+    assert str(st) == "SET {n}.model = 'ICDC', {n}.handle = 'diagnosis'".format(n=n.var)
+
+    st = OnMatchSet(*n.props.values())
+    assert isinstance(st, Set)
+    assert isinstance(st, Clause)
+    assert str(st) == "ON MATCH SET {n}.model = 'ICDC', {n}.handle = 'diagnosis'".format(n=n.var)
+
+    st = OnCreateSet(*n.props.values())
+    assert isinstance(st, Set)
+    assert isinstance(st, Clause)
+    assert str(st) == "ON CREATE SET {n}.model = 'ICDC', {n}.handle = 'diagnosis'".format(n=n.var)
+
 
 def test_statments():
     n = N(label="node", props={"model": "ICDC", "handle": "diagnosis"})
@@ -308,3 +324,39 @@ def test_statments():
             "{n}.handle = 'diagnosis' "
             "RETURN {n}.boog LIMIT 10"
             ).format(n=n.var, m=m.var)
+
+    assert str(
+        Statement(
+            Create(_plain(n)),
+            Set(*n.props.values()),
+            Return(n)
+            )
+        ) == (
+            "CREATE ({n}:node) "
+            "SET {n}.model = 'ICDC', {n}.handle = 'diagnosis' "
+            "RETURN {n}"
+            ).format(n=n.var)
+
+    assert str(
+        Statement(
+            Merge(_plain(n)),
+            OnCreateSet(*n.props.values()),
+            Return(n)
+            )
+        ) == (
+            "MERGE ({n}:node) "
+            "ON CREATE SET {n}.model = 'ICDC', {n}.handle = 'diagnosis' "
+            "RETURN {n}"
+            ).format(n=n.var)
+
+    assert str(
+        Statement(
+            Merge(_plain(n)),
+            OnMatchSet(*n.props.values()),
+            Return(n)
+            )
+        ) == (
+            "MERGE ({n}:node) "
+            "ON MATCH SET {n}.model = 'ICDC', {n}.handle = 'diagnosis' "
+            "RETURN {n}"
+            ).format(n=n.var)

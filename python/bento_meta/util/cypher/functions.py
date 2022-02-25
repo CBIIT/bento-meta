@@ -89,4 +89,22 @@ class is_null(Func):
 class is_not_null(Func):
     template = Template("$slot1 IS NOT NULL")
 
+# rendering contexts
 
+
+def _pattern(ent):
+    if isinstance(ent, (str, Func)):
+        return str(ent)
+    return ent.pattern()
+
+
+def _condition(ent):
+    if isinstance(ent, (str, Func)):
+        return str(ent)
+    return ent.condition()
+
+
+def _return(ent):
+    if isinstance(ent, (str, Func)):
+        return str(ent)
+    return ent.Return()
