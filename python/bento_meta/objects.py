@@ -175,6 +175,7 @@ class Term(Entity):
         "origin_id": "simple",
         "origin_version": "simple",
         "origin_definition": "simple",
+        "origin_name": "simple",
         "concept": "object",
         "origin": "object",
     }
@@ -187,6 +188,7 @@ class Term(Entity):
             "origin_id": "origin_id",
             "origin_version": "origin_version",
             "origin_definition": "origin_definition",
+            "origin_name": "origin_name",
         },
         "relationship": {
             "concept": {"rel": ":represents>", "end_cls": "Concept"},

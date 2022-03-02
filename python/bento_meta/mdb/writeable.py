@@ -1,5 +1,5 @@
 """
-mdb.writeable: subclasss of `class:bento_meta.MDB` to support writing to an MDB
+mdb.writeable: subclass of `class:bento_meta.MDB` to support writing to an MDB
 """
 from functools import wraps
 from bento_meta.mdb import make_nanoid
@@ -23,6 +23,16 @@ def write_txn(func):
 class WriteableMDB(MDB):
     def __init__(self, *args, **kwargs):
         super().__init__(self, *args, **kwargs)
+
+    @write_txn
+    def put_with_statement(self, qry, parms={}):
+        """Run an arbitrary write statement."""
+        if not isinstance(qry, str):
+            raise RuntimeError("qry= must be a string")
+        if not isinstance(parms, dict):
+            raise RuntimeError("parms= must be a dict")
+        return (qry, parms)
+
 
     @write_txn
     def put_term_with_origin(self, term, commit="", _from=1):

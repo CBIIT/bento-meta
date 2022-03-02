@@ -4,6 +4,7 @@ bento_meta.util.cypher.entities
 Representations of cypher nodes, relationships, properties, paths
 """
 import re
+from pdb import set_trace
 from bento_meta.util.cypher.functions import Func
 from copy import deepcopy as clone
 
@@ -16,7 +17,17 @@ class Entity(object):
     """A property graph Entity. Base class."""
     def __init__(self):
         self.As = None
-        self.var = type(self).__name__[0].lower() + str(next(type(self).count))
+        ct = None
+        try:
+            ct = next(type(self).count)
+        except StopIteration:
+            type(self)._reset_counter()
+            ct = next(type(self).count)
+        self.var = type(self).__name__[0].lower() + str(ct)
+
+    @classmethod
+    def _reset_counter(cls):
+        cls.count = countmaker()
 
     def pattern(self):
         """Render entity as a match pattern."""
@@ -372,19 +383,23 @@ class G(Entity):
     def _append(self, ent):
         def _overlap(s, t):
             if s == t:
-                return 0b100
+                return 0b000
             if isinstance(s, G):
                 s = s.triples[-1]
             if isinstance(t, G):
                 t = t.triples[0]
-            if s._from == t._from:
-                return 0b000
-            if s._from == t._to:
+            if s._from == t._from or (
+                    s._from.var and s._from.var == t._from.var):
                 return 0b001
-            if s._to == t._from:
+            if s._from == t._to or (
+                    s._from.var and s._from.var == t._to.var):
                 return 0b010
-            if s._to == t._to:
+            if s._to == t._from or (
+                    s._to.var and s._to.var == t._from.var):
                 return 0b011
+            if s._to == t._to or (
+                    s._to.var and s._to.var == t._to.var):
+                return 0b100
             return -1
 
         if not isinstance(ent, (T, G)):
@@ -513,6 +528,10 @@ def _var(ent):
     else:
         return ent
     return ret
+
+def _plain_var(ent):
+    """Return entity with only the variable, no label or properties"""
+    return _plain(_var(ent))
 
 # rendering contexts
 

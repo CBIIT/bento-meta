@@ -1,19 +1,21 @@
 """
 mdb.loaders: load models into an MDB instance consistently
 """
-from bento_meta.mdf import MDF
+
 from bento_meta.mdb import WriteableMDB
 from bento_meta.util.cypher.entities import (
-    N, R, P, T, G, _var,
+    N, R, P, T, G, _plain_var
     )
 from bento_meta.util.cypher.clauses import (
     Match, Create, Merge, Set, OnMatchSet, OnCreateSet,
     Statement,
     )
 
+
 def load_mdf(mdf, mdb, _commit=None):
     """Load an MDF object into an MDB instance"""
     load_model(mdf.model, mdb, _commit)
+
 
 def load_model(model, mdb, _commit=None):
     """Load a model object into an MDB instance."""
@@ -58,8 +60,8 @@ def load_model(model, mdb, _commit=None):
             Statement(
                 Match(cEdge, cSrc, cDst),
                 Create(
-                    G(R(Type="has_src").relate(_var(cEdge), _var(cSrc)),
-                      R(Type="has_dst").relate(_var(cEdge), _var(cDst)))
+                    G(R(Type="has_src").relate(_plain_var(cEdge), _plain_var(cSrc)),
+                      R(Type="has_dst").relate(_plain_var(cEdge), _plain_var(cDst)))
                     )
                 )])
         if edge.tags:
@@ -72,24 +74,68 @@ def load_model(model, mdb, _commit=None):
                 )
     # edge node and edge-property nodes now exist
 
-    return True
+    # now go through all properties that the model object knows about
+    # - these should already have been created or merged, but
+    # - if the property list on the model is missing any properties
+    # - that nodes or edges have on themselves, then this indicates
+    # - a bug/inconsistency  - and the property won't receive its
+    # - value_set/term list in the DB in the following code.
+
+    for pr in [x for x in model.props.values()
+               if x.value_domain == 'value_set']:
+        cValueSet = _cEntity(pr.value_set, model, _commit)
+        cProp = _cEntity(pr, model, _commit)
+        cStatements.append(
+            Statement(
+                Match(cProp),
+                Merge(R(Type="has_value_set").relate(_plain_var(cProp), cValueSet))
+                )
+            )
+        for tm in pr.terms.values():
+            cTerm = _cEntity(tm, model, _commit)
+            cStatements.append(
+                Statement(
+                    Match(cValueSet),
+                    Merge(R(Type="has_term").relate(_plain_var(cValueSet), cTerm)),
+                    )
+                )
+    return cStatements
 
 
 def _cEntity(ent, model, _commit):
     label = type(ent).__name__.lower()
+    cEnt = None
     if label == 'edge':
         label = 'relationship'
-    cEnt = N(label=label,
-             props={"handle": ent.handle,
-                    "model": model.handle})
+    if label == 'term':
+        cEnt = N(label=label,
+                 props={"value": ent.value})
+        if ent.origin_name:
+            cEnt._add_props({"origin_name": ent.origin_name})
+        if ent.origin_id:
+            cEnt._add_props({"origin_id": ent.origin_id})
+        if ent.origin_version:
+            cEnt._add_props({"origin_version": ent.origin_version})
+        if ent.origin_definition:
+            cEnt._add_props({"origin_defintion": ent.origin_definition})
+    elif label == 'value_set':
+        cEnt = N(label='value_set',
+                 props={"handle": ent.handle})
+        if ent.url:
+            cEnt._add_props({"url": ent.url})
+    else:
+        cEnt = N(label=label,
+                 props={"handle": ent.handle,
+                        "model": model.handle})
     if _commit:
         cEnt._add_props({"_commit": _commit})
     if ent.nanoid:
         cEnt._add_props({"nanoid": ent.nanoid})
     if ent.desc:
         cEnt._add_props({"desc": ent.desc})
-    return ent
-         
+    return cEnt
+
+
 def _tag_statements(ent, cEnt, _commit):
     stmts = []
     cTags = []
@@ -109,10 +155,11 @@ def _tag_statements(ent, cEnt, _commit):
         stmts.append(
             Statement(
                 Match(cEnt),
-                Create(R(Type="has_tag").relate(_var(cEnt), ct))
+                Create(R(Type="has_tag").relate(_plain_var(cEnt), ct))
                 )
             )
     return stmts
+
 
 def _prop_statements(ent, cEnt, model, _commit):
     stmts = []
@@ -123,11 +170,11 @@ def _prop_statements(ent, cEnt, model, _commit):
             Statement(
                 Create(cProp)
                 ),
-                Statement(
-                    Match(cEnt, cProp),
-                    Create(R(Type="has_property").relate(
-                        _var(cEnt), _var(cProp)))
-                    )
+            Statement(
+                Match(cEnt, cProp),
+                Create(R(Type="has_property").relate(
+                    _plain_var(cEnt), _plain_var(cProp)))
+                )
             ])
         if p.tags:
             stmts.extend(

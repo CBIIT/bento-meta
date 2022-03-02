@@ -7,7 +7,7 @@ sys.path.insert(0, '..')
 from bento_meta.util.cypher.entities import (
     N, N0, R, R0, P, T, G,
     _pattern, _as, _condition, _return,
-    _plain, _anon, _var,
+    _plain, _anon, _var, _plain_var
     )
 from bento_meta.util.cypher.functions import (
     Func, count, exists, group, And, Or, Not,
@@ -199,9 +199,15 @@ def test_paths():
         G(nodes[3], edges[2], pth4)  # G(G, R, N) when num G triples > 1
     # two overlapping triples work: call it a feature
     G(nodes[1], edges[0], nodes[0], nodes[2], edges[1], nodes[1])
+    
     # equivalent
     G(nodes[2], edges[1], nodes[1], edges[0], nodes[0])
 
+
+    mm = G( R(Type="funk").relate( _plain_var(nodes[0]), _plain_var(nodes[1])),
+        R(Type="master").relate( _plain_var(nodes[0]), _plain_var(nodes[2])))
+    assert len(mm.triples) == 2
+    
     with pytest.raises(RuntimeError, match="do not overlap"):
         G(t1, t3)
     # same semantics as G(t1, t2), but not the same objects:

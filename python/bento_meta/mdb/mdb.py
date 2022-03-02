@@ -7,6 +7,7 @@ querying a Neo4j instance of a Metamodel Database.
 """
 import os
 import re
+from warnings import warn
 from functools import wraps
 from neo4j import GraphDatabase
 from nanoid import generate as nanoid_generate
@@ -73,9 +74,11 @@ class MDB:
         self.uri = uri
         self.user = user
         self.password = password
-        self.driver = GraphDatabase.driver(self.uri,
-                                           auth=(self.user, self.password))
-
+        try:
+            self.driver = GraphDatabase.driver(self.uri,
+                                               auth=(self.user, self.password))
+        except Exception as e:
+            warn("MDB not connected: {}".format(e))
         self._txfns = {}
         """ Create an :class:`MDB` object, with a connection to a Neo4j instance of a metamodel database.
         :param bolt_url uri: The Bolt protocol endpoint to the Neo4j instance (default, use the
