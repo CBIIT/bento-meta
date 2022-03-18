@@ -147,6 +147,7 @@ class Model(object):
 
         :param Node|Edge ent: Attach ``prop`` to this entity
         :param Property prop: A :class:`Property` instance
+        :param boolean reuse: If True, reuse existing property with same handle
 
         The model attribute of ``prop`` is set to `Model.handle`. Within a model,
         :class:`Property` entities are unique with respect to their
@@ -159,12 +160,7 @@ class Model(object):
         if not prop:
             raise ArgError("arg 2 must be Property, dict, or graph.Node")
         if isinstance(prop, (dict, neo4j.graph.Node)):
-            handle = prop["handle"]
-            pkeys = [x for x in self.props if handle in x]
-            if pkeys:
-                prop = self.props[pkeys.pop()]
-            else:
-                prop = Property(prop)
+            prop = Property(prop)
         if not prop.model:
             prop.model = self.handle
         key = [ent.handle] if isinstance(ent, Node) else list(ent.triplet)

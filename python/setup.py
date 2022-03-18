@@ -8,12 +8,16 @@ setup(
     url="https://github.com/CBIIT/bento-meta",
     python_requires='>=3.6',
     packages=find_packages(),
+    dependency_links=[
+        '.'
+        ],
     install_requires=[
         'PyYAML>=5.1.1',
         'delfick-project',
         'neo4j>=4.0',
         'nanoid',
-        'requests'
+        'requests',
+        'MDFValidate'
         ],
     tests_require=[
         'pytest',

@@ -8,6 +8,9 @@ writing the opposite way.
 
 """
 import sys
+import yaml
+from tempfile import TemporaryFile
+from MDFValidate.validator import MDFValidator
 from bento_meta.model import Model
 from bento_meta.entity import ArgError, CollValue
 from bento_meta.objects import (
@@ -20,17 +23,13 @@ from bento_meta.objects import (
     Origin,
 )
 import re
-import yaml
-from yaml.constructor import ConstructorError
-from yaml.parser import ParserError
 import requests
-import delfick_project.option_merge as om
 from collections import ChainMap
 from warnings import warn
 from nanoid import generate
 import json
 
-# from pdb import set_trace
+from pdb import set_trace
 
 sys.path.extend([".", ".."])
 
@@ -51,7 +50,7 @@ class MDF(object):
             raise ArgError("arg model= must be a Model instance")
             
         self.files = yaml_files
-        self.schema = om.MergedOptions()
+        self.schema = {}
         self._model = model
         self._commit = _commit
         self._terms = {}
@@ -74,8 +73,8 @@ class MDF(object):
         return self._model
 
     def load_yaml(self):
-        """Load YAML files or open file handles specified in constructor"""
-        yloader = yaml.loader.Loader
+        """Validate and load YAML files or open file handles specified in constructor"""
+        vargs = []
         for f in self.files:
             if isinstance(f, str):
                 if re.match("(?:file|https?)://", f):
@@ -87,20 +86,17 @@ class MDF(object):
                             )
                         )
                     response.encoding = "utf8"
-                    f = response.text
+                    fh = TemporaryFile()
+                    for chunk in response.iter_content(chunk_size=128):
+                        fh.write(chunk)
+                    fh.seek(0)
+                    vargs.append(fh)
                 else:
-                    f = open(f, "r")
-            try:
-                yml = yaml.load(f, Loader=yloader)
-                self.schema.update(yml)
-            except ConstructorError as ce:
-                print("YAML constructor failed in '{fn}':\n{e}".format(fn=f.name, e=ce))
-                raise ce
-            except ParserError as pe:
-                print("YAML parser failed in '{fn}':\n{e}".format(fn=f.name, e=pe))
-                raise pe
-            except Exception:
-                raise
+                    fh = open(f, "r")
+                    vargs.append(fh)
+        v = MDFValidator(None, *vargs, verbose=False)
+        self.schema = v.load_and_validate_yaml()
+
 
     def create_model(self):
         """Create :class:`Model` instance from loaded YAML
@@ -156,58 +152,80 @@ class MDF(object):
                                             "value": Tags[t],
                                             "_commit": self._commit})
         # create properties
+        propnames = {}
         for ent in ChainMap(self._model.nodes, self._model.edges).values():
             if isinstance(ent, Node):
                 pnames = ynodes[ent.handle]["Props"]
                 if yunps:
                     pnames.extend(yunps["mayHave"] if yunps.get("mayHave") else [])
                     pnames.extend(yunps["mustHave"] if yunps.get("mustHave") else [])
+                if pnames:
+                    propnames[ent] = pnames
             elif isinstance(ent, Edge):
-                # props elts appearing Ends hash take
-                # precedence over Props elt in the
-                # handle's hash
+                # props elts appearing Ends hash take precedence over 
+                # Props elt in the handle's hash
                 (hdl, src, dst) = ent.triplet
                 [end] = [
                     e
                     for e in yedges[hdl]["Ends"]
                     if e["Src"] == src and e["Dst"] == dst
                 ]
+                # note the end-specified props _replace_ the edge-specified props,
+                # they are not merged:
                 pnames = end.get("Props") or yedges[hdl].get("Props")
                 if yurps:
                     pnames.extend(yurps["mayHave"] if yurps.get("mayHave") else [])
                     pnames.extend(yurps["mustHave"] if yurps.get("mustHave") else [])
+                if pnames:
+                    propnames[ent] = pnames
             else:
                 raise AttributeError(
                     "unhandled entity type {type} for properties".format(
                         type=type(ent).__name__
                     )
                 )
-            if pnames:
-                for pname in pnames:
+        prop_of = {}
+        for ent in propnames:
+            for p in propnames[ent]:
+                if prop_of.get(p):
+                    prop_of[p].append(ent)
+                else:
+                    prop_of[p] = [ent]
+        for pname in prop_of:
+            for ent in prop_of[pname]:
+                key = ent.handle+"."+pname
+                ypdef = ypropdefs.get(key)
+                if not ypdef:
+                    key = pname
                     ypdef = ypropdefs.get(pname)
-                    if not ypdef:
-                        warn(
-                            "property '{pname}' does not have a corresponding propdef".format(
-                                pname=pname
-                            )
+                if not ypdef:
+                    warn(
+                        "property '{pname}' does not have a corresponding propdef for entity '{handle}'".format(
+                        pname=pname, handle=ent.handle
                         )
-                        break
-                    init = {"handle": pname,
-                            "model": self.handle,
-                            "_commit": self._commit}
-                    if ypdef.get("Type"):
-                        init.update(self.calc_value_domain(ypdef["Type"],pname))
-                    elif ypdef.get("Enum"):
-                        init.update(self.calc_value_domain(ypdef["Enum"],pname))
-                    else:
-                        init["value_domain"] = Property.default("value_domain")
-                    prop = self._model.add_prop(ent, init)
-                    ent.props[prop.handle] = prop
-                    if ypdef.get("Tags"):
-                        for t in ypdef["Tags"]:
-                            prop.tags[t] = Tag({"key": t,
-                                                "value": ypdef["Tags"][t],
-                                                "_commit": self._commit})
+                    )
+                    break
+                init = {"handle": pname,
+                        "model": self.handle,
+                        "_commit": self._commit}
+                if ypdef.get("Type"):
+                    init.update(self.calc_value_domain(ypdef["Type"],pname))
+                elif ypdef.get("Enum"):
+                    init.update(self.calc_value_domain(ypdef["Enum"],pname))
+                else:
+                    warn(
+                        "property '{pname}' on entity '{handle}' does not specify "
+                        "a data type".format(pname=pname, handle=ent.handle)
+                    )
+                    init["value_domain"] = Property.default("value_domain")
+                reuse = True
+                prop = self._model.add_prop(ent, init)
+                ent.props[prop.handle] = prop
+                if ypdef.get("Tags"):
+                    for t in ypdef["Tags"]:
+                        prop.tags[t] = Tag({"key": t,
+                                            "value": ypdef["Tags"][t],
+                                            "_commit": self._commit})
         return self._model
 
     def calc_value_domain(self, typedef,pname=None):
