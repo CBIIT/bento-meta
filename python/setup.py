@@ -9,7 +9,7 @@ setup(
     python_requires='>=3.6',
     packages=find_packages(),
     dependency_links=[
-        '.'
+        'git+https://github.com/CBIIT/bento-mdf'
         ],
     install_requires=[
         'PyYAML>=5.1.1',
@@ -17,7 +17,7 @@ setup(
         'neo4j>=4.0',
         'nanoid',
         'requests',
-        'MDFValidate'
+        'mdf-validate'
         ],
     tests_require=[
         'pytest',

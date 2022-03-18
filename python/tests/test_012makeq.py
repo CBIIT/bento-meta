@@ -1,4 +1,5 @@
 import sys
+import os
 import re
 import pytest
 from pdb import set_trace
@@ -18,8 +19,10 @@ from bento_meta.util.cypher.clauses import (
 
 from bento_meta.util.makeq import Query
 
+tdir = 'tests/' if os.path.exists('tests') else ''
+
 def test_paths(test_paths):
-    assert Query.load_paths(open("samples/query_paths.yml"))
+    assert Query.load_paths(open("{}samples/query_paths.yml".format(tdir)))
     assert len(test_paths)
 
     q = Query("/model/ICDC/node/demographic/property/breed/terms")
