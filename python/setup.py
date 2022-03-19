@@ -17,7 +17,7 @@ setup(
         'neo4j>=4.0',
         'nanoid',
         'requests',
-        'mdf-validate'
+        'mdf-validate>=0.3'
         ],
     tests_require=[
         'pytest',

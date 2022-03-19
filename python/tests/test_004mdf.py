@@ -14,11 +14,13 @@ from yaml import Loader as yloader
 
 tdir = 'tests/' if os.path.exists('tests') else ''
 
+
 def test_class():
     m = MDF(handle='test')
     assert isinstance(m,MDF)
     with pytest.raises(ArgError,match="arg handle= must"):
         MDF()
+
 
 def test_load_yaml():
     m = MDF(handle='test')
@@ -27,12 +29,14 @@ def test_load_yaml():
     m.load_yaml()
     assert m.schema["Nodes"]
 
+
 def test_load_yaml_url():
     m = MDF(handle='ICDC')
     m.files = ['https://cbiit.github.io/icdc-model-tool/model-desc/icdc-model.yml','https://cbiit.github.io/icdc-model-tool/model-desc/icdc-model-props.yml']
     m.load_yaml()
     m.create_model()
     assert m.model
+
 
 def test_create_model():
     m = MDF(handle='test')
@@ -41,6 +45,7 @@ def test_create_model():
     m.load_yaml()
     m.create_model()
     assert m.model
+
 
 def test_created_model():
     m = MDF('{}samples/test-model.yml'.format(tdir),handle='test')
@@ -98,6 +103,7 @@ def test_create_model_qual_props():
     assert m.model.edges[('derived_from','file','file')].props['disease'].value_domain == 'url'
     
 @pytest.mark.skip("TODO")
+
 def test_write_mdf():
     yml = yaml.load(open('{}samples/test-model.yml'.format(tdir),'r'),Loader=yloader)
     m = MDF('{}samples/test-model.yml'.format(tdir),handle='test')

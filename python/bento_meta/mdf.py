@@ -9,6 +9,8 @@ writing the opposite way.
 """
 import sys
 import yaml
+import logging
+from logging import debug, info, warning, error
 from tempfile import TemporaryFile
 from MDFValidate.validator import MDFValidator
 from bento_meta.model import Model
@@ -25,16 +27,19 @@ from bento_meta.objects import (
 import re
 import requests
 from collections import ChainMap
-from warnings import warn
 from nanoid import generate
 import json
 
 from pdb import set_trace
 
 sys.path.extend([".", ".."])
+logger = logging.getLogger(__name__)
 
 def make_nano():
-    return generate(size=6, alphabet="abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789")    
+    return generate(
+        size=6,
+        alphabet="abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789"
+    )
 
 class MDF(object):
     def __init__(self, *yaml_files, handle=None, model=None, _commit=None):
@@ -63,8 +68,7 @@ class MDF(object):
             self.create_model()
         else:
             if not model:
-                warn("No MDF files or model provided to constructor")
-                pass
+                logger.warning("No MDF files or model provided to constructor")
 
     @property
     def model(self):
@@ -80,6 +84,10 @@ class MDF(object):
                 if re.match("(?:file|https?)://", f):
                     response = requests.get(f)
                     if not response.ok:
+                        error(
+                            "Fetching url {} returned code {}".format(
+                                response.url, response.status_code
+                            ))
                         raise ArgError(
                             "Fetching url {} returned code {}".format(
                                 response.url, response.status_code
@@ -94,14 +102,17 @@ class MDF(object):
                 else:
                     fh = open(f, "r")
                     vargs.append(fh)
-        v = MDFValidator(None, *vargs, verbose=False)
+                
+        v = MDFValidator(None, *vargs, raiseError=True)
         self.schema = v.load_and_validate_yaml()
 
 
-    def create_model(self):
+    def create_model(self, raiseError=False):
         """Create :class:`Model` instance from loaded YAML
+        :param boolean raiseError: Raise if MDF errors found
         Note: This is brittle, since the syntax of MDF is hard-coded
         into this method."""
+        success=True
         if not self.schema.keys():
             raise ValueError("attribute 'schema' not set - are yamls loaded?")
         if (self.handle):
@@ -109,7 +120,9 @@ class MDF(object):
         elif (self.schema.get("Handle")):
             self._model = Model(handle=self.schema["Handle"])
         else:
-            raise RuntimeError("Model handle not present in MDF nor provided in args")
+            logger.error("Model handle not present in MDF nor provided in args")
+            success = False
+            
         ynodes = self.schema["Nodes"]
         yedges = self.schema["Relationships"]
         ypropdefs = self.schema["PropDefinitions"]
@@ -138,11 +151,25 @@ class MDF(object):
                     "src": self._model.nodes[ends["Src"]],
                     "dst": self._model.nodes[ends["Dst"]],
                     "multiplicity": ends.get("Mul")
-                    or ye.get("Mul")
-                    or Edge.default("multiplicity"),
+                    or ye.get("Mul"),
                     "desc": ends.get("Desc") or ye.get("Desc"),
                     "_commit": self._commit
                 }
+                if not init["multiplicity"]:
+                    logger.warning("edge '{ename}' from '{src}' to '{dst}' "
+                                   "does not specify a multiplicity".
+                                   format(ename=e, src=ends["Src"],
+                                          dst=ends["Dst"]))
+                    init["multiplicity"] = Edge.default("multiplicity")
+                if init["multiplicity"] not in ('many_to_many', 'many_to_one',
+                                                'one_to_many', 'one_to_one'):
+                    logger.warning("edge '{ename}' from '{src}' to '{dst}'"
+                                   " has non-standard multiplicity '{mult}'".
+                                   format(ename=e, src=ends["Src"],
+                                          dst=ends["Dst"], mult=init["multiplicity"]
+                                   )
+                    )
+
                 edge = self._model.add_edge(init)
                 Tags = ye.get("Tags") or ends.get("Tags")
                 if Tags:
@@ -179,11 +206,12 @@ class MDF(object):
                 if pnames:
                     propnames[ent] = pnames
             else:
-                raise AttributeError(
-                    "unhandled entity type {type} for properties".format(
+                logger.error(
+                    "Unhandled entity type {type} for properties".format(
                         type=type(ent).__name__
                     )
                 )
+                success = False
         prop_of = {}
         for ent in propnames:
             for p in propnames[ent]:
@@ -199,9 +227,10 @@ class MDF(object):
                     key = pname
                     ypdef = ypropdefs.get(pname)
                 if not ypdef:
-                    warn(
-                        "property '{pname}' does not have a corresponding propdef for entity '{handle}'".format(
-                        pname=pname, handle=ent.handle
+                    logger.warning(
+                        "property '{pname}' does not have a corresponding "
+                        "propdef for entity '{handle}'".format(
+                            pname=pname, handle=ent.handle
                         )
                     )
                     break
@@ -209,16 +238,16 @@ class MDF(object):
                         "model": self.handle,
                         "_commit": self._commit}
                 if ypdef.get("Type"):
-                    init.update(self.calc_value_domain(ypdef["Type"],pname))
+                    init.update(self.calc_value_domain(ypdef["Type"], pname))
                 elif ypdef.get("Enum"):
-                    init.update(self.calc_value_domain(ypdef["Enum"],pname))
+                    init.update(self.calc_value_domain(ypdef["Enum"], pname))
                 else:
-                    warn(
-                        "property '{pname}' on entity '{handle}' does not specify "
-                        "a data type".format(pname=pname, handle=ent.handle)
+                    logger.warning(
+                        "property '{pname}' on entity '{handle}' does not "
+                        "specify a data type".format(pname=pname,
+                                                     handle=ent.handle)
                     )
                     init["value_domain"] = Property.default("value_domain")
-                reuse = True
                 prop = self._model.add_prop(ent, init)
                 ent.props[prop.handle] = prop
                 if ypdef.get("Tags"):
@@ -226,12 +255,15 @@ class MDF(object):
                         prop.tags[t] = Tag({"key": t,
                                             "value": ypdef["Tags"][t],
                                             "_commit": self._commit})
+        if raiseError and not success:
+            raise RuntimeError("MDF errors found; see log output.")
         return self._model
 
-    def calc_value_domain(self, typedef,pname=None):
+    def calc_value_domain(self, typedef, pname=None):
         if isinstance(typedef, dict):
             if typedef.get("pattern"):
-                return {"value_domain": "regexp", "pattern": typedef["pattern"]}
+                return {"value_domain": "regexp",
+                        "pattern": typedef["pattern"]}
             elif typedef.get("units"):
                 return {
                     "value_domain": typedef.get("value_type"),
@@ -240,8 +272,8 @@ class MDF(object):
             elif typedef.get("item_type"):
                 if (typedef["value_type"] == 'list'):
                     i_domain = self.calc_value_domain(typedef["item_type"])
-                    ret = { "value_domain": "list",
-                            "item_domain": i_domain["value_domain"]}
+                    ret = {"value_domain": "list",
+                           "item_domain": i_domain["value_domain"]}
                     if i_domain.get("pattern"):
                         ret["pattern"] = i_domain["pattern"]
                     if i_domain.get("units"):
@@ -250,12 +282,14 @@ class MDF(object):
                         ret["value_set"] = i_domain["value_set"]
                     return ret
                 else:
-                    warn("MDF type descriptor defines item_type, but value_type is {}, not 'list'".format(typedef["value_type"]))
+                    logger.warning(
+                        "MDF type descriptor defines item_type, but value_type"
+                        " is {}, not 'list'".format(typedef["value_type"]))
             elif not typedef:
-                warn("MDF type descriptor is null")
+                logger.warning("MDF type descriptor is null")
             else:
                 # punt
-                warn(
+                logger.warning(
                     "MDF type descriptor unrecognized: json looks like {}".
                     format(json.dumps(typedef))
                     )
@@ -266,10 +300,10 @@ class MDF(object):
             # interpret boolean values as strings
             if (isinstance(typedef[0], str) and
                 re.match("^(?:https?|bolt)://", typedef[0])):  # looks like url
-                    vs.url = typedef[0]
+                vs.url = typedef[0]
             else:  # an enum
                 for t in typedef:
-                    if isinstance(t, bool): # stringify booleans in term context
+                    if isinstance(t, bool):  # stringify booleans in term context
                         t = "True" if t else "False"
                     if not self._terms.get(t):
                         self._terms[t] = Term({"value": t, "_commit": self._commit})
@@ -278,6 +312,7 @@ class MDF(object):
         elif isinstance(typedef, str):
             return {"value_domain": typedef}
         else:
+            logger.warning("Applying default value domain")
             return {"value_domain": Property.default("value_domain")}
 
     def write_mdf(self, model=None, file=None):
@@ -346,7 +381,7 @@ class MDF(object):
             prname = pr[len(pr)-1]
             prnames.append(prname)
             if props.get(prname):
-                print("Property name collision at {}".format(pr))
+                warning("Property name collision at {}".format(pr))
             props[prname] = model.props[pr]
         for prname in sorted(prnames):
             prop = props[prname]
@@ -360,7 +395,7 @@ class MDF(object):
                 mdf_prop["Enum"] = self.calc_prop_type(prop)
                 for t in prop.terms:
                     if t in mdf["Terms"]:
-                        print("Term collision at {} (property {})".format(t, prop.handle))
+                        warning("Term collision at {} (property {})".format(t, prop.handle))
                     mdf["Terms"][t] = {
                         "Definition": prop.terms[t].origin_definition,
                         "Origin": prop.terms[t].origin,
@@ -388,7 +423,7 @@ class MDF(object):
             return Property.default("value_domain")
         if prop.value_domain == "regexp":
             if not prop.pattern:
-                warn("Property {} has 'regexp' value domain, but no pattern specified".format(prop.handle))
+                warning("Property {} has 'regexp' value domain, but no pattern specified".format(prop.handle))
                 return {"pattern":"^.*$"}
             else:
                 return {"pattern":prop.pattern}
@@ -396,7 +431,7 @@ class MDF(object):
             return {"value_type":prop.value_domain, "units":prop.units.split(';')}
         if prop.value_domain == "value_set":
             if not prop.value_set:
-                warn("Property {} has 'value_set' value domain, but value_set attribute is None".format(prop.handle))
+                warning("Property {} has 'value_set' value domain, but value_set attribute is None".format(prop.handle))
                 return "string"
             values = []
             for trm in sorted(prop.terms):
