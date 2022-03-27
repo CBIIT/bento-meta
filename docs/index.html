@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bento_meta &mdash; bento_meta  documentation</title>
+  <title>bento_meta and Metamodel Database (MDB) &mdash; bento_meta  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,7 +18,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="The Object Model" href="the_object_model.html" /> 
+    <link rel="next" title="Metamodel Database (MDB) Principles" href="mdb-principles.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,6 +38,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
@@ -59,7 +61,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>bento_meta</li>
+      <li>bento_meta and Metamodel Database (MDB)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -70,8 +72,8 @@
            <div itemprop="articleBody">
              
   <a class="reference external image-reference" href="https://github.com/CBIIT/bento-meta"><img alt="Fork me on GitHub" class="align-right" height="117" src="_images/forkme_right_green_007200.svg" width="117" /></a>
-<section id="bento-meta">
-<h1>bento_meta<a class="headerlink" href="#bento-meta" title="Permalink to this headline"></a></h1>
+<section id="bento-meta-and-metamodel-database-mdb">
+<h1>bento_meta and Metamodel Database (MDB)<a class="headerlink" href="#bento-meta-and-metamodel-database-mdb" title="Permalink to this headline"></a></h1>
 <a class="reference external image-reference" href="https://travis-ci.org/CBIIT/bento-meta"><img alt="Build Status" src="https://travis-ci.org/CBIIT/bento-meta.svg?branch=master" /></a>
 <p><strong>bento_meta</strong> provides an object representation of
 <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph">property graph</a>
@@ -83,14 +85,15 @@ the individual models:</p>
 <a class="reference external image-reference" href="https://github.com/CBIIT/bento-meta#bento-meta-db"><img alt="https://raw.githubusercontent.com/CBIIT/bento-meta/master/metamodel.svg" class="align-center" height="600px" src="https://raw.githubusercontent.com/CBIIT/bento-meta/master/metamodel.svg" width="500px" /></a>
 <p>For example, model nodes are represented as metamodel nodes of type
 <code class="docutils literal notranslate"><span class="pre">node</span></code>, model relationships as metamodel nodes of type
-<code class="docutils literal notranslate"><span class="pre">relationship</span></code>, and metamodel <code class="docutils literal notranslate"><span class="pre">relationship</span></code> link to the
+<code class="docutils literal notranslate"><span class="pre">relationship</span></code>, and metamodel <code class="docutils literal notranslate"><span class="pre">relationships</span></code> link to the
 appropriate “source” and “destination” <code class="docutils literal notranslate"><span class="pre">nodes</span></code>. Classes in
 <em>bento_meta</em> can create, read, update, and link these entities
-together according to the MDB structure, and push and pull them to and
-from a backing <a class="reference external" href="https://neo4j.com">Neo4j</a> database.</p>
+together according to the MDB structure. bento_meta can push and pull
+them to and from a backing <a class="reference external" href="https://neo4j.com">Neo4j</a> database.</p>
 <p>The MDB also provides entities for defining and maintaining
 terminology associated with the stored models. These include the
-<code class="docutils literal notranslate"><span class="pre">terms</span></code>  themselves, their <code class="docutils literal notranslate"><span class="pre">origin</span></code>, and associated <code class="docutils literal notranslate"><span class="pre">concepts</span></code>. Each
+<code class="docutils literal notranslate"><span class="pre">terms</span></code>  themselves, their <code class="docutils literal notranslate"><span class="pre">origin</span></code>, and associated <code class="docutils literal notranslate"><span class="pre">concepts</span></code>
+and <code class="docutils literal notranslate"><span class="pre">predicates</span></code>. Each
 of these entities can be created, read, and updated using <em>bento_meta</em>.</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
@@ -101,6 +104,19 @@ of these entities can be created, read, and updated using <em>bento_meta</em>.</
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mdb-principles.html#mdb-motivation-and-rationale">MDB Motivation and Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-principles.html#mdb-design-decisions">MDB Design Decisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-principles.html#mdb-entities-and-structures">MDB Entities and Structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-principles.html#models-and-meanings">Models and Meanings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Maintenance Principles and Conventions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mdb-conventions.html#mdb-entity-properties-required-for-consistency">MDB entity properties required for consistency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-conventions.html#mdb-indexes-needed-for-additional-functionality">MDB indexes needed for additional functionality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-conventions.html#conventions-for-consistent-and-idempotent-updates">Conventions for consistent and idempotent updates</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="the_object_model.html#working-with-models">Working with Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="the_object_model.html#component-objects">Component Objects</a></li>
@@ -112,7 +128,7 @@ of these entities can be created, read, and updated using <em>bento_meta</em>.</
 </li>
 <li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="meta_and_mdf.html#model-description-files">Model Description Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="meta_and_mdf.html#slurping-mdf-with-bento-meta">Slurping MDF with bento_meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta_and_mdf.html#slurping-mdf-into-bento-meta">Slurping MDF into bento_meta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="meta_and_mdf.html#squirting-a-model-into-mdf-yaml">Squirting a Model into MDF YAML</a></li>
 </ul>
 </li>
@@ -128,8 +144,7 @@ of these entities can be created, read, and updated using <em>bento_meta</em>.</
 <li class="toctree-l2"><a class="reference internal" href="classes.html#bento-meta-model">bento_meta.model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="classes.html#bento-meta-objects">bento_meta.objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="classes.html#bento-meta-entity">bento_meta.entity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classes.html#bento-meta-mdf">bento_meta.mdf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="classes.html#bento-meta-mdb">bento_meta.mdb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html#bento-mdf-mdf">bento_mdf.mdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="classes.html#bento-meta-object-map">bento_meta.object_map</a></li>
 </ul>
 </li>
@@ -188,7 +203,7 @@ to its metamodel property-type nodes.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="the_object_model.html" class="btn btn-neutral float-right" title="The Object Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="mdb-principles.html" class="btn btn-neutral float-right" title="Metamodel Database (MDB) Principles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

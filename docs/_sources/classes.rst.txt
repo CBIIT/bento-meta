@@ -13,10 +13,10 @@ ___________________
 .. automodule:: bento_meta.entity
                :members:
 
-.. automodule:: bento_meta.mdf
+.. automodule:: bento_mdf.mdf
                 :members:
 
-.. autoclass:: bento_meta.mdf.MDF
+.. autoclass:: bento_mdf.mdf.MDF
                :members:
 
 .. automodule:: bento_meta.mdb

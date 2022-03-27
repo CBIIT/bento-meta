@@ -19,7 +19,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="bento_meta and MDF" href="meta_and_mdf.html" />
-    <link rel="prev" title="bento_meta" href="index.html" /> 
+    <link rel="prev" title="MDB Maintenance Principles and Conventions" href="mdb-conventions.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,6 +39,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">The Object Model</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#working-with-models">Working with Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#component-objects">Component Objects</a><ul>
@@ -322,6 +324,11 @@ from the database, use <code class="docutils literal notranslate"><span class="p
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="entity._commit">
+<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_commit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#entity._commit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="entity._next">
 <span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_next</span></span><a class="headerlink" href="#entity._next" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -352,11 +359,6 @@ from the database, use <code class="docutils literal notranslate"><span class="p
 <dl class="py attribute">
 <dt class="sig sig-object py" id="node.model">
 <span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#node.model" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="node.category">
-<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">category</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#node.category" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -466,6 +468,11 @@ from the database, use <code class="docutils literal notranslate"><span class="p
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="property.item_domain">
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">item_domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.item_domain" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="property.is_required">
 <span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">is_required</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.is_required" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -477,7 +484,7 @@ from the database, use <code class="docutils literal notranslate"><span class="p
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="property.value_set">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">value_set</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ValueSet</span></em><a class="headerlink" href="#property.value_set" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">value_set</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="classes.html#bento_meta.objects.ValueSet" title="bento_meta.objects.ValueSet"><span class="pre">ValueSet</span></a></em><a class="headerlink" href="#property.value_set" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
@@ -504,8 +511,18 @@ from the database, use <code class="docutils literal notranslate"><span class="p
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="term.origin_version">
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_version" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="term.origin_definition">
 <span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_definition</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_definition" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="term.origin_name">
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_name" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -529,6 +546,24 @@ from the database, use <code class="docutils literal notranslate"><span class="p
 <div><dl class="py attribute">
 <dt class="sig sig-object py" id="concept.terms">
 <span class="sig-prename descclassname"><span class="pre">concept.</span></span><span class="sig-name descname"><span class="pre">terms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collection</span> <span class="pre">of</span> <span class="pre">Term</span></em><a class="headerlink" href="#concept.terms" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="Predicate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Predicate</span></span><a class="headerlink" href="#Predicate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>Subclass that models a semantic link between concepts. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
+<blockquote>
+<div><dl class="py attribute">
+<dt class="sig sig-object py" id="predicate.subject">
+<span class="sig-prename descclassname"><span class="pre">predicate.</span></span><span class="sig-name descname"><span class="pre">subject</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#predicate.subject" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predicate.object">
+<span class="sig-prename descclassname"><span class="pre">predicate.</span></span><span class="sig-name descname"><span class="pre">object</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#predicate.object" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
@@ -585,7 +620,7 @@ from the database, use <code class="docutils literal notranslate"><span class="p
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="bento_meta" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mdb-conventions.html" class="btn btn-neutral float-left" title="MDB Maintenance Principles and Conventions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="meta_and_mdf.html" class="btn btn-neutral float-right" title="bento_meta and MDF" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

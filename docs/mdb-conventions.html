@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MDB Maintenance Principles and Conventions &mdash; bento_meta  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The Object Model" href="the_object_model.html" />
+    <link rel="prev" title="Metamodel Database (MDB) Principles" href="mdb-principles.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> bento_meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MDB Maintenance Principles and Conventions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mdb-entity-properties-required-for-consistency">MDB entity properties required for consistency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mdb-indexes-needed-for-additional-functionality">MDB indexes needed for additional functionality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conventions-for-consistent-and-idempotent-updates">Conventions for consistent and idempotent updates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#models">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#terms">Terms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classes.html">Class Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">bento_meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>MDB Maintenance Principles and Conventions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mdb-conventions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mdb-maintenance-principles-and-conventions">
+<h1>MDB Maintenance Principles and Conventions<a class="headerlink" href="#mdb-maintenance-principles-and-conventions" title="Permalink to this headline"></a></h1>
+<p>Conventions and software tools based on the following principles and
+guidelines are necessary to enable maintenance of an MDB. The
+organization of data of the MDB instance needs to be stable and
+predictable so that data does not get lost, incorrectly duplicated,
+or mutated.</p>
+<p>As the data grows, and especially as the interconnections
+between different models and mappings into common vocabularies
+increase, the database will become less and less amenable to manual
+updates via Cypher statements or one-off scripts. At the same time, as the
+complexity grows, so does the utility and value of the MDB, as long as
+it remains consistent – so that queries always return what the schema
+says they will return.</p>
+<p>To maintain this kind of consistency, but also treat the MDB as a
+dynamic store of information that is amenable to frequent change,
+robust software tools for updating the database are necessary. These
+tools alleviate the need for SMEs and engineers to remember the schema
+and prevent shortcuts that would affect the outcome of standard
+queries that are based on the expectations set by the schema.</p>
+<p>This principle does <em>not</em> say that <em>additional</em> nodes, properties, or
+relationships cannot ever be added to an MDB. Reasons of performance
+tuning, tagging, indexing, setting “placeholders” or “cursors”, are
+all valid enhancements or temporary modifications. If such
+enhancements make sense to add to the general MDB schema, then they
+should be so added. The key question to ask before making permanent
+enhancements should be: <em>Will they break existing queries?</em> If so,
+then discussion, deprecation and update planning is necessary.</p>
+<p>Temporary structural additions to the database to facilitate
+maintenance or fixes may be appropriate. It is critical to plan ahead,
+so that the database admin can back completely out of such modifications after
+they have performed their function.</p>
+<section id="mdb-entity-properties-required-for-consistency">
+<h2>MDB entity properties required for consistency<a class="headerlink" href="#mdb-entity-properties-required-for-consistency" title="Permalink to this headline"></a></h2>
+<p>The MDB schema is flexible, but the following properties and entities
+are critical for its functionality.</p>
+<p>All entities need to posses a non-null <em>nanoid</em>. This is a six
+character, alphanumeric random identifier, which can be generated with
+the <code class="docutils literal notranslate"><span class="pre">nanoid</span></code> package in various languages (e.g., <a class="reference external" href="https://github.com/puyuan/py-nanoid">for python</a>. Once set for an entity in an MDB
+instance, it should not be changed, even when other properties are
+updated, added, or removed. The nanoid (plus a version string,
+possibly) should uniquely identify all single Neo4j nodes in the
+database instance.</p>
+<p>An important reason for maintaining the nanoid on an entity through
+changes (and also to retire a nanoid if an entity is removed) is that
+it serves as a handle or short-cut for the Simple Terminology
+Service (<a class="reference external" href="https://github.com/CBIIT/bento-sts">STS</a>. Appending a nanoid to the STS /id endpoint must always return that
+entity as a JSON document. Versions of an entity are allowed, but a
+version string should qualify the original nanoid for retrieval; new
+versions of an existing entity should not receive a new nanoid.</p>
+<p>Node, Relationship, and Property entities must all possess a non-null <code class="docutils literal notranslate"><span class="pre">model</span></code>
+property, set to the model the entity is describing. For each unique
+value of the <code class="docutils literal notranslate"><span class="pre">model</span></code> property, a corresponding Model entity (Neo4j
+node) should exist, that describes the model further. A Neo4j
+relationship between model entities and the corresponding Model node
+are not necessary or expected under the schema.</p>
+<p>Value Set and Term entities are intentionally _not_ associated
+directly with any model - this enables the idea of reuse of the same
+terms across different models. However, every Term must have an
+_origin_ property that indicates an authoritative source for the term
+and its meaning.</p>
+<p>Value Sets may have an origin property, if the set itself is a product
+of an external authority. An example would be the value domain for
+ethnicity according to the caDSR, with public id 2016566, consisting
+of five terms.</p>
+</section>
+<section id="mdb-indexes-needed-for-additional-functionality">
+<h2>MDB indexes needed for additional functionality<a class="headerlink" href="#mdb-indexes-needed-for-additional-functionality" title="Permalink to this headline"></a></h2>
+<p>For integration with the STS, and for performance, the Neo4j instance
+of an MDB requires certain indexes to be established. These are
+specified in <a class="reference external" href="githubref">these Cypher statements</a>. The primary
+requirement is that fulltext, Lucene-based indexes should be created
+on entity <code class="docutils literal notranslate"><span class="pre">description</span></code> and Term <code class="docutils literal notranslate"><span class="pre">origin_definition</span></code> properties to
+enable “search box” like queries over the the entire graph. Regular
+btree indexes on entity <code class="docutils literal notranslate"><span class="pre">handle</span></code> and Term <code class="docutils literal notranslate"><span class="pre">value</span></code> properties are also
+highly recommended for fast query responses.</p>
+</section>
+<section id="conventions-for-consistent-and-idempotent-updates">
+<h2>Conventions for consistent and idempotent updates<a class="headerlink" href="#conventions-for-consistent-and-idempotent-updates" title="Permalink to this headline"></a></h2>
+<section id="models">
+<h3>Models<a class="headerlink" href="#models" title="Permalink to this headline"></a></h3>
+<p>Data models under our management are generally maintained as <a class="reference external" href="https://github.com/CBIIT/bento-mdf">MDF</a> files
+in open GitHub repositories. Data SMEs are able to make changes and
+updates to models as necessary, and GitHub tracks and remembers all
+changes. Branches created for development are extremely useful and
+enable SMEs to work productively with engineers on upcoming features
+while the latest production model remains accessible for users and the
+production data system.</p>
+<p>Tapping into this existing work process is a natural place to
+incorporate systematic updates to the MDB. Once model changes are
+approved for production, the MDF can be made part of a GitHub
+release. CI/CD processes (e.g., GitHub Actions or Jenkins) can
+automatically pull new MDF releases and update the MDB with changes.</p>
+<p>For this process to be deterministic, conventions must be established
+that unambiguously define when differences between the MDF model and the
+corresponding MDB model represents intended updates, and when they
+indicate an error in the MDF. To do this, the intention of the SME
+must be made clear in the data (i.e., the model description file)
+itself. There also should be a way to back out of at least one update
+if necessary.</p>
+</section>
+<section id="terms">
+<h3>Terms<a class="headerlink" href="#terms" title="Permalink to this headline"></a></h3>
+<p><em>WIP</em></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mdb-principles.html" class="btn btn-neutral float-left" title="Metamodel Database (MDB) Principles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="the_object_model.html" class="btn btn-neutral float-right" title="The Object Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -39,10 +39,12 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">bento_meta and MDF</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#model-description-files">Model Description Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#slurping-mdf-with-bento-meta">Slurping MDF with bento_meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#slurping-mdf-into-bento-meta">Slurping MDF into bento_meta</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#squirting-a-model-into-mdf-yaml">Squirting a Model into MDF YAML</a></li>
 </ul>
 </li>
@@ -94,10 +96,15 @@
 <p>Examples of valid MDF are available for the <a class="reference external" href="https://cbiit.github.io/icdc-model-tool/model-desc/">Integrated Canine Data Commons</a> and the <a class="reference external" href="https://cbiit.github.io/ctdc-model/model-desc/">Clinical Trials Data Commons</a> models.</p>
 <p>The MDF syntax is described <a class="reference external" href="https://github.com/CBIIT/bento-mdf#model-description-files-mdf">here in detail</a>. This syntax is defined by and can be validated against a <a class="reference external" href="https://json-schema.org/understanding-json-schema/">JSONSchema</a> document. This document lives <a class="reference external" href="https://github.com/CBIIT/bento-mdf/blob/master/schema/mdf-schema.yaml">here</a>.</p>
 </section>
-<section id="slurping-mdf-with-bento-meta">
-<h2>Slurping MDF with bento_meta<a class="headerlink" href="#slurping-mdf-with-bento-meta" title="Permalink to this headline"></a></h2>
+<section id="slurping-mdf-into-bento-meta">
+<h2>Slurping MDF into bento_meta<a class="headerlink" href="#slurping-mdf-into-bento-meta" title="Permalink to this headline"></a></h2>
+<p>MDF functionality for bento_meta is included in the <code class="docutils literal notranslate"><span class="pre">bento_mdf</span></code> package, found at
+<cite>https://github.com/CBIIT/bento-mdf</cite>. The latest version can be installed as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install bento_mdf@git+https://github.com/CBIIT/bento-mdf.git#egg=subdir\&amp;subdirectory=drivers/python
+</pre></div>
+</div>
 <p>Create a <a class="reference internal" href="classes.html#bento_meta.model.Model" title="bento_meta.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.model.Model</span></code></a> from MDF files as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bento_meta.mdf</span> <span class="kn">import</span> <span class="n">MDF</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bento_mdf.mdf</span> <span class="kn">import</span> <span class="n">MDF</span>
 
 <span class="n">mdf</span> <span class="o">=</span> <span class="n">MDF</span><span class="p">(</span><span class="s1">&#39;model.yml&#39;</span><span class="p">,</span><span class="s1">&#39;model-props.yml&#39;</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">mdf</span><span class="o">.</span><span class="n">model</span>
@@ -108,7 +115,7 @@
 nodes and relationships are defined in one file, and the properties in a separate files. <cite>MDF</cite> merges the files provided according to <a class="reference external" href="https://github.com/CBIIT/bento-mdf#multiple-input-yaml-files-and-overlays">the spec</a>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">handle=</span></code> is a keyword-only argument that must be provided, which sets the name (a.k.a. handle) for the model. This is used, for example, in setting the <cite>Entity.model</cite> attribute for the model objects. It enables pushing and pulling a model to and from a Neo4j database in a single call.</p>
 <p>URLs that resolve to MDF files can also be used. To load the latest CTDC model, for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">bento_meta.mdf</span> <span class="kn">import</span> <span class="n">MDF</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">bento_mdf.mdf</span> <span class="kn">import</span> <span class="n">MDF</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mdf</span> <span class="o">=</span> <span class="n">MDF</span><span class="p">(</span><span class="s1">&#39;https://cbiit.github.io/ctdc-model/model-desc/ctdc_model_file.yaml&#39;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>          <span class="s1">&#39;https://cbiit.github.io/ctdc-model/model-desc/ctdc_model_properties_file.yaml&#39;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>           <span class="n">handle</span><span class="o">=</span><span class="s1">&#39;CTDC&#39;</span><span class="p">)</span>
@@ -129,8 +136,7 @@ writes a YAML file encoding this dictionary:</p>
 <span class="n">MDF</span><span class="o">.</span><span class="n">write_mdf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">your_model</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;your_mdf.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>The MDF will be written as a single file. Property definitions, for example, will be included with everything
-else.</p>
+<p>The MDF will be written as a single file. Property definitions, for example, will be included with everything else.</p>
 </section>
 </section>
 

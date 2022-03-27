@@ -36,6 +36,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
@@ -96,6 +98,8 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="the_object_model.html#entity._commit">_commit (entity attribute)</a>
+</li>
       <li><a href="the_object_model.html#entity._from">_from (entity attribute)</a>
 </li>
       <li><a href="the_object_model.html#entity._id">_id (entity attribute)</a>
@@ -141,6 +145,13 @@
       <li><a href="classes.html#bento_meta.entity.Entity.belongs">belongs (bento_meta.entity.Entity property)</a>
 </li>
       <li>
+    bento_mdf.mdf
+
+      <ul>
+        <li><a href="classes.html#module-bento_mdf.mdf">module</a>
+</li>
+      </ul></li>
+      <li>
     bento_meta.entity
 
       <ul>
@@ -152,13 +163,6 @@
 
       <ul>
         <li><a href="classes.html#module-bento_meta.mdb">module</a>
-</li>
-      </ul></li>
-      <li>
-    bento_meta.mdf
-
-      <ul>
-        <li><a href="classes.html#module-bento_meta.mdf">module</a>
 </li>
       </ul></li>
   </ul></td>
@@ -190,8 +194,6 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="the_object_model.html#node.category">category (node attribute)</a>
-</li>
       <li><a href="classes.html#bento_meta.entity.CollValue">CollValue (class in bento_meta.entity)</a>
 </li>
       <li><a href="the_object_model.html#Concept">Concept (built-in class)</a>
@@ -214,7 +216,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="classes.html#bento_meta.model.Model.contains">contains() (bento_meta.model.Model method)</a>
 </li>
-      <li><a href="classes.html#bento_meta.mdf.MDF.create_model">create_model() (bento_meta.mdf.MDF method)</a>
+      <li><a href="classes.html#bento_mdf.mdf.MDF.create_model">create_model() (bento_mdf.mdf.MDF method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -304,17 +306,21 @@
 </li>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_model_handles">get_model_handles() (bento_meta.mdb.MDB method)</a>
 </li>
+      <li><a href="classes.html#bento_meta.mdb.MDB.get_model_nodes">get_model_nodes() (bento_meta.mdb.MDB method)</a>
+</li>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_model_nodes_edges">get_model_nodes_edges() (bento_meta.mdb.MDB method)</a>
 </li>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_node_and_props_by_node_id">get_node_and_props_by_node_id() (bento_meta.mdb.MDB method)</a>
 </li>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_node_edges_by_node_id">get_node_edges_by_node_id() (bento_meta.mdb.MDB method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_nodes_and_props_by_model">get_nodes_and_props_by_model() (bento_meta.mdb.MDB method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_nodes_by_model">get_nodes_by_model() (bento_meta.mdb.MDB method)</a>
+</li>
+      <li><a href="classes.html#bento_meta.mdb.MDB.get_origin_by_id">get_origin_by_id() (bento_meta.mdb.MDB method)</a>
 </li>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_origins">get_origins() (bento_meta.mdb.MDB method)</a>
 </li>
@@ -324,6 +330,8 @@
 </li>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_props_and_terms_by_model">get_props_and_terms_by_model() (bento_meta.mdb.MDB method)</a>
 </li>
+      <li><a href="classes.html#bento_meta.mdb.MDB.get_tags_and_values">get_tags_and_values() (bento_meta.mdb.MDB method)</a>
+</li>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_tags_for_entity_by_id">get_tags_for_entity_by_id() (bento_meta.mdb.MDB method)</a>
 </li>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_term_by_id">get_term_by_id() (bento_meta.mdb.MDB method)</a>
@@ -331,6 +339,8 @@
       <li><a href="classes.html#bento_meta.mdb.MDB.get_valueset_by_id">get_valueset_by_id() (bento_meta.mdb.MDB method)</a>
 </li>
       <li><a href="classes.html#bento_meta.mdb.MDB.get_valuesets_by_model">get_valuesets_by_model() (bento_meta.mdb.MDB method)</a>
+</li>
+      <li><a href="classes.html#bento_meta.mdb.MDB.get_with_statement">get_with_statement() (bento_meta.mdb.MDB method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -354,14 +364,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="the_object_model.html#origin.is_external">is_external (origin attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="the_object_model.html#edge.is_required">is_required (edge attribute)</a>
 
       <ul>
         <li><a href="the_object_model.html#property.is_required">(property attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="the_object_model.html#property.item_domain">item_domain (property attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -376,7 +388,7 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="classes.html#bento_meta.mdf.MDF.load_yaml">load_yaml() (bento_meta.mdf.MDF method)</a>
+      <li><a href="classes.html#bento_mdf.mdf.MDF.load_yaml">load_yaml() (bento_mdf.mdf.MDF method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -388,11 +400,11 @@
 </li>
       <li><a href="classes.html#bento_meta.mdb.MDB">MDB (class in bento_meta.mdb)</a>
 </li>
-      <li><a href="classes.html#bento_meta.mdf.MDF">MDF (class in bento_meta.mdf)</a>
+      <li><a href="classes.html#bento_mdf.mdf.MDF">MDF (class in bento_mdf.mdf)</a>
 </li>
       <li><a href="classes.html#bento_meta.objects.mergespec">mergespec() (in module bento_meta.objects)</a>
 </li>
-      <li><a href="classes.html#bento_meta.mdf.MDF.model">model (bento_meta.mdf.MDF property)</a>
+      <li><a href="classes.html#bento_mdf.mdf.MDF.model">model (bento_mdf.mdf.MDF property)</a>
 </li>
       <li><a href="classes.html#bento_meta.model.Model">Model (class in bento_meta.model)</a>
 </li>
@@ -410,11 +422,11 @@
     module
 
       <ul>
+        <li><a href="classes.html#module-bento_mdf.mdf">bento_mdf.mdf</a>
+</li>
         <li><a href="classes.html#module-bento_meta.entity">bento_meta.entity</a>
 </li>
         <li><a href="classes.html#module-bento_meta.mdb">bento_meta.mdb</a>
-</li>
-        <li><a href="classes.html#module-bento_meta.mdf">bento_meta.mdf</a>
 </li>
         <li><a href="classes.html#module-bento_meta.model">bento_meta.model</a>
 </li>
@@ -461,6 +473,8 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="the_object_model.html#predicate.object">object (predicate attribute)</a>
+</li>
       <li><a href="classes.html#bento_meta.object_map.ObjectMap">ObjectMap (class in bento_meta.object_map)</a>
 </li>
       <li><a href="the_object_model.html#Origin">Origin (built-in class)</a>
@@ -477,6 +491,10 @@
 </li>
       <li><a href="the_object_model.html#term.origin_id">origin_id (term attribute)</a>
 </li>
+      <li><a href="the_object_model.html#term.origin_name">origin_name (term attribute)</a>
+</li>
+      <li><a href="the_object_model.html#term.origin_version">origin_version (term attribute)</a>
+</li>
       <li><a href="classes.html#bento_meta.entity.CollValue.owner">owner (bento_meta.entity.CollValue property)</a>
 </li>
       <li><a href="classes.html#bento_meta.entity.CollValue.owner_key">owner_key (bento_meta.entity.CollValue property)</a>
@@ -489,6 +507,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="the_object_model.html#property.pattern">pattern (property attribute)</a>
 </li>
+      <li><a href="the_object_model.html#Predicate">Predicate (built-in class)</a>
+
+      <ul>
+        <li><a href="classes.html#bento_meta.objects.Predicate">(class in bento_meta.objects)</a>
+</li>
+      </ul></li>
       <li><a href="the_object_model.html#Property">Property (built-in class)</a>
 
       <ul>
@@ -511,12 +535,6 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="classes.html#bento_meta.mdb.MDB.read_txn">read_txn() (bento_meta.mdb.MDB method)</a>
-</li>
-      <li><a href="classes.html#bento_meta.mdb.MDB.read_txn_data">read_txn_data() (bento_meta.mdb.MDB method)</a>
-</li>
-      <li><a href="classes.html#bento_meta.mdb.MDB.read_txn_value">read_txn_value() (bento_meta.mdb.MDB method)</a>
-</li>
       <li><a href="classes.html#bento_meta.mdb.MDB.register_txfn">register_txfn() (bento_meta.mdb.MDB method)</a>
 </li>
       <li><a href="classes.html#bento_meta.entity.Entity.rm">rm() (bento_meta.entity.Entity method)</a>
@@ -550,6 +568,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="the_object_model.html#edge.src">src (edge attribute)</a>
+</li>
+      <li><a href="the_object_model.html#predicate.subject">subject (predicate attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -629,11 +649,7 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="classes.html#bento_meta.mdf.MDF.write_mdf">write_mdf() (bento_meta.mdf.MDF method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="classes.html#bento_meta.mdb.MDB.write_txn">write_txn() (bento_meta.mdb.MDB method)</a>
+      <li><a href="classes.html#bento_mdf.mdf.MDF.write_mdf">write_mdf() (bento_mdf.mdf.MDF method)</a>
 </li>
   </ul></td>
 </tr></table>

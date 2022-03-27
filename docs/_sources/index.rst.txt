@@ -9,8 +9,8 @@
 	   :alt: Fork me on GitHub
 	   :target: https://github.com/CBIIT/bento-meta
 
-bento_meta  
-================
+bento_meta and Metamodel Database (MDB)
+=======================================
 
 .. image:: https://travis-ci.org/CBIIT/bento-meta.svg?branch=master
 	   :alt: Build Status
@@ -32,15 +32,16 @@ the individual models:
 
 For example, model nodes are represented as metamodel nodes of type
 ``node``, model relationships as metamodel nodes of type
-``relationship``, and metamodel ``relationship`` link to the
+``relationship``, and metamodel ``relationships`` link to the
 appropriate "source" and "destination" ``nodes``. Classes in
 *bento_meta* can create, read, update, and link these entities
-together according to the MDB structure, and push and pull them to and
-from a backing `Neo4j <https://neo4j.com>`_ database.
+together according to the MDB structure. bento_meta can push and pull
+them to and from a backing `Neo4j <https://neo4j.com>`_ database.
 
 The MDB also provides entities for defining and maintaining
 terminology associated with the stored models. These include the
-``terms``  themselves, their ``origin``, and associated ``concepts``. Each
+``terms``  themselves, their ``origin``, and associated ``concepts``
+and ``predicates``. Each
 of these entities can be created, read, and updated using *bento_meta*.
 
 Installation
@@ -55,6 +56,8 @@ Run::
    :maxdepth: 2
    :caption: Contents:
 
+   ./mdb-principles
+   ./mdb-conventions
    ./the_object_model
    ./meta_and_mdf
    ./model_versioning

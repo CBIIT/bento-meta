@@ -21,12 +21,17 @@ Examples of valid MDF are available for the `Integrated Canine Data Commons <htt
 The MDF syntax is described `here in detail <https://github.com/CBIIT/bento-mdf#model-description-files-mdf>`_. This syntax is defined by and can be validated against a `JSONSchema <https://json-schema.org/understanding-json-schema/>`_ document. This document lives `here <https://github.com/CBIIT/bento-mdf/blob/master/schema/mdf-schema.yaml>`_. 
 
 
-Slurping MDF with bento_meta
+Slurping MDF into bento_meta
 ____________________________
+
+MDF functionality for bento_meta is included in the ``bento_mdf`` package, found at
+`https://github.com/CBIIT/bento-mdf`. The latest version can be installed as follows::
+
+  $ pip install bento_mdf@git+https://github.com/CBIIT/bento-mdf.git#egg=subdir\&subdirectory=drivers/python
 
 Create a :class:`bento_meta.model.Model` from MDF files as follows::
 
-  from bento_meta.mdf import MDF
+  from bento_mdf.mdf import MDF
 
   mdf = MDF('model.yml','model-props.yml', handle="test")
   model = mdf.model
@@ -40,7 +45,7 @@ nodes and relationships are defined in one file, and the properties in a separat
 
 URLs that resolve to MDF files can also be used. To load the latest CTDC model, for example::
 
-  >>> from bento_meta.mdf import MDF
+  >>> from bento_mdf.mdf import MDF
   >>> mdf = MDF('https://cbiit.github.io/ctdc-model/model-desc/ctdc_model_file.yaml',
   >>>           'https://cbiit.github.io/ctdc-model/model-desc/ctdc_model_properties_file.yaml',
   >>>            handle='CTDC')
@@ -60,5 +65,4 @@ writes a YAML file encoding this dictionary::
   # write to file
   MDF.write_mdf(model=your_model, file=open("your_mdf.yaml", "w"))
 
-The MDF will be written as a single file. Property definitions, for example, will be included with everything
-else.
+The MDF will be written as a single file. Property definitions, for example, will be included with everything else.
