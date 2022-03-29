@@ -22,7 +22,7 @@ def write_txn(func):
 
 class WriteableMDB(MDB):
     def __init__(self, *args, **kwargs):
-        super().__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @write_txn
     def put_with_statement(self, qry, parms={}):
