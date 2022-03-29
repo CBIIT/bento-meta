@@ -5,7 +5,7 @@ MDB Motivation and Rationale
 ____________________________
 
 The MDB schema is intended to be simple in structure, without a profusion of different classes for specialized entities. At the same time, enough entities are provided to enable a separation between an entity an its sematic meaning as represented in the MDB.
-The goals are::
+The goals are:
 
 * To be able to store multiple models, developed independently for specific practical uses, to exist separately in a single data store. and also
   

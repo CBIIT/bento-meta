@@ -234,6 +234,8 @@ Base class for all metamodel objects. Posesses the following attributes:
        :type: simple
   .. py:attribute:: entity._to
        :type: simple
+  .. py:attribute:: entity._commit
+       :type: simple
   .. py:attribute:: entity._next
        :type: 
   .. py:attribute:: entity._prev
@@ -248,8 +250,6 @@ Subclass that models a data node. Posesses all :class:`Entity` attributes, plus 
   .. py:attribute:: node.handle
        :type: simple
   .. py:attribute:: node.model
-       :type: simple
-  .. py:attribute:: node.category
        :type: simple
   .. py:attribute:: node.nanoid
        :type: simple
@@ -297,6 +297,8 @@ Subclass that models a property of a node or relationship (edge). Posesses all :
        :type: simple
   .. py:attribute:: property.pattern
        :type: simple
+  .. py:attribute:: property.item_domain
+       :type: simple
   .. py:attribute:: property.is_required
        :type: simple
   .. py:attribute:: property.concept
@@ -314,7 +316,11 @@ Subclass that models a term from a terminology. Posesses all :class:`Entity` att
        :type: simple
   .. py:attribute:: term.origin_id
        :type: simple
+  .. py:attribute:: term.origin_version
+       :type: simple
   .. py:attribute:: term.origin_definition
+       :type: simple
+  .. py:attribute:: term.origin_name
        :type: simple
   .. py:attribute:: term.concept
        :type: Concept
@@ -327,6 +333,15 @@ Subclass that models a semantic concept. Posesses all :class:`Entity` attributes
 
   .. py:attribute:: concept.terms
        :type: collection of Term
+
+.. py:class:: Predicate
+
+Subclass that models a semantic link between concepts. Posesses all :class:`Entity` attributes, plus the following:
+
+  .. py:attribute:: predicate.subject
+       :type: Concept
+  .. py:attribute:: predicate.object
+       :type: Concept
 
 .. py:class:: Origin
 

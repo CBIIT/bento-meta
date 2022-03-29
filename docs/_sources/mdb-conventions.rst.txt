@@ -91,6 +91,48 @@ highly recommended for fast query responses.
 Conventions for consistent and idempotent updates
 _________________________________________________
 
+Uniqueness and Existence of Entities
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In an unversioned MDB, the following combinations of properties point
+to unique graph nodes which must exist. (The notation below is based
+on `Cypher <https://neo4j.com/docs/cypher-manual/current/>`_.)
+
+* *Node*: For `(n:node)`, the combination `[n.model, n.handle]` is unique.
+
+* *Property*: For `(p:property)` with `(e)-[:has_property]->(p)`, the combination
+  `[p.model, p.handle, e.handle]` is unique.
+  * One and only one graph node p exists satisfying this condition. e is a node or relationship, and `e.model == p.model` must hold.
+
+* *Relationship*: For `(r:relationship)` with `(s:node)<-[:has_src]-(r)-[:has_dst]->(d:node)`, the combination `[r.model, r.handle, s.handle, d.handle]` is unique.
+  * One and only one graph node r exists satisfying this condition, and `r.model == s.model == d.model` must hold.
+
+* *Value Set*: For `(p:property)` with `p.value_domain == “value_set”`, then one and only one value_set `v` with `(p)-[:has_value_set]->(v:value_set)` must exist.
+  
+* *Term*: For a term `(t:term)`, only one graph node with `[t.orgin, t.origin_id, t.origin_version]` can exist, *even in a versioned MDB*.
+  
+* *Concept*: For any `(c:concept)` and `(k:concept)` where `(n)--(c)` and `(n)--(k)` return exactly the same graph nodes `[n1, n2, ...]`, one of `c` or `k` should be removed from the database.
+  
+* *Tag*: For two tag nodes, all of whose properties except nanoid are identical in key and value, and which are linked to exactly the same graph nodes, one must be removed.
+
+* *Nanoid*: Each unique unversioned graph node as defined above must have a unique nanoid.
+  * The nanoid *shall not change* when a graph node is updated, provided above conditions remain satisfied upon update.
+  * If an existing MDB graph node is changed such that that node *no longer satisfies* its defining condition as above, it *must receive a new nanoid*. The old nanoid is retired and should not be used again.
+  * In a versioned MDB, then the uniqueness conditions above are relaxed modulo the entity properties `_to` and `_from`. The nanoid *must be the same* among graph nodes that represent different versions of unique unversioned graph nodes as defined above.
+
+Some implications of these formal rules:
+
+* Handles are not unique identifiers; there can be many entities with the same handle for nodes, relationships, and properties.
+
+Handles in combination with other properties can be unique. The model and handles can be considered to define namespaces in which qualified names point to unique MDB graph nodes. Example: `ICDC.demographic.breed` can represent the property “breed” of the node “demographic” in the ICDC data model. This would correspond to a property node with a persistent nanoid in the MDB.
+
+* Graph nodes which meet the conditions above can be thought of playing a given semantic role in a specific context. They represent an interaction between a concept and a model.
+
+In the MDB, the reuse of semantic concepts is expressed by linking all graph nodes playing the same semantic role to a common Concept node. Rather that creating a universal “demographic” node and connecting every model that need that concept to that node, each model requiring that concept gets it own “demographic” node.
+
+The MDB pattern for reuse of semantic roles, whether entities from an existing model, or terms from an existing vocabulary, is as follows.
+
+*WIP*
 
 Models
 ^^^^^^

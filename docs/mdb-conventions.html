@@ -44,6 +44,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#mdb-entity-properties-required-for-consistency">MDB entity properties required for consistency</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mdb-indexes-needed-for-additional-functionality">MDB indexes needed for additional functionality</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#conventions-for-consistent-and-idempotent-updates">Conventions for consistent and idempotent updates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uniqueness-and-existence-of-entities">Uniqueness and Existence of Entities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#models">Models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#terms">Terms</a></li>
 </ul>
@@ -160,6 +161,39 @@ highly recommended for fast query responses.</p>
 </section>
 <section id="conventions-for-consistent-and-idempotent-updates">
 <h2>Conventions for consistent and idempotent updates<a class="headerlink" href="#conventions-for-consistent-and-idempotent-updates" title="Permalink to this headline"></a></h2>
+<section id="uniqueness-and-existence-of-entities">
+<h3>Uniqueness and Existence of Entities<a class="headerlink" href="#uniqueness-and-existence-of-entities" title="Permalink to this headline"></a></h3>
+<p>In an unversioned MDB, the following combinations of properties point
+to unique graph nodes which must exist. (The notation below is based
+on <a class="reference external" href="https://neo4j.com/docs/cypher-manual/current/">Cypher</a>.)</p>
+<ul class="simple">
+<li><p><em>Node</em>: For <cite>(n:node)</cite>, the combination <cite>[n.model, n.handle]</cite> is unique.</p></li>
+<li><p><em>Property</em>: For <cite>(p:property)</cite> with <cite>(e)-[:has_property]-&gt;(p)</cite>, the combination
+<cite>[p.model, p.handle, e.handle]</cite> is unique.
+* One and only one graph node p exists satisfying this condition. e is a node or relationship, and <cite>e.model == p.model</cite> must hold.</p></li>
+<li><p><em>Relationship</em>: For <cite>(r:relationship)</cite> with <cite>(s:node)&lt;-[:has_src]-(r)-[:has_dst]-&gt;(d:node)</cite>, the combination <cite>[r.model, r.handle, s.handle, d.handle]</cite> is unique.
+* One and only one graph node r exists satisfying this condition, and <cite>r.model == s.model == d.model</cite> must hold.</p></li>
+<li><p><em>Value Set</em>: For <cite>(p:property)</cite> with <cite>p.value_domain == “value_set”</cite>, then one and only one value_set <cite>v</cite> with <cite>(p)-[:has_value_set]-&gt;(v:value_set)</cite> must exist.</p></li>
+<li><p><em>Term</em>: For a term <cite>(t:term)</cite>, only one graph node with <cite>[t.orgin, t.origin_id, t.origin_version]</cite> can exist, <em>even in a versioned MDB</em>.</p></li>
+<li><p><em>Concept</em>: For any <cite>(c:concept)</cite> and <cite>(k:concept)</cite> where <cite>(n)–(c)</cite> and <cite>(n)–(k)</cite> return exactly the same graph nodes <cite>[n1, n2, …]</cite>, one of <cite>c</cite> or <cite>k</cite> should be removed from the database.</p></li>
+<li><p><em>Tag</em>: For two tag nodes, all of whose properties except nanoid are identical in key and value, and which are linked to exactly the same graph nodes, one must be removed.</p></li>
+<li><p><em>Nanoid</em>: Each unique unversioned graph node as defined above must have a unique nanoid.
+* The nanoid <em>shall not change</em> when a graph node is updated, provided above conditions remain satisfied upon update.
+* If an existing MDB graph node is changed such that that node <em>no longer satisfies</em> its defining condition as above, it <em>must receive a new nanoid</em>. The old nanoid is retired and should not be used again.
+* In a versioned MDB, then the uniqueness conditions above are relaxed modulo the entity properties <cite>_to</cite> and <cite>_from</cite>. The nanoid <em>must be the same</em> among graph nodes that represent different versions of unique unversioned graph nodes as defined above.</p></li>
+</ul>
+<p>Some implications of these formal rules:</p>
+<ul class="simple">
+<li><p>Handles are not unique identifiers; there can be many entities with the same handle for nodes, relationships, and properties.</p></li>
+</ul>
+<p>Handles in combination with other properties can be unique. The model and handles can be considered to define namespaces in which qualified names point to unique MDB graph nodes. Example: <cite>ICDC.demographic.breed</cite> can represent the property “breed” of the node “demographic” in the ICDC data model. This would correspond to a property node with a persistent nanoid in the MDB.</p>
+<ul class="simple">
+<li><p>Graph nodes which meet the conditions above can be thought of playing a given semantic role in a specific context. They represent an interaction between a concept and a model.</p></li>
+</ul>
+<p>In the MDB, the reuse of semantic concepts is expressed by linking all graph nodes playing the same semantic role to a common Concept node. Rather that creating a universal “demographic” node and connecting every model that need that concept to that node, each model requiring that concept gets it own “demographic” node.</p>
+<p>The MDB pattern for reuse of semantic roles, whether entities from an existing model, or terms from an existing vocabulary, is as follows.</p>
+<p><em>WIP</em></p>
+</section>
 <section id="models">
 <h3>Models<a class="headerlink" href="#models" title="Permalink to this headline"></a></h3>
 <p>Data models under our management are generally maintained as <a class="reference external" href="https://github.com/CBIIT/bento-mdf">MDF</a> files
