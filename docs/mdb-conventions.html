@@ -171,16 +171,16 @@ on <a class="reference external" href="https://neo4j.com/docs/cypher-manual/curr
 <li><p><em>Property</em>: For <cite>(p:property)</cite> with <cite>(e)-[:has_property]-&gt;(p)</cite>, the combination
 <cite>[p.model, p.handle, e.handle]</cite> is unique.</p>
 <ul>
-<li><p>One and only one graph node p exists satisfying this condition. e is a node or relationship, and <cite>e.model == p.model</cite> must hold.</p></li>
+<li><p>One and only one graph node <cite>p</cite> exists satisfying this condition. <cite>e</cite> is a node or relationship, and <cite>e.model == p.model</cite> must hold.</p></li>
 </ul>
 </li>
 <li><p><em>Relationship</em>: For <cite>(r:relationship)</cite> with <cite>(s:node)&lt;-[:has_src]-(r)-[:has_dst]-&gt;(d:node)</cite>, the combination <cite>[r.model, r.handle, s.handle, d.handle]</cite> is unique.</p>
 <ul>
-<li><p>One and only one graph node r exists satisfying this condition, and <cite>r.model == s.model == d.model</cite> must hold.</p></li>
+<li><p>One and only one graph node <cite>r</cite> exists satisfying this condition, and <cite>r.model == s.model == d.model</cite> must hold.</p></li>
 </ul>
 </li>
 <li><p><em>Value Set</em>: For <cite>(p:property)</cite> with <cite>p.value_domain == “value_set”</cite>, then one and only one value_set <cite>v</cite> with <cite>(p)-[:has_value_set]-&gt;(v:value_set)</cite> must exist.</p></li>
-<li><p><em>Term</em>: For a term <cite>(t:term)</cite>, only one graph node with <cite>[t.orgin, t.origin_id, t.origin_version]</cite> can exist, <em>even in a versioned MDB</em>.</p></li>
+<li><p><em>Term</em>: For a term <cite>(t:term)</cite>, only one graph node with <cite>[t.orgin, t.origin_id, t.origin_version]</cite> may exist, <em>even in a versioned MDB</em>.</p></li>
 <li><p><em>Concept</em>: For any <cite>(c:concept)</cite> and <cite>(k:concept)</cite> where <cite>(n)–(c)</cite> and <cite>(n)–(k)</cite> return exactly the same graph nodes <cite>[n1, n2, …]</cite>, one of <cite>c</cite> or <cite>k</cite> should be removed from the database.</p></li>
 <li><p><em>Tag</em>: For two tag nodes, all of whose properties except nanoid are identical in key and value, and which are linked to exactly the same graph nodes, one must be removed.</p></li>
 <li><p><em>Nanoid</em>: Each unique unversioned graph node as defined above must have a unique nanoid.</p>
@@ -197,7 +197,7 @@ on <a class="reference external" href="https://neo4j.com/docs/cypher-manual/curr
 </ul>
 <p>Handles in combination with other properties can be unique. The model and handles can be considered to define namespaces in which qualified names point to unique MDB graph nodes. Example: <cite>ICDC.demographic.breed</cite> can represent the property “breed” of the node “demographic” in the ICDC data model. This would correspond to a property node with a persistent nanoid in the MDB.</p>
 <ul class="simple">
-<li><p>Graph nodes which meet the conditions above can be thought of playing a given semantic role in a specific context. They represent an interaction between a concept and a model.</p></li>
+<li><p>Graph nodes which meet the conditions above can be thought of as playing a given semantic role in a specific context. They represent an interaction between a concept and a model.</p></li>
 </ul>
 <p>In the MDB, the reuse of semantic concepts is expressed by linking all graph nodes playing the same semantic role to a common Concept node. Rather that creating a universal “demographic” node and connecting every model that need that concept to that node, each model requiring that concept gets it own “demographic” node.</p>
 <p>The MDB pattern for reuse of semantic roles, whether entities from an existing model, or terms from an existing vocabulary, is as follows.</p>

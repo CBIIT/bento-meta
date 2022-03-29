@@ -103,15 +103,15 @@ on `Cypher <https://neo4j.com/docs/cypher-manual/current/>`_.)
 * *Property*: For `(p:property)` with `(e)-[:has_property]->(p)`, the combination
   `[p.model, p.handle, e.handle]` is unique.
 
-  * One and only one graph node p exists satisfying this condition. e is a node or relationship, and `e.model == p.model` must hold.
+  * One and only one graph node `p` exists satisfying this condition. `e` is a node or relationship, and `e.model == p.model` must hold.
 
 * *Relationship*: For `(r:relationship)` with `(s:node)<-[:has_src]-(r)-[:has_dst]->(d:node)`, the combination `[r.model, r.handle, s.handle, d.handle]` is unique.
 
-  * One and only one graph node r exists satisfying this condition, and `r.model == s.model == d.model` must hold.
+  * One and only one graph node `r` exists satisfying this condition, and `r.model == s.model == d.model` must hold.
 
 * *Value Set*: For `(p:property)` with `p.value_domain == “value_set”`, then one and only one value_set `v` with `(p)-[:has_value_set]->(v:value_set)` must exist.
   
-* *Term*: For a term `(t:term)`, only one graph node with `[t.orgin, t.origin_id, t.origin_version]` can exist, *even in a versioned MDB*.
+* *Term*: For a term `(t:term)`, only one graph node with `[t.orgin, t.origin_id, t.origin_version]` may exist, *even in a versioned MDB*.
   
 * *Concept*: For any `(c:concept)` and `(k:concept)` where `(n)--(c)` and `(n)--(k)` return exactly the same graph nodes `[n1, n2, ...]`, one of `c` or `k` should be removed from the database.
   
@@ -131,7 +131,7 @@ Some implications of these formal rules:
 
 Handles in combination with other properties can be unique. The model and handles can be considered to define namespaces in which qualified names point to unique MDB graph nodes. Example: `ICDC.demographic.breed` can represent the property “breed” of the node “demographic” in the ICDC data model. This would correspond to a property node with a persistent nanoid in the MDB.
 
-* Graph nodes which meet the conditions above can be thought of playing a given semantic role in a specific context. They represent an interaction between a concept and a model.
+* Graph nodes which meet the conditions above can be thought of as playing a given semantic role in a specific context. They represent an interaction between a concept and a model.
 
 In the MDB, the reuse of semantic concepts is expressed by linking all graph nodes playing the same semantic role to a common Concept node. Rather that creating a universal “demographic” node and connecting every model that need that concept to that node, each model requiring that concept gets it own “demographic” node.
 
