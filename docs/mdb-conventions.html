@@ -169,18 +169,27 @@ on <a class="reference external" href="https://neo4j.com/docs/cypher-manual/curr
 <ul class="simple">
 <li><p><em>Node</em>: For <cite>(n:node)</cite>, the combination <cite>[n.model, n.handle]</cite> is unique.</p></li>
 <li><p><em>Property</em>: For <cite>(p:property)</cite> with <cite>(e)-[:has_property]-&gt;(p)</cite>, the combination
-<cite>[p.model, p.handle, e.handle]</cite> is unique.
-* One and only one graph node p exists satisfying this condition. e is a node or relationship, and <cite>e.model == p.model</cite> must hold.</p></li>
-<li><p><em>Relationship</em>: For <cite>(r:relationship)</cite> with <cite>(s:node)&lt;-[:has_src]-(r)-[:has_dst]-&gt;(d:node)</cite>, the combination <cite>[r.model, r.handle, s.handle, d.handle]</cite> is unique.
-* One and only one graph node r exists satisfying this condition, and <cite>r.model == s.model == d.model</cite> must hold.</p></li>
+<cite>[p.model, p.handle, e.handle]</cite> is unique.</p>
+<ul>
+<li><p>One and only one graph node p exists satisfying this condition. e is a node or relationship, and <cite>e.model == p.model</cite> must hold.</p></li>
+</ul>
+</li>
+<li><p><em>Relationship</em>: For <cite>(r:relationship)</cite> with <cite>(s:node)&lt;-[:has_src]-(r)-[:has_dst]-&gt;(d:node)</cite>, the combination <cite>[r.model, r.handle, s.handle, d.handle]</cite> is unique.</p>
+<ul>
+<li><p>One and only one graph node r exists satisfying this condition, and <cite>r.model == s.model == d.model</cite> must hold.</p></li>
+</ul>
+</li>
 <li><p><em>Value Set</em>: For <cite>(p:property)</cite> with <cite>p.value_domain == “value_set”</cite>, then one and only one value_set <cite>v</cite> with <cite>(p)-[:has_value_set]-&gt;(v:value_set)</cite> must exist.</p></li>
 <li><p><em>Term</em>: For a term <cite>(t:term)</cite>, only one graph node with <cite>[t.orgin, t.origin_id, t.origin_version]</cite> can exist, <em>even in a versioned MDB</em>.</p></li>
 <li><p><em>Concept</em>: For any <cite>(c:concept)</cite> and <cite>(k:concept)</cite> where <cite>(n)–(c)</cite> and <cite>(n)–(k)</cite> return exactly the same graph nodes <cite>[n1, n2, …]</cite>, one of <cite>c</cite> or <cite>k</cite> should be removed from the database.</p></li>
 <li><p><em>Tag</em>: For two tag nodes, all of whose properties except nanoid are identical in key and value, and which are linked to exactly the same graph nodes, one must be removed.</p></li>
-<li><p><em>Nanoid</em>: Each unique unversioned graph node as defined above must have a unique nanoid.
-* The nanoid <em>shall not change</em> when a graph node is updated, provided above conditions remain satisfied upon update.
-* If an existing MDB graph node is changed such that that node <em>no longer satisfies</em> its defining condition as above, it <em>must receive a new nanoid</em>. The old nanoid is retired and should not be used again.
-* In a versioned MDB, then the uniqueness conditions above are relaxed modulo the entity properties <cite>_to</cite> and <cite>_from</cite>. The nanoid <em>must be the same</em> among graph nodes that represent different versions of unique unversioned graph nodes as defined above.</p></li>
+<li><p><em>Nanoid</em>: Each unique unversioned graph node as defined above must have a unique nanoid.</p>
+<ul>
+<li><p>The nanoid <em>shall not change</em> when a graph node is updated, provided above conditions remain satisfied upon update.</p></li>
+<li><p>If an existing MDB graph node is changed such that that node <em>no longer satisfies</em> its defining condition as above, it <em>must receive a new nanoid</em>. The old nanoid is retired and should not be used again.</p></li>
+<li><p>In a versioned MDB, then the uniqueness conditions above are relaxed modulo the entity properties <cite>_to</cite> and <cite>_from</cite>. The nanoid <em>must be the same</em> among graph nodes that represent different versions of unique unversioned graph nodes as defined above.</p></li>
+</ul>
+</li>
 </ul>
 <p>Some implications of these formal rules:</p>
 <ul class="simple">

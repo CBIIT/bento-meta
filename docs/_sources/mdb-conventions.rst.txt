@@ -102,9 +102,11 @@ on `Cypher <https://neo4j.com/docs/cypher-manual/current/>`_.)
 
 * *Property*: For `(p:property)` with `(e)-[:has_property]->(p)`, the combination
   `[p.model, p.handle, e.handle]` is unique.
+
   * One and only one graph node p exists satisfying this condition. e is a node or relationship, and `e.model == p.model` must hold.
 
 * *Relationship*: For `(r:relationship)` with `(s:node)<-[:has_src]-(r)-[:has_dst]->(d:node)`, the combination `[r.model, r.handle, s.handle, d.handle]` is unique.
+
   * One and only one graph node r exists satisfying this condition, and `r.model == s.model == d.model` must hold.
 
 * *Value Set*: For `(p:property)` with `p.value_domain == “value_set”`, then one and only one value_set `v` with `(p)-[:has_value_set]->(v:value_set)` must exist.
@@ -116,8 +118,11 @@ on `Cypher <https://neo4j.com/docs/cypher-manual/current/>`_.)
 * *Tag*: For two tag nodes, all of whose properties except nanoid are identical in key and value, and which are linked to exactly the same graph nodes, one must be removed.
 
 * *Nanoid*: Each unique unversioned graph node as defined above must have a unique nanoid.
+
   * The nanoid *shall not change* when a graph node is updated, provided above conditions remain satisfied upon update.
+
   * If an existing MDB graph node is changed such that that node *no longer satisfies* its defining condition as above, it *must receive a new nanoid*. The old nanoid is retired and should not be used again.
+
   * In a versioned MDB, then the uniqueness conditions above are relaxed modulo the entity properties `_to` and `_from`. The nanoid *must be the same* among graph nodes that represent different versions of unique unversioned graph nodes as defined above.
 
 Some implications of these formal rules:

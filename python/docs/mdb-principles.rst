@@ -22,7 +22,7 @@ This milieu in which the MDB operates leads to the following design decisions an
 
 - *Creating, updating, and reading information from the MDB must be easy and intuitive for data management subject matter experts (SME).*
 
-Software to perform these functions must support the SME users in this regard. For example, an SME needs robust and straightforward tools to manipulate the MDB that make the underlying database structure and conventions transparent. The SME should be able to change or update what is necessary in the database, without worrying about whether she will "break it" by doing so.
+Software to perform these functions must support the SME users in this regard. For examgple, an SME needs robust and straightforward tools to manipulate the MDB that make the underlying database structure and conventions transparent. The SME should be able to change or update what is necessary in the database, without worrying about whether she will "break it" by doing so.
 
 - *It is more important that the MDB describes the current data models (and so the current data) in the ecosystem accurately, than it is that the MDB is "complete" in other respects.*
 
