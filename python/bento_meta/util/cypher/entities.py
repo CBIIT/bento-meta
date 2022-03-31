@@ -9,7 +9,7 @@ from bento_meta.util.cypher.functions import Func
 from copy import deepcopy as clone
 
 
-def countmaker(max=100):
+def countmaker(max=10000):
     return (x for x in range(max))
 
 

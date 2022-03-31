@@ -2,6 +2,7 @@
 mdb.loaders: load models into an MDB instance consistently
 """
 
+from tqdm import tqdm
 from bento_meta.mdb import WriteableMDB
 from bento_meta.util.cypher.entities import (
     N, R, P, T, G, _plain_var
@@ -16,11 +17,17 @@ def load_mdf(mdf, mdb, _commit=None):
     """Load an MDF object into an MDB instance"""
     load_model(mdf.model, mdb, _commit)
 
-
 def load_model(model, mdb, _commit=None):
     """Load a model object into an MDB instance."""
     if not isinstance(mdb, WriteableMDB):
         raise RuntimeError("mdb object must be a WriteableMDB")
+    cstmts = load_model_statements(model, _commit)
+    for stmt in tqdm(cstmts):
+        mdb.put_with_statement(str(stmt), stmt.params)
+
+def load_model_statements(model, _commit=None):
+    """Create Cypher statements from a model to load it de novo into an
+    MDB instance."""
     cStatements = []
     cNodes = {}
     for nd in model.nodes:
@@ -28,7 +35,8 @@ def load_model(model, mdb, _commit=None):
         cNode = _cEntity(node, model, _commit)
         cStatements.append(
             Statement(
-                Create(cNode)
+                Merge(cNode),
+                use_params=True
                 )
             )
         cNodes[node.handle] = cNode
@@ -55,14 +63,18 @@ def load_model(model, mdb, _commit=None):
             cEdge._add_props({"is_required": edge.is_required})
         cStatements.extend([
             Statement(
-                Create(cEdge)
+                Create(cEdge),
+                use_params=True
                 ),
             Statement(
                 Match(cEdge, cSrc, cDst),
-                Create(
-                    G(R(Type="has_src").relate(_plain_var(cEdge), _plain_var(cSrc)),
-                      R(Type="has_dst").relate(_plain_var(cEdge), _plain_var(cDst)))
-                    )
+                Merge(
+                    R(Type="has_src").relate(_plain_var(cEdge), _plain_var(cSrc))
+                    ),
+                Merge(
+                      R(Type="has_dst").relate(_plain_var(cEdge), _plain_var(cDst))
+                ),
+                use_params=True
                 )])
         if edge.tags:
             cStatements.extend(
@@ -85,20 +97,31 @@ def load_model(model, mdb, _commit=None):
                if x.value_domain == 'value_set']:
         cValueSet = _cEntity(pr.value_set, model, _commit)
         cProp = _cEntity(pr, model, _commit)
-        cStatements.append(
+        cStatements.extend([
+            Statement(
+                Merge(cValueSet),
+                use_params=True
+                ),
             Statement(
                 Match(cProp),
-                Merge(R(Type="has_value_set").relate(_plain_var(cProp), cValueSet))
+                Merge(R(Type="has_value_set").relate(_plain_var(cProp), cValueSet)),
+                use_params=True
                 )
-            )
+            ])
         for tm in pr.terms.values():
             cTerm = _cEntity(tm, model, _commit)
-            cStatements.append(
+            cStatements.extend([
                 Statement(
-                    Match(cValueSet),
-                    Merge(R(Type="has_term").relate(_plain_var(cValueSet), cTerm)),
+                    Merge(cTerm),
+                    use_params = True
+                    ),
+                Statement(
+                    Match(cValueSet, cTerm),
+                    Merge(R(Type="has_term").relate(_plain_var(cValueSet),
+                                                    _plain_var(cTerm))),
+                    use_params=True
                     )
-                )
+                ])
     return cStatements
 
 
@@ -107,6 +130,8 @@ def _cEntity(ent, model, _commit):
     cEnt = None
     if label == 'edge':
         label = 'relationship'
+    if label == 'valueset':
+        label = 'value_set'
     if label == 'term':
         cEnt = N(label=label,
                  props={"value": ent.value})
@@ -155,7 +180,8 @@ def _tag_statements(ent, cEnt, _commit):
         stmts.append(
             Statement(
                 Match(cEnt),
-                Create(R(Type="has_tag").relate(_plain_var(cEnt), ct))
+                Merge(R(Type="has_tag").relate(_plain_var(cEnt), ct)),
+                use_params=True
                 )
             )
     return stmts
@@ -168,13 +194,15 @@ def _prop_statements(ent, cEnt, model, _commit):
         cProp._add_props({"value_domain": p.value_domain})
         stmts.extend([
             Statement(
-                Create(cProp)
+                Merge(cProp),
+                use_params=True
                 ),
             Statement(
                 Match(cEnt, cProp),
-                Create(R(Type="has_property").relate(
-                    _plain_var(cEnt), _plain_var(cProp)))
-                )
+                Merge(R(Type="has_property").relate(
+                    _plain_var(cEnt), _plain_var(cProp))),
+                use_params=True
+                ),
             ])
         if p.tags:
             stmts.extend(
