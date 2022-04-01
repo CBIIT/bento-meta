@@ -14,7 +14,7 @@ from bento_meta.util.cypher.functions import (
 )
 from bento_meta.util.cypher.clauses import (
     Clause, Match, Where, Return, Set, Create, Merge,
-    OnMatchSet, OnCreateSet, Statement,
+    OnMatchSet, OnCreateSet, Remove, Statement,
 )
 
 
@@ -365,4 +365,24 @@ def test_statments():
             "MERGE ({n}:node) "
             "ON MATCH SET {n}.model = 'ICDC', {n}.handle = 'diagnosis' "
             "RETURN {n}"
+            ).format(n=n.var)
+
+    assert str(
+        Statement(
+            Match(n),
+            Remove(n,label="node")
+            )
+        ) == (
+            "MATCH ({n}:node {{model:'ICDC',handle:'diagnosis'}}) "
+            "REMOVE {n}:node"
+            ).format(n=n.var)
+
+    assert str(
+        Statement(
+            Match(n),
+            Remove(n,prop="nanoid")
+            )
+        ) == (
+            "MATCH ({n}:node {{model:'ICDC',handle:'diagnosis'}}) "
+            "REMOVE {n}.nanoid"
             ).format(n=n.var)

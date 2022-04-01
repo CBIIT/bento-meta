@@ -111,6 +111,27 @@ class Merge(Clause):
     def __init__(self, *args):
         super().__init__(*args)
 
+class Remove(Clause):
+    """Create a REMOVE clause with the arguments."""
+    template = Template("REMOVE $slot1")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __str__(self):
+        ent = self.args[0]
+        item = ""
+        sep = ""
+        if "prop" in self.kwargs:
+            item = self.kwargs["prop"]
+            sep = "."
+        elif "label" in self.kwargs:
+            item = self.kwargs["label"]
+            sep = ":"
+        return self.template.substitute(
+            slot1="{}{}{}".format(self.context(ent),sep,item)
+            )
+        
 
 class Set(Clause):
     """Create a SET clause with the arguments. (Only property arguments matter.)"""
