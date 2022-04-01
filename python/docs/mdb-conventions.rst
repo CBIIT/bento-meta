@@ -44,7 +44,7 @@ are critical for its functionality.
 
 All entities need to posses a non-null *nanoid*. This is a six
 character, alphanumeric random identifier, which can be generated with
-the ``nanoid`` package in various languages (e.g., `for python <https://github.com/puyuan/py-nanoid>`_. Once set for an entity in an MDB
+the ``nanoid`` package in various languages (e.g., `for python <https://github.com/puyuan/py-nanoid>`_). Once set for an entity in an MDB
 instance, it should not be changed, even when other properties are
 updated, added, or removed. The nanoid (plus a version string,
 possibly) should uniquely identify all single Neo4j nodes in the
@@ -111,7 +111,7 @@ on `Cypher <https://neo4j.com/docs/cypher-manual/current/>`_.)
 
 * *Value Set*: For `(p:property)` with `p.value_domain == “value_set”`, then one and only one value_set `v` with `(p)-[:has_value_set]->(v:value_set)` must exist.
   
-* *Term*: For a term `(t:term)`, only one graph node with `[t.orgin, t.origin_id, t.origin_version]` may exist, *even in a versioned MDB*.
+* *Term*: For a term `(t:term)`, only one graph node with `[t.origin_name, t.origin_id, t.origin_version]` may exist, *even in a versioned MDB*.
   
 * *Concept*: For any `(c:concept)` and `(k:concept)` where `(n)--(c)` and `(n)--(k)` return exactly the same graph nodes `[n1, n2, ...]`, one of `c` or `k` should be removed from the database.
   
@@ -133,7 +133,7 @@ Handles in combination with other properties can be unique. The model and handle
 
 * Graph nodes which meet the conditions above can be thought of as playing a given semantic role in a specific context. They represent an interaction between a concept and a model.
 
-In the MDB, the reuse of semantic concepts is expressed by linking all graph nodes playing the same semantic role to a common Concept node. Rather that creating a universal “demographic” node and connecting every model that need that concept to that node, each model requiring that concept gets it own “demographic” node.
+In the MDB, the reuse of semantic concepts is expressed by linking all graph nodes playing the same semantic role to a common Concept node. Rather that creating a universal “demographic” node and connecting every model needing that concept to that node, each model that needs one gets its own “demographic” node.
 
 The MDB pattern for reuse of semantic roles, whether entities from an existing model, or terms from an existing vocabulary, is as follows.
 
