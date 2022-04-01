@@ -9,7 +9,7 @@ from bento_meta.util.cypher.entities import (
     )
 from bento_meta.util.cypher.clauses import (
     Match, Create, Merge, Set, OnMatchSet, OnCreateSet,
-    Statement,
+    Remove, Statement,
     )
 
 
@@ -61,6 +61,8 @@ def load_model_statements(model, _commit=None):
             cEdge._add_props({"multiplicity": edge.multiplicity})
         if edge.is_required:
             cEdge._add_props({"is_required": edge.is_required})
+        # ensure uniqueness for merge
+        cEdge._add_props({"__u":str(rl)})
         cStatements.extend([
             Statement(
                 Create(cEdge),
@@ -84,6 +86,13 @@ def load_model_statements(model, _commit=None):
             cStatements.extend(
                 _prop_statements(edge, cEdge, model, _commit)
                 )
+        cStatements.append(
+            Statement(
+                Match(cEdge),
+                Remove(cEdge, prop="__u"),
+                use_params=True
+                )
+            )
     # edge node and edge-property nodes now exist
 
     # now go through all properties that the model object knows about
