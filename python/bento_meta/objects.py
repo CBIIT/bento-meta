@@ -266,9 +266,16 @@ class Concept(Entity):
 
 class Predicate(Entity):
     """Subclass that models a semantic link between concepts."""
-    attspec_ = {"subject": "object", "object": "object"}
+    attspec_ = {
+        "handle": "simple",
+        "subject": "object",
+        "object": "object"}
     mapspec_ = {
         "label": "predicate",
+        "key": "handle",
+        "property": {
+            "handle": "handle",
+        },
         "relationship": {
             "subject": {"rel": ":has_subject>", "end_cls": "Concept"},
             "object": {"rel": ":has_object>", "end_cls": "Concept"},
