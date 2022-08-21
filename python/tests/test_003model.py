@@ -22,6 +22,8 @@ def test_create_model():
   model.add_node(case)
   assert isinstance(model.nodes['case'],Node)
   assert model.props[('case','days_to_enrollment')]
+  model.annotate(case, Term({"value":"case", "origin_name":"CTOS"}))
+  assert model.nodes['case'].concept.terms[('case','CTOS')]
   model.add_node({"handle":"sample"})
   assert model.nodes["sample"]
   assert isinstance(model.nodes["sample"],Node)
@@ -34,12 +36,17 @@ def test_create_model():
   sample = model.nodes["sample"]
   of_case = Edge({"handle":"of_case","src":sample,"dst":case})
   of_case.props['operator'] = Property({"handle":"operator","value_domain":"boolean"})
+  model.annotate(model.props[('case','case_id')],
+                 Term({'value': 'case_id', 'origin_name': 'CTOS'}))
+  assert case_id.concept.terms[('case_id','CTOS')]
   model.add_edge(of_case)
   assert model.edges[('of_case','sample','case')]
   assert model.contains(of_case.props['operator'])
   assert of_case.props['operator'].model == 'test'
   assert model.props[('of_case','sample','case','operator')]
   assert model.props[('of_case','sample','case','operator')].value_domain == 'boolean'
+  model.annotate(of_case, Term({"value": "of_case", "origin_name": "CTOS"}))
+  assert model.edges[('of_case','sample','case')].concept.terms[('of_case', 'CTOS')]
   dx = Property({"handle":"diagnosis","value_domain":"value_set"})
   tm = Term({"value":"CRS"})
   model.add_prop(case, dx)

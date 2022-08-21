@@ -14,7 +14,7 @@ sys.path.append("..")
 from uuid import uuid4
 from warnings import warn
 import neo4j.graph
-from bento_meta.mdb import MDB
+from bento_meta.mdb import MDB, make_nanoid
 from bento_meta.object_map import ObjectMap
 from bento_meta.entity import Entity, ArgError
 from bento_meta.objects import (
@@ -169,6 +169,25 @@ class Model(object):
         self.props[tuple(key)] = prop
         return prop
 
+    def annotate(self, ent, term):
+        """
+        Associate a single :class:`Term` with an :class:`Entity`. This creates a Concept entity
+        and links both the Entity and the Term to the concept, in keeping with the MDB
+        spec. It supports the Term key in MDF.
+        :param Entity ent: :class:`Entity` object to annotate
+        :param Term term: :class:`Term` object to describe the Entity
+        """
+        if not isinstance(ent, Entity):
+            raise ArgError("arg1 must be Entity")
+        if not isinstance(term, Term):
+            raise ArgError("arg2 must be Term")
+        if not ent.concept:
+            ent.concept = Concept({"nanoid":make_nanoid()})
+        if (term.value, term.origin_name) in ent.concept.terms:
+            raise ValueError("Concept already represented by a Term with value '{}'"
+                             "and origin_name '{}'".format(term.value, term.origin_name))
+        ent.concept.terms[(term.value, term.origin_name)] = term
+        
     def add_terms(self, prop, *terms):
         """Add a list of :class:`Term` and/or strings to a :class:`Property` with a value domain of ``value_set``
 

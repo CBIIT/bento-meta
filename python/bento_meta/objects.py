@@ -181,6 +181,10 @@ class Term(Entity):
     }
     mapspec_ = {
         "label": "term",
+        # note using 'value' as the key in terms collections may break silently
+        # if the terms are coming from different origins, but use the same
+        # value (string representation in data) - i.e., value is not necessarily
+        # unique - should be the nanoid of the term.
         "key": "value",
         "property": {
             "value": "value",

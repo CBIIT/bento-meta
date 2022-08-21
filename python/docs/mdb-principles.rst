@@ -4,7 +4,7 @@ Metamodel Database (MDB) Principles
 MDB Motivation and Rationale
 ____________________________
 
-The MDB schema is intended to be simple in structure, without a profusion of different classes for specialized entities. At the same time, enough entities are provided to enable a separation between an entity an its sematic meaning as represented in the MDB.
+The MDB schema is intended to be simple in structure, without a profusion of different classes for specialized entities. At the same time, enough entities are provided to enable a separation between an entity and its sematic meaning as represented in the MDB.
 The goals are:
 
 * To be able to store multiple models, developed independently for specific practical uses, to exist separately in a single data store. and also
@@ -13,7 +13,7 @@ The goals are:
 
 To the extent the MDB succeeds in meeting these goals, it also yields useful mappings of terminology and structures between models. This feature is intended to facilitate data transformations that contribute to interoperability between projects or programs that might participate in an MDB. 
 
-A key aspect of the MDB, one that distinguishes it from systems that serve similar purposes, is that it is meant to be responsive and dynamic -- easily and perhaps frequently changed and updated. An MDB requires curation and quality management, but it is not devised to be a standard reference or a database of record. Its value is increased by incorporating stable entities from external such references (e.g., the NCIt), but it is designed as a tool to assist data SMEs who are managing new or rapidly changing data resources, characterized by frequent data augmentation, addition of new data sources, or modification of data models or structures, often based on scientific considerations or policy decisions.
+A key aspect of the MDB, one that distinguishes it from systems that serve similar purposes, is that it is meant to be responsive and dynamic -- easily and perhaps frequently changed and updated. An MDB requires curation and quality management, but it is not devised to be a standard reference or a database of record. Its value is increased by incorporating stable entities from external such references (e.g., the `NCIt<https://ncit.nci.nih.gov/ncitbrowser/>`_), but it is designed as a tool to assist data SMEs who are managing new or rapidly changing data resources, characterized by frequent data augmentation, addition of new data sources, or modification of data models or structures, often based on scientific considerations or policy decisions.
 
 MDB Design Decisions
 ____________________

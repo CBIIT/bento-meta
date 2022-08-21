@@ -134,15 +134,17 @@ class Remove(Clause):
         
 
 class Set(Clause):
-    """Create a SET clause with the arguments. (Only property arguments matter.)"""
+    """
+    Create a SET clause with the arguments. (Only property arguments matter.)
+    """
     template = Template("SET $slot1")
 
     @staticmethod
     def context(arg):
         return _condition(arg)
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
         values = []
@@ -155,6 +157,8 @@ class Set(Clause):
                 values.extend([str(x) for x in c])
             else:
                 values.append(str(c))
+        if self.kwargs['update']:
+            values = [x.replace("=","+=") for x in values]
         return self.template.substitute(
             slot1=self.joiner.join(values)
             )
