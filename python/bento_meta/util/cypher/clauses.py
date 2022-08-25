@@ -157,7 +157,7 @@ class Set(Clause):
                 values.extend([str(x) for x in c])
             else:
                 values.append(str(c))
-        if self.kwargs['update']:
+        if 'update' in self.kwargs:
             values = [x.replace("=","+=") for x in values]
         return self.template.substitute(
             slot1=self.joiner.join(values)
