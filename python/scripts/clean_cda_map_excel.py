@@ -1,3 +1,4 @@
+#/usr/bin/env python
 """Command line interface for python script to format CDA mapping excel file"""
 
 from pathlib import Path
