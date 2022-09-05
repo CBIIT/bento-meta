@@ -4,7 +4,9 @@ module docstring goes here
 
 import csv
 
-import en_ner_bionlp13cg_md  # en_core_sci_lg another potential option
+# import en_ner_bionlp13cg_md  # en_core_sci_lg another potential option
+import scispacy
+import spacy
 from bento_meta.entity import Entity
 from bento_meta.mdb import read_txn, read_txn_value
 from bento_meta.mdb.writeable import WriteableMDB, write_txn
@@ -19,7 +21,7 @@ def get_entity_type(entity: Entity):
         return "relationship"
     return entity.__class__.__name__.lower()
 
-class NelsonMDB(WriteableMDB):
+class ToolsMDB(WriteableMDB):
     """Adds mdb-tools to WriteableMDB"""
     def __init__(self, uri, user, password):
         WriteableMDB.__init__(self, uri, user, password)
@@ -479,7 +481,7 @@ class NelsonMDB(WriteableMDB):
         if not (term.origin_name and term.value):
             raise RuntimeError("arg 'term' must have both origin_name and value")
         # load spaCy NER model
-        nlp = en_ner_bionlp13cg_md.load()
+        nlp = spacy.load('en_ner_bionlp13cg_md')
         # get result with all term values, origin_names, and nanoids in the database
         all_terms_result = self._get_all_terms()
         # get likely synonyms

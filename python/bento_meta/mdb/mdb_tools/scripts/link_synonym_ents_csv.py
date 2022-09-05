@@ -6,7 +6,7 @@ from pathlib import Path
 
 import click
 from bento_meta.objects import Edge, Node, Property, Term
-from mdb_tools import NelsonMDB, get_entity_type
+from mdb_tools import ToolsMDB, get_entity_type
 
 
 @click.command()
@@ -66,7 +66,7 @@ def main(
     entity_type: type of entity to be linked (node, property, relationship, term)
     add_missing_ent: if set to true, will add entities not found in the database.
     """
-    mdbn = NelsonMDB(uri=mdb_uri, user=mdb_user, password=mdb_pass)
+    mdbn = ToolsMDB(uri=mdb_uri, user=mdb_user, password=mdb_pass)
     csv_path = Path(csv_filepath)
     with open(csv_path, encoding="UTF-8") as csvfile:
         syn_reader = csv.DictReader(csvfile)
