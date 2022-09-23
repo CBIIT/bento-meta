@@ -25,7 +25,9 @@ class ToolsMDB(WriteableMDB):
     """Adds mdb-tools to WriteableMDB"""
     def __init__(self, uri, user, password):
         WriteableMDB.__init__(self, uri, user, password)
-
+# FIXME: this should interpolate cypher $parameters, not the actual
+# values
+# (use utils.cypher...)
     def get_entity_attrs(self, entity: Entity, output_str: bool = True):
         """
         Returns attributes as str or dict for given entity.
@@ -84,8 +86,12 @@ class ToolsMDB(WriteableMDB):
         # if not (term.origin_name and term.value):
         #     raise RuntimeError("arg 'term' must have both origin_name and value")
         entity_type = get_entity_type(entity)
-        entity_attr_str = self.get_entity_attrs(entity)
-        entity_attr_dict = self.get_entity_attrs(entity, output_str=False)
+        if entity.nanoid:
+            entity_attr_str = "{nanoid:$nanoid}"
+            entity_attr_dict = {"nanoid":entity.nanoid}
+        else:
+            entity_attr_str = self.get_entity_attrs(entity)
+            entity_attr_dict = self.get_entity_attrs(entity, output_str=False)
 
         qry = (
             f"MATCH (e:{entity_type} {entity_attr_str}) "
@@ -97,7 +103,8 @@ class ToolsMDB(WriteableMDB):
     @write_txn
     def create_entity(
         self,
-        entity: Entity
+        entity: Entity,
+        _commit: str = None,
         ) -> tuple:
         """Adds given Entity node to database"""
         if not entity.nanoid:
@@ -105,6 +112,8 @@ class ToolsMDB(WriteableMDB):
                 "Entity needs a nanoid before creating - please set valid entity nanoid. "
                 "entity_name.nanoid = mdb_name.get_or_make_nano(entity_name) AFTER "
                 "declaring some other entity properties is a good way to do this.")
+        if _commit:
+            entity._commit = _commit
         entity_type = get_entity_type(entity)
         entity_attr_str = self.get_entity_attrs(entity)
         entity_attr_dict = self.get_entity_attrs(entity, output_str=False)
@@ -120,9 +129,14 @@ class ToolsMDB(WriteableMDB):
         # if not (term.origin_name and term.value):
         #     raise RuntimeError("arg 'term' must have both origin_name and value")
         entity_type = get_entity_type(entity)
-        entity_attr_str = self.get_entity_attrs(entity)
-        entity_attr_dict = self.get_entity_attrs(entity, output_str=False)
 
+        if entity.nanoid:
+            entity_attr_str = "{nanoid:$nanoid}"
+            entity_attr_dict = {"nanoid":entity.nanoid}
+        else:
+            entity_attr_str = self.get_entity_attrs(entity)
+            entity_attr_dict = self.get_entity_attrs(entity, output_str=False)
+            
         if entity_type == "term":
             qry = (
                 f"MATCH (e:{entity_type} {entity_attr_str}) "
@@ -140,7 +154,8 @@ class ToolsMDB(WriteableMDB):
         self,
         src_entity: Entity,
         dst_entity: Entity,
-        relationship: str
+        relationship: str,
+        _commit: str = None,
         ):
         """Adds relationship between given entities in MDB"""
         # gets number of entities in MDB matching given entity (w/ given properties)
@@ -160,25 +175,24 @@ class ToolsMDB(WriteableMDB):
 
         src_attr_str = self.get_entity_attrs(src_entity)
         dst_attr_str = self.get_entity_attrs(dst_entity)
+        _commit_str = ''
+        if _commit:
+            _commit_str = f"{{_commit:'{_commit}'}}"
 
         qry = (
-            "MATCH (s:{src_type} {{nanoid: '{src_nano}'}}), "
-            "(d:{dst_type} {{nanoid: '{dst_nano}'}}) "
-            "MERGE (s)-[:{relationship}]->(d)".format(
+            "MATCH (s:{src_type} {{nanoid:$src_nano}}), "
+            "(d:{dst_type} {{nanoid: $dst_nano}}) "
+            "MERGE (s)-[:{relationship} {commit}]->(d)".format(
                 src_type=src_entity_type,
-                src_nano=src_entity.nanoid,
                 dst_type=dst_entity_type,
-                dst_nano=dst_entity.nanoid,
-                relationship=relationship
+                relationship=relationship,
+                commit=_commit_str,
             )
         )
 
         parms = {
-            "src_type": src_entity_type,
             "src_nano": src_entity.nanoid,
-            "dst_type": dst_entity_type,
             "dst_nano": dst_entity.nanoid,
-            "relationship": relationship
         }
         print(
             f"Ensuring {relationship} relationship exists between src {src_entity_type} with "
@@ -190,7 +204,8 @@ class ToolsMDB(WriteableMDB):
         self,
         entity_1: Entity,
         entity_2: Entity,
-        add_missing_ent: bool = False
+        add_missing_ent: bool = False,
+        _commit: str = None
         ):
         """
         Link two synonymous entities in the MDB via a Concept node.
@@ -201,6 +216,9 @@ class ToolsMDB(WriteableMDB):
         If one or both doesn't exist in the MDB and add_missing_ent is True they will be added.
 
         If one or both doesn't uniquely identify a node in the MDB will give error.
+
+        If _commit is set (to a string), the _commit property of any node created is set to
+        this value.
         """
         # gets number of entities in MDB matching given entity (w/ given properties)
         ent_1_count = self.get_entity_count(entity_1)[0]
@@ -217,10 +235,10 @@ class ToolsMDB(WriteableMDB):
                 "Please add the missing entities to the MDB or set add_missing_ent to True.")
         # entity 1 not found and should be added
         if (not ent_1_count and add_missing_ent):
-            self.create_entity(entity_1)
+            self.create_entity(entity_1, _commit=_commit)
         # entity 2 not found and should be added
         if (not ent_2_count and add_missing_ent):
-            self.create_entity(entity_2)
+            self.create_entity(entity_2, _commit=_commit)
         # get any existing concepts and create new concept if none found
         ent_1_concepts = self.get_concepts(entity_1)
         ent_2_concepts = self.get_concepts(entity_2)
@@ -230,7 +248,7 @@ class ToolsMDB(WriteableMDB):
             concept = Concept({"nanoid": ent_2_concepts[0]})
         else:
             concept = Concept({"nanoid": self.make_nano()})
-            self.create_entity(concept)
+            self.create_entity(concept, _commit=_commit)
         # entities are already connected by a concept
         if not set(ent_1_concepts).isdisjoint(set(ent_2_concepts)):
             concept = set(ent_1_concepts).intersection(set(ent_2_concepts))
@@ -238,11 +256,11 @@ class ToolsMDB(WriteableMDB):
             return
         # create specified relationship between each entity and a concept
         if get_entity_type(entity_1) == "term":
-            self.create_relationship(entity_1, concept, "represents")
-            self.create_relationship(entity_2, concept, "represents")
+            self.create_relationship(entity_1, concept, "represents", _commit=_commit)
+            self.create_relationship(entity_2, concept, "represents", _commit=_commit)
         else:
-            self.create_relationship(entity_1, concept, "has_concept")
-            self.create_relationship(entity_2, concept, "has_concept")
+            self.create_relationship(entity_1, concept, "has_concept", _commit=_commit)
+            self.create_relationship(entity_2, concept, "has_concept", _commit=_commit)
 
     def make_nano(self):
         """Generates valid nanoid"""
