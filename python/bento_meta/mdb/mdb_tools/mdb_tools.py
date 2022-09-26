@@ -1,11 +1,9 @@
 """
-module docstring goes here
+ToolsMDB: subclass of 'WriteableMDB' to support interactions with the MDB.
 """
 
 import csv
 
-# import en_ner_bionlp13cg_md  # en_core_sci_lg another potential option
-import scispacy
 import spacy
 from bento_meta.entity import Entity
 from bento_meta.mdb import read_txn, read_txn_value
@@ -15,19 +13,23 @@ from nanoid import generate
 
 # pylint: disable=consider-using-f-string
 
+
 def get_entity_type(entity: Entity):
     """returns type of entity"""
     if entity.__class__.__name__.lower() == "edge":
         return "relationship"
     return entity.__class__.__name__.lower()
 
+
 class ToolsMDB(WriteableMDB):
     """Adds mdb-tools to WriteableMDB"""
+
     def __init__(self, uri, user, password):
         WriteableMDB.__init__(self, uri, user, password)
-# FIXME: this should interpolate cypher $parameters, not the actual
-# values
-# (use utils.cypher...)
+
+    # FIXME: this should interpolate cypher $parameters, not the actual
+    # values
+    # (use utils.cypher...)
     def get_entity_attrs(self, entity: Entity, output_str: bool = True):
         """
         Returns attributes as str or dict for given entity.
@@ -65,11 +67,7 @@ class ToolsMDB(WriteableMDB):
         entity_attr_str = self.get_entity_attrs(entity)
         entity_attr_dict = self.get_entity_attrs(entity, output_str=False)
 
-        qry = (
-            f"MATCH (e:{entity_type} "
-            f"{entity_attr_str}) "
-            "DETACH DELETE e"
-        )
+        qry = f"MATCH (e:{entity_type} " f"{entity_attr_str}) DETACH DELETE e"
 
         print(f"Removing {entity_type} node with with properties: {entity_attr_str}")
         return (qry, entity_attr_dict)
@@ -88,7 +86,7 @@ class ToolsMDB(WriteableMDB):
         entity_type = get_entity_type(entity)
         if entity.nanoid:
             entity_attr_str = "{nanoid:$nanoid}"
-            entity_attr_dict = {"nanoid":entity.nanoid}
+            entity_attr_dict = {"nanoid": entity.nanoid}
         else:
             entity_attr_str = self.get_entity_attrs(entity)
             entity_attr_dict = self.get_entity_attrs(entity, output_str=False)
@@ -104,21 +102,22 @@ class ToolsMDB(WriteableMDB):
     def create_entity(
         self,
         entity: Entity,
-        _commit: str = None,
-        ) -> tuple:
+        _commit=None,
+    ) -> tuple:
         """Adds given Entity node to database"""
         if not entity.nanoid:
             raise RuntimeError(
                 "Entity needs a nanoid before creating - please set valid entity nanoid. "
                 "entity_name.nanoid = mdb_name.get_or_make_nano(entity_name) AFTER "
-                "declaring some other entity properties is a good way to do this.")
+                "declaring some other entity properties is a good way to do this."
+            )
         if _commit:
             entity._commit = _commit
         entity_type = get_entity_type(entity)
         entity_attr_str = self.get_entity_attrs(entity)
         entity_attr_dict = self.get_entity_attrs(entity, output_str=False)
 
-        qry = (f"MERGE (e:{entity_type} {entity_attr_str})")
+        qry = f"MERGE (e:{entity_type} {entity_attr_str})"
 
         print(f"Creating new {entity_type} node with properties: {entity_attr_str}")
         return (qry, entity_attr_dict)
@@ -132,11 +131,11 @@ class ToolsMDB(WriteableMDB):
 
         if entity.nanoid:
             entity_attr_str = "{nanoid:$nanoid}"
-            entity_attr_dict = {"nanoid":entity.nanoid}
+            entity_attr_dict = {"nanoid": entity.nanoid}
         else:
             entity_attr_str = self.get_entity_attrs(entity)
             entity_attr_dict = self.get_entity_attrs(entity, output_str=False)
-            
+
         if entity_type == "term":
             qry = (
                 f"MATCH (e:{entity_type} {entity_attr_str}) "
@@ -155,27 +154,27 @@ class ToolsMDB(WriteableMDB):
         src_entity: Entity,
         dst_entity: Entity,
         relationship: str,
-        _commit: str = None,
-        ):
+        _commit=None,
+    ):
         """Adds relationship between given entities in MDB"""
         # gets number of entities in MDB matching given entity (w/ given properties)
         ent_1_count = self.get_entity_count(src_entity)[0]
         ent_2_count = self.get_entity_count(dst_entity)[0]
         # at least one of the given entities doesn't uniquely id a node in the MDB.
-        if (ent_1_count > 1 or ent_2_count > 1):
+        if ent_1_count > 1 or ent_2_count > 1:
             raise RuntimeError(
                 "Given entities must uniquely identify nodes in the MDB. Please add "
-                "necessary properties to the entity so that it can be uniquely identified.")
+                "necessary properties to the entity so that it can be uniquely identified."
+            )
         # at least one of given entities not found and shouldn't be added
-        if (ent_1_count < 1 or ent_2_count < 1):
-            raise RuntimeError(
-                "One or more of the given entities aren't in the MDB.")
+        if ent_1_count < 1 or ent_2_count < 1:
+            raise RuntimeError("One or more of the given entities aren't in the MDB.")
         src_entity_type = get_entity_type(src_entity)
         dst_entity_type = get_entity_type(dst_entity)
 
         src_attr_str = self.get_entity_attrs(src_entity)
         dst_attr_str = self.get_entity_attrs(dst_entity)
-        _commit_str = ''
+        _commit_str = ""
         if _commit:
             _commit_str = f"{{_commit:'{_commit}'}}"
 
@@ -198,15 +197,15 @@ class ToolsMDB(WriteableMDB):
             f"Ensuring {relationship} relationship exists between src {src_entity_type} with "
             f"properties: {src_attr_str} to dst {dst_entity_type} with properties: {dst_attr_str}"
         )
-        return(qry, parms)
+        return (qry, parms)
 
     def link_synonyms(
         self,
         entity_1: Entity,
         entity_2: Entity,
         add_missing_ent: bool = False,
-        _commit: str = None
-        ):
+        _commit=None,
+    ):
         """
         Link two synonymous entities in the MDB via a Concept node.
 
@@ -224,20 +223,22 @@ class ToolsMDB(WriteableMDB):
         ent_1_count = self.get_entity_count(entity_1)[0]
         ent_2_count = self.get_entity_count(entity_2)[0]
         # at least one of the given entities doesn't uniquely id a node in the MDB.
-        if (ent_1_count > 1 or ent_2_count > 1):
+        if ent_1_count > 1 or ent_2_count > 1:
             raise RuntimeError(
                 "Given entities must uniquely identify nodes in the MDB. Please add "
-                "necessary properties to the entity so that it can be uniquely identified.")
+                "necessary properties to the entity so that it can be uniquely identified."
+            )
         # at least one of given entities not found and shouldn't be added
-        if ((ent_1_count < 1 or ent_2_count < 1) and not add_missing_ent):
+        if (ent_1_count < 1 or ent_2_count < 1) and not add_missing_ent:
             raise RuntimeError(
                 "One or more of the given entities aren't in the MDB and add_missing_ent is False."
-                "Please add the missing entities to the MDB or set add_missing_ent to True.")
+                "Please add the missing entities to the MDB or set add_missing_ent to True."
+            )
         # entity 1 not found and should be added
-        if (not ent_1_count and add_missing_ent):
+        if not ent_1_count and add_missing_ent:
             self.create_entity(entity_1, _commit=_commit)
         # entity 2 not found and should be added
-        if (not ent_2_count and add_missing_ent):
+        if not ent_2_count and add_missing_ent:
             self.create_entity(entity_2, _commit=_commit)
         # get any existing concepts and create new concept if none found
         ent_1_concepts = self.get_concepts(entity_1)
@@ -266,7 +267,7 @@ class ToolsMDB(WriteableMDB):
         """Generates valid nanoid"""
         return generate(
             size=6,
-            alphabet="abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789"
+            alphabet="abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789",
         )
 
     def _get_prop_nano(self, prop: Entity, node_handle: str):
@@ -277,16 +278,16 @@ class ToolsMDB(WriteableMDB):
         which requires a node connected via the has_property relationship.
         """
         qry = (
-            "MATCH (p:property {handle: $prop_handle, model: $prop_model})"
+            "MATCH (p:property {handle:$prop_handle, model: $prop_model})"
             "<-[:has_property]-(n:node {handle: $node_handle}) "
             "RETURN p.nanoid as prop_nano"
         )
         parms = {
             "prop_handle": prop.handle,
             "prop_model": prop.model,
-            "node_handle": node_handle
+            "node_handle": node_handle,
         }
-        return(qry, parms, "prop_nano")
+        return (qry, parms, "prop_nano")
 
     def _get_edge_nano(self, edge: Entity, src_handle: str, dst_handle: str):
         """
@@ -305,17 +306,14 @@ class ToolsMDB(WriteableMDB):
             "edge_handle": edge.handle,
             "edge_model": edge.model,
             "src_handle": src_handle,
-            "dst_handle": dst_handle
+            "dst_handle": dst_handle,
         }
-        return(qry, parms, "edge_nano")
+        return (qry, parms, "edge_nano")
 
     @read_txn_value
     def get_entity_nano(
-        self,
-        entity: Entity,
-        extra_handle_1: str = "",
-        extra_handle_2: str = ""
-        ) -> tuple:
+        self, entity: Entity, extra_handle_1: str = "", extra_handle_2: str = ""
+    ) -> tuple:
         """
         Takes an entity and returns its nanoid. If entity requires handles of connected nodes
         for unique identification (Property or Edge), extra_handle_1 and _2 hold these as str.
@@ -328,52 +326,52 @@ class ToolsMDB(WriteableMDB):
             if not extra_handle_1:
                 raise RuntimeError(
                     "Property entities require the handle of a node connected via 'has_property' "
-                    "for unique identification. Set 'extra_handle_1' to that node handle str.")
+                    "for unique identification. Set 'extra_handle_1' to that node handle str."
+                )
             return self._get_prop_nano(prop=entity, node_handle=extra_handle_1)
         if ent_type == "relationship":
-            if (not extra_handle_1 or not extra_handle_2):
+            if not extra_handle_1 or not extra_handle_2:
                 raise RuntimeError(
                     "Edge entities require the handles of a node connected via "
                     "'has_src' relationship and of a node connected via 'has_dst' "
                     "relationship for unique identification. Set 'extra_handle_1' to "
-                    "the src handle and 'extra_handle_2' to the dst handle")
+                    "the src handle and 'extra_handle_2' to the dst handle"
+                )
             return self._get_edge_nano(
-                edge=entity, src_handle=extra_handle_1, dst_handle=extra_handle_2)
+                edge=entity, src_handle=extra_handle_1, dst_handle=extra_handle_2
+            )
 
         ent_count = self.get_entity_count(entity)[0]
         if ent_count > 1:
             raise RuntimeError(
-                    "Given entities must uniquely identify nodes in the MDB. Please add "
-                    "necesary properties to the entity so that it can be uniquely identified.")
+                "Given entities must uniquely identify nodes in the MDB. Please add "
+                "necesary properties to the entity so that it can be uniquely identified."
+            )
         # if ent_count < 1:
         #     raise RuntimeError("Given entity wasn't found in the MDB")
 
         ent_attr_str = self.get_entity_attrs(entity)
         ent_attr_dict = self.get_entity_attrs(entity, output_str=False)
 
-        qry = (
-            f"MATCH (e:{ent_type} {ent_attr_str}) "
-            "RETURN e.nanoid as ent_nano"
-        )
+        qry = f"MATCH (e:{ent_type} {ent_attr_str}) RETURN e.nanoid as ent_nano"
 
-        return(qry, ent_attr_dict, "ent_nano")
+        return (qry, ent_attr_dict, "ent_nano")
 
     def get_or_make_nano(
-        self,
-        entity: Entity,
-        extra_handle_1: str = "",
-        extra_handle_2: str = ""
-        ) -> str:
+        self, entity: Entity, extra_handle_1: str = "", extra_handle_2: str = ""
+    ) -> str:
         """Obtains existing entity's nanoid or creates one for new entity."""
         nano_list = self.get_entity_nano(entity, extra_handle_1, extra_handle_2)
         if len(nano_list) > 1:
             raise RuntimeError(
                 "More than one entity exists with these properties. Please "
-                "add more properties of the desired entity to uniquely ID.")
+                "add more properties of the desired entity to uniquely ID."
+            )
         elif nano_list and not nano_list[0]:
             raise RuntimeError(
                 "An entity with these properties exists in the MDB but doesn't "
-                "have an assigned nanoid for some reason.")
+                "have an assigned nanoid for some reason."
+            )
         elif nano_list:
             nano = nano_list[0]
             return nano
@@ -415,18 +413,16 @@ class ToolsMDB(WriteableMDB):
             "MATCH (p:predicate {nanoid: $pred_nano})-[r]->(c:concept {nanoid: $con_nano}) "
             "RETURN TYPE(r) as rel_type"
         )
-        parms = {
-            "pred_nano": predicate.nanoid,
-            "con_nano": concept.nanoid
-        }
-        return(qry, parms, "rel_type")
+        parms = {"pred_nano": predicate.nanoid, "con_nano": concept.nanoid}
+        return (qry, parms, "rel_type")
 
     def link_concepts_to_predicate(
         self,
         concept_1: Concept,
         concept_2: Concept,
-        predicate_handle: str = "exactMatch"
-        ) -> None:
+        predicate_handle: str = "exactMatch",
+        _commit=None,
+    ) -> None:
         """
         Links two synonymous Concepts via a Predicate
 
@@ -435,22 +431,33 @@ class ToolsMDB(WriteableMDB):
         """
         if not (concept_1.nanoid and concept_2.nanoid):
             raise RuntimeError("args 'concept_1' and 'concept_2' must have nanoid")
-        valid_predicate_handles = ['exactMatch', 'closeMatch', 'broader', 'narrower', 'related']
+        valid_predicate_handles = [
+            "exactMatch",
+            "closeMatch",
+            "broader",
+            "narrower",
+            "related",
+        ]
         if predicate_handle not in valid_predicate_handles:
             raise RuntimeError(
-                f"'handle' key must be one the following: {valid_predicate_handles}")
+                f"'handle' key must be one the following: {valid_predicate_handles}"
+            )
         # create predicate
-        new_predicate = Predicate({"handle": predicate_handle, "nanoid": self.make_nano()})
-        self.create_entity(new_predicate)
+        new_predicate = Predicate(
+            {"handle": predicate_handle, "nanoid": self.make_nano()}
+        )
+        self.create_entity(new_predicate, _commit=_commit)
         # link concepts to predicate via subject & object relationships
-        self.create_relationship(new_predicate, concept_1, "has_subject")
-        self.create_relationship(new_predicate, concept_2, "has_object")
+        self.create_relationship(
+            new_predicate, concept_1, "has_subject", _commit=_commit
+        )
+        self.create_relationship(
+            new_predicate, concept_2, "has_object", _commit=_commit
+        )
 
     def merge_two_concepts(
-        self,
-        concept_1: Concept,
-        concept_2: Concept
-        ) -> None:
+        self, concept_1: Concept, concept_2: Concept, _commit=None
+    ) -> None:
         """
         Combine two synonymous Concepts into a single Concept.
 
@@ -475,31 +482,28 @@ class ToolsMDB(WriteableMDB):
         self.detach_delete_entity(concept_2)
         # connect terms from deleted (c2) to remaining concept (c1)
         for term in c2_terms:
-            self.create_relationship(term, concept_1, "represents")
+            self.create_relationship(term, concept_1, "represents", _commit=_commit)
         # connect predicates from deleted (c2) to remaining concept (c1)
         for pred_rel in c2_pred_rels:
             c2_pred = pred_rel[0]
             c2_rel = pred_rel[1]
-            self.create_relationship(c2_pred, concept_1, c2_rel)
+            self.create_relationship(c2_pred, concept_1, c2_rel, _commit=_commit)
 
     @read_txn
     def _get_all_terms(self):
         """Gets value, origin_name, and nanoid for all terms in database."""
         qry = (
             "MATCH (t:term) "
-            "RETURN t.value AS term_val, t.origin_name AS term_origin, t.nanoid as term_nano")
-        return(qry, {})
+            "RETURN t.value AS term_val, t.origin_name AS term_origin, t.nanoid as term_nano"
+        )
+        return (qry, {})
 
-    def get_term_synonyms(
-        self,
-        term: Term,
-        threshhold: float = 0.8
-        ) -> list[dict]:
+    def get_term_synonyms(self, term: Term, threshhold: float = 0.8) -> list[dict]:
         """Returns list of dicts representing Term nodes synonymous to given Term"""
         if not (term.origin_name and term.value):
             raise RuntimeError("arg 'term' must have both origin_name and value")
         # load spaCy NER model
-        nlp = spacy.load('en_ner_bionlp13cg_md')
+        nlp = spacy.load("en_ner_bionlp13cg_md")
         # get result with all term values, origin_names, and nanoids in the database
         all_terms_result = self._get_all_terms()
         # get likely synonyms
@@ -507,35 +511,31 @@ class ToolsMDB(WriteableMDB):
         for record in all_terms_result:
             # calculate similarity between each Term and input Term
             term_1 = nlp(term.value)
-            term_2 = nlp(str(record["term_val"])) # type: ignore
+            term_2 = nlp(str(record["term_val"]))  # type: ignore
             similarity_score = term_1.similarity(term_2)
             # if similarity threshold met, add to list of potential synonyms
             if similarity_score >= threshhold:
                 synonym = {
-                    "value": record["term_val"], # type: ignore
-                    "origin_name": record["term_origin"], # type: ignore
-                    "nanoid": record["term_nano"], # type: ignore
+                    "value": record["term_val"],  # type: ignore
+                    "origin_name": record["term_origin"],  # type: ignore
+                    "nanoid": record["term_nano"],  # type: ignore
                     "similarity": similarity_score,
-                    "valid_synonym": 0 # mark 1 if synonym when uploading later
+                    "valid_synonym": 0,  # mark 1 if synonym when uploading later
                 }
                 synonyms.append(synonym)
         synonyms_sorted = sorted(synonyms, key=lambda d: d["similarity"], reverse=True)
         return synonyms_sorted
 
     def potential_synonyms_to_csv(
-        self,
-        input_data: list[dict],
-        output_path: str
-        ) -> None:
+        self, input_data: list[dict], output_path: str
+    ) -> None:
         """Given a list of synonymous Terms as dicts, outputs to CSV file at given output path"""
         with open(output_path, "w", encoding="utf8", newline="") as output_file:
-            dict_writer = csv.DictWriter(
-                output_file,
-                fieldnames=input_data[0].keys())
+            dict_writer = csv.DictWriter(output_file, fieldnames=input_data[0].keys())
             dict_writer.writeheader()
             dict_writer.writerows(input_data)
 
-    def link_term_synonyms_csv(self, term: Term, csv_path: str) -> None:
+    def link_term_synonyms_csv(self, term: Term, csv_path: str, _commit=None) -> None:
         """Given a CSV of syonymous Terms, links each via a Concept node to given Term"""
         with open(csv_path, encoding="UTF-8") as csvfile:
             synonym_reader = csv.reader(csvfile)
@@ -544,4 +544,4 @@ class ToolsMDB(WriteableMDB):
                     synonym = Term()
                     synonym.value = line[0]
                     synonym.origin_name = line[1]
-                    self.link_synonyms(term, synonym)
+                    self.link_synonyms(term, synonym, _commit=_commit)
