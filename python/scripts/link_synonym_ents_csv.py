@@ -1,4 +1,4 @@
-#/usr/bin/env python
+# /usr/bin/env python
 """Command line interface for python script to format CDA mapping excel file"""
 
 import csv
@@ -6,8 +6,8 @@ from ast import literal_eval
 from pathlib import Path
 
 import click
+from bento_meta.mdb.mdb_tools import ToolsMDB, get_entity_type
 from bento_meta.objects import Edge, Node, Property, Term
-from mdb_tools import ToolsMDB, get_entity_type
 
 
 @click.command()
@@ -18,46 +18,58 @@ from mdb_tools import ToolsMDB, get_entity_type
     prompt=True,
     help=(
         "file path to CSV with entities to be linked. Each line should contain data "
-        "needed to uniquely identify two synonymous entities.")
-    )
+        "needed to uniquely identify two synonymous entities."
+    ),
+)
 @click.option(
-    "--mdb_uri",
-    required=True,
-    type=str,
-    prompt=True,
-    help="metamodel database URI")
+    "--mdb_uri", required=True, type=str, prompt=True, help="metamodel database URI"
+)
 @click.option(
     "--mdb_user",
     required=True,
     type=str,
     prompt=True,
-    help="metamodel database username")
+    help="metamodel database username",
+)
 @click.option(
     "--mdb_pass",
     required=True,
     type=str,
     prompt=True,
-    help="metamodel database password")
+    help="metamodel database password",
+)
 @click.option(
     "--entity_type",
     required=True,
-    type=click.Choice(["node", "property", "relationship", "term"], case_sensitive=False),
+    type=click.Choice(
+        ["node", "property", "relationship", "term"], case_sensitive=False
+    ),
     prompt=True,
-    help="type of entity to be linked (node, property, relationship, term)")
+    help="type of entity to be linked (node, property, relationship, term)",
+)
 @click.option(
     "--add_missing_ent",
     default=False,
     type=bool,
     prompt=True,
-    help="if set to true, will add entities not already in the database.")
+    help="if set to true, will add entities not already in the database.",
+)
+@click.option(
+    "--_commit",
+    default=None,
+    type=str,
+    prompt=True,
+    help="add commit string to newly created nodes/relationships",
+)
 def main(
     csv_filepath: str,
     mdb_uri,
     mdb_user,
     mdb_pass,
     entity_type: str,
-    add_missing_ent: bool = False
-    ) -> None:
+    add_missing_ent: bool = False,
+    _commit=None,
+) -> None:
     """
     Given CSV file of synonymous entities, links them in MDB via Concept.
 
@@ -80,12 +92,13 @@ def main(
             ent_2_handle = row["ent_2_handle"]
             ent_1_extra_handles = literal_eval(row["ent_1_extra_handles"])
             ent_2_extra_handles = literal_eval(row["ent_2_extra_handles"])
-            row_extra_ents = [] # collects any extra entities for creation in mdb later
+            row_extra_ents = []  # collects any extra entities for creation in mdb later
             if ent_type in ["relationship", "edge"]:
                 if len(ent_1_extra_handles) != 2 or len(ent_2_extra_handles) != 2:
                     raise RuntimeError(
                         "Relationship entities must have two extra handles "
-                        "for unique id. Format: [src_handle, dst_handle]")
+                        "for unique id. Format: [src_handle, dst_handle]"
+                    )
                 # get extra handles from row
                 ent_1_src_handle = ent_1_extra_handles[0]
                 ent_1_dst_handle = ent_1_extra_handles[1]
@@ -99,8 +112,12 @@ def main(
                 ent_2_src = Node({"handle": ent_2_src_handle, "model": ent_2_model})
                 ent_2_dst = Node({"handle": ent_2_dst_handle, "model": ent_2_model})
                 # add nanoid to entities (needed to id them for creation and linking)
-                ent_1.nanoid = mdbn.get_or_make_nano(ent_1, ent_1_src_handle, ent_1_dst_handle)
-                ent_2.nanoid = mdbn.get_or_make_nano(ent_2, ent_2_src_handle, ent_2_dst_handle)
+                ent_1.nanoid = mdbn.get_or_make_nano(
+                    ent_1, ent_1_src_handle, ent_1_dst_handle
+                )
+                ent_2.nanoid = mdbn.get_or_make_nano(
+                    ent_2, ent_2_src_handle, ent_2_dst_handle
+                )
                 ent_1_src.nanoid = mdbn.get_or_make_nano(ent_1_src)
                 ent_1_dst.nanoid = mdbn.get_or_make_nano(ent_1_dst)
                 ent_2_src.nanoid = mdbn.get_or_make_nano(ent_2_src)
@@ -110,7 +127,8 @@ def main(
                 if len(ent_1_extra_handles) != 1 or len(ent_2_extra_handles) != 1:
                     raise RuntimeError(
                         "Property entities must have one extra handle "
-                        "for unique id. Format: [node_handle]")
+                        "for unique id. Format: [node_handle]"
+                    )
                 # get extra handles from row
                 ent_1_node_handle = ent_1_extra_handles[0]
                 ent_2_node_handle = ent_2_extra_handles[0]
@@ -141,7 +159,8 @@ def main(
                 ent_2.nanoid = mdbn.get_or_make_nano(ent_2)
             else:
                 raise RuntimeError(
-                    "entity_type must be node, property, relationship, or term")
+                    "entity_type must be node, property, relationship, or term"
+                )
 
             row_ents = [ent_1, ent_2]
             row_ents.extend(row_extra_ents)
@@ -151,22 +170,26 @@ def main(
                 for ent in row_ents:
                     ent_count = mdbn.get_entity_count(ent)[0]
                     if not ent_count:
-                        mdbn.create_entity(ent)
+                        mdbn.create_entity(ent, _commit=_commit)
                     else:
                         print(
                             f"{get_entity_type(ent).capitalize()} entity with properties: "
-                            f"{mdbn.get_entity_attrs(ent)} already exists in the database.")
+                            f"{mdbn.get_entity_attrs(ent)} already exists in the database."
+                        )
                 # add relationships between relevant entities if not in MDB
                 if ent_type in ["relationship", "edge"]:
-                    mdbn.create_relationship(ent_1, ent_1_src, "has_src") # type: ignore
-                    mdbn.create_relationship(ent_1, ent_1_dst, "has_dst") # type: ignore
-                    mdbn.create_relationship(ent_2, ent_2_src, "has_src") # type: ignore
-                    mdbn.create_relationship(ent_2, ent_2_dst, "has_dst") # type: ignore
+                    mdbn.create_relationship(ent_1, ent_1_src, "has_src", _commit=_commit)  # type: ignore
+                    mdbn.create_relationship(ent_1, ent_1_dst, "has_dst", _commit=_commit)  # type: ignore
+                    mdbn.create_relationship(ent_2, ent_2_src, "has_src", _commit=_commit)  # type: ignore
+                    mdbn.create_relationship(ent_2, ent_2_dst, "has_dst", _commit=_commit)  # type: ignore
                 elif ent_type == "property":
-                    mdbn.create_relationship(ent_1_node, ent_1, "has_property") # type: ignore
-                    mdbn.create_relationship(ent_2_node, ent_2, "has_property") # type: ignore
+                    mdbn.create_relationship(ent_1_node, ent_1, "has_property", _commit=_commit)  # type: ignore
+                    mdbn.create_relationship(ent_2_node, ent_2, "has_property", _commit=_commit)  # type: ignore
 
-            mdbn.link_synonyms(ent_1, ent_2, add_missing_ent=add_missing_ent)
+            mdbn.link_synonyms(
+                ent_1, ent_2, add_missing_ent=add_missing_ent, _commit=_commit
+            )
+
 
 if __name__ == "__main__":
-    main() # pylint: disable=no-value-for-parameter
+    main()  # pylint: disable=no-value-for-parameter
