@@ -98,6 +98,41 @@ class ToolsMDB(WriteableMDB):
 
         return (qry, entity_attr_dict, "entity_count")
 
+    @read_txn_value
+    def get_triple_count(
+        self,
+        src_entity: Entity,
+        dst_entity: Entity,
+        relationship: str,
+    ) -> tuple:
+        """
+        Returns count of given triple, (src)-[rel]->(dst), found in MDB.
+
+        If count = 0, triple with given properties not found in MDB.
+        If count = 1, triple with given properties is unique in MDB
+        If count > 1, more properties needed to uniquely id triple in MDB.
+        """
+        src_entity_type = get_entity_type(src_entity)
+        dst_entity_type = get_entity_type(dst_entity)
+
+        qry = (
+            "MATCH (s:{src_type} {{nanoid:$src_nano}}) "
+            "-[:{relationship}]->"
+            "(d:{dst_type} {{nanoid: $dst_nano}}) "
+            "RETURN COUNT(*) as triple_count".format(
+                src_type=src_entity_type,
+                dst_type=dst_entity_type,
+                relationship=relationship,
+            )
+        )
+
+        parms = {
+            "src_nano": src_entity.nanoid,
+            "dst_nano": dst_entity.nanoid,
+        }
+
+        return (qry, parms, "triple_count")
+
     @write_txn
     def create_entity(
         self,
@@ -178,6 +213,40 @@ class ToolsMDB(WriteableMDB):
         if _commit:
             _commit_str = f"{{_commit:'{_commit}'}}"
 
+        # check if triple (ent1)-[relationship]-(ent2) already exists
+        trip_count = self.get_triple_count(
+            src_entity=src_entity,
+            dst_entity=dst_entity,
+            relationship=relationship,
+        )[0]
+
+        if trip_count > 1:
+            raise RuntimeError(
+                "This relationship exists more than once, check the MDB "
+                "instance as this shouldn't be the case."
+            )
+        elif trip_count == 1:
+            print(
+                f"{relationship} relationship already exists between src {src_entity_type} with "
+                f"properties: {src_attr_str} to dst {dst_entity_type} with properties: {dst_attr_str}"
+            )
+            # way to exit out of decorator? maybe can fix w/ upcoming cypher.utils integration
+            # for now removing commit str before merging (which won't create an extra relationship)
+            qry = (
+                "MATCH (s:{src_type} {{nanoid:$src_nano}}), "
+                "(d:{dst_type} {{nanoid: $dst_nano}}) "
+                "MERGE (s)-[:{relationship}]->(d)".format(
+                    src_type=src_entity_type,
+                    dst_type=dst_entity_type,
+                    relationship=relationship,
+                )
+            )
+            parms = {
+                "src_nano": src_entity.nanoid,
+                "dst_nano": dst_entity.nanoid,
+            }
+            return (qry, parms)
+
         qry = (
             "MATCH (s:{src_type} {{nanoid:$src_nano}}), "
             "(d:{dst_type} {{nanoid: $dst_nano}}) "
@@ -194,7 +263,7 @@ class ToolsMDB(WriteableMDB):
             "dst_nano": dst_entity.nanoid,
         }
         print(
-            f"Ensuring {relationship} relationship exists between src {src_entity_type} with "
+            f"Adding {relationship} relationship between src {src_entity_type} with "
             f"properties: {src_attr_str} to dst {dst_entity_type} with properties: {dst_attr_str}"
         )
         return (qry, parms)
