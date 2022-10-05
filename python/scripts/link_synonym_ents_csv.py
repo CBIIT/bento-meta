@@ -7,6 +7,7 @@ from pathlib import Path
 
 import click
 from bento_meta.mdb.mdb_tools import ToolsMDB, get_entity_type
+from bento_meta.mdb.mdb_tools.mdb_tools import EntNotFoundError
 from bento_meta.objects import Edge, Node, Property, Term
 
 
@@ -48,7 +49,14 @@ from bento_meta.objects import Edge, Node, Property, Term
     help="type of entity to be linked (node, property, relationship, term)",
 )
 @click.option(
-    "--add_missing_ent",
+    "--add_missing_ent_1",
+    default=False,
+    type=bool,
+    prompt=True,
+    help="if set to true, will add entities not already in the database.",
+)
+@click.option(
+    "--add_missing_ent_2",
     default=False,
     type=bool,
     prompt=True,
@@ -67,7 +75,8 @@ def main(
     mdb_user,
     mdb_pass,
     entity_type: str,
-    add_missing_ent: bool = False,
+    add_missing_ent_1: bool = False,
+    add_missing_ent_2: bool = False,
     _commit=None,
 ) -> None:
     """
@@ -77,7 +86,8 @@ def main(
         needed to uniquely identify two synonymous entities.
     mdbn: metamodel database object
     entity_type: type of entity to be linked (node, property, relationship, term)
-    add_missing_ent: if set to true, will add entities not found in the database.
+    add_missing_ent_1: if set to true, will add entities not found in the database.
+    add_missing_ent_2: if set to true, will add entities not found in the database.
     """
     mdbn = ToolsMDB(uri=mdb_uri, user=mdb_user, password=mdb_pass)
     csv_path = Path(csv_filepath)
@@ -92,7 +102,8 @@ def main(
             ent_2_handle = row["ent_2_handle"]
             ent_1_extra_handles = literal_eval(row["ent_1_extra_handles"])
             ent_2_extra_handles = literal_eval(row["ent_2_extra_handles"])
-            row_extra_ents = []  # collects any extra entities for creation in mdb later
+            row_extra_ents_1 = []  # collects extra entities for creation in mdb later
+            row_extra_ents_2 = []  # collects extra entities for creation in mdb later
             if ent_type in ["relationship", "edge"]:
                 if len(ent_1_extra_handles) != 2 or len(ent_2_extra_handles) != 2:
                     raise RuntimeError(
@@ -122,7 +133,8 @@ def main(
                 ent_1_dst.nanoid = mdbn.get_or_make_nano(ent_1_dst)
                 ent_2_src.nanoid = mdbn.get_or_make_nano(ent_2_src)
                 ent_2_dst.nanoid = mdbn.get_or_make_nano(ent_2_dst)
-                row_extra_ents.extend([ent_1_src, ent_1_dst, ent_2_src, ent_2_dst])
+                row_extra_ents_1.extend([ent_1_src, ent_1_dst])
+                row_extra_ents_2.extend([ent_2_src, ent_2_dst])
             elif ent_type == "property":
                 if len(ent_1_extra_handles) != 1 or len(ent_2_extra_handles) != 1:
                     raise RuntimeError(
@@ -142,7 +154,8 @@ def main(
                 ent_2.nanoid = mdbn.get_or_make_nano(ent_2, ent_2_node_handle)
                 ent_1_node.nanoid = mdbn.get_or_make_nano(ent_1_node)
                 ent_2_node.nanoid = mdbn.get_or_make_nano(ent_2_node)
-                row_extra_ents.extend([ent_1_node, ent_2_node])
+                row_extra_ents_1.extend([ent_1_node])
+                row_extra_ents_2.extend([ent_2_node])
             elif ent_type == "node":
                 # instantiate bento-meta entities
                 ent_1 = Node({"handle": ent_1_handle, "model": ent_1_model})
@@ -162,12 +175,14 @@ def main(
                     "entity_type must be node, property, relationship, or term"
                 )
 
-            row_ents = [ent_1, ent_2]
-            row_ents.extend(row_extra_ents)
+            row_ents_1 = [ent_1]
+            row_ents_2 = [ent_2]
+            row_ents_1.extend(row_extra_ents_1)
+            row_ents_2.extend(row_extra_ents_2)
 
-            if add_missing_ent:
-                # add entities if not in MDB
-                for ent in row_ents:
+            if add_missing_ent_1:
+                # add entity 1 if not in MDB
+                for ent in row_ents_1:
                     ent_count = mdbn.get_entity_count(ent)[0]
                     if not ent_count:
                         mdbn.create_entity(ent, _commit=_commit)
@@ -180,15 +195,39 @@ def main(
                 if ent_type in ["relationship", "edge"]:
                     mdbn.create_relationship(ent_1, ent_1_src, "has_src", _commit=_commit)  # type: ignore
                     mdbn.create_relationship(ent_1, ent_1_dst, "has_dst", _commit=_commit)  # type: ignore
+                elif ent_type == "property":
+                    mdbn.create_relationship(ent_1_node, ent_1, "has_property", _commit=_commit)  # type: ignore
+
+            if add_missing_ent_2:
+                # add entities if not in MDB
+                for ent in row_ents_2:
+                    ent_count = mdbn.get_entity_count(ent)[0]
+                    if not ent_count:
+                        mdbn.create_entity(ent, _commit=_commit)
+                    else:
+                        print(
+                            f"{get_entity_type(ent).capitalize()} entity with properties: "
+                            f"{mdbn.get_entity_attrs(ent)} already exists in the database."
+                        )
+                # add relationships between relevant entities if not in MDB
+                if ent_type in ["relationship", "edge"]:
                     mdbn.create_relationship(ent_2, ent_2_src, "has_src", _commit=_commit)  # type: ignore
                     mdbn.create_relationship(ent_2, ent_2_dst, "has_dst", _commit=_commit)  # type: ignore
                 elif ent_type == "property":
-                    mdbn.create_relationship(ent_1_node, ent_1, "has_property", _commit=_commit)  # type: ignore
                     mdbn.create_relationship(ent_2_node, ent_2, "has_property", _commit=_commit)  # type: ignore
 
-            mdbn.link_synonyms(
-                ent_1, ent_2, add_missing_ent=add_missing_ent, _commit=_commit
-            )
+            try:
+                mdbn.link_synonyms(
+                    ent_1,
+                    ent_2,
+                    add_missing_ent_1=add_missing_ent_1,
+                    add_missing_ent_2=add_missing_ent_2,
+                    _commit=_commit,
+                )
+            except EntNotFoundError:
+                print(
+                    "One of the two entities not found in MDB, skipping linkage for now."
+                )
 
 
 if __name__ == "__main__":

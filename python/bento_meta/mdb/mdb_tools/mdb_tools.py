@@ -14,6 +14,10 @@ from nanoid import generate
 # pylint: disable=consider-using-f-string
 
 
+class EntNotFoundError(Exception):
+    """Raised when an entity is not found and shouldn't be created"""
+
+
 def get_entity_type(entity: Entity):
     """returns type of entity"""
     if entity.__class__.__name__.lower() == "edge":
@@ -272,7 +276,8 @@ class ToolsMDB(WriteableMDB):
         self,
         entity_1: Entity,
         entity_2: Entity,
-        add_missing_ent: bool = False,
+        add_missing_ent_1: bool = False,
+        add_missing_ent_2: bool = False,
         _commit=None,
     ):
         """
@@ -297,17 +302,23 @@ class ToolsMDB(WriteableMDB):
                 "Given entities must uniquely identify nodes in the MDB. Please add "
                 "necessary properties to the entity so that it can be uniquely identified."
             )
-        # at least one of given entities not found and shouldn't be added
-        if (ent_1_count < 1 or ent_2_count < 1) and not add_missing_ent:
-            raise RuntimeError(
-                "One or more of the given entities aren't in the MDB and add_missing_ent is False."
-                "Please add the missing entities to the MDB or set add_missing_ent to True."
+        # entity 1 not found and shouldn't be added
+        if ent_1_count < 1 and not add_missing_ent_1:
+            raise EntNotFoundError(
+                "Entity 1 isn't in the MDB and add_missing_ent_1 is False."
+                "Please add the missing entity to the MDB or set add_missing_ent_1 to True."
+            )
+        # entity 2 not found and shouldn't be added
+        if ent_2_count < 1 and not add_missing_ent_2:
+            raise EntNotFoundError(
+                "Entity 2 isn't in the MDB and add_missing_ent_2 is False."
+                "Please add the missing entity to the MDB or set add_missing_ent_2 to True."
             )
         # entity 1 not found and should be added
-        if not ent_1_count and add_missing_ent:
+        if not ent_1_count and add_missing_ent_1:
             self.create_entity(entity_1, _commit=_commit)
         # entity 2 not found and should be added
-        if not ent_2_count and add_missing_ent:
+        if not ent_2_count and add_missing_ent_2:
             self.create_entity(entity_2, _commit=_commit)
         # get any existing concepts and create new concept if none found
         ent_1_concepts = self.get_concepts(entity_1)
