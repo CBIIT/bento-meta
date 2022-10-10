@@ -34,6 +34,7 @@ Nodes:
       links. Thus two concepts and a predicate can form a semantic triple.
   term:
     Props:
+      - handle
       - value
       - origin_name
       - origin_id

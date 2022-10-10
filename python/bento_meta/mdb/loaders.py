@@ -49,6 +49,10 @@ def load_model_statements(model, _commit=None):
             cStatements.extend(
                 _prop_statements(node, cNode, model, _commit)
                 )
+        if node.concept:
+            cStatements.extend(
+                _annotate_statements(node, cNode, _commit)
+            )
     # node nodes and node-property nodes now exist
     # nodes are linked to properties
     for rl in model.edges:
@@ -86,6 +90,10 @@ def load_model_statements(model, _commit=None):
             cStatements.extend(
                 _prop_statements(edge, cEdge, model, _commit)
                 )
+        if edge.concept:
+            cStatements.extend(
+                _annotate_statements(edge, cEdge, _commit)
+                )
         cStatements.append(
             Statement(
                 Match(cEdge),
@@ -117,6 +125,10 @@ def load_model_statements(model, _commit=None):
                 use_params=True
                 )
             ])
+        if pr.concept:
+            cStatements.extend(
+                _annotate_statements(pr, cProp, _commit)
+                )
         for tm in pr.terms.values():
             cTerm = _cEntity(tm, model, _commit)
             cStatements.extend([
@@ -137,10 +149,14 @@ def load_model_statements(model, _commit=None):
 def _cEntity(ent, model, _commit):
     label = type(ent).__name__.lower()
     cEnt = None
+
+    # translate labels
     if label == 'edge':
         label = 'relationship'
     if label == 'valueset':
         label = 'value_set'
+
+    # special handling
     if label == 'term':
         cEnt = N(label=label,
                  props={"value": ent.value})
@@ -152,15 +168,25 @@ def _cEntity(ent, model, _commit):
             cEnt._add_props({"origin_version": ent.origin_version})
         if ent.origin_definition:
             cEnt._add_props({"origin_defintion": ent.origin_definition})
+        if ent.handle:
+            cEnt._add_props({"handle":ent.handle})
     elif label == 'value_set':
         cEnt = N(label='value_set',
                  props={"handle": ent.handle})
         if ent.url:
             cEnt._add_props({"url": ent.url})
+    elif label == 'concept':
+        cEnt = N(label='concept')    
+    elif label == 'tag':
+        cEnt = N(label="tag",
+                 props={"key": t.key,
+                        "value": t.value})
+        
     else:
         cEnt = N(label=label,
                  props={"handle": ent.handle,
                         "model": model.handle})
+    # all ents
     if _commit:
         cEnt._add_props({"_commit": _commit})
     if ent.nanoid:
@@ -175,15 +201,7 @@ def _tag_statements(ent, cEnt, _commit):
     cTags = []
     if ent.tags:
         for t in ent.tags.values():
-            cTag = N(label="tag",
-                     props={"key": t.key,
-                            "value": t.value})
-            if _commit:
-                cTag._add_props({"_commit": _commit})
-            if t.nanoid:
-                cTag._add_props({"nanoid": t.nanoid})
-            if t.desc:
-                cTag._add_props({"desc": t.desc})
+            cTag = _cEntity(t, None, _commit)
             cTags.append(cTag)
     for ct in cTags:
         stmts.append(
@@ -217,4 +235,33 @@ def _prop_statements(ent, cEnt, model, _commit):
             stmts.extend(
                 _tag_statements(p, cProp, _commit)
                 )
+    return stmts
+
+def _annotate_statements(ent, cEnt, _commit):
+    stmts = []
+    if not ent.concept:
+        return []
+    cConcept = _cEntity(Concept(), None, _commit)
+    # first term - but should be only one in this context
+    tm = [x for x in ent.concept.terms.values()][0]
+    cTerm = _cEntity(tm, Node, _commit)
+    stmts = [
+        Statement(
+            Merge(cTerm),
+            use_params=True
+            ),
+        Statement(
+            Match(cEnt),
+            Merge(R(Type="has_concept").relate(
+                _plain_var(cEnt), cConcept)),
+            use_params=True
+            ),
+        Statement(
+            Match(R(Type="has_concept").relate(
+                cEnt, cConcept)),
+            Merge(R(Type="represents").relate(
+                cTerm, _plain_var(cConcept))),
+            use_params=True
+            ),
+        ]
     return stmts
