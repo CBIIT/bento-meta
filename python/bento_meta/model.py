@@ -172,7 +172,7 @@ class Model(object):
     def annotate(self, ent, term):
         """
         Associate a single :class:`Term` with an :class:`Entity`. This creates a Concept entity
-        and links both the Entity and the Term to the concept, in keeping with the MDB
+        if needed and links both the Entity and the Term to the concept, in keeping with the MDB
         spec. It supports the Term key in MDF.
         :param Entity ent: :class:`Entity` object to annotate
         :param Term term: :class:`Term` object to describe the Entity
