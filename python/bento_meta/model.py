@@ -166,7 +166,8 @@ class Model(object):
         key = [ent.handle] if isinstance(ent, Node) else list(ent.triplet)
         key.append(prop.handle)
         ent.props[getattr(prop, type(prop).mapspec()["key"])] = prop
-        self.props[tuple(key)] = prop
+        if not tuple(key) in self.props:
+            self.props[tuple(key)] = prop
         return prop
 
     def annotate(self, ent, term):

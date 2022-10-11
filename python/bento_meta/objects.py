@@ -170,6 +170,7 @@ class Term(Entity):
     """Subclass that models a term from a terminology."""
 
     attspec_ = {
+        "handle": "simple",
         "value": "simple",
         "nanoid": "simple",
         "origin_id": "simple",
@@ -187,6 +188,7 @@ class Term(Entity):
         # unique - should be the nanoid of the term.
         "key": "value",
         "property": {
+            "handle": "handle",
             "value": "value",
             "nanoid": "nanoid",
             "origin_id": "origin_id",
