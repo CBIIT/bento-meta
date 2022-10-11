@@ -101,7 +101,7 @@ class Model(object):
     def add_node(self, node=None):
         """Add a :class:`Node` to the model.
 
-        :param Node node: A :class:`Node` instance
+        :param Node node: A :class:`Node` instance, a :class:`neo4j.graph.Node`, or a dict
 
         The model attribute of ``node`` is set to `Model.handle`
         """
@@ -119,7 +119,7 @@ class Model(object):
     def add_edge(self, edge=None):
         """Add an :class:`Edge` to the model.
 
-        :param Edge edge: A :class:`Edge` instance
+        :param Edge edge: A :class:`Edge` instance, a :class:`neo4j.graph.Node`, or a dict
 
         The model attribute of ``edge`` is set to `Model.handle`
         """
@@ -146,7 +146,7 @@ class Model(object):
         """Add a :class:`Property` to the model.
 
         :param Node|Edge ent: Attach ``prop`` to this entity
-        :param Property prop: A :class:`Property` instance
+        :param Property prop: A :class:`Property` instance, a :class: `neo4j.graph.Node`, or a dict
         :param boolean reuse: If True, reuse existing property with same handle
 
         The model attribute of ``prop`` is set to `Model.handle`. Within a model,

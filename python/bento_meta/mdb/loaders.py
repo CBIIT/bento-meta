@@ -244,25 +244,26 @@ def _annotate_statements(ent, cEnt, _commit):
         return []
     cConcept = _cEntity(Concept(), None, _commit)
     # first term - but should be only one in this context
-    tm = [x for x in ent.concept.terms.values()][0]
-    cTerm = _cEntity(tm, None, _commit)
-    stmts = [
-        Statement(
-            Merge(cTerm),
-            use_params=True
+    stmts = []
+    for tm in ent.concept.terms.values():
+        cTerm = _cEntity(tm, None, _commit)
+        stmts.extend([
+            Statement(
+                Merge(cTerm),
+                use_params=True
             ),
-        Statement(
-            Match(cEnt),
-            Merge(R(Type="has_concept").relate(
-                _plain_var(cEnt), cConcept)),
-            use_params=True
+            Statement(
+                Match(cEnt),
+                Merge(R(Type="has_concept").relate(
+                    _plain_var(cEnt), cConcept)),
+                use_params=True
             ),
-        Statement(
-            Match(R(Type="has_concept").relate(
-                cEnt, cConcept)),
-            Merge(R(Type="represents").relate(
-                cTerm, _plain_var(cConcept))),
-            use_params=True
+            Statement(
+                Match(R(Type="has_concept").relate(
+                    cEnt, cConcept)),
+                Merge(R(Type="represents").relate(
+                    cTerm, _plain_var(cConcept))),
+                use_params=True
             ),
-        ]
+        ])
     return stmts
