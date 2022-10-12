@@ -27,8 +27,14 @@ def load_model(model, mdb, _commit=None):
         mdb.put_with_statement(str(stmt), stmt.params)
 
 def load_model_statements(model, _commit=None):
-    """Create Cypher statements from a model to load it de novo into an
-    MDB instance."""
+    """
+    Create Cypher statements from a model to load it de novo into an
+    MDB instance.
+
+    :param :class:`mdb.Model` model: Model instance for loading
+    :param str _commit: 'Commit string' for marking entities in DB. If set, this will override
+    _commit attributes already existing on Model entities.
+    """
     cStatements = []
     cNodes = {}
     for nd in model.nodes:
@@ -190,6 +196,9 @@ def _cEntity(ent, model, _commit):
     # all ents
     if _commit:
         cEnt._add_props({"_commit": _commit})
+    else:
+        if ent._commit:
+            cEnt._add_props({"_commit": ent._commit})
     if ent.nanoid:
         cEnt._add_props({"nanoid": ent.nanoid})
     if ent.desc:
