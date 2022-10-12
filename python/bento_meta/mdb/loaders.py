@@ -4,7 +4,6 @@ mdb.loaders: load models into an MDB instance consistently
 
 from tqdm import tqdm
 from bento_meta.mdb import WriteableMDB
-from bento_meta.objects import Concept
 from bento_meta.util.cypher.entities import (
     N, R, P, T, G, _plain_var
     )
@@ -251,8 +250,7 @@ def _annotate_statements(ent, cEnt, _commit):
     stmts = []
     if not ent.concept:
         return []
-    cConcept = _cEntity(Concept(), None, _commit)
-    # first term - but should be only one in this context
+    cConcept = _cEntity(ent.concept, None, _commit)
     stmts = []
     for tm in ent.concept.terms.values():
         cTerm = _cEntity(tm, None, _commit)
