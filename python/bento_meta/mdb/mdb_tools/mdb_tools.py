@@ -3,12 +3,15 @@ ToolsMDB: subclass of 'WriteableMDB' to support interactions with the MDB.
 """
 
 import csv
+from typing import List
 
 import spacy
 from bento_meta.entity import Entity
-from bento_meta.mdb import read_txn, read_txn_value
+from bento_meta.mdb import read_txn, read_txn_data, read_txn_value
 from bento_meta.mdb.writeable import WriteableMDB, write_txn
-from bento_meta.objects import Concept, Predicate, Term
+from bento_meta.objects import Concept, Predicate, Property, Term
+from bento_meta.util.cypher.clauses import Match, Return, Statement
+from bento_meta.util.cypher.entities import G, N, R
 from nanoid import generate
 
 # pylint: disable=consider-using-f-string
@@ -52,7 +55,7 @@ class ToolsMDB(WriteableMDB):
         attr_str = "{"
         for key, val in attr_dict.items():
             attr_str += f"{key}: '{val}', "
-        attr_str = attr_str.removesuffix(", ")
+        attr_str = attr_str[:-2]
         attr_str += "}"
 
         if not output_str:
@@ -578,7 +581,7 @@ class ToolsMDB(WriteableMDB):
         )
         return (qry, {})
 
-    def get_term_synonyms(self, term: Term, threshhold: float = 0.8) -> list[dict]:
+    def get_term_synonyms(self, term: Term, threshhold: float = 0.8) -> List[dict]:
         """Returns list of dicts representing Term nodes synonymous to given Term"""
         if not (term.origin_name and term.value):
             raise RuntimeError("arg 'term' must have both origin_name and value")
@@ -607,7 +610,7 @@ class ToolsMDB(WriteableMDB):
         return synonyms_sorted
 
     def potential_synonyms_to_csv(
-        self, input_data: list[dict], output_path: str
+        self, input_data: List[dict], output_path: str
     ) -> None:
         """Given a list of synonymous Terms as dicts, outputs to CSV file at given output path"""
         with open(output_path, "w", encoding="utf8", newline="") as output_file:
@@ -625,3 +628,35 @@ class ToolsMDB(WriteableMDB):
                     synonym.value = line[0]
                     synonym.origin_name = line[1]
                     self.link_synonyms(term, synonym, _commit=_commit)
+
+    @read_txn_data
+    def get_property_synonyms(self, property: Property):
+        """Returns list of properties linked by concept to given property"""
+        if not property.nanoid:
+            raise RuntimeError("property needs a nanoid")
+        p_props = self.get_entity_attrs(property, output_str=False)
+        p1 = N(label="property", props=p_props)
+        n1 = N(label="node")
+        n2 = N(label="node")
+        c = N(label="concept")
+        p2 = N(label="property")
+        r1 = R(Type="has_property")
+        r2 = R(Type="has_concept")
+        r3 = R(Type="has_concept")
+        r4 = R(Type="has_property")
+        t1 = r1.relate(n1, p1)
+        t2 = r2.relate(p1, c)
+        t3 = r3.relate(p2, c)
+        t4 = r4.relate(n2, p2)
+        pth = G(t1, t2, t3, t4)
+
+        stmt = Statement(
+            Match(pth),
+            Return(p2),
+            use_params=True
+        )
+
+        qry = str(stmt)
+        parms = stmt.params
+
+        return (qry, parms)
