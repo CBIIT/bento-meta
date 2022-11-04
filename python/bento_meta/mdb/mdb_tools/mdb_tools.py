@@ -6,13 +6,14 @@ import csv
 from typing import List
 
 import spacy
+from nanoid import generate
+
 from bento_meta.entity import Entity
 from bento_meta.mdb import read_txn, read_txn_data, read_txn_value
 from bento_meta.mdb.writeable import WriteableMDB, write_txn
 from bento_meta.objects import Concept, Predicate, Property, Term
 from bento_meta.util.cypher.clauses import Match, Return, Statement
 from bento_meta.util.cypher.entities import G, N, R
-from nanoid import generate
 
 # pylint: disable=consider-using-f-string
 
@@ -405,13 +406,13 @@ class ToolsMDB(WriteableMDB):
         assigned nanoid for some reason, returns [None] instead of [].
         """
         ent_type = get_entity_type(entity)
-        if ent_type == "property":
-            if not extra_handle_1:
-                raise RuntimeError(
-                    "Property entities require the handle of a node connected via 'has_property' "
-                    "for unique identification. Set 'extra_handle_1' to that node handle str."
-                )
-            return self._get_prop_nano(prop=entity, node_handle=extra_handle_1)
+        # if ent_type == "property":
+        #     if not extra_handle_1:
+        #         raise RuntimeError(
+        #             "Property entities require the handle of a node connected via 'has_property' "
+        #             "for unique identification. Set 'extra_handle_1' to that node handle str."
+        #         )
+        #     return self._get_prop_nano(prop=entity, node_handle=extra_handle_1)
         if ent_type == "relationship":
             if not extra_handle_1 or not extra_handle_2:
                 raise RuntimeError(
