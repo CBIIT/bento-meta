@@ -6,13 +6,15 @@ import csv
 from typing import List
 
 import spacy
+from nanoid import generate
 from bento_meta.entity import Entity
 from bento_meta.mdb import read_txn, read_txn_data, read_txn_value
 from bento_meta.mdb.writeable import WriteableMDB, write_txn
 from bento_meta.objects import Concept, Predicate, Property, Term
-from bento_meta.util.cypher.clauses import Match, Return, Statement
-from bento_meta.util.cypher.entities import G, N, R
-from nanoid import generate
+from bento_meta.util.cypher.clauses import (
+    Match, Return, Statement, With, OptionalMatch, Collect, Unwind, As
+    )
+from bento_meta.util.cypher.entities import G, N, R, _plain_var
 
 # pylint: disable=consider-using-f-string
 
@@ -631,28 +633,37 @@ class ToolsMDB(WriteableMDB):
 
     @read_txn_data
     def get_property_synonyms(self, property: Property):
-        """Returns list of properties linked by concept to given property"""
+        """
+        Returns list of properties linked by concept to given property
+        or to synonym of given property
+        """
         if not property.nanoid:
-            raise RuntimeError("property needs a nanoid")
+            raise RuntimeError("property entity needs a nanoid")
         p_props = self.get_entity_attrs(property, output_str=False)
         p1 = N(label="property", props=p_props)
-        n1 = N(label="node")
-        n2 = N(label="node")
-        c = N(label="concept")
         p2 = N(label="property")
-        r1 = R(Type="has_property")
+        p3 = N(label="property")
+        c1 = N(label="concept")
+        c2 = N(label="concept")
+        r1 = R(Type="has_concept")
         r2 = R(Type="has_concept")
         r3 = R(Type="has_concept")
-        r4 = R(Type="has_property")
-        t1 = r1.relate(n1, p1)
-        t2 = r2.relate(p1, c)
-        t3 = r3.relate(p2, c)
-        t4 = r4.relate(n2, p2)
-        pth = G(t1, t2, t3, t4)
+        r4 = R(Type="has_concept")
+        t1 = r1.relate(p1, c1)
+        t2 = r2.relate(p2, c1)
+        t3 = r3.relate(p2, c2)
+        t4 = r4.relate(p3, c2)
+        pth1 = G(t1, t2)
+        pth2 = G(t3, t4)
 
         stmt = Statement(
-            Match(pth),
-            Return(p2),
+            Match(pth1),
+            OptionalMatch(pth2),
+            With(f"{Collect(_plain_var(p2).pattern())} + {Collect(_plain_var(p3).pattern())}"),
+            As("props"),
+            Unwind("props"),
+            As("syns"),
+            Return("distinct(syns)"),
             use_params=True
         )
 
