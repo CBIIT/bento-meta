@@ -13,4 +13,4 @@ from .mdb import (
 from .writeable import WriteableMDB
 from .searchable import SearchableMDB
 from .loaders import load_mdf, load_model, load_model_statements
-from .mdb_tools import ToolsMDB, get_entity_type
+# from .mdb_tools import ToolsMDB, get_entity_type
