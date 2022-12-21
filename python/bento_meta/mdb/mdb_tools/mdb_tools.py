@@ -11,10 +11,8 @@ from bento_meta.entity import Entity
 from bento_meta.mdb import read_txn, read_txn_data, read_txn_value
 from bento_meta.mdb.writeable import WriteableMDB, write_txn
 from bento_meta.objects import Concept, Predicate, Property, Term
-from bento_meta.util.cypher.clauses import (
-    Match, Return, Statement, With, OptionalMatch, Collect, Unwind, As
-    )
-from bento_meta.util.cypher.entities import G, N, R, _plain_var
+from bento_meta.util.cypher.clauses import Match, Return, Statement
+from bento_meta.util.cypher.entities import G, N, VarLenR, NoDirT
 
 # pylint: disable=consider-using-f-string
 
@@ -632,38 +630,22 @@ class ToolsMDB(WriteableMDB):
                     self.link_synonyms(term, synonym, _commit=_commit)
 
     @read_txn_data
-    def get_property_synonyms(self, property: Property):
+    def get_property_synonyms(self, prop: Property):
         """
         Returns list of properties linked by concept to given property
         or to synonym of given property
         """
-        if not property.nanoid:
+        if not prop.nanoid:
             raise RuntimeError("property entity needs a nanoid")
-        p_props = self.get_entity_attrs(property, output_str=False)
-        p1 = N(label="property", props=p_props)
-        p2 = N(label="property")
-        p3 = N(label="property")
-        c1 = N(label="concept")
-        c2 = N(label="concept")
-        r1 = R(Type="has_concept")
-        r2 = R(Type="has_concept")
-        r3 = R(Type="has_concept")
-        r4 = R(Type="has_concept")
-        t1 = r1.relate(p1, c1)
-        t2 = r2.relate(p2, c1)
-        t3 = r3.relate(p2, c2)
-        t4 = r4.relate(p3, c2)
-        pth1 = G(t1, t2)
-        pth2 = G(t3, t4)
+        p_attrs = self.get_entity_attrs(prop, output_str=False)
+        prop_1 = N(label="property", props=p_attrs)
+        prop_2 = N(label="property")
+        vl_rel = VarLenR(Type="has_concept")
+        trip = NoDirT(prop_1, vl_rel, prop_2)
 
         stmt = Statement(
-            Match(pth1),
-            OptionalMatch(pth2),
-            With(f"{Collect(_plain_var(p2).pattern())} + {Collect(_plain_var(p3).pattern())}"),
-            As("props"),
-            Unwind("props"),
-            As("syns"),
-            Return("distinct(syns)"),
+            Match(trip),
+            Return(f"distinct({prop_2.Return()})"),
             use_params=True
         )
 
