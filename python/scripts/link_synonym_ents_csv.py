@@ -4,12 +4,20 @@
 import csv
 from ast import literal_eval
 from pathlib import Path
+import logging
+from logging.config import fileConfig
 
 import click
 from bento_meta.mdb.mdb_tools import ToolsMDB, get_entity_type
 from bento_meta.mdb.mdb_tools.mdb_tools import EntNotFoundError
 from bento_meta.objects import Edge, Node, Property, Term
 
+# logging stuff
+log_dir = Path(__file__).parents[1].joinpath("Lib/site-packages/bento_meta/logs")
+log_ini_path = log_dir.joinpath("log.ini")
+log_file_path = log_dir.joinpath("link_synonym_ents_csv.log")
+fileConfig(log_ini_path, defaults={'logfilename': log_file_path.as_posix()})
+logger = logging.getLogger(__name__)
 
 @click.command()
 @click.option(
@@ -69,7 +77,7 @@ from bento_meta.objects import Edge, Node, Property, Term
     prompt=True,
     help="add commit string to newly created nodes/relationships",
 )
-def main(
+def link_synonym_csv(
     csv_filepath: str,
     mdb_uri,
     mdb_user,
@@ -187,7 +195,7 @@ def main(
                     if not ent_count:
                         mdbn.create_entity(ent, _commit=_commit)
                     else:
-                        print(
+                        logger.info(
                             f"{get_entity_type(ent).capitalize()} entity with properties: "
                             f"{mdbn.get_entity_attrs(ent)} already exists in the database."
                         )
@@ -205,7 +213,7 @@ def main(
                     if not ent_count:
                         mdbn.create_entity(ent, _commit=_commit)
                     else:
-                        print(
+                        logger.info(
                             f"{get_entity_type(ent).capitalize()} entity with properties: "
                             f"{mdbn.get_entity_attrs(ent)} already exists in the database."
                         )
@@ -225,10 +233,10 @@ def main(
                     _commit=_commit,
                 )
             except EntNotFoundError:
-                print(
+                logger.warning(
                     "One of the two entities not found in MDB, skipping linkage for now."
                 )
 
 
 if __name__ == "__main__":
-    main()  # pylint: disable=no-value-for-parameter
+    link_synonym_csv()  # pylint: disable=no-value-for-parameter
