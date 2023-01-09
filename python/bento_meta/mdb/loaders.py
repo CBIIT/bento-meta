@@ -187,7 +187,7 @@ def _cEntity(ent, model, _commit):
         cEnt = N(label="tag",
                  props={"key": t.key,
                         "value": t.value})
-        
+
     else:
         cEnt = N(label=label,
                  props={"handle": ent.handle,
@@ -202,6 +202,10 @@ def _cEntity(ent, model, _commit):
         cEnt._add_props({"nanoid": ent.nanoid})
     if ent.desc:
         cEnt._add_props({"desc": ent.desc})
+    if ent._from:
+        cEnt._add_props({"_from": ent._from})
+    if ent._to:
+        cEnt._add_props({"_to": ent._to})
     return cEnt
 
 
