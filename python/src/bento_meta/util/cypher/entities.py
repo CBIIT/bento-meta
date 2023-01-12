@@ -134,6 +134,40 @@ class R(Entity):
         ret = "{}{}".format(self.var, ret)
         return ret
 
+class VarLenR(R):
+    """Variable length property graph Relationship or edge."""
+    def __init__(self,
+        min_len: int = -1,
+        max_len: int = -1, 
+        Type=None, props=None, As=None, _dir='_right'):
+        super().__init__()
+        self.props = {}
+        self.Type = Type
+        self._add_props(props)
+        self.min_len = min_len
+        self.max_len = max_len
+
+    def pattern(self):
+        ret = ",".join([p.pattern() for p in
+                        self.props.values() if p.pattern()])
+        var_len = "*"
+        if self.min_len < 0:
+            min_len_str = ""
+        else:
+            min_len_str = str(self.min_len)
+        if self.max_len < 0:
+            max_len_str = ""
+        else:
+            max_len_str = str(self.max_len)
+        if min_len_str or max_len_str:
+            var_len += f"{min_len_str}..{max_len_str}"
+        if len(ret):
+            ret = " {"+ret+"}"
+        if self.Type:
+            ret = f"-[:{self.Type}{ret}{var_len}]-"
+        else:
+            ret = f"-[{ret}{var_len}]-"
+        return ret
 
 class N0(N):
     """Completely anonymous node ()."""
@@ -243,6 +277,22 @@ class T(Entity):
         return [x.Return() for x
                 in (self._from, self._edge, self._to) if x.var]
 
+class NoDirT(T):
+    """A directionless property graph Triple; i.e., (n)-[r]-(m)."""
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def pattern(self):
+        return self._from.pattern()+self._edge.pattern()+self._to.pattern()
+
+    def nodes(self):
+        return [self._from, self._to]
+
+    def edge(self):
+        return self._edge
+
+    def edges(self):
+        return [self.edge()]
 
 class G(Entity):
     """A property graph Path.

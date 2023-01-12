@@ -188,6 +188,42 @@ class Return(Clause):
         super().__init__(*args)
 
 
+class OptionalMatch(Clause):
+    """Create an OPTIONAL MATCH clause with the arguments."""
+    template = Template("OPTIONAL MATCH $slot1")
+
+    @staticmethod
+    def context(arg):
+        return _pattern(arg)
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+class Collect(Clause):
+    """Create a COLLECT clause with the arguments."""
+    template = Template("COLLECT $slot1")
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+class Unwind(Clause):
+    """Create an UNWIND clause with the arguments."""
+    template = Template("UNWIND $slot1")
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+class As(Clause):
+    """Create an AS clause with the arguments."""
+    template = Template("AS $slot1")
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
 class Statement(object):
     """Create a Neo4j statement comprised of clauses (and strings) in order."""
     def __init__(self, *args, terminate=False, use_params=False):
