@@ -2,19 +2,26 @@
 ToolsMDB: subclass of 'WriteableMDB' to support interactions with the MDB.
 """
 
+from pathlib import Path
 import csv
 from typing import List
+import logging
+from logging.config import fileConfig
 
 import spacy
+from nanoid import generate
 from bento_meta.entity import Entity
 from bento_meta.mdb import read_txn, read_txn_data, read_txn_value
 from bento_meta.mdb.writeable import WriteableMDB, write_txn
 from bento_meta.objects import Concept, Predicate, Property, Term
 from bento_meta.util.cypher.clauses import Match, Return, Statement
-from bento_meta.util.cypher.entities import G, N, R
-from nanoid import generate
+from bento_meta.util.cypher.entities import N, VarLenR, NoDirT
 
-# pylint: disable=consider-using-f-string
+# logging stuff
+log_ini_path = Path(__file__).parents[2].joinpath("logs/log.ini")
+log_file_path = Path(__file__).parents[2].joinpath(f"logs/{__name__}.log")
+fileConfig(log_ini_path, defaults={'logfilename': log_file_path.as_posix()})
+logger = logging.getLogger(__name__)
 
 
 class EntNotFoundError(Exception):
@@ -76,7 +83,7 @@ class ToolsMDB(WriteableMDB):
 
         qry = f"MATCH (e:{entity_type} " f"{entity_attr_str}) DETACH DELETE e"
 
-        print(f"Removing {entity_type} node with with properties: {entity_attr_str}")
+        logging.info(f"Removing {entity_type} node with with properties: {entity_attr_str}")
         return (qry, entity_attr_dict)
 
     @read_txn_value
@@ -148,6 +155,7 @@ class ToolsMDB(WriteableMDB):
     ) -> tuple:
         """Adds given Entity node to database"""
         if not entity.nanoid:
+            logging.error("entity has no nanoid")
             raise RuntimeError(
                 "Entity needs a nanoid before creating - please set valid entity nanoid. "
                 "entity_name.nanoid = mdb_name.get_or_make_nano(entity_name) AFTER "
@@ -161,7 +169,7 @@ class ToolsMDB(WriteableMDB):
 
         qry = f"MERGE (e:{entity_type} {entity_attr_str})"
 
-        print(f"Creating new {entity_type} node with properties: {entity_attr_str}")
+        logging.info(f"Creating new {entity_type} node with properties: {entity_attr_str}")
         return (qry, entity_attr_dict)
 
     @read_txn_value
@@ -204,12 +212,14 @@ class ToolsMDB(WriteableMDB):
         ent_2_count = self.get_entity_count(dst_entity)[0]
         # at least one of the given entities doesn't uniquely id a node in the MDB.
         if ent_1_count > 1 or ent_2_count > 1:
+            logging.error("Given attributes don't uniquely identify MDB entities.")
             raise RuntimeError(
                 "Given entities must uniquely identify nodes in the MDB. Please add "
                 "necessary properties to the entity so that it can be uniquely identified."
             )
         # at least one of given entities not found and shouldn't be added
         if ent_1_count < 1 or ent_2_count < 1:
+            logging.error("One or more of the given entities aren't in the MDB.")
             raise RuntimeError("One or more of the given entities aren't in the MDB.")
         src_entity_type = get_entity_type(src_entity)
         dst_entity_type = get_entity_type(dst_entity)
@@ -228,12 +238,13 @@ class ToolsMDB(WriteableMDB):
         )[0]
 
         if trip_count > 1:
+            logging.error("Relationship exists more than once")
             raise RuntimeError(
                 "This relationship exists more than once, check the MDB "
                 "instance as this shouldn't be the case."
             )
         elif trip_count == 1:
-            print(
+            logging.warning(
                 f"{relationship} relationship already exists between src {src_entity_type} with "
                 f"properties: {src_attr_str} to dst {dst_entity_type} with properties: {dst_attr_str}"
             )
@@ -269,7 +280,7 @@ class ToolsMDB(WriteableMDB):
             "src_nano": src_entity.nanoid,
             "dst_nano": dst_entity.nanoid,
         }
-        print(
+        logging.info(
             f"Adding {relationship} relationship between src {src_entity_type} with "
             f"properties: {src_attr_str} to dst {dst_entity_type} with properties: {dst_attr_str}"
         )
@@ -301,18 +312,21 @@ class ToolsMDB(WriteableMDB):
         ent_2_count = self.get_entity_count(entity_2)[0]
         # at least one of the given entities doesn't uniquely id a node in the MDB.
         if ent_1_count > 1 or ent_2_count > 1:
+            logging.error("Given entities don't uniquely identify MDB entities")
             raise RuntimeError(
                 "Given entities must uniquely identify nodes in the MDB. Please add "
                 "necessary properties to the entity so that it can be uniquely identified."
             )
         # entity 1 not found and shouldn't be added
         if ent_1_count < 1 and not add_missing_ent_1:
+            logging.error("Entity 1 isn't in the MDB and add_missing_ent_1 is False.")
             raise EntNotFoundError(
                 "Entity 1 isn't in the MDB and add_missing_ent_1 is False."
                 "Please add the missing entity to the MDB or set add_missing_ent_1 to True."
             )
         # entity 2 not found and shouldn't be added
         if ent_2_count < 1 and not add_missing_ent_2:
+            logging.error("Entity 2 isn't in the MDB and add_missing_ent_2 is False.")
             raise EntNotFoundError(
                 "Entity 2 isn't in the MDB and add_missing_ent_2 is False."
                 "Please add the missing entity to the MDB or set add_missing_ent_2 to True."
@@ -336,7 +350,7 @@ class ToolsMDB(WriteableMDB):
         # entities are already connected by a concept
         if not set(ent_1_concepts).isdisjoint(set(ent_2_concepts)):
             concept = set(ent_1_concepts).intersection(set(ent_2_concepts))
-            print(f"Both entities are already connected via Concept {list(concept)[0]}")
+            logging.warning(f"Both entities are already connected via Concept {list(concept)[0]}")
             return
         # create specified relationship between each entity and a concept
         if get_entity_type(entity_1) == "term":
@@ -407,6 +421,7 @@ class ToolsMDB(WriteableMDB):
         ent_type = get_entity_type(entity)
         if ent_type == "property":
             if not extra_handle_1:
+                logging.error("Property entity doesn't have connected node handle")
                 raise RuntimeError(
                     "Property entities require the handle of a node connected via 'has_property' "
                     "for unique identification. Set 'extra_handle_1' to that node handle str."
@@ -414,6 +429,7 @@ class ToolsMDB(WriteableMDB):
             return self._get_prop_nano(prop=entity, node_handle=extra_handle_1)
         if ent_type == "relationship":
             if not extra_handle_1 or not extra_handle_2:
+                logging.error("Edge entity doesn't have src or dst node handle")
                 raise RuntimeError(
                     "Edge entities require the handles of a node connected via "
                     "'has_src' relationship and of a node connected via 'has_dst' "
@@ -426,6 +442,7 @@ class ToolsMDB(WriteableMDB):
 
         ent_count = self.get_entity_count(entity)[0]
         if ent_count > 1:
+            logging.error("Given entities don't uniquely identify MDB entities")
             raise RuntimeError(
                 "Given entities must uniquely identify nodes in the MDB. Please add "
                 "necesary properties to the entity so that it can be uniquely identified."
@@ -446,11 +463,13 @@ class ToolsMDB(WriteableMDB):
         """Obtains existing entity's nanoid or creates one for new entity."""
         nano_list = self.get_entity_nano(entity, extra_handle_1, extra_handle_2)
         if len(nano_list) > 1:
+            logging.error("Given entity doesn't uniquely identify MDB entities")
             raise RuntimeError(
                 "More than one entity exists with these properties. Please "
                 "add more properties of the desired entity to uniquely ID."
             )
         elif nano_list and not nano_list[0]:
+            logging.error("Entity exists but doesn't have nanoid")
             raise RuntimeError(
                 "An entity with these properties exists in the MDB but doesn't "
                 "have an assigned nanoid for some reason."
@@ -465,6 +484,7 @@ class ToolsMDB(WriteableMDB):
     def get_term_nanos(self, concept: Concept):
         """Returns list of term nanoids representing given concept"""
         if not concept.nanoid:
+            logging.error("Concept doesn't have a nanoid")
             raise RuntimeError("arg 'concept' must have nanoid")
         entity_attr_str = self.get_entity_attrs(concept)
         entity_attr_dict = self.get_entity_attrs(concept, output_str=False)
@@ -478,6 +498,7 @@ class ToolsMDB(WriteableMDB):
     def get_predicate_nanos(self, concept: Concept):
         """Returns list of predicate nanoids with relationship to given concept"""
         if not concept.nanoid:
+            logging.error("Concept doesn't have a nanoid")
             raise RuntimeError("arg 'concept' must have nanoid")
         entity_attr_str = self.get_entity_attrs(concept)
         entity_attr_dict = self.get_entity_attrs(concept, output_str=False)
@@ -491,6 +512,7 @@ class ToolsMDB(WriteableMDB):
     def get_predicate_relationship(self, concept: Concept, predicate: Predicate):
         """Returns relationship type between given concept and predicate"""
         if not concept.nanoid or not predicate.nanoid:
+            logging.error("Concept or Predicate don't have a nanoid")
             raise RuntimeError("args 'concept' and 'predicate' must have nanoid")
         qry = (
             "MATCH (p:predicate {nanoid: $pred_nano})-[r]->(c:concept {nanoid: $con_nano}) "
@@ -513,6 +535,7 @@ class ToolsMDB(WriteableMDB):
         them via a Predicate node and has_subject and has_object relationships.
         """
         if not (concept_1.nanoid and concept_2.nanoid):
+            logging.error("Concepts don't have a nanoid")
             raise RuntimeError("args 'concept_1' and 'concept_2' must have nanoid")
         valid_predicate_handles = [
             "exactMatch",
@@ -522,6 +545,7 @@ class ToolsMDB(WriteableMDB):
             "related",
         ]
         if predicate_handle not in valid_predicate_handles:
+            logging.error(f"Predicate handle: {predicate_handle} not a valid predicate handle")
             raise RuntimeError(
                 f"'handle' key must be one the following: {valid_predicate_handles}"
             )
@@ -548,6 +572,7 @@ class ToolsMDB(WriteableMDB):
         merges them into a single Concept along with any connected Terms and Predicates.
         """
         if not (concept_1.nanoid and concept_2.nanoid):
+            logging.error("Concept doesn't have a nanoid")
             raise RuntimeError("args 'concept_1' and 'concept_2' must have nanoid")
         # get list of terms connected to concept 2
         c2_term_nanos = self.get_term_nanos(concept_2)
@@ -584,6 +609,7 @@ class ToolsMDB(WriteableMDB):
     def get_term_synonyms(self, term: Term, threshhold: float = 0.8) -> List[dict]:
         """Returns list of dicts representing Term nodes synonymous to given Term"""
         if not (term.origin_name and term.value):
+            logging.error("Term doesn't have origin_name and value")
             raise RuntimeError("arg 'term' must have both origin_name and value")
         # load spaCy NER model
         nlp = spacy.load("en_ner_bionlp13cg_md")
@@ -630,29 +656,23 @@ class ToolsMDB(WriteableMDB):
                     self.link_synonyms(term, synonym, _commit=_commit)
 
     @read_txn_data
-    def get_property_synonyms(self, property: Property):
-        """Returns list of properties linked by concept to given property"""
-        if not property.nanoid:
-            raise RuntimeError("property needs a nanoid")
-        p_props = self.get_entity_attrs(property, output_str=False)
-        p1 = N(label="property", props=p_props)
-        n1 = N(label="node")
-        n2 = N(label="node")
-        c = N(label="concept")
-        p2 = N(label="property")
-        r1 = R(Type="has_property")
-        r2 = R(Type="has_concept")
-        r3 = R(Type="has_concept")
-        r4 = R(Type="has_property")
-        t1 = r1.relate(n1, p1)
-        t2 = r2.relate(p1, c)
-        t3 = r3.relate(p2, c)
-        t4 = r4.relate(n2, p2)
-        pth = G(t1, t2, t3, t4)
+    def get_property_synonyms(self, prop: Property):
+        """
+        Returns list of properties linked by concept to given property
+        or to synonym of given property
+        """
+        if not prop.nanoid:
+            logging.error("Property doesn't have a nanoid")
+            raise RuntimeError("property entity needs a nanoid")
+        p_attrs = self.get_entity_attrs(prop, output_str=False)
+        prop_1 = N(label="property", props=p_attrs)
+        prop_2 = N(label="property")
+        vl_rel = VarLenR(Type="has_concept")
+        trip = NoDirT(prop_1, vl_rel, prop_2)
 
         stmt = Statement(
-            Match(pth),
-            Return(p2),
+            Match(trip),
+            Return(f"distinct({prop_2.Return()})"),
             use_params=True
         )
 
