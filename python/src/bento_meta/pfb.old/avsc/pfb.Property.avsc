@@ -1,0 +1,22 @@
+{
+  "name": "Property",
+  "type": "record",
+  "namespace": "pfb",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "ontology_reference",
+      "type": "string"
+    },
+    {
+      "name": "values",
+      "type": {
+        "type": "map",
+        "values": "string"
+      }
+    }
+  ]
+}
