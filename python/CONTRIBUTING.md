@@ -57,6 +57,41 @@ Ready to contribute? Here's how to set up `bento-meta` for local development.
 
 5. Commit your changes and open a pull request.
 
+## Commit Guidelines
+
+Python Semantic Release (PSR) is used to automatically bump version numbers based on keywords in commit messages.
+
+The default commit message format used by PSR is the [Angular commit style](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#commit-message-format):
+
+```console
+<type>(optional scope): short summary in present tense
+
+(optional body: explains motivation for the change)
+
+(optional footer: note BREAKING CHANGES here, and issues to be closed)
+```
+
+**Type** should be one of the following:
+
+* **feat**: A new feature (used by PSR to trigger a minor version bump)
+* **fix**: A bug fix (used by PSR to trigger a patch version bump)
+* **docs**: Documentation only changes
+* **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+* **refactor**: A code change that neither fixes a bug nor adds a feature
+* **perf**: A code change that improves performance
+* **test**: Adding missing or correcting existing tests
+* **chore**: Changes to the build process or auxiliary tools and libraries such as documentation generation
+
+**Scope** can be anything specifying place of the commit change (e.g. `$location`) or `*` when the change affects multiple scopes.
+
+**Subject** contains a succinct description of the change in imperative, present tense (e.g. "change"), without a capitalized first letter or a "." at the end.
+
+**Body** also uses imperative, present tense and includes the motivartion for the change and contrasts to previous behavior.
+
+**Footer** should contain any information about breaking changes and references to GitHub issues that this commit closes.
+
+Breaking changes should start with the word `BREAKING CHANGE:` and are used by PSR to trigger a major release.
+
 ## Pull Request Guidelines
 
 Before you submit a pull request, check that it meets these guidelines:
