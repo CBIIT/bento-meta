@@ -64,3 +64,13 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.semantic_release]
 version_variable = "pyproject.toml:version"
+branch = "master"
+changelog_file = "CHANGELOG.md"
+build_command = "poetry build"
+dist_path = "dist/"
+upload_to_release = true
+upload_to_pypi = false
+remove_dist = false
+patch_without_tag = true
+major_on_zero = false # while major verseion on 0.y.z, won't bump to 1.0.0
+version_source = "tag" # temp?
