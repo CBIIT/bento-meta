@@ -6,6 +6,9 @@ jobs:
     ci:
         # Set up operating system
         runs-on: ubuntu-latest
+        defaults:
+          run:
+            working-directory: ./python
         
         # Define job steps
         steps:
@@ -43,7 +46,10 @@ jobs:
         
         # Set up operating system
         runs-on: ubuntu-latest
-        
+        defaults:
+          run:
+            working-directory: ./python
+            
         # Define job steps
         steps:
         - name: Set up Python 3.8
