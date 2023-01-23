@@ -3440,4 +3440,4 @@ tools = ["click", "numpy", "pandas", "spacy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "b4cf3dafc18ed0b9d649095ddfa1af10a3323e193df8092b6bca980ce0498abd"
+content-hash = "bf404758a34a9d390c30693df454d33ae3c7bbb94aa06378a812613b9b6dad59"
