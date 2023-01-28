@@ -1,0 +1,183 @@
+# input at each level: a cypher.Entity (from previous level) and a token
+# choice of path at given level: the key that 'matches' the token
+
+# keys match the input token exactly, unless key starts with $, which
+# says to set the parameter ${parameter} to the value of the token.
+
+# The convention should be that the symbol is the handle of a Property,
+# and the value of that Property should be set to its contents:
+# $weight => P(handle="weight", value=$weight)
+
+# operations at each level - keys beginning with '_'
+# _node: name says, build a node N() with label 'name' to pass to next step
+# _prop: pname says, build a property P() with handle 'pname' and value = 
+#        input token
+#  whose property? That of the node coming in to that level as the input
+#  entity; _not_ of a node defined at that level.
+#  For a _node definition that needs a property, expand the value of the
+#  _node key:
+#  _node:
+#    _label: <label>
+#    _prop: <prop handle> or { _handle: <prop handle>, _value: <value> }
+# _edge: rname says, build a triple between input (node) and _node
+#   _edge: { _type: rname, _dir: [_from|_to} } says, build triple from|to _node
+# _func: fname says, wrap the input entity in function fname an pass along
+# _return: ... says if this is the last token,
+#          walk complete, create condition clause from input entity and
+#          return clause as specified
+#   _return: _item(s)  says, return the input entity "verbatim" (_return(E)),
+#           after applying _func and other directives in the level
+
+#
+# this file specifies the following valid paths:
+# /models
+# /models/count
+# /model/$model/nodes
+# /model/$model/nodes/count
+# /model/$model/node
+# /model/$model/node/$handle
+# /model/$model/node/$handle/properties
+# /model/$model/node/$handle/properties/count
+# /model/$model/node/$handle/property/$handle
+# /model/$model/node/$handle/property/$handle/terms
+# /model/$model/node/$handle/property/$handle/terms/count
+# /model/$model/node/$handle/property/$handle/term/$value
+# /tags
+# /tags/count
+# /tag/$key/$value
+# /tag/$key/$value/count
+# /term/$value
+# /term/$value/count
+# /id/$nanoid
+  
+paths:
+  models:  
+    _node: model # m = N(label="model")
+    _return: _items # _return(m)
+    count:
+      _return:
+        _nodes:
+          - "*"
+        _func: count@count
+  model:
+    _node: node # m = N(label="node")
+    $model: # ->m._add_props(P(handle="model",value=$model))
+      nodes: 
+        _return:
+          _nodes:
+            - node@nodes
+        count:
+          _return:
+            _nodes:
+              - node
+            _func: count@count
+      node:
+        $handle: # -> m._add_props(P(handle="handle", value=$handle)
+          properties: 
+            _node: property # n = N(label="property") - return this
+            _edge: has_property # t = R(type="has_property",m,n) - is a condition
+            _return:
+                _nodes:
+                  - property@properties # _return(n)
+
+            count:
+              _return:
+                _nodes:
+                  - property # _return( count(n) )
+                _func: count@count
+          property:
+            _edge: has_property # t = R(type="has_property",m,n)
+            _node: property # n = N(label="property")
+            $handle: 
+              _node: property  # -> n._add_props(P(handle="handle", value=$handle))
+              terms: # incoming entity is t
+                _edge:
+                  _type: has_value_set  # G(t, w) - path of 2 triples
+                  _join:
+                    - property
+                    - value_set
+                _node:  # -> a Triple: w
+                  _label: term  # z = N(label="term") is the "incoming" ent
+                  _node: value_set  # v = N(label="value_set")
+                  _edge:
+                    _type: has_term 
+                    _dir: _left  # w = R(type="has_term").relate(z,v)
+                _return:
+                  _nodes:
+                    - term@terms
+                count:
+                  _return:
+                    _nodes:
+                      - "*"
+                    _func: count@count
+              term:
+                _node: term
+                $value:
+                  #_prop: value
+                  _return:
+                    _nodes:
+                      - term@term
+              _return:
+                _nodes:
+                  - property@property
+          _return:
+            _nodes:
+              - node@node
+  tags: 
+    _node: tag # g = N(label="tag")
+    _return:
+      _nodes:
+        - tag@tags
+    count:
+      _return:
+        _nodes:
+          - "*"
+        _func: count@count
+  tag:
+    _node: tag # g = N(label="tag")
+    $key: # -> g._add_props(P(handle="key", value=$key))
+      values:
+        _return:
+          _nodes:
+            - tag@tags
+          _path_id: tag_values
+        count:
+          _return:
+            _nodes:
+              - "*"
+            _func: count@count
+      $value: # g._add_props(P(handle="value",value=<_value>)); i = N(); R0(i, g)
+        entities:
+          _node: _var
+          _edge:
+            _type: has_tag
+            _dir: _left
+          _return:
+            _nodes:
+              - _var@entities
+            _path_id: tag_entities
+          count:
+            _return:
+              _nodes:
+                - "*"
+              _func: count@count
+  term:
+    _node: term # x = N(label="term")
+    $value:
+      _prop: value # x._add_prop(P(handle="value", value=$value))
+      _return:
+        _nodes:
+          - term@terms
+      count:
+        _return:
+          _nodes:
+            - "*"
+          _func: count@count
+  id:
+    _node: _var
+    $nanoid:
+      _return: _items
+
+
+    
+    
