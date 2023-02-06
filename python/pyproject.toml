@@ -29,7 +29,6 @@ authors = [
 ]
 license = "Apache 2.0"
 readme = "README.md"
-include = ["logs/log.ini"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -57,6 +56,7 @@ myst-nb = {version = "^0.17.1", python = "^3.8"}
 sphinx-autoapi = "^2.0.1"
 sphinx-rtd-theme = "^1.1.1"
 python-semantic-release = "^7.33.0"
+pytest-cov = "^4.0.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -72,5 +72,5 @@ upload_to_release = true
 upload_to_pypi = false
 remove_dist = false
 patch_without_tag = true
-major_on_zero = false # while major verseion on 0.y.z, won't bump to 1.0.0
+major_on_zero = false # while major version on 0.y.z, won't bump to 1.0.0
 version_source = "tag" # temp?
