@@ -29,7 +29,7 @@ authors = [
 ]
 license = "Apache 2.0"
 readme = "README.md"
-
+include = ["logs/log.ini"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
