@@ -266,7 +266,7 @@ class Entity(object):
     def __setattr__(self, name, value):
         if name == "pvt":
             self.__dict__["pvt"] = value
-        elif name in Entity.pvt_attr:
+        elif name in type(self).pvt_attr:
             self.__dict__["pvt"][name] = value
         elif name in type(self).attspec:
             self._check_value(name, value)
