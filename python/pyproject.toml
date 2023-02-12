@@ -20,7 +20,7 @@ classifiers = [
 
 [tool.poetry]
 name = "bento-meta"
-version = "0.0.50"
+version = "0.0.51"
 description = "Python drivers for Bento Metamodel Database"
 authors = [
     "Mark A. Jensen <mark.jensen@nih.gov>",
