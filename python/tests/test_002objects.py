@@ -82,6 +82,8 @@ def test_some_object_methods():
   vs = ValueSet({"_id":"1"})
   assert vs
   p.value_set = vs
+  p.value_types.append("glarp")
+  assert "glarp" in p.value_types
   vs.terms['ptomaine'] = u
   assert p.terms['ptomaine'].value == 'ptomaine'
   p.terms['halitosis'] = t

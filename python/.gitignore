@@ -30,6 +30,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+# dist/ # add this?
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -153,4 +154,7 @@ API
 Training
 Blog
 About
+
+# other
+.idea/
 
