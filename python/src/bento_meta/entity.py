@@ -246,7 +246,7 @@ class Entity(object):
             return object.__getattribute__(self, name)
 
     def __getattr__(self, name):
-        if name in Entity.pvt_attr:
+        if name in type(self).pvt_attr:
             return self.__dict__["pvt"][name]
         elif name in type(self).attspec:
             if name not in self.__dict__ or self.__dict__[name] is None:
