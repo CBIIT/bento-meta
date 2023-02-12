@@ -1,6 +1,6 @@
 [project]
 name = "bento-meta"
-version = "0.0.50"
+version = "0.0.51"
 description = "Python drivers for Bento Metamodel Database"
 authors = [
   { name="Mark A. Jensen", email = "mark.jensen@nih.gov"},
@@ -20,7 +20,7 @@ classifiers = [
 
 [tool.poetry]
 name = "bento-meta"
-version = "0.0.50"
+version = "0.0.51"
 description = "Python drivers for Bento Metamodel Database"
 authors = [
     "Mark A. Jensen <mark.jensen@nih.gov>",
@@ -29,9 +29,11 @@ authors = [
 ]
 license = "Apache 2.0"
 readme = "README.md"
+include = ["logs/log.ini"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+PyYAML = "<5.4.1"
 delfick-project = "^0.7.9"
 neo4j = ">=4.0"
 nanoid = "^2.0.0"

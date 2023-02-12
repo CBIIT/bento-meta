@@ -61,7 +61,7 @@ class Node(Entity):
 
 class Property(Entity):
     """Subclass that models a property of a node or relationship (edge)."""
-
+    pvt_attr = Entity.pvt_attr + ["value_types"]
     attspec_ = {
         "handle": "simple",
         "model": "simple",
@@ -98,6 +98,7 @@ class Property(Entity):
     
     def __init__(self, init=None):
         super().__init__(init=init)
+        self.value_types = []
 
     @property
     def terms(self):
