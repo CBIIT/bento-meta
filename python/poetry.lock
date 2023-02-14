@@ -2054,6 +2054,26 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "pytest-xdist", "six", "virtualenv"]
 
 [[package]]
+name = "pytest-docker"
+version = "1.0.1"
+description = "Simple pytest fixtures for Docker and docker-compose based tests"
+category = "dev"
+optional = true
+python-versions = ">=3.6"
+files = [
+    {file = "pytest-docker-1.0.1.tar.gz", hash = "sha256:f6e8a1e660e2ba63a5bd28703cbb13636e0febd4623dafe047afa8254fb9db8f"},
+    {file = "pytest_docker-1.0.1-py3-none-any.whl", hash = "sha256:5dd39b10747f166d04946ba5b2bfb64e105b692679ca7191de9869d8f8f0640b"},
+]
+
+[package.dependencies]
+attrs = ">=19.2.0"
+pytest = ">=4.0,<8.0"
+
+[package.extras]
+docker-compose-v1 = ["docker-compose (>=1.27.3,<2.0)"]
+tests = ["pytest-pycodestyle (>=2.0.0,<3.0)", "pytest-pylint (>=0.14.1,<1.0)", "requests (>=2.22.0,<3.0)"]
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -3329,4 +3349,4 @@ tools = ["click", "numpy", "pandas", "spacy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "a687b3af5dfa676db7e16c9fbeda91cbdde90b8e2c18ca408128ba064e2995fb"
+content-hash = "21c5263e515fc38063a12ab73912b7d06f63af052e231afff366f1b0dc0d3496"

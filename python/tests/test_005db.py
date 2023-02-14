@@ -12,7 +12,7 @@ from bento_meta.object_map import ObjectMap
 from bento_meta.entity import *
 from bento_meta.objects import *
 
-@pytest.mark.slow
+@pytest.mark.docker
 def test_get(bento_neo4j):
   (b,h)=bento_neo4j
   drv = GraphDatabase.driver(b)
@@ -47,7 +47,7 @@ def test_get(bento_neo4j):
   pass
 
 
-@pytest.mark.slow
+@pytest.mark.docker
 def test_put_rm(bento_neo4j):  
   (b,h)=bento_neo4j
   drv = GraphDatabase.driver(b)
