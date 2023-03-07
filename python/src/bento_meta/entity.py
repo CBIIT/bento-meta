@@ -506,6 +506,24 @@ class Entity(object):
         doc += "\n"
         return doc
 
+    def get_label(self) -> str:
+        """returns type of entity as label"""
+        return self.__class__.__name__.lower()
+
+    def get_attr_dict(self):
+        """
+        Returns given entity's set attributes as a dictionary.
+
+        Dictionary of attributes used as the parameters
+        of methods with the write_txn decorator.
+        """
+        attr_dict = {}
+        for key, val in vars(self).items():
+            if (val and val is not None and key != "pvt" and
+            isinstance(val, (str, int, float, complex, bool))):
+                attr_dict[key] = str(val)
+        return attr_dict
+
 
 class CollValue(UserDict):
     """A UserDict for housing Entity collection attributes.

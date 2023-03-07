@@ -166,6 +166,10 @@ class Edge(Entity):
         if self.handle and self.src and self.dst:
             return (self.handle, self.src.handle, self.dst.handle)
 
+    def get_label(self) -> str:
+        """returns type of entity as label"""
+        return "relationship"
+
 
 class Term(Entity):
     """Subclass that models a term from a terminology."""
