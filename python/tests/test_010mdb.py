@@ -6,13 +6,13 @@ import pytest_docker
 from pdb import set_trace
 from bento_meta.mdb import MDB
 
-@pytest.mark.dumb
+@pytest.mark.docker
 def test_mdb(mdb):
     (b, h) = mdb
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")
     assert mdb
 
-@pytest.mark.dumb
+@pytest.mark.docker
 def test_rd_txns(mdb):
     (b, h) = mdb
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")

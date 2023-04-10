@@ -12,7 +12,7 @@ from bento_meta.model import Model
 from bento_meta.object_map import ObjectMap
 from bento_meta.mdb import MDB
 
-@pytest.mark.slow
+@pytest.mark.docker
 def test_get_model(bento_neo4j):
   (b,h)=bento_neo4j
   the_mdb = MDB(uri=b)
@@ -55,7 +55,7 @@ def test_get_model(bento_neo4j):
       assert op
       assert set( op.values ) == { t['value'] for t in tt }
 
-@pytest.mark.slow
+@pytest.mark.docker
 def test_put_model(bento_neo4j):
   (b,h)=bento_neo4j
   the_mdb = MDB(uri=b)

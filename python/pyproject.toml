@@ -33,7 +33,7 @@ include = ["logs/log.ini"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-PyYAML = "<5.4.1"
+PyYAML = ">=6"
 delfick-project = "^0.7.9"
 neo4j = ">=4.0"
 nanoid = "^2.0.0"
@@ -50,7 +50,7 @@ Tools = ["click", "numpy", "pandas", "spacy"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
-docker-compose = "^1.29.2"
+# docker-compose = {version = "^1.29.2", optional = true}
 pytest-docker = "^1.0.1"
 requests = "^2.28.1"
 myst-nb = {version = "^0.17.1", python = "^3.8"}
