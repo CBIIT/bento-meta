@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
     ci-cd:
-      uses: CBIIT/bento-workflows/.github/workflows/ci-cd.yml@v2.1.7
+      uses: CBIIT/bento-workflows/.github/workflows/ci-cd.yml@v2.1.8
       with:
         workdir: ./python
         pkg_name: bento-meta
