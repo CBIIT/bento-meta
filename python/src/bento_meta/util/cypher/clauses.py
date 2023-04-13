@@ -236,6 +236,15 @@ class As(Clause):
         super().__init__(*args)
 
 
+class Delete(Clause):
+    """Create a DELETE clause with the arguments."""
+
+    template = Template("DELETE $slot1")
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
 class DetachDelete(Clause):
     """Create a DETACH DELETE clause with the arguments."""
 
