@@ -48,8 +48,11 @@ def test_create_model():
   model.annotate(of_case, Term({"value": "of_case", "origin_name": "CTOS"}))
   assert model.edges[('of_case','sample','case')].concept.terms[('of_case', 'CTOS')]
   dx = Property({"handle":"diagnosis","value_domain":"value_set"})
-  tm = Term({"value":"CRS"})
+  tm = Term({"value":"CRS", "origin_name":"Marilyn"})
   model.add_prop(case, dx)
   model.add_terms(dx, tm, 'rockin_pneumonia', 'fungusamongus')
   assert {x.value for x in dx.terms.values()} == { 'CRS', 'rockin_pneumonia', 'fungusamongus'}
-  
+  assert len(model.terms) > 0
+  assert ('CRS','Marilyn') in model.terms
+  assert ('case','CTOS') in model.terms
+  assert dx.value_set in tm.belongs.values()

@@ -45,7 +45,7 @@ class Model(object):
         self.nodes = {}
         self.edges = {}  # keys are (edge.handle, src.handle, dst.handle) tuples
         self.props = {}  # keys are ({edge|node}.handle, prop.handle) tuples
-        self.terms = {}
+        self.terms = {}  # keys are (term.handle, term.origin) tuples
         self.removed_entities = []
 
         if mdb:
@@ -184,10 +184,12 @@ class Model(object):
             raise ArgError("arg2 must be Term")
         if not ent.concept:
             ent.concept = Concept({"nanoid":make_nanoid()})
-        if (term.value, term.origin_name) in ent.concept.terms:
-            raise ValueError("Concept already represented by a Term with value '{}'"
-                             "and origin_name '{}'".format(term.value, term.origin_name))
-        ent.concept.terms[(term.value, term.origin_name)] = term
+        term_key = term.handle if term.handle else term.value;
+        if (term_key, term.origin_name) in ent.concept.terms:
+            raise ValueError("Concept already represented by a Term with handle or value '{}'"
+                             "and origin_name '{}'".format(term_key, term.origin_name))
+        ent.concept.terms[(term_key, term.origin_name)] = term
+        self.terms[(term_key, term.origin_name)] = term
         
     def add_terms(self, prop, *terms):
         """Add a list of :class:`Term` and/or strings to a :class:`Property` with a value domain of ``value_set``
@@ -195,7 +197,8 @@ class Model(object):
         :param Property prop: :class:`Property` to modify
         :param list terms: A list of :class:`Term` instances and/or str
 
-        :class:`Term` instances are created for strings; `Term.value` is set to the string.
+        :class:`Term` instances are created for strings; 
+        `Term.value` and `Term.handle` is set to the string.
         """
         if not isinstance(prop, Property):
             raise ArgError("arg1 must be Property")
@@ -211,10 +214,12 @@ class Model(object):
         for t in terms:
             if isinstance(t, str):
                 warn("Creating Term object for string '{term}'".format(term=t))
-                t = Term({"value": t})
+                t = Term({"handle":t, "value": t})
             elif not isinstance(t, Term):
                 raise ArgError("encountered arg that was not a str or Term object")
-            prop.value_set.terms[t.value] = t
+            tm_key = t.handle if t.handle else t.value
+            prop.value_set.terms[tm_key] = t
+            self.terms[(tm_key, t.origin_name)] = t
 
     def rm_node(self, node):
         """Remove a :class:`Node` from the Model instance.
@@ -354,6 +359,8 @@ class Model(object):
             return ent in set(self.edges.values())
         if isinstance(ent, Property):
             return ent in set(self.props.values())
+        if isinstance(ent, Term):
+            return ent in set(self.terms.values())
         pass
 
     def edges_in(self, node):
