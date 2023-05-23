@@ -128,8 +128,10 @@ def load_model_statements(model, _commit=None):
                 use_params=True
                 ),
             Statement(
-                Match(cProp),
-                Merge(R(Type="has_value_set").relate(_plain_var(cProp), cValueSet)),
+                Match(cProp, cValueSet),
+                Merge(R(Type="has_value_set").
+                      relate(_plain_var(cProp),
+                             _plain_var(cValueSet))),
                 use_params=True
                 )
             ])
@@ -270,9 +272,9 @@ def _annotate_statements(ent, cEnt, _commit):
             ),
             Statement(
                 Match(R(Type="has_concept").relate(
-                    cEnt, cConcept)),
+                    cEnt, cConcept), cTerm),
                 Merge(R(Type="represents").relate(
-                    cTerm, _plain_var(cConcept))),
+                    _plain_var(cTerm), _plain_var(cConcept))),
                 use_params=True
             ),
         ])
