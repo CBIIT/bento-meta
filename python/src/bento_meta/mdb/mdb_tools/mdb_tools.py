@@ -10,12 +10,21 @@ from logging.config import fileConfig
 from pathlib import Path
 from subprocess import check_call
 from sys import executable
-from typing import Dict, Iterable, List, Set, Tuple, Type, Union
+from typing import Dict, Iterable, List, Optional, Set, Tuple, Type, Union
 
 from bento_meta.entity import Entity
 from bento_meta.mdb import make_nanoid, read_txn_data, read_txn_value
 from bento_meta.mdb.writeable import WriteableMDB, write_txn
-from bento_meta.objects import Concept, Edge, Node, Predicate, Property, Tag, Term
+from bento_meta.objects import (
+    Concept,
+    Edge,
+    Node,
+    Predicate,
+    Property,
+    Tag,
+    Term,
+    ValueSet,
+)
 from bento_meta.util.cypher.clauses import (
     As,
     Collect,
@@ -49,11 +58,17 @@ class ToolsMDB(WriteableMDB):
     class EntityNotFoundError(Exception):
         """Raised when an entity's attributes fail to identify a property graph node in an MDB"""
 
-    class TripleNotUniqueError(Exception):
-        """Raised when an triple's attributes identify more than 1 property graph node in an MDB"""
+    class PatternNotUniqueError(Exception):
+        """
+        Raised when a match pattern's attributes identify more than 1
+        property graph triple or set of overlapping triples in an MDB
+        """
 
-    class TripleNotFoundError(Exception):
-        """Raised when an triple's attributes fail to identify a property graph node in an MDB"""
+    class PatternNotFoundError(Exception):
+        """
+        Raised when a match pattern's attributes fail to identify
+        a property graph triple or set of overlapping triples in an MDB
+        """
 
     @read_txn_value
     def _get_entity_count(self, entity: Entity):
@@ -79,20 +94,23 @@ class ToolsMDB(WriteableMDB):
         return (qry, parms, "entity_count")
 
     @read_txn_value
-    def _get_triple_count(self, triple: T):
+    def _get_pattern_count(self, pattern: Union[T, G]):
         """
-        Returns count of given triple, (n)-[r]->(m), found in MDB.
+        Returns count of given match pattern, which could be a triple like:
+        (n)-[r]->(m), or a set of overlapping triples (Path) found in MDB.
 
-        If count = 0, triple with given attributes not found in MDB.
-        If count = 1, triple with given attributes is unique in MDB
-        If count > 1, more attributes needed to uniquely id triple in MDB.
+        If count = 0, pattern with given attributes not found in MDB.
+        If count = 1, pattern with given attributes is unique in MDB
+        If count > 1, more attributes needed to uniquely id pattern in MDB.
         """
-        stmt = Statement(Match(triple), Return(count("*")), As("triple_count"), use_params=True)
+        stmt = Statement(
+            Match(pattern), Return(count("*")), As("pattern_count"), use_params=True
+        )
 
         qry = str(stmt)
         parms = stmt.params
 
-        return (qry, parms, "triple_count")
+        return (qry, parms, "pattern_count")
 
     def validate_entity_unique(self, entity: Entity) -> None:
         """
@@ -121,22 +139,36 @@ class ToolsMDB(WriteableMDB):
         for entity in entities:
             self.validate_entity_unique(entity)
 
-    def validate_triple_unique(self, triple: T) -> None:
+    def validate_pattern_unique(self, pattern: Union[T, G]) -> None:
         """
-        Validates that the given triple occurs once (& only once) in an MDB
+        Validates that the given match pattern occurs once (& only once) in an MDB
 
-        Raises TripleNotUniqueError if entity attributes match multiple property
+        Raises PatternNotUniqueError if entity attributes match multiple property
         graph nodes in the MDB.
 
-        Raises TripleNotFoundError if entity attributes don't match any in the MDB.
+        Raises PatternNotFoundError if entity attributes don't match any in the MDB.
         """
-        triple_count = int(self._get_triple_count(triple)[0])
-        if triple_count > 1:
-            logger.error(str(self.TripleNotUniqueError))
-            raise self.TripleNotUniqueError
-        if triple_count < 1:
-            logger.error(str(self.TripleNotFoundError))
-            raise self.TripleNotFoundError
+        pattern_count = int(self._get_pattern_count(pattern)[0])
+        if pattern_count > 1:
+            logger.error(
+                str(
+                    self.PatternNotUniqueError(
+                        f"Pattern: {pattern.pattern()} not unique."
+                    )
+                )
+            )
+            raise self.PatternNotUniqueError(
+                f"Pattern: {pattern.pattern()} not unique."
+            )
+        if pattern_count < 1:
+            logger.error(
+                str(
+                    self.PatternNotFoundError(
+                        f"Pattern: {pattern.pattern()} not found."
+                    )
+                )
+            )
+            raise self.PatternNotFoundError(f"Pattern: {pattern.pattern()} not found.")
 
     @write_txn
     def remove_entity_from_mdb(self, entity: Entity):
@@ -208,7 +240,7 @@ class ToolsMDB(WriteableMDB):
 
     @read_txn_value
     def get_concept_nanoids_linked_to_entity(
-        self, entity: Entity, mapping_source: str = ""
+        self, entity: Entity, mapping_source: Optional[str] = None
     ):
         """
         Returns list of concept nanoids linked to given entity by
@@ -225,12 +257,12 @@ class ToolsMDB(WriteableMDB):
             rel = R(Type="has_concept")
         ent_trip = rel.relate(ent, concept)
 
-        if mapping_source:
+        if mapping_source is not None:
             tag = N(
                 label="tag",
                 props={"key": "mapping_source", "value": mapping_source},
             )
-            tag_trip = T(ent, R(Type="has_tag"), tag)
+            tag_trip = T(concept, R(Type="has_tag"), tag)
             path = G(ent_trip, tag_trip)
         else:
             path = ent_trip
@@ -244,6 +276,7 @@ class ToolsMDB(WriteableMDB):
 
         qry = str(stmt)
         parms = stmt.params
+        logging.debug(f"{qry=}; {parms=}")
 
         return (qry, parms, "concept_nanoids")
 
@@ -269,8 +302,8 @@ class ToolsMDB(WriteableMDB):
 
         try:
             # check for existance shouldn't include _commit?
-            self.validate_triple_unique(trip)
-        except self.TripleNotFoundError:
+            self.validate_pattern_unique(trip)
+        except self.PatternNotFoundError:
             # if triple doesn't already exist, add _commit? this means that
             # if triple exists w/ different _commit, merge shouldn't add anything?
             rel.props["_commit"] = P(handle="_commit", value=_commit)
@@ -295,7 +328,7 @@ class ToolsMDB(WriteableMDB):
         entity_2: Entity,
         mapping_source: str,
         _commit: str = "",
-    ):
+    ) -> None:
         """
         Link two synonymous entities in the MDB via a Concept node.
 
@@ -310,32 +343,40 @@ class ToolsMDB(WriteableMDB):
         """
         self.validate_entities_unique([entity_1, entity_2])
 
-        # get any existing concepts from mapping source and create new concept if none found
-        # should always creates a new concept if from a new mapping source?
         ent_1_concepts = self.get_concept_nanoids_linked_to_entity(
             entity=entity_1, mapping_source=mapping_source
         )
         ent_2_concepts = self.get_concept_nanoids_linked_to_entity(
             entity=entity_2, mapping_source=mapping_source
         )
-        # entities are already connected by a concept
-        if not set(ent_1_concepts).isdisjoint(set(ent_2_concepts)):
-            concept = set(ent_1_concepts).intersection(set(ent_2_concepts))
+        shared_concepts = list(set(ent_1_concepts).intersection(ent_2_concepts))
+
+        # has concept been tagged by this mapping src before
+        if shared_concepts:
             logging.warning(
-                f"Both entities are already connected by {mapping_source} "
-                f"via Concept {list(concept)[0]}"
+                f"This mapping has already been added by this source via "
+                f"Concept with nanoid: {shared_concepts[0]}"
             )
             return
 
+        # one of the entities has a concept created by the given mapping source
         if ent_1_concepts:
+            logging.info(f"Using existing concept with nanoid {ent_1_concepts[0]}")
             concept = Concept({"nanoid": ent_1_concepts[0]})
         elif ent_2_concepts:
+            logging.info(f"Using existing concept with nanoid {ent_2_concepts[0]}")
             concept = Concept({"nanoid": ent_2_concepts[0]})
         else:
             concept = Concept({"nanoid": make_nanoid()})
             self.add_entity_to_mdb(concept, _commit=_commit)
             self.add_tag_to_mdb_entity(
-                tag=Tag({"key": "mapping_source", "value": mapping_source}),
+                tag=Tag(
+                    {
+                        "key": "mapping_source",
+                        "value": mapping_source,
+                        "nanoid": make_nanoid(),
+                    }
+                ),
                 entity=concept,
             )
 
@@ -755,8 +796,7 @@ class ToolsMDB(WriteableMDB):
         edge_parents = [Edge(p) for p in data[0]["edges"]]
         return node_parents + edge_parents
 
-    @write_txn
-    def add_tag_to_mdb_entity(self, tag: Tag, entity: Entity):
+    def add_tag_to_mdb_entity(self, tag: Tag, entity: Entity) -> None:
         """Adds a tag to an existing entity in an MDB."""
         self.validate_entity_unique(entity)
         self.add_entity_to_mdb(tag)
@@ -776,6 +816,7 @@ class EntityValidator:
         Concept: ["nanoid"],
         Predicate: ["handle", "subject", "object"],
         Tag: ["key", "value"],
+        ValueSet: ["handle"],
     }
 
     valid_attrs: Dict[Tuple[Type[Entity], str], Set[str]] = {
