@@ -20,7 +20,7 @@ classifiers = [
 
 [tool.poetry]
 name = "bento-meta"
-version = "0.1.2"
+version = "0.1.4"
 description = "Python drivers for Bento Metamodel Database"
 authors = [
     "Mark A. Jensen <mark.jensen@nih.gov>",
@@ -59,12 +59,16 @@ sphinx-autoapi = "^2.0.1"
 sphinx-rtd-theme = "^1.1.1"
 python-semantic-release = "^7.33.0"
 pytest-cov = "^4.0.0"
+liquichange = "^0.1.0"
 
 [tool.poetry.scripts]
 "clean_cda_map_excel" = { reference = "scripts/clean_cda_map_excel.py", type = "file", extras = ["click", "numpy", "pandas"] }
 "compare_models" = { reference = "scripts/compare_models.py", type = "file", extras = ["click", "spacy", "pandas"]}
 "compare_val_set_terms" = { reference = "scripts/compare_val_set_terms.py", type = "file", extras = ["click", "pandas"] }
 "link_synonym_ents_csv" = { reference = "scripts/link_synonym_ents_csv.py", type = "file", extras = ["click"] }
+"make_model_changelog" = {reference = "scripts/make_model_changelog.py", type = "file", extras = ["liquichange"]}
+"make_diff_changelog" = {reference = "scripts/make_diff_changelog.py", type = "file", extras = ["liquichange"]}
+"make_mapping_changelog" = {reference = "scripts/make_mapping_changelog.py", type = "file", extras = ["liquichange"]}
 
 [build-system]
 requires = ["poetry-core"]
