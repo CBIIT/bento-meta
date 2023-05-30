@@ -1,4 +1,11 @@
-"""tests for ToolsMDB & EntityValidator"""
+"""
+This module contains test cases for ToolsMDB and EntityValidator.
+
+It tests the functionality of ToolsMDB by initializing an instance, adding entities
+and relationships, and linking synonyms. It also tests the validation of various
+entity types using EntityValidator. The tests cover both success cases and failure cases
+for validation.
+"""
 import pytest
 from bento_meta.mdb.mdb_tools import EntityValidator, ToolsMDB
 from bento_meta.objects import Concept, Edge, Entity, Node, Property, Term, ValueSet
@@ -6,7 +13,11 @@ from bento_meta.util.cypher.entities import G, N, R, T
 
 
 class TestToolsMDB:
-    """tests ToolsMDB"""
+    """
+    Test suite for the ToolsMDB class. It includes tests for initializing ToolsMDB,
+    adding entities to the MDB, adding relationships to the MDB, and linking synonyms
+    between entities.
+    """
 
     MODEL = "test_model"
     MAPPING_SOURCE_1 = "map_src_1"
@@ -60,17 +71,23 @@ class TestToolsMDB:
     ]
 
     @pytest.mark.dumb
-    def test_tools_mdb(self, mdb):
+    def test_tools_mdb(self, mdb) -> None:
+        """Test the ToolsMDB class by initializing an instance and asserting its existence."""
         (b, h) = mdb
         mdb = ToolsMDB(uri=b, user="neo4j", password="neo4j1")
         assert mdb
 
     @pytest.fixture
     def tools_mdb(self, mdb) -> ToolsMDB:
+        """Fixture that provides an instance of ToolsMDB for testing."""
         (b, h) = mdb
         return ToolsMDB(uri=b, user="neo4j", password="neo4j1")
 
     def test_add_entity_to_mdb(self, tools_mdb) -> None:
+        """
+        Test the add_entity_to_mdb method of ToolsMDB by adding multiple entities
+        and asserting their counts.
+        """
         for ent in self.add_ents:
             tools_mdb.add_entity_to_mdb(ent)
             assert tools_mdb._get_entity_count(ent)[0] == 1
@@ -81,6 +98,10 @@ class TestToolsMDB:
         assert tools_mdb._get_pattern_count(edge_path)[0] == 1
 
     def test_add_relationship_to_mdb(self, tools_mdb) -> None:
+        """
+        Test the add_relationship_to_mdb method of ToolsMDB by adding relationships
+        between entities and asserting their counts.
+        """
         tools_mdb.add_relationship_to_mdb("has_property", self.node_1, self.prop_1)
         tools_mdb.add_relationship_to_mdb("has_value_set", self.prop_1, self.valset_1)
         tools_mdb.add_relationship_to_mdb("has_term", self.valset_1, self.term_1)
@@ -92,6 +113,10 @@ class TestToolsMDB:
         assert tools_mdb._get_pattern_count(relationship_path)[0] == 1
 
     def test_link_synonyms(self, tools_mdb) -> None:
+        """
+        Test the link_synonyms method of ToolsMDB by linking synonyms between
+        terms, nodes, and concepts, and asserting the pattern count.
+        """
         tools_mdb.link_synonyms(
             self.term_1, self.term_2, mapping_source=self.MAPPING_SOURCE_1
         )
@@ -117,6 +142,10 @@ class TestToolsMDB:
         assert tools_mdb._get_pattern_count(synonym_path)[0] == 1
 
     def test_link_synonyms_diff_src_diff_map(self, tools_mdb) -> None:
+        """
+        Test the link_synonyms method of ToolsMDB with different mapping sources,
+        asserting the creation of new concepts and counts.
+        """
         # should add a new concept
         tools_mdb.link_synonyms(
             self.term_2, self.term_3, mapping_source=self.MAPPING_SOURCE_2
@@ -137,11 +166,13 @@ class TestToolsMDB:
 
 
 def test_node_validation_success():
+    """Test the validation of a Node entity with all required attributes present."""
     node = Node({"handle": "test", "model": "test_model"})
     EntityValidator.validate_entity(node)
 
 
 def test_edge_validation_success():
+    """Test the validation of an Edge entity with all required attributes present."""
     edge = Edge(
         {
             "handle": "test",
@@ -154,11 +185,13 @@ def test_edge_validation_success():
 
 
 def test_property_validation_success():
+    """Test the validation of a Property entity with all required attributes present."""
     prop = Property({"handle": "test", "model": "test_model"})
     EntityValidator.validate_entity(prop)
 
 
 def test_term_validation_success():
+    """Test the validation of a Term entity with all required attributes present."""
     term = Term(
         {
             "origin_name": "test",
@@ -171,17 +204,23 @@ def test_term_validation_success():
 
 
 def test_concept_validation_success():
+    """Test the validation of a Concept entity with all required attributes present."""
     concept = Concept({"nanoid": "test_nanoid"})
     EntityValidator.validate_entity(concept)
 
 
 def test_validation_failure_missing_attr():
+    """Test the validation failure for a Node entity with a missing required attribute."""
     node = Node({"model": "test_model"})
     with pytest.raises(EntityValidator.MissingAttributeError):
         EntityValidator.validate_entity(node)
 
 
 def test_validation_failure_edge_src_dst_attr_missing():
+    """
+    Test the validation failure for an Edge entity with missing required attributes
+    for src and dst.
+    """
     edge = Edge(
         {
             "handle": "test",
@@ -195,6 +234,11 @@ def test_validation_failure_edge_src_dst_attr_missing():
 
 
 def test_validation_failure_unsupported_entity():
+    """
+    Test the validation failure for an unsupported entity that does not
+    inherit from the Entity base class.
+    """
+
     class TestEntity(Entity):
         """fake class to fail entity validation"""
 
