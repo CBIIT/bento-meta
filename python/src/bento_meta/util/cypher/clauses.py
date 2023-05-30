@@ -254,6 +254,79 @@ class DetachDelete(Clause):
         super().__init__(*args)
 
 
+class Case(Clause):
+    """Create a CASE clause with the arguments."""
+
+    template = Template("CASE $slot1")
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+class When(Clause):
+    """Create a WHEN clause with the arguments."""
+
+    template = Template("WHEN $slot1")
+    joiner = " {} "
+
+    @staticmethod
+    def context(arg):
+        return _condition(arg)
+
+    def __init__(self, *args, op="AND"):
+        super().__init__(*args, op=op)
+        self.op = op
+
+    def __str__(self):
+        values = []
+        for c in [self.context(x) for x in self.args]:
+            if isinstance(c, str):
+                values.append(c)
+            elif isinstance(c, Func):
+                values.append(str(c))
+            elif isinstance(c, list):
+                values.extend([str(x) for x in c])
+            else:
+                values.append(str(c))
+        return self.template.substitute(slot1=self.joiner.format(self.op).join(values))
+
+
+class Then(Clause):
+    """Create a THEN clause with the arguments."""
+
+    template = Template("THEN $slot1")
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+class Else(Clause):
+    """Create an ELSE clause with the arguments."""
+
+    template = Template("ELSE $slot1")
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+class End(Clause):
+    """Create an END clause with the arguments."""
+
+    template = Template("END $slot1")
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
+class ForEach(Clause):
+    """Create an FOREACH clause with the arguments."""
+
+    template = Template("FOREACH $slot1")
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
 class Statement(object):
     """Create a Neo4j statement comprised of clauses (and strings) in order."""
 
