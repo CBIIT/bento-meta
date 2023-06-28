@@ -30,7 +30,7 @@ The MDB is a tool for managing active data. It can and should be anchored by ele
 
 - *The MDB is intentionally designed to capture logical data models easily. Conceptual data models and abstract metamodels can indeed be captured and annotated, but this is secondary to the main use case of the MDB.*
 
-In our (FNLCR/BIDS/CTOS) systems, the logical data model as captured in the MDB is very close to the physical representation of the data in our underlying native graph databases. This is intentional, in that it enables our databases to be directly configured by data SMEs, with little work necessary from engineering. However, the graph model underlying the MDB is a flexible abstraction that can capture the structure of RDBMS schemas, document-based data stores, UML representations, and other such artifacts.
+In our (FNLCR/BACS/CTOS) systems, the logical data model as captured in the MDB is very close to the physical representation of the data in our underlying native graph databases. This is intentional, in that it enables our databases to be directly configured by data SMEs, with little work necessary from engineering. However, the graph model underlying the MDB is a flexible abstraction that can capture the structure of RDBMS schemas, document-based data stores, UML representations, and other such artifacts.
 
 - *The MDB can represent semantic information and relationships among concepts, such as synonymy of terms. These features are designed primarily to facilitate pragmatic mapping between models from constituent systems that need to interoperate.*
 
@@ -45,6 +45,7 @@ ___________________________
 
 A basic working principle is that a data model of almost any type can be rendered usefully as a `graph <https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph>`_, containing
 
+.. _nodes_relationships_properties:
 * *Nodes* - logical data groupings
 * *Relationships* - logical or structural links or references between nodes, and
 * *Properties* - Variables, columns, or slots for actual data items.
@@ -55,18 +56,21 @@ Other means of describing a data model may do so with more detail, or be more co
 
 Data items are very frequently codes or strings chosen from a closed set of acceptable or valid values. In the MDB, the entity that represents a single such value is the Term. 
 
+.. _terms:
 * *Terms* - entities which include a string representation (value) for a specific datum, and information on its source origin or authority.
 
 Term entities may also include semantic information such as definitions and external identifiers that link back to their authoritative origin. For example, a Term adopted from the NCI Thesaurus would have an origin_id attribute set to its NCIt Concept Code.
 
 Terms are associated with their Origin, but not directly with any Model. This is an intentional design decision that allows a model to build value sets by reusing terms from different sources, via the Value Set entity.
 
+.. _value_sets:
 * *Value Sets* - entities which aggregate Terms and so represent controlled vocabularies or acceptable value lists for Property values.
 
 When Term entities are used to describe an acceptable value for a Property, they do so via a grouping entity called a Value Set. A given Term can be a part of any Value Set for any Model via the addition of a graph edge. Properties that accept data from a controlled vocabulary are linked to a Value Set entity, and Term entities that represent the acceptable values link to the Value Set. 
 
 Terms have an additional role in the MDB, to annotate Concept entities with semantic information. 
 
+.. _concepts:
 * *Concepts* - entities which represent any abstract intellectual concept; a Concept's meaning is "induced" by Term entities that are linked to it via a "represents" graph edge.
 
 The Concept entity is essentially a Term aggregation node, similar in function to a Value Set entity. It is an abstraction that enables the meanings of entities (not just Terms, but also Node, Relationships, and Properties) to be present in the database, and allows different models to reuse conceptual constructs and meanings defined by external authorities and elsewhere.
@@ -82,6 +86,7 @@ One might rather simply put that information directly into the Concept node --  
 
 Although the MDB is not primarily a knowledge base, it may be useful to record additional semantic information, especially for situations in which the mappings between model entities are not precisely synonymous, but reflect another kind of relationship. Mapping model entities to the `BRIDG <https://bridgmodel.nci.nih.gov/>`_ conceptual model, for example, is often characterized by a number of semantic "steps" beyond synonymy. For this purpose, the MDB defines a Predicate entity.
 
+.. _predicates:
 * *Predicates* - entities which represent a semantic relationship between two concepts, the "subject" and the "object".
 
 A Predicate entity enables the formation of "triples" among Concept entities in the MDB. For example, the "generative" or "parent-child" relationship mentioned above can be represented by a Predicate entity linking parent and child concepts. 

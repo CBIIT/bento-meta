@@ -99,12 +99,17 @@ to unique graph nodes which must exist. (The notation below is based
 on `Cypher <https://neo4j.com/docs/cypher-manual/current/>`_.)
 
 * *Node*: For `(n:node)`, the combination `[n.model, n.handle]` is unique.
+  * That is, one and only one graph node exists with these values of `n.model` and `n.handle`.
 
-* *Property*: For `(p:property)` with `(e)-[:has_property]->(p)`, the combination
+* *Property (uniqueness)*: For `(p:property)` with `(e)-[:has_property]->(p)`, the combination
   `[p.model, p.handle, e.handle]` is unique.
 
   * One and only one graph node `p` exists satisfying this condition. `e` is a node or relationship, and `e.model == p.model` must hold.
 
+* *Property (distinctness)*: For `(p:property)` with `(e)-[:has_property]->(p)` and `(q:property)` with `(f)-[:has_property]->(q)`, if `e != f`, then `p != q`.
+
+  * In other words, properties associated with different entities are always distinct; properties with the same handle must not be "reused" among different nodes or relationships, even in the same model. An implication of this requirement is that nodes or relationships form a namespace that distinguish their properties from others.
+    
 * *Relationship*: For `(r:relationship)` with `(s:node)<-[:has_src]-(r)-[:has_dst]->(d:node)`, the combination `[r.model, r.handle, s.handle, d.handle]` is unique.
 
   * One and only one graph node `r` exists satisfying this condition, and `r.model == s.model == d.model` must hold.
@@ -133,11 +138,43 @@ Handles in combination with other properties can be unique. The model and handle
 
 * Graph nodes which meet the conditions above can be thought of as playing a given semantic role in a specific context. They represent an interaction between a concept and a model.
 
-In the MDB, the reuse of semantic concepts is expressed by linking all graph nodes playing the same semantic role to a common Concept node. Rather that creating a universal “demographic” node and connecting every model needing that concept to that node, each model that needs one gets its own “demographic” node.
+"Reuse" of Semantic Roles in MDB
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The MDB pattern for reuse of semantic roles, whether entities from an existing model, or terms from an existing vocabulary, is as follows.
+When creating a data model for a specific purpose, it is often desirable to make use of semantic concepts that have already been defined elsewhere. This is the case when the model needs to comply with a external standard, or when the system being modeled must interoperate with peers or within a larger system. Including an externally defined semantic element in a new data model is sometimes called *reuse*. 
 
-*WIP*
+In an MDB, the reuse of semantic concepts *among different models* is expressed by linking all graph nodes playing the same semantic role to a common :ref:`Concept node <concepts>`. Rather than creating a universal “demographic” node and connecting every model needing that concept to that node, each model that needs one gets its own “demographic” node. The Concept node only acts as a "hub". A Term node can be used to annotate a Concept node with the details that point to an external standard (the origin or authority, the definition, and identifier).
+
+This figure exemplifies the MDB pattern for representing reuse of an external semantic concept.
+
+.. image:: _static/mdb-patterns.png
+	   :align: center
+	   :alt: Concept reuse in an MDB
+
+Note that a Term node that annotates a Concept node is linked by a `:represents` relationship.
+
+Terms themselves can also be components of Value Sets. Terms and Value Sets are explicitly intended to be reused among models within an MDB. A Term can represent an acceptable value, and Value Sets are hubs that aggregate Terms into an acceptable value list. The following figure indicates the graph patterns for reuse of both Terms and Value Sets in an MDB.
+
+.. image:: _static/mdb-patterns-2.png
+	   :align: center
+	   :alt: Term and Value Set reuse in an MDB
+
+Here, the two Properties `primary_site` and `anatomic_location` share a Value Set, while the Value Set for Property `sample_type` borrows the Term `blood`.
+
+Encoding "Mappings"
+^^^^^^^^^^^^^^^^^^^
+
+An MDB is intended to store both models and inter-model relationships. An important example of such a relationship can be called *synonymy* - an assertion that two or more entities are semantically equivalent. In the context of data transformation, data values (Terms) valid under one model can be mapped to synonymous values in a different model. An MDB can store such mappings, and calls to an MDB can provide the backend to tools that perform transformations.
+
+Assertions that terms are synonymous are made by experts or groups, who can differ in opinion. An MDB can also tag mappings according to the source or authority. This capability can, for example, drive a tool that performs transformation according to a specific authority's mappings.
+
+The MDB pattern for asserting synonymy according to specific expert source is exemplified in this figure.
+
+.. image:: _static/mdb-patterns-3.png
+	   :align: Center
+	   :alt: Synonym mappings represented in an MDB
+
+
 
 Models
 ^^^^^^
