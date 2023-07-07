@@ -63,7 +63,7 @@ class SearchableMDB(MDB):
     def search_entity_handles(self, qstring):
         """Fulltext search of qstring over node, relationship, and property handles.
         Returns { node:[ {ent:<entity dict>,score:<lucene score>},... ],
-                  relationship:[ <...> ], property:[ <...> ] }"""
+        relationship:[ <...> ], property:[ <...> ] }"""
 
         result = self.query_index('entityHandle', qstring)
         if not result:

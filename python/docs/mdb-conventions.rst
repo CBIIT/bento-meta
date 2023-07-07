@@ -1,4 +1,4 @@
-MDB Maintenance Principles and Conventions
+MDB Conventions and Patterns
 ==========================================
 
 Conventions and software tools based on the following principles and
@@ -138,6 +138,10 @@ Handles in combination with other properties can be unique. The model and handle
 
 * Graph nodes which meet the conditions above can be thought of as playing a given semantic role in a specific context. They represent an interaction between a concept and a model.
 
+Graph Patterns for Representation
+_________________________________
+
+
 "Reuse" of Semantic Roles in MDB
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -155,6 +159,7 @@ Note that a Term node that annotates a Concept node is linked by a `:represents`
 
 Terms themselves can also be components of Value Sets. Terms and Value Sets are explicitly intended to be reused among models within an MDB. A Term can represent an acceptable value, and Value Sets are hubs that aggregate Terms into an acceptable value list. The following figure indicates the graph patterns for reuse of both Terms and Value Sets in an MDB.
 
+.. _term_valueset_pattern:
 .. image:: _static/mdb-patterns-2.png
 	   :align: center
 	   :alt: Term and Value Set reuse in an MDB
@@ -200,6 +205,8 @@ indicate an error in the MDF. To do this, the intention of the SME
 must be made clear in the data (i.e., the model description file)
 itself. There also should be a way to back out of at least one update
 if necessary.
+
+In our system, we use the `Liquibase <https://www.liquibase.com/>`_ platform, along with the Neo4j `Liquibase plugin <https://neo4j.com/labs/liquibase/docs>`_, to maintain auditability and reversibility of changes. This is facilitated by the Python package `liquichange <https://github.com/nelsonwmoore/liquichange>`_. More details can be found at the `bento-mdb <https://github.com/CBIIT/bento-mdb>`_ repository.
 
 Terms
 ^^^^^

@@ -433,8 +433,8 @@ class Entity(object):
     def dget(self, refresh=False):
         """Update self from the database
         :param boolean refresh: if True, force a retrieval from db;
-            if False, retrieve from cache;
-            don't disrupt changes already made
+        if False, retrieve from cache;
+        don't disrupt changes already made
         """
         if type(self).object_map:
             return type(self).object_map.get(self, refresh)
