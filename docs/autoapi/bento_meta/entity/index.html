@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.entity &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="bento_meta.model" href="../model/index.html" />
+    <link rel="prev" title="bento_meta.util.makeq" href="../util/makeq/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta</span></code></a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#subpackages">Subpackages</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.entity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../model/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../object_map/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.object_map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../objects/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.objects</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.entity</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/bento_meta/entity/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bento_meta.entity">
+<span id="bento-meta-entity"></span><h1><a class="reference internal" href="#module-bento_meta.entity" title="bento_meta.entity"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.entity</span></code></a><a class="headerlink" href="#module-bento_meta.entity" title="Permalink to this heading"></a></h1>
+<section id="id1">
+<p>This module contains
+* <cite>Entity</cite>, the base class for metamodel objects,
+* the <cite>CollValue</cite> class to manage collection-valued attributes, and
+* the <cite>ArgError</cite> exception.</p>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Entity</span></code></a></p></td>
+<td><p>Base class for all metamodel objects.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.entity.CollValue" title="bento_meta.entity.CollValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CollValue</span></code></a></p></td>
+<td><p>A UserDict for housing Entity collection attributes.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py exception">
+<dt class="sig sig-object py" id="bento_meta.entity.ArgError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.entity.</span></span><span class="sig-name descname"><span class="pre">ArgError</span></span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#ArgError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.ArgError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception for method argument errors</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.entity.</span></span><span class="sig-name descname"><span class="pre">Entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for all metamodel objects.</p>
+<p>Entity contains all the magic for metamodel objects such as
+<cite>bento_meta.objects.Node</cite> and ‘bento_meta.object.Edge`. It will rarely
+be used directly. Entity redefines <cite>__setattr__</cite> and <cite>__getattr__</cite> to
+enable necessary bookkeeping for model versioning and graph database
+object mapping under the hood.</p>
+<p>The Entity class also defines private and declared attributes that are
+common to all metamodel objects. It provides the machinery to manage
+private attributes separately from declared attributes, and to raise
+exceptions when attempts are made to access attributes that are not
+declared.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.dirty">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dirty</span></span><a class="headerlink" href="#bento_meta.entity.Entity.dirty" title="Permalink to this definition"></a></dt>
+<dd><p>Flag whether this instance has been changed since retrieval from
+the database
+Set to -1, ensure that the next time an attribute is accessed, the instance
+will retrieve itself from the database.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.versioned">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">versioned</span></span><a class="headerlink" href="#bento_meta.entity.Entity.versioned" title="Permalink to this definition"></a></dt>
+<dd><p>Is this instance versioned?</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.removed_entities">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">removed_entities</span></span><a class="headerlink" href="#bento_meta.entity.Entity.removed_entities" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.object_map">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">object_map</span></span><a class="headerlink" href="#bento_meta.entity.Entity.object_map" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.belongs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">belongs</span></span><a class="headerlink" href="#bento_meta.entity.Entity.belongs" title="Permalink to this definition"></a></dt>
+<dd><p>Dict that stores information on the owners (referents) of this instance
+in the model</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.pvt_attr">
+<span class="sig-name descname"><span class="pre">pvt_attr</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['pvt',</span> <span class="pre">'neoid',</span> <span class="pre">'dirty',</span> <span class="pre">'removed_entities',</span> <span class="pre">'attspec',</span> <span class="pre">'mapspec',</span> <span class="pre">'belongs']</span></em><a class="headerlink" href="#bento_meta.entity.Entity.pvt_attr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.defaults">
+<span class="sig-name descname"><span class="pre">defaults</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#bento_meta.entity.Entity.defaults" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.attspec_">
+<span class="sig-name descname"><span class="pre">attspec_</span></span><a class="headerlink" href="#bento_meta.entity.Entity.attspec_" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.attspec">
+<span class="sig-name descname"><span class="pre">attspec</span></span><a class="headerlink" href="#bento_meta.entity.Entity.attspec" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.mapspec_">
+<span class="sig-name descname"><span class="pre">mapspec_</span></span><a class="headerlink" href="#bento_meta.entity.Entity.mapspec_" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">object_map</span></span><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.version_count">
+<span class="sig-name descname"><span class="pre">version_count</span></span><a class="headerlink" href="#bento_meta.entity.Entity.version_count" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.versioning_on">
+<span class="sig-name descname"><span class="pre">versioning_on</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#bento_meta.entity.Entity.versioning_on" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.mapspec">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mapspec</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.mapspec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.mapspec" title="Permalink to this definition"></a></dt>
+<dd><p>The object to database mapping specification. Is a class method, not a property.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.versioning">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">versioning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.versioning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.versioning" title="Permalink to this definition"></a></dt>
+<dd><p>Get or set whether versioning is applied to object manipulations
+:param boolean on: True, apply versioning. False, do not.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.set_version_count">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_version_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.set_version_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.set_version_count" title="Permalink to this definition"></a></dt>
+<dd><p>Set the integer version counter. This will usually be accessed via a
+<cite>bento_meta.Model</cite> instance
+:param int ct: Set version counter to this value</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.default">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">propname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.default" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a default value for the property named, or None if no default defined.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.get_by_id">
+<span class="sig-name descname"><span class="pre">get_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.get_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.get_by_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get an object from the db with the id attribute (not the Neo4j id). Returns a new object.
+:param string id: value of id for desired object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.clear_removed_entities">
+<span class="sig-name descname"><span class="pre">clear_removed_entities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.clear_removed_entities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.clear_removed_entities" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.set_with_dict">
+<span class="sig-name descname"><span class="pre">set_with_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.set_with_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.set_with_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.set_with_node">
+<span class="sig-name descname"><span class="pre">set_with_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.set_with_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.set_with_node" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.set_with_entity">
+<span class="sig-name descname"><span class="pre">set_with_entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.set_with_entity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.set_with_entity" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.__getattribute__">
+<span class="sig-name descname"><span class="pre">__getattribute__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.__getattribute__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.__getattribute__" title="Permalink to this definition"></a></dt>
+<dd><p>Return getattr(self, name).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.__getattr__">
+<span class="sig-name descname"><span class="pre">__getattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.__getattr__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.__getattr__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.__setattr__">
+<span class="sig-name descname"><span class="pre">__setattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.__setattr__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.__setattr__" title="Permalink to this definition"></a></dt>
+<dd><p>Implement setattr(self, name, value).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.version_me">
+<span class="sig-name descname"><span class="pre">version_me</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.version_me"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.version_me" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity._set_declared_attr">
+<span class="sig-name descname"><span class="pre">_set_declared_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity._set_declared_attr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity._set_declared_attr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.__delattr__">
+<span class="sig-name descname"><span class="pre">__delattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.__delattr__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.__delattr__" title="Permalink to this definition"></a></dt>
+<dd><p>Implement delattr(self, name).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity._check_init">
+<span class="sig-name descname"><span class="pre">_check_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity._check_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity._check_init" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity._check_value">
+<span class="sig-name descname"><span class="pre">_check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity._check_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity._check_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.dup">
+<span class="sig-name descname"><span class="pre">dup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.dup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.dup" title="Permalink to this definition"></a></dt>
+<dd><p>Duplicate the object, but not too deeply. Mainly for use of the versioning machinery.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.delete" title="Permalink to this definition"></a></dt>
+<dd><p>Delete self from the database.
+If versioning is active, this will ‘deprecate’ the entity, but not actually remove it from the db</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.dget">
+<span class="sig-name descname"><span class="pre">dget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.dget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.dget" title="Permalink to this definition"></a></dt>
+<dd><p>Update self from the database
+:param boolean refresh: if True, force a retrieval from db;
+if False, retrieve from cache;
+don’t disrupt changes already made</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.dput">
+<span class="sig-name descname"><span class="pre">dput</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.dput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.dput" title="Permalink to this definition"></a></dt>
+<dd><p>Put self to the database.
+This will set the <cite>neoid</cite> property if not yet set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.rm">
+<span class="sig-name descname"><span class="pre">rm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.rm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.rm" title="Permalink to this definition"></a></dt>
+<dd><p>Delete self from the database. The object instance survives.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.Entity.attr_doc">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attr_doc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#Entity.attr_doc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.Entity.attr_doc" title="Permalink to this definition"></a></dt>
+<dd><p>Create a docstring for declared attributes on class as configured</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.entity.CollValue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.entity.</span></span><span class="sig-name descname"><span class="pre">CollValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#CollValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.CollValue" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">collections.UserDict</span></code></p>
+<p>A UserDict for housing Entity collection attributes.
+This class contains a hook for recording the Entity that
+owns the value that is being set. The value is marked as belonging
+to the <em>containing object</em>, not this collection object.
+It also protects against adding arbitrarily typed elements to the
+collection; it throws unless a value to set is an <cite>Entity</cite>. <cite>__setitem__</cite>
+is instrumented for managing versioning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>owner</strong> – <cite>Entity</cite> object of which this collection is an attribute</p></li>
+<li><p><strong>owner_key</strong> – the attribute name of this collection on the owner</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bento_meta.entity.CollValue.owner">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">owner</span></span><a class="headerlink" href="#bento_meta.entity.CollValue.owner" title="Permalink to this definition"></a></dt>
+<dd><p>The entity instance of which this collection is an attribute</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bento_meta.entity.CollValue.owner_key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">owner_key</span></span><a class="headerlink" href="#bento_meta.entity.CollValue.owner_key" title="Permalink to this definition"></a></dt>
+<dd><p>The attribute name of this collection on the <cite>owner</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.CollValue.version_me">
+<span class="sig-name descname"><span class="pre">version_me</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#CollValue.version_me"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.CollValue.version_me" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.CollValue.__setitem__">
+<span class="sig-name descname"><span class="pre">__setitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#CollValue.__setitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.CollValue.__setitem__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.CollValue.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#CollValue.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.CollValue.__getitem__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.entity.CollValue.__delitem__">
+<span class="sig-name descname"><span class="pre">__delitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/entity.html#CollValue.__delitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.entity.CollValue.__delitem__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../util/makeq/index.html" class="btn btn-neutral float-left" title="bento_meta.util.makeq" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../model/index.html" class="btn btn-neutral float-right" title="bento_meta.model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

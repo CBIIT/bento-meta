@@ -1,0 +1,62 @@
+:py:mod:`bento_meta.mdb.loaders`
+================================
+
+.. py:module:: bento_meta.mdb.loaders
+
+.. autoapi-nested-parse::
+
+   mdb.loaders: load models into an MDB instance consistently
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.mdb.loaders.load_mdf
+   bento_meta.mdb.loaders.load_model
+   bento_meta.mdb.loaders.load_model_statements
+   bento_meta.mdb.loaders._cEntity
+   bento_meta.mdb.loaders._tag_statements
+   bento_meta.mdb.loaders._prop_statements
+   bento_meta.mdb.loaders._annotate_statements
+
+
+
+.. py:function:: load_mdf(mdf, mdb, _commit=None)
+
+   Load an MDF object into an MDB instance
+
+
+.. py:function:: load_model(model, mdb, _commit=None)
+
+   Load a model object into an MDB instance.
+
+
+.. py:function:: load_model_statements(model, _commit=None)
+
+   Create Cypher statements from a model to load it de novo into an
+   MDB instance.
+
+   :param :class:`mdb.Model` model: Model instance for loading
+   :param str _commit: 'Commit string' for marking entities in DB. If set, this will override
+   _commit attributes already existing on Model entities.
+
+
+.. py:function:: _cEntity(ent, model, _commit)
+
+
+.. py:function:: _tag_statements(ent, cEnt, _commit)
+
+
+.. py:function:: _prop_statements(ent, cEnt, model, _commit)
+
+
+.. py:function:: _annotate_statements(ent, cEnt, _commit)
+
+

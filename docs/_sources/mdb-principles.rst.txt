@@ -4,7 +4,7 @@ Metamodel Database (MDB) Principles
 MDB Motivation and Rationale
 ____________________________
 
-The MDB schema is intended to be simple in structure, without a profusion of different classes for specialized entities. At the same time, enough entities are provided to enable a separation between an entity an its sematic meaning as represented in the MDB.
+The MDB schema is intended to be simple in structure, without a profusion of different classes for specialized entities. At the same time, enough entities are provided to enable a separation between an entity and its semantic meaning as represented in the MDB.
 The goals are:
 
 * To be able to store multiple models, developed independently for specific practical uses, to exist separately in a single data store. and also
@@ -13,7 +13,7 @@ The goals are:
 
 To the extent the MDB succeeds in meeting these goals, it also yields useful mappings of terminology and structures between models. This feature is intended to facilitate data transformations that contribute to interoperability between projects or programs that might participate in an MDB. 
 
-A key aspect of the MDB, one that distinguishes it from systems that serve similar purposes, is that it is meant to be responsive and dynamic -- easily and perhaps frequently changed and updated. An MDB requires curation and quality management, but it is not devised to be a standard reference or a database of record. Its value is increased by incorporating stable entities from external such references (e.g., the NCIt), but it is designed as a tool to assist data SMEs who are managing new or rapidly changing data resources, characterized by frequent data augmentation, addition of new data sources, or modification of data models or structures, often based on scientific considerations or policy decisions.
+A key aspect of the MDB, one that distinguishes it from systems that serve similar purposes, is that it is meant to be responsive and dynamic -- easily and perhaps frequently changed and updated. An MDB requires curation and quality management, but it is not devised to be a standard reference or a database of record. Its value is increased by incorporating stable entities from external such references (e.g., the `NCIt <https://ncit.nci.nih.gov/ncitbrowser/>`_), but it is designed as a tool to assist data SMEs who are managing new or rapidly changing data resources, characterized by frequent data augmentation, addition of new data sources, or modification of data models or structures, often based on scientific considerations or policy decisions.
 
 MDB Design Decisions
 ____________________
@@ -22,15 +22,17 @@ This milieu in which the MDB operates leads to the following design decisions an
 
 - *Creating, updating, and reading information from the MDB must be easy and intuitive for data management subject matter experts (SME).*
 
-Software to perform these functions must support the SME users in this regard. For examgple, an SME needs robust and straightforward tools to manipulate the MDB that make the underlying database structure and conventions transparent. The SME should be able to change or update what is necessary in the database, without worrying about whether she will "break it" by doing so.
+Software to perform these functions must support the SME users in this regard. For example, an SME needs robust and straightforward tools to manipulate the MDB that make the underlying database structure and conventions transparent. The SME should be able to change or update what is necessary in the database, without worrying about whether she will "break it" by doing so.
 
 - *It is more important that the MDB describes the current data models (and so the current data) in the ecosystem accurately, than it is that the MDB is "complete" in other respects.*
 
-The MDB is a tool for managing active data. It can and should be anchored by elements of standards, and should by virtue of its capacity as a management tool reflect changes to those standards. However, the goal is not to incorporate a complete rendition of any standard, but to track the current modeling of current data in the managed ecosystem. Practically, this may mean that semantic annotation of model lags behind the development *and use* of the model themselves. A value set of acceptable terms as recorded in an MDB may not immediately cover the entire value set defined by an external standard, yet the MDB is still useful for data validation in this state, and can be quickly updated to include valid terms as gaps are encountered.
+The MDB is a tool for managing active data. It can and should be anchored by elements of standards, and should by virtue of its capacity as a management tool reflect changes to those standards. However, the goal is not to incorporate a complete rendition of any standard, but to track the current modeling of current data in the managed ecosystem.
+
+Practically, this may mean that semantic annotation of model lags behind the development *and use* of the model themselves. A value set of acceptable terms as recorded in an MDB may not immediately cover the entire value set defined by an external standard, yet the MDB is still useful for data validation in this state, and can be quickly updated to include valid terms as gaps are encountered.
 
 - *The MDB is intentionally designed to capture logical data models easily. Conceptual data models and abstract metamodels can indeed be captured and annotated, but this is secondary to the main use case of the MDB.*
 
-In our (FNLCR/BIDS/CTOS) systems, the logical data model as captured in the MDB is very close to the physical representation of the data in our underlying native graph databases. This is intentional, in that it enables our databases to be directly configured by data SMEs, with little work necessary from engineering. However, the graph model underlying the MDB is a flexible abstraction that can capture the structure of RDBMS schemas, document-based data stores, UML representations, and other such artifacts.
+In our (FNLCR/BACS/CTOS) systems, the logical data model as captured in the MDB is very close to the physical representation of the data in our underlying native graph databases. This is intentional, in that it enables our databases to be directly configured by data SMEs, with little work necessary from engineering. However, the graph model underlying the MDB is a flexible abstraction that can capture the structure of RDBMS schemas, document-based data stores, UML representations, and other such artifacts.
 
 - *The MDB can represent semantic information and relationships among concepts, such as synonymy of terms. These features are designed primarily to facilitate pragmatic mapping between models from constituent systems that need to interoperate.*
 
@@ -45,6 +47,7 @@ ___________________________
 
 A basic working principle is that a data model of almost any type can be rendered usefully as a `graph <https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph>`_, containing
 
+.. _nodes_relationships_properties:
 * *Nodes* - logical data groupings
 * *Relationships* - logical or structural links or references between nodes, and
 * *Properties* - Variables, columns, or slots for actual data items.
@@ -55,18 +58,21 @@ Other means of describing a data model may do so with more detail, or be more co
 
 Data items are very frequently codes or strings chosen from a closed set of acceptable or valid values. In the MDB, the entity that represents a single such value is the Term. 
 
+.. _terms:
 * *Terms* - entities which include a string representation (value) for a specific datum, and information on its source origin or authority.
 
 Term entities may also include semantic information such as definitions and external identifiers that link back to their authoritative origin. For example, a Term adopted from the NCI Thesaurus would have an origin_id attribute set to its NCIt Concept Code.
 
 Terms are associated with their Origin, but not directly with any Model. This is an intentional design decision that allows a model to build value sets by reusing terms from different sources, via the Value Set entity.
 
+.. _value_sets:
 * *Value Sets* - entities which aggregate Terms and so represent controlled vocabularies or acceptable value lists for Property values.
 
-When Term entities are used to describe an acceptable value for a Property, they do so via a grouping entity called a Value Set. A given Term can be a part of any Value Set for any Model via the addition of a graph edge. Properties that accept data from a controlled vocabulary are linked to a Value Set entity, and Term entities that represent the acceptable values link to the Value Set. 
+When Term entities are used to describe an acceptable value for a Property, they do so via a grouping entity called a Value Set. A given Term can be a part of any Value Set for any Model via the addition of a graph edge. Properties that accept data from a controlled vocabulary are linked to a Value Set entity, and Term entities that represent the acceptable values link to the Value Set. See :ref:`this figure <term_valueset_pattern>`.
 
 Terms have an additional role in the MDB, to annotate Concept entities with semantic information. 
 
+.. _concepts:
 * *Concepts* - entities which represent any abstract intellectual concept; a Concept's meaning is "induced" by Term entities that are linked to it via a "represents" graph edge.
 
 The Concept entity is essentially a Term aggregation node, similar in function to a Value Set entity. It is an abstraction that enables the meanings of entities (not just Terms, but also Node, Relationships, and Properties) to be present in the database, and allows different models to reuse conceptual constructs and meanings defined by external authorities and elsewhere.
@@ -78,10 +84,11 @@ The Concept node itself, as a database entity, does not describe the concept. In
 
 Continuing with the example:  "Diagnosis" is an intellectual concept that is defined, among other places, at the NCI Thesaurus, where its concept code is C15220. In the formalism of the MDB, a Term entity, containing the ``value`` "Diagnosis", the ``origin_name`` "NCIt", and the ``origin_code`` C15220, would link to the Concept through a ``represents`` graph edge.
 
-One might rather simply put that information directly into the Concept node --  this is not disallowed. However, by using the Concept-Term indirection, one can also very simply add other Terms that describe synonyous concepts coming from other external authorities. Another Term, with ``value`` ``SDTM-MHEDTTYP`` and ``origin_name`` CDISC, could be created and linked to the Concept node. This single _addition_ to the MDB graph then captures the idea that the two notions of diagnosis are synonymous. Further, models that agree with each other with respect to NCIt could be translated into `CDISC <https://www.cdisc.org/>`_ representations with straightforward graph database queries. Because this update adds to the graph and does not change its previous structure, existing queries or interpretations that rely on the MDB are not affected.
+One might rather simply put that information directly into the Concept node --  this is not disallowed. However, by using the Concept-Term indirection, one can also very simply add other Terms that describe synonyous concepts coming from other external authorities. Another Term, with ``value`` ``SDTM-MHEDTTYP`` and ``origin_name`` CDISC, could be created and linked to the Concept node. This single *addition* to the MDB graph then captures the idea that the two notions of diagnosis are synonymous. Further, models that agree with each other with respect to NCIt could be translated into `CDISC <https://www.cdisc.org/>`_ representations with straightforward graph database queries. Because this update adds to the graph and does not change its previous structure, existing queries or interpretations that rely on the MDB are not affected.
 
 Although the MDB is not primarily a knowledge base, it may be useful to record additional semantic information, especially for situations in which the mappings between model entities are not precisely synonymous, but reflect another kind of relationship. Mapping model entities to the `BRIDG <https://bridgmodel.nci.nih.gov/>`_ conceptual model, for example, is often characterized by a number of semantic "steps" beyond synonymy. For this purpose, the MDB defines a Predicate entity.
 
+.. _predicates:
 * *Predicates* - entities which represent a semantic relationship between two concepts, the "subject" and the "object".
 
 A Predicate entity enables the formation of "triples" among Concept entities in the MDB. For example, the "generative" or "parent-child" relationship mentioned above can be represented by a Predicate entity linking parent and child concepts. 
@@ -112,10 +119,3 @@ In the MDB, the way to connect the Term with the Node (or other) entity is indir
 This seems cumbersome, and it may be, but with appropriate APIs to the database, an SME or engineer will not need to think about it. One benefit of the approach, however, is that one can query the MDB for semantic mapping completely independently of any models stored there. All Terms that attach (via ``represent``) to a given Concept entity are considered to be synoymous, in the working context of the MDB. New models with semantically identical Nodes can be mapped into existing terminology (and therefore, existing mappings and translations) by a single association of the new model's entities to the correct Concept entities. This is a curation step that can be performed separately from creating the model structure itself. 
 
 If there is a distinction of meaning between two nodes with a similar structural role in two models (say "veterinary diagnosis" and "clinical diagnosis"), this can also be handled by addition to the MDB, without structurally changing it. In this case, creating a new Concept entity to attach to a Node ``veterinary_diagnosis``, and linking that Concept to the "Clinical Diagnosis" Concept with a Predicate ``is_related_to``, may suffice for the practical purposes of mapping between models. If a Term (again, an external stable semantic entity) that represents the idea of "veterinary diagnosis" is found, that can be added to the new Concept in the MDB later.
-
-
-
-
-
-[GDC examples of confusion because these distinctions are blurred.]
-

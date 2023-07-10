@@ -26,6 +26,9 @@ from bento_meta.objects import *
 
 
 class ObjectMap(object):
+    """This module contains :class:`ObjectMap`, a class which provides the 
+    machinery for mapping bento_meta objects to a Bento Metamodel Database
+    in Neo4j. Mostly not for human consumption."""
     cache = {}
 
     def __init__(self, *, cls=None, drv=None):

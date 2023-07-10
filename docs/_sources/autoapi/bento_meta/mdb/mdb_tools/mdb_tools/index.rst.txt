@@ -1,0 +1,234 @@
+:py:mod:`bento_meta.mdb.mdb_tools.mdb_tools`
+============================================
+
+.. py:module:: bento_meta.mdb.mdb_tools.mdb_tools
+
+.. autoapi-nested-parse::
+
+   ToolsMDB: subclass of 'WriteableMDB' to support interactions with the MDB.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb_tools.mdb_tools.ToolsMDB
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb_tools.mdb_tools.get_entity_type
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb_tools.mdb_tools.log_ini_path
+   bento_meta.mdb.mdb_tools.mdb_tools.log_file_path
+   bento_meta.mdb.mdb_tools.mdb_tools.logger
+
+
+.. py:data:: log_ini_path
+
+   
+
+.. py:data:: log_file_path
+
+   
+
+.. py:data:: logger
+
+   
+
+.. py:exception:: EntNotFoundError
+
+
+   Bases: :py:obj:`Exception`
+
+   Raised when an entity is not found and shouldn't be created
+
+
+.. py:function:: get_entity_type(entity: bento_meta.entity.Entity)
+
+   returns type of entity
+
+
+.. py:class:: ToolsMDB(uri, user, password)
+
+
+   Bases: :py:obj:`bento_meta.mdb.writeable.WriteableMDB`
+
+   Adds mdb-tools to WriteableMDB
+
+   .. py:method:: get_entity_attrs(entity: bento_meta.entity.Entity, output_str: bool = True)
+
+      Returns attributes as str or dict for given entity.
+
+      Param output_as_str parm defaults to True and returns a string
+      that is usable in Cypher query as node properties.
+
+      If output_as_str = False, return dict of attributes instead,
+      which is used as params of function with write_txn decorator.
+
+
+   .. py:method:: detach_delete_entity(entity: bento_meta.entity.Entity) -> tuple
+
+      Remove given Entity node from the database.
+
+      Accepts the following bento-meta Entities:
+          Concept, Node, Predicate, Property, Edge, Term
+
+
+   .. py:method:: get_entity_count(entity: bento_meta.entity.Entity) -> tuple
+
+      Returns count of given entity (w/ its properties) found in MDB.
+
+      If count = 0, entity with given properties not found in MDB.
+      If count = 1, entity with given properties is unique in MDB
+      If count > 1, more properties needed to uniquely id entity in MDB.
+
+
+   .. py:method:: get_triple_count(src_entity: bento_meta.entity.Entity, dst_entity: bento_meta.entity.Entity, relationship: str) -> tuple
+
+      Returns count of given triple, (src)-[rel]->(dst), found in MDB.
+
+      If count = 0, triple with given properties not found in MDB.
+      If count = 1, triple with given properties is unique in MDB
+      If count > 1, more properties needed to uniquely id triple in MDB.
+
+
+   .. py:method:: create_entity(entity: bento_meta.entity.Entity, _commit=None) -> tuple
+
+      Adds given Entity node to database
+
+
+   .. py:method:: get_concepts(entity: bento_meta.entity.Entity)
+
+      Returns list of concepts represented by given entity
+
+
+   .. py:method:: create_relationship(src_entity: bento_meta.entity.Entity, dst_entity: bento_meta.entity.Entity, relationship: str, _commit=None)
+
+      Adds relationship between given entities in MDB
+
+
+   .. py:method:: link_synonyms(entity_1: bento_meta.entity.Entity, entity_2: bento_meta.entity.Entity, add_missing_ent_1: bool = False, add_missing_ent_2: bool = False, _commit=None)
+
+      Link two synonymous entities in the MDB via a Concept node.
+
+      This function takes two synonymous Entities (as determined by user/SME) as
+      bento-meta objects connects them to a Concept node via a 'represents' relationship.
+
+      If one or both doesn't exist in the MDB and add_missing_ent is True they will be added.
+
+      If one or both doesn't uniquely identify a node in the MDB will give error.
+
+      If _commit is set (to a string), the _commit property of any node created is set to
+      this value.
+
+
+   .. py:method:: make_nano()
+
+      Generates valid nanoid
+
+
+   .. py:method:: _get_prop_nano(prop: bento_meta.entity.Entity, node_handle: str)
+
+      Takes Property and Node entities and returns Property nanoid.
+
+      This is used to help uniquely identify a property node in the MDB,
+      which requires a node connected via the has_property relationship.
+
+
+   .. py:method:: _get_edge_nano(edge: bento_meta.entity.Entity, src_handle: str, dst_handle: str)
+
+      Takes Edge, src node handle, and dst Node handle and returns Edge nanoid.
+
+      This is used to help uniquely identify an edge node in the MDB,
+      which requires nodes connected via the has_src and has_dst relationships.
+
+
+   .. py:method:: get_entity_nano(entity: bento_meta.entity.Entity, extra_handle_1: str = '', extra_handle_2: str = '') -> tuple
+
+      Takes an entity and returns its nanoid. If entity requires handles of connected nodes
+      for unique identification (Property or Edge), extra_handle_1 and _2 hold these as str.
+
+      Note: If an entity exists in the MDB with the given properties, but doesn't have an
+      assigned nanoid for some reason, returns [None] instead of [].
+
+
+   .. py:method:: get_or_make_nano(entity: bento_meta.entity.Entity, extra_handle_1: str = '', extra_handle_2: str = '') -> str
+
+      Obtains existing entity's nanoid or creates one for new entity.
+
+
+   .. py:method:: get_term_nanos(concept: bento_meta.objects.Concept)
+
+      Returns list of term nanoids representing given concept
+
+
+   .. py:method:: get_predicate_nanos(concept: bento_meta.objects.Concept)
+
+      Returns list of predicate nanoids with relationship to given concept
+
+
+   .. py:method:: get_predicate_relationship(concept: bento_meta.objects.Concept, predicate: bento_meta.objects.Predicate)
+
+      Returns relationship type between given concept and predicate
+
+
+   .. py:method:: link_concepts_to_predicate(concept_1: bento_meta.objects.Concept, concept_2: bento_meta.objects.Concept, predicate_handle: str = 'exactMatch', _commit=None) -> None
+
+      Links two synonymous Concepts via a Predicate
+
+      This function takes two synonymous Concepts as objects and links
+      them via a Predicate node and has_subject and has_object relationships.
+
+
+   .. py:method:: merge_two_concepts(concept_1: bento_meta.objects.Concept, concept_2: bento_meta.objects.Concept, _commit=None) -> None
+
+      Combine two synonymous Concepts into a single Concept.
+
+      This function takes two synonymous Concept as bento-meta objects and
+      merges them into a single Concept along with any connected Terms and Predicates.
+
+
+   .. py:method:: _get_all_terms()
+
+      Gets value, origin_name, and nanoid for all terms in database.
+
+
+   .. py:method:: get_term_synonyms(term: bento_meta.objects.Term, threshhold: float = 0.8) -> List[dict]
+
+      Returns list of dicts representing Term nodes synonymous to given Term
+
+
+   .. py:method:: potential_synonyms_to_csv(input_data: List[dict], output_path: str) -> None
+
+      Given a list of synonymous Terms as dicts, outputs to CSV file at given output path
+
+
+   .. py:method:: link_term_synonyms_csv(term: bento_meta.objects.Term, csv_path: str, _commit=None) -> None
+
+      Given a CSV of syonymous Terms, links each via a Concept node to given Term
+
+
+   .. py:method:: get_property_synonyms(prop: bento_meta.objects.Property)
+
+      Returns list of properties linked by concept to given property
+      or to synonym of given property
+
+
+

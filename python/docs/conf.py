@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = u'bento-meta'
-copyright = u'2020, FNLCR'
+copyright = u'2020-2023, FNLCR'
 author = u'Mark Jensen, Mark Benson, Nelson Moore'
 
 # -- General configuration ---------------------------------------------------
@@ -27,12 +27,12 @@ author = u'Mark Jensen, Mark Benson, Nelson Moore'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'myst_nb',
+    #    'myst_nb',  -- difficulties with this extension on mac, python 3.10
     'autoapi.extension',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
-autoapi_dirs = ['../src']
+autoapi_dirs = ['../src/bento_meta']
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python Module Index &mdash; bento_meta  documentation</title>
+  <title>Python Module Index &mdash; bento-meta  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -13,7 +14,9 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -27,11 +30,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> bento_meta
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            bento-meta
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -40,12 +47,12 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Conventions and Patterns</a></li>
 <li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="classes.html">Class Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
 </ul>
 
         </div>
@@ -54,15 +61,15 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">bento_meta</a>
+          <a href="index.html">bento-meta</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Python Module Index</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Python Module Index</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -86,43 +93,97 @@
        <td><img src="_static/minus.png" class="toggler"
               id="toggle-1" style="display: none" alt="-" /></td>
        <td>
-       <code class="xref">bento_mdf</code></td><td>
+       <a href="autoapi/bento_meta/index.html#module-bento_meta"><code class="xref">bento_meta</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="classes.html#module-bento_mdf.mdf"><code class="xref">bento_mdf.mdf</code></a></td><td>
+       <a href="autoapi/bento_meta/entity/index.html#module-bento_meta.entity"><code class="xref">bento_meta.entity</code></a></td><td>
        <em></em></td></tr>
-     <tr>
-       <td><img src="_static/minus.png" class="toggler"
-              id="toggle-2" style="display: none" alt="-" /></td>
-       <td>
-       <code class="xref">bento_meta</code></td><td>
-       <em></em></td></tr>
-     <tr class="cg-2">
+     <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="classes.html#module-bento_meta.entity"><code class="xref">bento_meta.entity</code></a></td><td>
+       <a href="autoapi/bento_meta/mdb/index.html#module-bento_meta.mdb"><code class="xref">bento_meta.mdb</code></a></td><td>
        <em></em></td></tr>
-     <tr class="cg-2">
+     <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="classes.html#module-bento_meta.mdb"><code class="xref">bento_meta.mdb</code></a></td><td>
+       <a href="autoapi/bento_meta/mdb/loaders/index.html#module-bento_meta.mdb.loaders"><code class="xref">bento_meta.mdb.loaders</code></a></td><td>
        <em></em></td></tr>
-     <tr class="cg-2">
+     <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="classes.html#module-bento_meta.model"><code class="xref">bento_meta.model</code></a></td><td>
+       <a href="autoapi/bento_meta/mdb/mdb/index.html#module-bento_meta.mdb.mdb"><code class="xref">bento_meta.mdb.mdb</code></a></td><td>
        <em></em></td></tr>
-     <tr class="cg-2">
+     <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="classes.html#module-bento_meta.object_map"><code class="xref">bento_meta.object_map</code></a></td><td>
+       <a href="autoapi/bento_meta/mdb/mdb_tools/index.html#module-bento_meta.mdb.mdb_tools"><code class="xref">bento_meta.mdb.mdb_tools</code></a></td><td>
        <em></em></td></tr>
-     <tr class="cg-2">
+     <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="classes.html#module-bento_meta.objects"><code class="xref">bento_meta.objects</code></a></td><td>
+       <a href="autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#module-bento_meta.mdb.mdb_tools.mdb_tools"><code class="xref">bento_meta.mdb.mdb_tools.mdb_tools</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/mdb/searchable/index.html#module-bento_meta.mdb.searchable"><code class="xref">bento_meta.mdb.searchable</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/mdb/writeable/index.html#module-bento_meta.mdb.writeable"><code class="xref">bento_meta.mdb.writeable</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/model/index.html#module-bento_meta.model"><code class="xref">bento_meta.model</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/object_map/index.html#module-bento_meta.object_map"><code class="xref">bento_meta.object_map</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/objects/index.html#module-bento_meta.objects"><code class="xref">bento_meta.objects</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/util/index.html#module-bento_meta.util"><code class="xref">bento_meta.util</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/util/_engine/index.html#module-bento_meta.util._engine"><code class="xref">bento_meta.util._engine</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/util/cypher/index.html#module-bento_meta.util.cypher"><code class="xref">bento_meta.util.cypher</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/util/cypher/clauses/index.html#module-bento_meta.util.cypher.clauses"><code class="xref">bento_meta.util.cypher.clauses</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/util/cypher/entities/index.html#module-bento_meta.util.cypher.entities"><code class="xref">bento_meta.util.cypher.entities</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/util/cypher/functions/index.html#module-bento_meta.util.cypher.functions"><code class="xref">bento_meta.util.cypher.functions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="autoapi/bento_meta/util/makeq/index.html#module-bento_meta.util.makeq"><code class="xref">bento_meta.util.makeq</code></a></td><td>
        <em></em></td></tr>
    </table>
 
@@ -134,7 +195,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, FNLCR.</p>
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

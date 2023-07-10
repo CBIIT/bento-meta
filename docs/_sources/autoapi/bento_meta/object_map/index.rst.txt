@@ -1,0 +1,143 @@
+:py:mod:`bento_meta.object_map`
+===============================
+
+.. py:module:: bento_meta.object_map
+
+.. autoapi-nested-parse::
+
+   bento_meta.object_map
+   =====================
+
+   This module contains :class:`ObjectMap`, a class which provides the
+   machinery for mapping bento_meta objects to a Bento Metamodel Database
+   in Neo4j. Mostly not for human consumption. The ObjectMap:
+
+   * interprets the attribute specification (attspec) and map
+     specification (mapspec) associated with :class:`Entity` subclasses
+   * provides the :meth:`get` and :meth:`put` methods to subclasses, that
+     enable them to get and put themselves to the database
+   * generates appropriate `Cypher <https://neo4j.com/docs/cypher-manual/current/>`_ queries to do gets and puts
+
+   One ObjectMap instance should be generated for each Entity subclass (see, e.g.,
+   :class:`bento_meta.model.Model`)
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.object_map.ObjectMap
+
+
+
+
+.. py:class:: ObjectMap(*, cls=None, drv=None)
+
+
+   Bases: :py:obj:`object`
+
+   This module contains :class:`ObjectMap`, a class which provides the
+   machinery for mapping bento_meta objects to a Bento Metamodel Database
+   in Neo4j. Mostly not for human consumption.
+
+   .. py:attribute:: cache
+
+      
+
+   .. py:method:: clear_cache()
+      :classmethod:
+
+
+   .. py:method:: cls_by_label(lbl)
+      :classmethod:
+
+
+   .. py:method:: keys_by_cls_and_reln(qcls, reln)
+      :classmethod:
+
+
+   .. py:method:: _quote_val(value, single=None)
+      :classmethod:
+
+
+   .. py:method:: get_by_id(obj, id, refresh=False)
+
+      Get an entity given an id attribute value (not the Neo4j id)
+
+
+   .. py:method:: get_by_node_nanoid(obj, nanoid, refresh=False)
+
+      PROTOTYPE
+      Get an entity given an id attribute value (not the Neo4j id)
+
+
+   .. py:method:: get(obj, refresh=False)
+
+      Get the data for an object instance from the db and load the instance with it
+
+
+   .. py:method:: put(obj)
+
+      Put the object instance's attributes to the mapped data node in the database
+
+
+   .. py:method:: rm(obj, force=False)
+
+      'Delete' the object's mapped node from the database
+
+
+   .. py:method:: add(obj, att, tgt)
+
+      Create a link between an object instance and a target object in the database.
+      This represents adding an object-valued attribute to the object.
+
+
+   .. py:method:: drop(obj, att, tgt, tx=None)
+
+      Remove an existing link between an object instance and a target object in the database.
+      This represents dropping an object-valued attribute from the object.
+
+
+   .. py:method:: get_owners(obj)
+
+      Get the nodes which are linked to the object instance (the owners of the object)
+
+
+   .. py:method:: get_q(obj)
+
+
+   .. py:method:: get_by_id_q()
+
+
+   .. py:method:: get_by_node_nanoid_q()
+
+      PROTOTYPE
+
+
+   .. py:method:: get_attr_q(obj, att)
+
+
+   .. py:method:: get_owners_q(obj)
+
+
+   .. py:method:: put_q(obj)
+
+
+   .. py:method:: put_attr_q(obj, att, values)
+
+
+   .. py:method:: rm_q(obj, detach=False)
+
+
+   .. py:method:: rm_attr_q(obj, att, values=None)
+
+
+   .. py:method:: _check_values_list(att, values)
+
+
+

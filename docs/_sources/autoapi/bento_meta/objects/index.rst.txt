@@ -1,0 +1,230 @@
+:py:mod:`bento_meta.objects`
+============================
+
+.. py:module:: bento_meta.objects
+
+.. autoapi-nested-parse::
+
+   bento_meta.objects
+   ==================
+
+   This module contains the subclasses of :class:`Entity` which are used
+   in representing the models contained in the `MDB <https://github.com/CBIIT/bento-mdf>`_.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.objects.Node
+   bento_meta.objects.Property
+   bento_meta.objects.Edge
+   bento_meta.objects.Term
+   bento_meta.objects.ValueSet
+   bento_meta.objects.Concept
+   bento_meta.objects.Predicate
+   bento_meta.objects.Origin
+   bento_meta.objects.Tag
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.objects.mergespec
+
+
+
+.. py:function:: mergespec(clsname, attspec, mapspec)
+
+   Merge subclass attribute and mapping specification dicts with the
+   base class's. Not for human consumption.
+
+
+.. py:class:: Node(init=None)
+
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+   Subclass that models a data node.
+
+   .. py:attribute:: attspec_
+
+      
+
+   .. py:attribute:: mapspec_
+
+      
+
+
+.. py:class:: Property(init=None)
+
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+   Subclass that models a property of a node or relationship (edge).
+
+   .. py:property:: terms
+
+      If the `Property` has a ``value_set`` domain, return the `Term` objects
+      of its `ValueSet`
+
+   .. py:property:: values
+
+      If the `Property` as a ``value_set`` domain, return its term values as a list of str.
+      :return: list of term values
+      :rtype: list
+
+   .. py:attribute:: pvt_attr
+
+      
+
+   .. py:attribute:: attspec_
+
+      
+
+   .. py:attribute:: mapspec_
+
+      
+
+   .. py:attribute:: defaults
+
+      
+
+
+.. py:class:: Edge(init=None)
+
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+   Subclass that models a relationship between model nodes.
+
+   .. py:property:: triplet
+
+      ``(edge.handle, src.handle, dst.handle)``
+      ``src`` and ``dst`` attributes must be set.
+
+      :type: A 3-tuple that fully qualifies the edge
+
+   .. py:attribute:: defaults
+
+      
+
+   .. py:attribute:: attspec_
+
+      
+
+   .. py:attribute:: mapspec_
+
+      
+
+
+.. py:class:: Term(init=None)
+
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+   Subclass that models a term from a terminology.
+
+   .. py:attribute:: attspec_
+
+      
+
+   .. py:attribute:: mapspec_
+
+      
+
+
+.. py:class:: ValueSet(init=None)
+
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+   Subclass that models an enumerated set of :class:`Property` values.
+   Essentially a container for :class:`Term` instances.
+
+   .. py:attribute:: attspec_
+
+      
+
+   .. py:attribute:: mapspec_
+
+      
+
+   .. py:method:: __setattr__(name, value)
+
+      Implement setattr(self, name, value).
+
+
+
+.. py:class:: Concept(init=None)
+
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+   Subclass that models a semantic concept.
+
+   .. py:attribute:: attspec_
+
+      
+
+   .. py:attribute:: mapspec_
+
+      
+
+
+.. py:class:: Predicate(init=None)
+
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+   Subclass that models a semantic link between concepts.
+
+   .. py:attribute:: attspec_
+
+      
+
+   .. py:attribute:: mapspec_
+
+      
+
+
+.. py:class:: Origin(init=None)
+
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+   Subclass that models a :class:`Term` 's authoritative source.
+
+   .. py:attribute:: attspec_
+
+      
+
+   .. py:attribute:: mapspec_
+
+      
+
+
+.. py:class:: Tag(init=None)
+
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+   Subclass that allows simple key-value tagging of a model at arbitrary points.
+
+   .. py:attribute:: attspec_
+
+      
+
+   .. py:attribute:: mapspec_
+
+      
+
+
