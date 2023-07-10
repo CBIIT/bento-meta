@@ -62,7 +62,6 @@ Run::
    ./meta_and_mdf
    ./model_versioning
    ./object_mapping
-   ./classes
 
 A Note on "Nodes"
 _______________________

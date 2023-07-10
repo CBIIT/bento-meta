@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.model &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bento_meta.model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bento_meta.model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">bento_meta.model</span>
+<span class="sd">================</span>
+
+<span class="sd">This module contains :class:`Model`, a class for managing data models housed</span>
+<span class="sd">in the Bento Metamodel Database. Models are built from `bento_meta.Entity`</span>
+<span class="sd">subclasses (see :mod:`bento_meta.objects`). A Model can be used with or </span>
+<span class="sd">without a Neo4j database connection.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+<span class="kn">import</span> <span class="nn">neo4j.graph</span>
+<span class="kn">from</span> <span class="nn">bento_meta.mdb</span> <span class="kn">import</span> <span class="n">MDB</span><span class="p">,</span> <span class="n">make_nanoid</span>
+<span class="kn">from</span> <span class="nn">bento_meta.object_map</span> <span class="kn">import</span> <span class="n">ObjectMap</span>
+<span class="kn">from</span> <span class="nn">bento_meta.entity</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">ArgError</span>
+<span class="kn">from</span> <span class="nn">bento_meta.objects</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Node</span><span class="p">,</span>
+    <span class="n">Property</span><span class="p">,</span>
+    <span class="n">Edge</span><span class="p">,</span>
+    <span class="n">Term</span><span class="p">,</span>
+    <span class="n">ValueSet</span><span class="p">,</span>
+    <span class="n">Concept</span><span class="p">,</span>
+    <span class="n">Predicate</span><span class="p">,</span>
+    <span class="n">Origin</span><span class="p">,</span>
+    <span class="n">Tag</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># from pdb import set_trace</span>
+
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mdb</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Model constructor.</span>
+
+<span class="sd">        :param str handle: A string name for the model. Corresponds to the model property in MDB database nodes.</span>
+<span class="sd">        :param bento_meta.mdb.MDB mdb: An MDB object containing the db connection (see :class:`bento_meta.mdb.MDB`)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;model requires arg &#39;handle&#39; set&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle</span> <span class="o">=</span> <span class="n">handle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mdb</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># keys are (edge.handle, src.handle, dst.handle) tuples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># keys are ({edge|node}.handle, prop.handle) tuples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terms</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># keys are (term.handle, term.origin) tuples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removed_entities</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">mdb</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mdb</span> <span class="o">=</span> <span class="n">mdb</span>
+
+<div class="viewcode-block" id="Model.versioning"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.versioning">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">versioning</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get or set versioning state.</span>
+
+<span class="sd">        :param boolean on: True, apply versioning. False, do not.</span>
+
+<span class="sd">        Note: this delegates to :meth:`Entity.versioning`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">on</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Entity</span><span class="o">.</span><span class="n">versioning_on</span>
+        <span class="n">Entity</span><span class="o">.</span><span class="n">versioning_on</span> <span class="o">=</span> <span class="n">on</span>
+        <span class="k">return</span> <span class="n">Entity</span><span class="o">.</span><span class="n">versioning_on</span></div>
+
+<div class="viewcode-block" id="Model.set_version_count"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.set_version_count">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">set_version_count</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ct</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the integer version counter.</span>
+
+<span class="sd">        :param int ct: Set version counter to this value.</span>
+
+<span class="sd">        Note: this delegates to :meth:`Entity.set_version_count`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Entity</span><span class="o">.</span><span class="n">set_version_count</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">drv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Neo4j database driver from MDB object&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdb</span><span class="o">.</span><span class="n">driver</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdb</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mdb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdb</span>
+    
+    <span class="nd">@mdb</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">mdb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">MDB</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mdb</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="n">Property</span><span class="p">,</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">Term</span><span class="p">,</span> <span class="n">ValueSet</span><span class="p">,</span> <span class="n">Concept</span><span class="p">,</span> <span class="n">Predicate</span><span class="p">,</span> <span class="n">Origin</span><span class="p">,</span> <span class="n">Tag</span><span class="p">):</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">object_map</span> <span class="o">=</span> <span class="n">ObjectMap</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="p">,</span> <span class="n">drv</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">driver</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mdb</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="n">Property</span><span class="p">,</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">Term</span><span class="p">,</span> <span class="n">ValueSet</span><span class="p">,</span> <span class="n">Concept</span><span class="p">,</span> <span class="n">Origin</span><span class="p">,</span> <span class="n">Tag</span><span class="p">):</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">object_map</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
+                <span class="s2">&quot;mdb= arg must be a bento_meta.mdb.MDB object&quot;</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="Model.add_node"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.add_node">[docs]</a>    <span class="k">def</span> <span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a :class:`Node` to the model.</span>
+
+<span class="sd">        :param Node node: A :class:`Node` instance, a :class:`neo4j.graph.Node`, or a dict</span>
+
+<span class="sd">        The model attribute of ``node`` is set to `Model.handle`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg must be Node, dict, or graph.Node&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">Node</span><span class="p">)):</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_prop</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="k">return</span> <span class="n">node</span></div>
+
+<div class="viewcode-block" id="Model.add_edge"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.add_edge">[docs]</a>    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an :class:`Edge` to the model.</span>
+
+<span class="sd">        :param Edge edge: A :class:`Edge` instance, a :class:`neo4j.graph.Node`, or a dict</span>
+
+<span class="sd">        The model attribute of ``edge`` is set to `Model.handle`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">edge</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg must be Edge, dict, or graph.Node&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">Node</span><span class="p">)):</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="n">Edge</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">edge</span><span class="o">.</span><span class="n">src</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">edge</span><span class="o">.</span><span class="n">dst</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;edge must have both src and dst set&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">edge</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+            <span class="n">edge</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">src</span><span class="p">):</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Edge source node not yet in model; adding it&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">src</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">dst</span><span class="p">):</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Edge destination node not yet in model; adding it&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">edge</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_prop</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">triplet</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge</span>
+        <span class="k">return</span> <span class="n">edge</span></div>
+
+<div class="viewcode-block" id="Model.add_prop"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.add_prop">[docs]</a>    <span class="k">def</span> <span class="nf">add_prop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a :class:`Property` to the model.</span>
+
+<span class="sd">        :param Node|Edge ent: Attach ``prop`` to this entity</span>
+<span class="sd">        :param Property prop: A :class:`Property` instance, a :class: `neo4j.graph.Node`, or a dict</span>
+<span class="sd">        :param boolean reuse: If True, reuse existing property with same handle</span>
+
+<span class="sd">        The model attribute of ``prop`` is set to `Model.handle`. Within a model,</span>
+<span class="sd">        :class:`Property` entities are unique with respect to their</span>
+<span class="sd">        handle (but can be reused). This method will look for an existing</span>
+<span class="sd">        property within the model with the given handle, and add an item to</span>
+<span class="sd">        Model.props pointing to it if found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="n">Edge</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg 1 must be Node or Edge&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">prop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg 2 must be Property, dict, or graph.Node&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">Node</span><span class="p">)):</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">prop</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+            <span class="n">prop</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">[</span><span class="n">ent</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">Node</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">ent</span><span class="o">.</span><span class="n">triplet</span><span class="p">)</span>
+        <span class="n">key</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prop</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
+        <span class="n">ent</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span><span class="o">.</span><span class="n">mapspec</span><span class="p">()[</span><span class="s2">&quot;key&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">prop</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">prop</span>
+        <span class="k">return</span> <span class="n">prop</span></div>
+
+<div class="viewcode-block" id="Model.annotate"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">,</span> <span class="n">term</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Associate a single :class:`Term` with an :class:`Entity`. This creates a Concept entity</span>
+<span class="sd">        if needed and links both the Entity and the Term to the concept, in keeping with the MDB</span>
+<span class="sd">        spec. It supports the Term key in MDF.</span>
+<span class="sd">        :param Entity ent: :class:`Entity` object to annotate</span>
+<span class="sd">        :param Term term: :class:`Term` object to describe the Entity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg1 must be Entity&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">Term</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg2 must be Term&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ent</span><span class="o">.</span><span class="n">concept</span><span class="p">:</span>
+            <span class="n">ent</span><span class="o">.</span><span class="n">concept</span> <span class="o">=</span> <span class="n">Concept</span><span class="p">({</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span><span class="n">make_nanoid</span><span class="p">()})</span>
+        <span class="n">term_key</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">handle</span> <span class="k">if</span> <span class="n">term</span><span class="o">.</span><span class="n">handle</span> <span class="k">else</span> <span class="n">term</span><span class="o">.</span><span class="n">value</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">term_key</span><span class="p">,</span> <span class="n">term</span><span class="o">.</span><span class="n">origin_name</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">concept</span><span class="o">.</span><span class="n">terms</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Concept already represented by a Term with handle or value &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+                             <span class="s2">&quot;and origin_name &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">term_key</span><span class="p">,</span> <span class="n">term</span><span class="o">.</span><span class="n">origin_name</span><span class="p">))</span>
+        <span class="n">ent</span><span class="o">.</span><span class="n">concept</span><span class="o">.</span><span class="n">terms</span><span class="p">[(</span><span class="n">term_key</span><span class="p">,</span> <span class="n">term</span><span class="o">.</span><span class="n">origin_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">term</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[(</span><span class="n">term_key</span><span class="p">,</span> <span class="n">term</span><span class="o">.</span><span class="n">origin_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">term</span></div>
+        
+<div class="viewcode-block" id="Model.add_terms"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.add_terms">[docs]</a>    <span class="k">def</span> <span class="nf">add_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="o">*</span><span class="n">terms</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a list of :class:`Term` and/or strings to a :class:`Property` with a value domain of ``value_set``</span>
+
+<span class="sd">        :param Property prop: :class:`Property` to modify</span>
+<span class="sd">        :param list terms: A list of :class:`Term` instances and/or str</span>
+
+<span class="sd">        :class:`Term` instances are created for strings; </span>
+<span class="sd">        `Term.value` and `Term.handle` is set to the string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">Property</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg1 must be Property&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;value_set|enum&quot;</span><span class="p">,</span> <span class="n">prop</span><span class="o">.</span><span class="n">value_domain</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;Property value domain is not value_set or enum, can&#39;t add terms&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">prop</span><span class="o">.</span><span class="n">value_set</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Creating ValueSet object for Property &quot;</span> <span class="o">+</span> <span class="n">prop</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
+            <span class="n">prop</span><span class="o">.</span><span class="n">value_set</span> <span class="o">=</span> <span class="n">ValueSet</span><span class="p">({</span><span class="s2">&quot;prop&quot;</span><span class="p">:</span> <span class="n">prop</span><span class="p">,</span> <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())})</span>
+            <span class="n">prop</span><span class="o">.</span><span class="n">value_set</span><span class="o">.</span><span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span> <span class="o">+</span> <span class="n">prop</span><span class="o">.</span><span class="n">value_set</span><span class="o">.</span><span class="n">_id</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Creating Term object for string &#39;</span><span class="si">{term}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">term</span><span class="o">=</span><span class="n">t</span><span class="p">))</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">Term</span><span class="p">({</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span><span class="n">t</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">})</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">Term</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;encountered arg that was not a str or Term object&quot;</span><span class="p">)</span>
+            <span class="n">tm_key</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">handle</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">handle</span> <span class="k">else</span> <span class="n">t</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">prop</span><span class="o">.</span><span class="n">value_set</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">tm_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[(</span><span class="n">tm_key</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">origin_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">t</span></div>
+
+<div class="viewcode-block" id="Model.rm_node"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.rm_node">[docs]</a>    <span class="k">def</span> <span class="nf">rm_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a :class:`Node` from the Model instance.</span>
+
+<span class="sd">        :param Node node: Node to be removed</span>
+
+<span class="sd">        Note: A node can&#39;t be removed if it is participating in an edge (i.e.,</span>
+<span class="sd">        if the node is some edge&#39;s src or dst attribute)</span>
+
+<span class="sd">        *Clarify what happens in the Model object, in the database when versioning</span>
+<span class="sd">        is off, in the database when versioning is on*</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg must be a Node object&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;node &#39;</span><span class="si">{node}</span><span class="s2">&#39; not contained in model &#39;</span><span class="si">{model}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">handle</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_by_src</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_by_dst</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;can&#39;t remove node &#39;</span><span class="si">{node}</span><span class="s2">&#39;, it is participating in edges&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">handle</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">props</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[(</span><span class="n">node</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">handle</span><span class="p">)]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removed_entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span></div>
+
+<div class="viewcode-block" id="Model.rm_edge"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.rm_edge">[docs]</a>    <span class="k">def</span> <span class="nf">rm_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove an :class:`Edge` instance from the Model instance.</span>
+
+<span class="sd">        :param Edge edge: Edge to be removed</span>
+
+<span class="sd">        *Clarify what happens in the Model object, in the database when versioning</span>
+<span class="sd">        is off, in the database when versioning is on*</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg must be an Edge object&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">edge</span><span class="p">):</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;edge &#39;</span><span class="si">{edge}</span><span class="s2">&#39; not contained in model &#39;</span><span class="si">{model}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">edge</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">triplet</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">handle</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">edge</span><span class="o">.</span><span class="n">props</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">triplet</span><span class="p">)</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">triplet</span><span class="p">]</span>
+        <span class="n">edge</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">edge</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removed_entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">edge</span></div>
+
+<div class="viewcode-block" id="Model.rm_prop"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.rm_prop">[docs]</a>    <span class="k">def</span> <span class="nf">rm_prop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a :class:`Property` instance from the Model instance.</span>
+
+<span class="sd">        :param Property prop: Property to be removed</span>
+
+<span class="sd">        *Clarify what happens in the Model object, in the database when versioning</span>
+<span class="sd">        is off, in the database when versioning is on*</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">Property</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg must be a Property object&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">prop</span><span class="p">):</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;prop &#39;</span><span class="si">{prop}</span><span class="s2">&#39; not contained in model &#39;</span><span class="si">{model}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">prop</span><span class="o">=</span><span class="n">prop</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">handle</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">okey</span> <span class="ow">in</span> <span class="n">prop</span><span class="o">.</span><span class="n">belongs</span><span class="p">:</span>
+            <span class="n">owner</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">belongs</span><span class="p">[</span><span class="n">okey</span><span class="p">]</span>
+            <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="o">=</span> <span class="n">okey</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">att</span><span class="p">)[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="p">[</span><span class="n">owner</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">Node</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">owner</span><span class="o">.</span><span class="n">triplet</span><span class="p">)</span>
+            <span class="n">k</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removed_entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Model.rm_term"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.rm_term">[docs]</a>    <span class="k">def</span> <span class="nf">rm_term</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Not implemented.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">Term</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg must be a Term object&quot;</span><span class="p">)</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Model.assign_edge_end"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.assign_edge_end">[docs]</a>    <span class="k">def</span> <span class="nf">assign_edge_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Move the src or dst of an :class:`Edge` to a different :class:`Node`.</span>
+
+<span class="sd">        :param Edge edge: Edge to manipulate</span>
+<span class="sd">        :param str end: Edge end to change (src|dst)</span>
+<span class="sd">        :param Node node: Node to be connected</span>
+
+<span class="sd">        Note: Both ``node`` and ``edge`` must be present in the Model instance</span>
+<span class="sd">        (via :meth:`add_node` and :meth:`add_edge`)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;edge= must an Edge object&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;node= must a Node object&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="s2">&quot;dst&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;end= must be one of &#39;src&#39; or &#39;dst&#39;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;model must contain both edge and node&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">triplet</span><span class="p">]</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">triplet</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge</span>
+        <span class="k">return</span> <span class="n">edge</span></div>
+
+<div class="viewcode-block" id="Model.contains"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.contains">[docs]</a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ask whether an entity is present in the Model instance.</span>
+
+<span class="sd">        :param Entity ent: Entity in question</span>
+
+<span class="sd">        Note: Only works on Nodes, Edges, and Properties</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;argument is not an Entity subclass&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ent</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ent</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">Property</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ent</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">Term</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ent</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Model.edges_in"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.edges_in">[docs]</a>    <span class="k">def</span> <span class="nf">edges_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all :class:`Edge` that have a given :class:`Node` as their dst attribute</span>
+
+<span class="sd">        :param Node node: The node</span>
+<span class="sd">        :return: list of :class:`Edge`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg must be Node&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">node</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Model.edges_out"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.edges_out">[docs]</a>    <span class="k">def</span> <span class="nf">edges_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all :class:`Edge` that have a given :class:`Node` as their src attribute</span>
+
+<span class="sd">        :param Node node: The node</span>
+<span class="sd">        :return: list of :class:`Edge`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg must be Node&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">node</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Model.edges_by"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.edges_by">[docs]</a>    <span class="k">def</span> <span class="nf">edges_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="s2">&quot;dst&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg &#39;key&#39; must be one of src|dst|type&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;src&quot;</span> <span class="k">else</span> <span class="mi">2</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="n">item</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">item</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Model.edges_by_src"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.edges_by_src">[docs]</a>    <span class="k">def</span> <span class="nf">edges_by_src</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all :class:`Edge` that have a given :class:`Node` as their src attribute</span>
+
+<span class="sd">        :param Node node: The node</span>
+<span class="sd">        :return: list of :class:`Edge`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_by</span><span class="p">(</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.edges_by_dst"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.edges_by_dst">[docs]</a>    <span class="k">def</span> <span class="nf">edges_by_dst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all :class:`Edge` that have a given :class:`Node` as their dst attribute</span>
+
+<span class="sd">        :param Node node: The node</span>
+<span class="sd">        :return: list of :class:`Edge`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_by</span><span class="p">(</span><span class="s2">&quot;dst&quot;</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.edges_by_type"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.edges_by_type">[docs]</a>    <span class="k">def</span> <span class="nf">edges_by_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_handle</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all :class:`Edge` that have a given edge type (i.e., handle)</span>
+
+<span class="sd">        :param str edge_handle: The edge type</span>
+<span class="sd">        :return: list of :class:`Edge`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge_handle</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg must be str&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_by</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="n">edge_handle</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.dget"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.dget">[docs]</a>    <span class="k">def</span> <span class="nf">dget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pull model from MDB into this Model instance, based on its handle</span>
+
+<span class="sd">        Note: is a noop if `Model.mdb` is unset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdb</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">refresh</span><span class="p">:</span>
+            <span class="n">ObjectMap</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">drv</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="s2">&quot;match p = (s:node)&lt;-[:has_src]-(r:relationship)-[:has_dst]-&gt;(d:node) &quot;</span>
+                <span class="s2">&quot;where s.model=$hndl and r.model=$hndl and d.model=$hndl return p&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;hndl&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">},</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">ns</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">nd</span><span class="p">)</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span>
+                <span class="n">ns</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span>
+                <span class="n">nr</span> <span class="o">=</span> <span class="n">Edge</span><span class="p">(</span><span class="n">nr</span><span class="p">)</span>
+                <span class="n">nd</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">nd</span><span class="p">)</span>
+                <span class="n">ObjectMap</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">neoid</span><span class="p">]</span> <span class="o">=</span> <span class="n">ns</span>
+                <span class="n">ObjectMap</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">nr</span><span class="o">.</span><span class="n">neoid</span><span class="p">]</span> <span class="o">=</span> <span class="n">nr</span>
+                <span class="n">ObjectMap</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">nd</span><span class="o">.</span><span class="n">neoid</span><span class="p">]</span> <span class="o">=</span> <span class="n">nd</span>
+                <span class="n">nr</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="n">ns</span>
+                <span class="n">nr</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="n">nd</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span> <span class="o">=</span> <span class="n">ns</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">nd</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span> <span class="o">=</span> <span class="n">nd</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">nr</span><span class="o">.</span><span class="n">triplet</span><span class="p">]</span> <span class="o">=</span> <span class="n">nr</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">drv</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="s2">&quot;match (n:node)-[:has_property]-&gt;(p:property) where n.model=$hndl and p.model=$hndl return id(n), p&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;hndl&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">},</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">ObjectMap</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s2">&quot;id(n)&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">warn</span><span class="p">(</span>
+                        <span class="s2">&quot;node with id </span><span class="si">{nid}</span><span class="s2"> not yet retrieved&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nid</span><span class="o">=</span><span class="n">rec</span><span class="p">[</span><span class="s2">&quot;id(n)&quot;</span><span class="p">])</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">])</span>
+                <span class="n">ObjectMap</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">neoid</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[(</span><span class="n">n</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">handle</span><span class="p">)]</span> <span class="o">=</span> <span class="n">p</span>
+                <span class="n">n</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">dirty</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">drv</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="s2">&quot;match (r:relationship)-[:has_property]-&gt;(p:property) &quot;</span>
+                <span class="s2">&quot;where r.model=$hndl and p.model=$hndl return id(r), p&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;hndl&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">},</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">ObjectMap</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s2">&quot;id(r)&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">warn</span><span class="p">(</span>
+                        <span class="s2">&quot;relationship with id </span><span class="si">{rid}</span><span class="s2"> not yet retrieved&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">rid</span><span class="o">=</span><span class="n">rec</span><span class="p">[</span><span class="s2">&quot;id(r)&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">])</span>
+                <span class="n">ObjectMap</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">neoid</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">triplet</span><span class="p">)</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">p</span>
+                <span class="n">e</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">dirty</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Model.dput"><a class="viewcode-back" href="../../autoapi/bento_meta/model/index.html#bento_meta.model.Model.dput">[docs]</a>    <span class="k">def</span> <span class="nf">dput</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Push this Model&#39;s objects to MDB.</span>
+
+<span class="sd">        Note: is a noop if `Model.mdb` is unset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdb</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">def</span> <span class="nf">do_</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">seen</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">dirty</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">dput</span><span class="p">()</span>
+            <span class="n">atts</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">atts</span><span class="p">:</span>
+                <span class="n">ent</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ent</span><span class="p">:</span>
+                    <span class="n">do_</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+            <span class="n">atts</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;collection&quot;</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">atts</span><span class="p">:</span>
+                <span class="n">ents</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ents</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">ent</span> <span class="ow">in</span> <span class="n">ents</span><span class="p">:</span>
+                        <span class="n">do_</span><span class="p">(</span><span class="n">ents</span><span class="p">[</span><span class="n">ent</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">removed_entities</span><span class="p">:</span>
+            <span class="c1"># detach</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">drv</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                    <span class="s2">&quot;match (e)-[r]-() where id(e)=$eid delete r return id(e)&quot;</span><span class="p">,</span>
+                    <span class="p">{</span><span class="s2">&quot;eid&quot;</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">neoid</span><span class="p">},</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                    <span class="k">pass</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">do_</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">do_</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">do_</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

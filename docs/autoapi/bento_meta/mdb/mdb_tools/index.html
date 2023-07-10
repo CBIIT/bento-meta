@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.mdb.mdb_tools &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="bento_meta.mdb.mdb_tools.mdb_tools" href="mdb_tools/index.html" />
+    <link rel="prev" title="bento_meta.mdb" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../util/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.util</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta</span></code></a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.mdb_tools</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/bento_meta/mdb/mdb_tools/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bento_meta.mdb.mdb_tools">
+<span id="bento-meta-mdb-mdb-tools"></span><h1><a class="reference internal" href="#module-bento_meta.mdb.mdb_tools" title="bento_meta.mdb.mdb_tools"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.mdb_tools</span></code></a><a class="headerlink" href="#module-bento_meta.mdb.mdb_tools" title="Permalink to this heading"></a></h1>
+<p>Imports functions from mdb_tools</p>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mdb_tools/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.mdb_tools.mdb_tools</span></code></a></li>
+</ul>
+</div>
+</section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Permalink to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.mdb.mdb_tools.ToolsMDB" title="bento_meta.mdb.mdb_tools.ToolsMDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ToolsMDB</span></code></a></p></td>
+<td><p>Adds mdb-tools to WriteableMDB</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.mdb.mdb_tools.get_entity_type" title="bento_meta.mdb.mdb_tools.get_entity_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_entity_type</span></code></a>(entity)</p></td>
+<td><p>returns type of entity</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.mdb_tools.</span></span><span class="sig-name descname"><span class="pre">ToolsMDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../writeable/index.html#bento_meta.mdb.writeable.WriteableMDB" title="bento_meta.mdb.writeable.WriteableMDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bento_meta.mdb.writeable.WriteableMDB</span></code></a></p>
+<p>Adds mdb-tools to WriteableMDB</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_entity_attrs">
+<span class="sig-name descname"><span class="pre">get_entity_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_entity_attrs" title="Permalink to this definition"></a></dt>
+<dd><p>Returns attributes as str or dict for given entity.</p>
+<p>Param output_as_str parm defaults to True and returns a string
+that is usable in Cypher query as node properties.</p>
+<p>If output_as_str = False, return dict of attributes instead,
+which is used as params of function with write_txn decorator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.detach_delete_entity">
+<span class="sig-name descname"><span class="pre">detach_delete_entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.detach_delete_entity" title="Permalink to this definition"></a></dt>
+<dd><p>Remove given Entity node from the database.</p>
+<dl class="simple">
+<dt>Accepts the following bento-meta Entities:</dt><dd><p>Concept, Node, Predicate, Property, Edge, Term</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_entity_count">
+<span class="sig-name descname"><span class="pre">get_entity_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_entity_count" title="Permalink to this definition"></a></dt>
+<dd><p>Returns count of given entity (w/ its properties) found in MDB.</p>
+<p>If count = 0, entity with given properties not found in MDB.
+If count = 1, entity with given properties is unique in MDB
+If count &gt; 1, more properties needed to uniquely id entity in MDB.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_triple_count">
+<span class="sig-name descname"><span class="pre">get_triple_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">relationship</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_triple_count" title="Permalink to this definition"></a></dt>
+<dd><p>Returns count of given triple, (src)-[rel]-&gt;(dst), found in MDB.</p>
+<p>If count = 0, triple with given properties not found in MDB.
+If count = 1, triple with given properties is unique in MDB
+If count &gt; 1, more properties needed to uniquely id triple in MDB.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.create_entity">
+<span class="sig-name descname"><span class="pre">create_entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.create_entity" title="Permalink to this definition"></a></dt>
+<dd><p>Adds given Entity node to database</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_concepts">
+<span class="sig-name descname"><span class="pre">get_concepts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_concepts" title="Permalink to this definition"></a></dt>
+<dd><p>Returns list of concepts represented by given entity</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.create_relationship">
+<span class="sig-name descname"><span class="pre">create_relationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">relationship</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.create_relationship" title="Permalink to this definition"></a></dt>
+<dd><p>Adds relationship between given entities in MDB</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.link_synonyms">
+<span class="sig-name descname"><span class="pre">link_synonyms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_missing_ent_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_missing_ent_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.link_synonyms" title="Permalink to this definition"></a></dt>
+<dd><p>Link two synonymous entities in the MDB via a Concept node.</p>
+<p>This function takes two synonymous Entities (as determined by user/SME) as
+bento-meta objects connects them to a Concept node via a ‘represents’ relationship.</p>
+<p>If one or both doesn’t exist in the MDB and add_missing_ent is True they will be added.</p>
+<p>If one or both doesn’t uniquely identify a node in the MDB will give error.</p>
+<p>If _commit is set (to a string), the _commit property of any node created is set to
+this value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.make_nano">
+<span class="sig-name descname"><span class="pre">make_nano</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.make_nano" title="Permalink to this definition"></a></dt>
+<dd><p>Generates valid nanoid</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB._get_prop_nano">
+<span class="sig-name descname"><span class="pre">_get_prop_nano</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB._get_prop_nano" title="Permalink to this definition"></a></dt>
+<dd><p>Takes Property and Node entities and returns Property nanoid.</p>
+<p>This is used to help uniquely identify a property node in the MDB,
+which requires a node connected via the has_property relationship.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB._get_edge_nano">
+<span class="sig-name descname"><span class="pre">_get_edge_nano</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB._get_edge_nano" title="Permalink to this definition"></a></dt>
+<dd><p>Takes Edge, src node handle, and dst Node handle and returns Edge nanoid.</p>
+<p>This is used to help uniquely identify an edge node in the MDB,
+which requires nodes connected via the has_src and has_dst relationships.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_entity_nano">
+<span class="sig-name descname"><span class="pre">get_entity_nano</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_handle_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_handle_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_entity_nano" title="Permalink to this definition"></a></dt>
+<dd><p>Takes an entity and returns its nanoid. If entity requires handles of connected nodes
+for unique identification (Property or Edge), extra_handle_1 and _2 hold these as str.</p>
+<p>Note: If an entity exists in the MDB with the given properties, but doesn’t have an
+assigned nanoid for some reason, returns [None] instead of [].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_or_make_nano">
+<span class="sig-name descname"><span class="pre">get_or_make_nano</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_handle_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_handle_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_or_make_nano" title="Permalink to this definition"></a></dt>
+<dd><p>Obtains existing entity’s nanoid or creates one for new entity.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_term_nanos">
+<span class="sig-name descname"><span class="pre">get_term_nanos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">concept</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Concept" title="bento_meta.objects.Concept"><span class="pre">bento_meta.objects.Concept</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_term_nanos" title="Permalink to this definition"></a></dt>
+<dd><p>Returns list of term nanoids representing given concept</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_predicate_nanos">
+<span class="sig-name descname"><span class="pre">get_predicate_nanos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">concept</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Concept" title="bento_meta.objects.Concept"><span class="pre">bento_meta.objects.Concept</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_predicate_nanos" title="Permalink to this definition"></a></dt>
+<dd><p>Returns list of predicate nanoids with relationship to given concept</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_predicate_relationship">
+<span class="sig-name descname"><span class="pre">get_predicate_relationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">concept</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Concept" title="bento_meta.objects.Concept"><span class="pre">bento_meta.objects.Concept</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Predicate" title="bento_meta.objects.Predicate"><span class="pre">bento_meta.objects.Predicate</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_predicate_relationship" title="Permalink to this definition"></a></dt>
+<dd><p>Returns relationship type between given concept and predicate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.link_concepts_to_predicate">
+<span class="sig-name descname"><span class="pre">link_concepts_to_predicate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">concept_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Concept" title="bento_meta.objects.Concept"><span class="pre">bento_meta.objects.Concept</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">concept_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Concept" title="bento_meta.objects.Concept"><span class="pre">bento_meta.objects.Concept</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicate_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'exactMatch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.link_concepts_to_predicate" title="Permalink to this definition"></a></dt>
+<dd><p>Links two synonymous Concepts via a Predicate</p>
+<p>This function takes two synonymous Concepts as objects and links
+them via a Predicate node and has_subject and has_object relationships.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.merge_two_concepts">
+<span class="sig-name descname"><span class="pre">merge_two_concepts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">concept_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Concept" title="bento_meta.objects.Concept"><span class="pre">bento_meta.objects.Concept</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">concept_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Concept" title="bento_meta.objects.Concept"><span class="pre">bento_meta.objects.Concept</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.merge_two_concepts" title="Permalink to this definition"></a></dt>
+<dd><p>Combine two synonymous Concepts into a single Concept.</p>
+<p>This function takes two synonymous Concept as bento-meta objects and
+merges them into a single Concept along with any connected Terms and Predicates.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB._get_all_terms">
+<span class="sig-name descname"><span class="pre">_get_all_terms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB._get_all_terms" title="Permalink to this definition"></a></dt>
+<dd><p>Gets value, origin_name, and nanoid for all terms in database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_term_synonyms">
+<span class="sig-name descname"><span class="pre">get_term_synonyms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Term" title="bento_meta.objects.Term"><span class="pre">bento_meta.objects.Term</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshhold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_term_synonyms" title="Permalink to this definition"></a></dt>
+<dd><p>Returns list of dicts representing Term nodes synonymous to given Term</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.potential_synonyms_to_csv">
+<span class="sig-name descname"><span class="pre">potential_synonyms_to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.potential_synonyms_to_csv" title="Permalink to this definition"></a></dt>
+<dd><p>Given a list of synonymous Terms as dicts, outputs to CSV file at given output path</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.link_term_synonyms_csv">
+<span class="sig-name descname"><span class="pre">link_term_synonyms_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Term" title="bento_meta.objects.Term"><span class="pre">bento_meta.objects.Term</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.link_term_synonyms_csv" title="Permalink to this definition"></a></dt>
+<dd><p>Given a CSV of syonymous Terms, links each via a Concept node to given Term</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.ToolsMDB.get_property_synonyms">
+<span class="sig-name descname"><span class="pre">get_property_synonyms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../objects/index.html#bento_meta.objects.Property" title="bento_meta.objects.Property"><span class="pre">bento_meta.objects.Property</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.ToolsMDB.get_property_synonyms" title="Permalink to this definition"></a></dt>
+<dd><p>Returns list of properties linked by concept to given property
+or to synonym of given property</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bento_meta.mdb.mdb_tools.get_entity_type">
+<span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.mdb_tools.</span></span><span class="sig-name descname"><span class="pre">get_entity_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><span class="pre">bento_meta.entity.Entity</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bento_meta.mdb.mdb_tools.get_entity_type" title="Permalink to this definition"></a></dt>
+<dd><p>returns type of entity</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="bento_meta.mdb" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mdb_tools/index.html" class="btn btn-neutral float-right" title="bento_meta.mdb.mdb_tools.mdb_tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

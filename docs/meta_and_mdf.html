@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bento_meta and MDF &mdash; bento_meta  documentation</title>
+  <title>bento_meta and MDF &mdash; bento-meta  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -14,7 +15,9 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -27,11 +30,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> bento_meta
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            bento-meta
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -40,7 +47,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Conventions and Patterns</a></li>
 <li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">bento_meta and MDF</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#model-description-files">Model Description Files</a></li>
@@ -50,7 +57,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="classes.html">Class Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
 </ul>
 
         </div>
@@ -59,15 +66,15 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">bento_meta</a>
+          <a href="index.html">bento-meta</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>bento_meta and MDF</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">bento_meta and MDF</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/meta_and_mdf.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -78,9 +85,9 @@
            <div itemprop="articleBody">
              
   <section id="bento-meta-and-mdf">
-<h1>bento_meta and MDF<a class="headerlink" href="#bento-meta-and-mdf" title="Permalink to this headline"></a></h1>
+<h1>bento_meta and MDF<a class="headerlink" href="#bento-meta-and-mdf" title="Permalink to this heading"></a></h1>
 <section id="model-description-files">
-<h2>Model Description Files<a class="headerlink" href="#model-description-files" title="Permalink to this headline"></a></h2>
+<h2>Model Description Files<a class="headerlink" href="#model-description-files" title="Permalink to this heading"></a></h2>
 <p><a class="reference external" href="https://github.com/CBIIT/bento-mdf">Model description files</a>, or MDF, are simple descriptions of a graph data model, usually written in <a class="reference external" href="https://learnxinyminutes.com/docs/yaml/">YAML</a>. They are organized in terms of sections defined by the top-level keys <code class="docutils literal notranslate"><span class="pre">Nodes</span></code>, <code class="docutils literal notranslate"><span class="pre">Relationships</span></code>, and <code class="docutils literal notranslate"><span class="pre">PropDefinitions</span></code>. They describe the graph nodes and relationships belonging to a model, the properties associated with each. The MDF details and documents:</p>
 <ul class="simple">
 <li><p>the “local” or internal names for each of these entities,</p></li>
@@ -97,13 +104,13 @@
 <p>The MDF syntax is described <a class="reference external" href="https://github.com/CBIIT/bento-mdf#model-description-files-mdf">here in detail</a>. This syntax is defined by and can be validated against a <a class="reference external" href="https://json-schema.org/understanding-json-schema/">JSONSchema</a> document. This document lives <a class="reference external" href="https://github.com/CBIIT/bento-mdf/blob/master/schema/mdf-schema.yaml">here</a>.</p>
 </section>
 <section id="slurping-mdf-into-bento-meta">
-<h2>Slurping MDF into bento_meta<a class="headerlink" href="#slurping-mdf-into-bento-meta" title="Permalink to this headline"></a></h2>
+<h2>Slurping MDF into bento_meta<a class="headerlink" href="#slurping-mdf-into-bento-meta" title="Permalink to this heading"></a></h2>
 <p>MDF functionality for bento_meta is included in the <code class="docutils literal notranslate"><span class="pre">bento_mdf</span></code> package, found at
 <cite>https://github.com/CBIIT/bento-mdf</cite>. The latest version can be installed as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install bento_mdf@git+https://github.com/CBIIT/bento-mdf.git#egg=subdir\&amp;subdirectory=drivers/python
 </pre></div>
 </div>
-<p>Create a <a class="reference internal" href="classes.html#bento_meta.model.Model" title="bento_meta.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.model.Model</span></code></a> from MDF files as follows:</p>
+<p>Create a <a class="reference internal" href="autoapi/bento_meta/model/index.html#bento_meta.model.Model" title="bento_meta.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.model.Model</span></code></a> from MDF files as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bento_mdf.mdf</span> <span class="kn">import</span> <span class="n">MDF</span>
 
 <span class="n">mdf</span> <span class="o">=</span> <span class="n">MDF</span><span class="p">(</span><span class="s1">&#39;model.yml&#39;</span><span class="p">,</span><span class="s1">&#39;model-props.yml&#39;</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
@@ -128,7 +135,7 @@ nodes and relationships are defined in one file, and the properties in a separat
 </div>
 </section>
 <section id="squirting-a-model-into-mdf-yaml">
-<h2>Squirting a Model into MDF YAML<a class="headerlink" href="#squirting-a-model-into-mdf-yaml" title="Permalink to this headline"></a></h2>
+<h2>Squirting a Model into MDF YAML<a class="headerlink" href="#squirting-a-model-into-mdf-yaml" title="Permalink to this heading"></a></h2>
 <p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">MDF.write_mdf()</span></code> returns a MDF-structured dictionary for a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> object, and optionally
 writes a YAML file encoding this dictionary:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mdf_dict</span> <span class="o">=</span> <span class="n">MDF</span><span class="o">.</span><span class="n">write_mdf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">your_model</span><span class="p">)</span>
@@ -151,7 +158,7 @@ writes a YAML file encoding this dictionary:</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, FNLCR.</p>
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

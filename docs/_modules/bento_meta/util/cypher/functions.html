@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.util.cypher.functions &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bento_meta.util.cypher.functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bento_meta.util.cypher.functions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">bento_meta.util.cypher.functions</span>
+
+<span class="sd">Representations of Cypher functions</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
+
+<span class="c1"># cypher functions</span>
+
+
+<div class="viewcode-block" id="Func"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.Func">[docs]</a><span class="k">class</span> <span class="nc">Func</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;func($</span><span class="si">{slot1}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">joiner</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span>
+    <span class="n">As</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+<div class="viewcode-block" id="Func.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.Func.context">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_return</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span>
+
+<div class="viewcode-block" id="Func.__str__"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.Func.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">slot</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arg</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">slot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">joiner</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">slot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">As</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">slot1</span><span class="o">=</span><span class="n">slot</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; as &quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">As</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">slot1</span><span class="o">=</span><span class="n">slot</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="count"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.count">[docs]</a><span class="k">class</span> <span class="nc">count</span><span class="p">(</span><span class="n">Func</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;count($slot1)&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="exists"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.exists">[docs]</a><span class="k">class</span> <span class="nc">exists</span><span class="p">(</span><span class="n">Func</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;exists($slot1)&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="labels"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.labels">[docs]</a><span class="k">class</span> <span class="nc">labels</span><span class="p">(</span><span class="n">Func</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;labels($slot1)&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Not"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.Not">[docs]</a><span class="k">class</span> <span class="nc">Not</span><span class="p">(</span><span class="n">Func</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;NOT $slot1&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Not.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.Not.context">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_condition</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="And"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.And">[docs]</a><span class="k">class</span> <span class="nc">And</span><span class="p">(</span><span class="n">Func</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;$slot1&quot;</span><span class="p">)</span>
+    <span class="n">joiner</span> <span class="o">=</span> <span class="s2">&quot; AND &quot;</span>
+
+<div class="viewcode-block" id="And.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.And.context">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_condition</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arg</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arg</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Or"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.Or">[docs]</a><span class="k">class</span> <span class="nc">Or</span><span class="p">(</span><span class="n">Func</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;$slot1&quot;</span><span class="p">)</span>
+    <span class="n">joiner</span> <span class="o">=</span> <span class="s2">&quot; OR &quot;</span>
+
+<div class="viewcode-block" id="Or.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.Or.context">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_condition</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arg</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arg</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="group"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.group">[docs]</a><span class="k">class</span> <span class="nc">group</span><span class="p">(</span><span class="n">Func</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;($slot1)&quot;</span><span class="p">)</span>
+    <span class="n">joiner</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span></div>
+
+
+<div class="viewcode-block" id="is_null"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.is_null">[docs]</a><span class="k">class</span> <span class="nc">is_null</span><span class="p">(</span><span class="n">Func</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;$slot1 IS NULL&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="is_not_null"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions.is_not_null">[docs]</a><span class="k">class</span> <span class="nc">is_not_null</span><span class="p">(</span><span class="n">Func</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;$slot1 IS NOT NULL&quot;</span><span class="p">)</span></div>
+
+<span class="c1"># rendering contexts</span>
+
+
+<div class="viewcode-block" id="_pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions._pattern">[docs]</a><span class="k">def</span> <span class="nf">_pattern</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Func</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ent</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_condition"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions._condition">[docs]</a><span class="k">def</span> <span class="nf">_condition</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Func</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ent</span><span class="o">.</span><span class="n">condition</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/functions/index.html#bento_meta.util.cypher.functions._return">[docs]</a><span class="k">def</span> <span class="nf">_return</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Func</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ent</span><span class="o">.</span><span class="n">Return</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

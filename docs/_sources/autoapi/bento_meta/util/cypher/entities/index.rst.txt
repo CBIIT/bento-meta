@@ -1,0 +1,357 @@
+:py:mod:`bento_meta.util.cypher.entities`
+=========================================
+
+.. py:module:: bento_meta.util.cypher.entities
+
+.. autoapi-nested-parse::
+
+   bento_meta.util.cypher.entities
+
+   Representations of cypher nodes, relationships, properties, paths
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.util.cypher.entities.Entity
+   bento_meta.util.cypher.entities.N
+   bento_meta.util.cypher.entities.R
+   bento_meta.util.cypher.entities.VarLenR
+   bento_meta.util.cypher.entities.N0
+   bento_meta.util.cypher.entities.R0
+   bento_meta.util.cypher.entities.P
+   bento_meta.util.cypher.entities.T
+   bento_meta.util.cypher.entities.NoDirT
+   bento_meta.util.cypher.entities.G
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.util.cypher.entities.countmaker
+   bento_meta.util.cypher.entities._as
+   bento_meta.util.cypher.entities._plain
+   bento_meta.util.cypher.entities._anon
+   bento_meta.util.cypher.entities._var
+   bento_meta.util.cypher.entities._plain_var
+   bento_meta.util.cypher.entities._pattern
+   bento_meta.util.cypher.entities._condition
+   bento_meta.util.cypher.entities._return
+
+
+
+.. py:function:: countmaker(max=10000)
+
+
+.. py:class:: Entity
+
+
+   Bases: :py:obj:`object`
+
+   A property graph Entity. Base class.
+
+   .. py:method:: _reset_counter()
+      :classmethod:
+
+
+   .. py:method:: pattern()
+
+      Render entity as a match pattern.
+
+
+   .. py:method:: condition()
+
+      Render entity as a condition (for WHERE, e.g.).
+
+
+   .. py:method:: Return()
+
+      Render entity as a return value.
+
+
+   .. py:method:: _add_props(props)
+
+
+
+.. py:class:: N(label=None, props=None, As=None)
+
+
+   Bases: :py:obj:`Entity`
+
+   A property graph Node.
+
+   .. py:attribute:: count
+
+      
+
+   .. py:method:: relate_to(r, n)
+
+
+   .. py:method:: pattern()
+
+      Render entity as a match pattern.
+
+
+   .. py:method:: condition()
+
+      Render entity as a condition (for WHERE, e.g.).
+
+
+   .. py:method:: Return()
+
+      Render entity as a return value.
+
+
+
+.. py:class:: R(Type=None, props=None, As=None, _dir='_right')
+
+
+   Bases: :py:obj:`Entity`
+
+   A property graph Relationship or edge.
+
+   .. py:attribute:: count
+
+      
+
+   .. py:method:: relate(n, m)
+
+
+   .. py:method:: pattern()
+
+      Render entity as a match pattern.
+
+
+   .. py:method:: condition()
+
+      Render entity as a condition (for WHERE, e.g.).
+
+
+   .. py:method:: Return()
+
+      Render entity as a return value.
+
+
+
+.. py:class:: VarLenR(min_len: int = -1, max_len: int = -1, Type=None, props=None, As=None, _dir='_right')
+
+
+   Bases: :py:obj:`R`
+
+   Variable length property graph Relationship or edge.
+
+   .. py:method:: pattern()
+
+      Render entity as a match pattern.
+
+
+
+.. py:class:: N0
+
+
+   Bases: :py:obj:`N`
+
+   Completely anonymous node ().
+
+   .. py:method:: pattern()
+
+      Render entity as a match pattern.
+
+
+   .. py:method:: Return()
+
+      Render entity as a return value.
+
+
+
+.. py:class:: R0
+
+
+   Bases: :py:obj:`R`
+
+   Completely anonymous relationship -[]-, i.e. --
+
+   .. py:method:: pattern()
+
+      Render entity as a match pattern.
+
+
+   .. py:method:: Return()
+
+      Render entity as a return value.
+
+
+
+.. py:class:: P(handle, value=None, As=None)
+
+
+   Bases: :py:obj:`Entity`
+
+   A property graph Property.
+
+   .. py:attribute:: count
+
+      
+
+   .. py:attribute:: parameterize
+      :value: False
+
+      
+
+   .. py:method:: pattern()
+
+      Render entity as a match pattern.
+
+
+   .. py:method:: condition()
+
+      Render entity as a condition (for WHERE, e.g.).
+
+
+   .. py:method:: Return()
+
+      Render entity as a return value.
+
+
+
+.. py:class:: T(n, r, m)
+
+
+   Bases: :py:obj:`Entity`
+
+   A property graph Triple; i.e., (n)-[r]->(m).
+
+   .. py:attribute:: count
+
+      
+
+   .. py:method:: nodes()
+
+
+   .. py:method:: edge()
+
+
+   .. py:method:: edges()
+
+
+   .. py:method:: pattern()
+
+      Render entity as a match pattern.
+
+
+   .. py:method:: condition()
+
+      Render entity as a condition (for WHERE, e.g.).
+
+
+   .. py:method:: Return()
+
+      Render entity as a return value.
+
+
+
+.. py:class:: NoDirT(*args)
+
+
+   Bases: :py:obj:`T`
+
+   A directionless property graph Triple; i.e., (n)-[r]-(m).
+
+   .. py:method:: pattern()
+
+      Render entity as a match pattern.
+
+
+   .. py:method:: nodes()
+
+
+   .. py:method:: edge()
+
+
+   .. py:method:: edges()
+
+
+
+.. py:class:: G(*args)
+
+
+   Bases: :py:obj:`Entity`
+
+   A property graph Path.
+   Defined as an ordered set of partially overlapping triples.
+
+   .. py:attribute:: count
+
+      
+
+   .. py:method:: _create_path(args)
+
+
+   .. py:method:: _append(ent)
+
+
+   .. py:method:: nodes()
+
+
+   .. py:method:: edges()
+
+
+   .. py:method:: pattern()
+
+      Render entity as a match pattern.
+
+
+   .. py:method:: condition()
+
+      Render entity as a condition (for WHERE, e.g.).
+
+
+   .. py:method:: Return()
+
+      Render entity as a return value.
+
+
+
+.. py:function:: _as(ent, alias)
+
+   Return copy of ent with As alias set.
+
+
+.. py:function:: _plain(ent)
+
+   Return entity without properties.
+
+
+.. py:function:: _anon(ent)
+
+   Return entity without variable name.
+
+
+.. py:function:: _var(ent)
+
+   Return entity without label or type.
+
+
+.. py:function:: _plain_var(ent)
+
+   Return entity with only the variable, no label or properties
+
+
+.. py:function:: _pattern(ent)
+
+
+.. py:function:: _condition(ent)
+
+
+.. py:function:: _return(ent)
+
+

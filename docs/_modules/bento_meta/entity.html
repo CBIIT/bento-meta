@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.entity &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bento_meta.entity</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bento_meta.entity</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">bento_meta.entity</span>
+<span class="sd">=================</span>
+
+<span class="sd">This module contains </span>
+<span class="sd">* `Entity`, the base class for metamodel objects, </span>
+<span class="sd">* the `CollValue` class to manage collection-valued attributes, and </span>
+<span class="sd">* the `ArgError` exception.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># from pdb import set_trace</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserDict</span>
+
+
+<div class="viewcode-block" id="ArgError"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.ArgError">[docs]</a><span class="k">class</span> <span class="nc">ArgError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception for method argument errors&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Entity"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity">[docs]</a><span class="k">class</span> <span class="nc">Entity</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all metamodel objects.</span>
+
+<span class="sd">    Entity contains all the magic for metamodel objects such as</span>
+<span class="sd">    `bento_meta.objects.Node` and &#39;bento_meta.object.Edge`. It will rarely</span>
+<span class="sd">    be used directly. Entity redefines `__setattr__` and `__getattr__` to</span>
+<span class="sd">    enable necessary bookkeeping for model versioning and graph database</span>
+<span class="sd">    object mapping under the hood.</span>
+
+<span class="sd">    The Entity class also defines private and declared attributes that are</span>
+<span class="sd">    common to all metamodel objects. It provides the machinery to manage</span>
+<span class="sd">    private attributes separately from declared attributes, and to raise</span>
+<span class="sd">    exceptions when attempts are made to access attributes that are not</span>
+<span class="sd">    declared.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pvt_attr</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;pvt&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;neoid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dirty&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;removed_entities&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;attspec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mapspec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;belongs&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">defaults</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">attspec_</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="s2">&quot;simple&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="s2">&quot;simple&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;desc&quot;</span><span class="p">:</span> <span class="s2">&quot;simple&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_next&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_prev&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_from&quot;</span><span class="p">:</span> <span class="s2">&quot;simple&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_to&quot;</span><span class="p">:</span> <span class="s2">&quot;simple&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_commit&quot;</span><span class="p">:</span> <span class="s2">&quot;simple&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="s2">&quot;collection&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">attspec</span> <span class="o">=</span> <span class="n">attspec_</span>
+    <span class="n">mapspec_</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;property&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;desc&quot;</span><span class="p">:</span> <span class="s2">&quot;desc&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;_from&quot;</span><span class="p">:</span> <span class="s2">&quot;_from&quot;</span><span class="p">,</span> <span class="s2">&quot;_to&quot;</span><span class="p">:</span> <span class="s2">&quot;_to&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;_commit&quot;</span><span class="p">:</span> <span class="s2">&quot;_commit&quot;</span><span class="p">,</span> <span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="s2">&quot;nanoid&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;relationship&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;_next&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;rel&quot;</span><span class="p">:</span> <span class="s2">&quot;:_next&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;end_cls&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">()},</span>
+            <span class="s2">&quot;_prev&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;rel&quot;</span><span class="p">:</span> <span class="s2">&quot;:_prev&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;end_cls&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">()},</span>
+            <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;rel&quot;</span><span class="p">:</span> <span class="s2">&quot;:has_tag&quot;</span><span class="p">,</span> <span class="s2">&quot;end_cls&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Tag&quot;</span><span class="p">}},</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="n">object_map</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">version_count</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">versioning_on</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Entity constructor. Always called by subclasses.</span>
+<span class="sd">        .. py:function:: Node(init)</span>
+<span class="sd">        :param dict init: A dict of attribute names and values. Undeclared attributes are ignored.</span>
+<span class="sd">        :param neo4j.graph.Node init: a `neo4j.graph.Node` object to be stored as a model object.</span>
+<span class="sd">        :param `bento_meta.Entity` init: an Entity (of matching subclass). Used to duplicate another model object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="s2">&quot;collection&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;unknown attribute type in attspec&quot;</span><span class="p">)</span>
+
+        <span class="c1"># private</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pvt</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neoid</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dirty</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removed_entities</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">belongs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># merge to universal map - no, do in the subclasses</span>
+        <span class="c1"># type(self).mergespec()</span>
+
+        <span class="k">if</span> <span class="n">init</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_with_entity</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_with_dict</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="nb">type</span><span class="p">(</span><span class="n">init</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;Node&quot;</span>
+            <span class="p">):</span>  <span class="c1"># neo4j.graph.Node - but don&#39;t want to import that</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_with_node</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">att</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">att</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;collection&quot;</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">CollValue</span><span class="p">({},</span> <span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner_key</span><span class="o">=</span><span class="n">att</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">versioning_on</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_from</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">version_count</span>
+
+<div class="viewcode-block" id="Entity.mapspec"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.mapspec">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">mapspec</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The object to database mapping specification. Is a class method, not a property.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;_mapspec&quot;</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">mergespec</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_mapspec</span></div>
+
+<div class="viewcode-block" id="Entity.versioning"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.versioning">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">versioning</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get or set whether versioning is applied to object manipulations</span>
+<span class="sd">        :param boolean on: True, apply versioning. False, do not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">on</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">versioning_on</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">versioning_on</span> <span class="o">=</span> <span class="n">on</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">versioning_on</span></div>
+
+<div class="viewcode-block" id="Entity.set_version_count"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.set_version_count">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">set_version_count</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ct</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the integer version counter. This will usually be accessed via a</span>
+<span class="sd">        `bento_meta.Model` instance</span>
+<span class="sd">        :param int ct: Set version counter to this value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ct</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ct</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;arg must be a positive integer&quot;</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">version_count</span> <span class="o">=</span> <span class="n">ct</span></div>
+
+<div class="viewcode-block" id="Entity.default"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.default">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">propname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a default value for the property named, or None if no default defined.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">propname</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="n">propname</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+        
+
+    <span class="c1"># @classmethod</span>
+<div class="viewcode-block" id="Entity.get_by_id"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.get_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an object from the db with the id attribute (not the Neo4j id). Returns a new object.</span>
+<span class="sd">        :param string id: value of id for desired object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_map</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &gt; now in entity.get_by_id where self is </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &gt; and class is </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_map</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    _NO_ cls.object_map detected&#39;</span><span class="p">)</span>
+            <span class="k">pass</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dirty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Flag whether this instance has been changed since retrieval from</span>
+<span class="sd">        the database</span>
+<span class="sd">        Set to -1, ensure that the next time an attribute is accessed, the instance</span>
+<span class="sd">        will retrieve itself from the database.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pvt</span><span class="p">[</span><span class="s2">&quot;dirty&quot;</span><span class="p">]</span>
+
+    <span class="nd">@dirty</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">dirty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pvt</span><span class="p">[</span><span class="s2">&quot;dirty&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">versioned</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Is this instance versioned?&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">removed_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pvt</span><span class="p">[</span><span class="s2">&quot;removed_entities&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">object_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pvt</span><span class="p">[</span><span class="s2">&quot;object_map&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">belongs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dict that stores information on the owners (referents) of this instance</span>
+<span class="sd">        in the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pvt</span><span class="p">[</span><span class="s2">&quot;belongs&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Entity.clear_removed_entities"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.clear_removed_entities">[docs]</a>    <span class="k">def</span> <span class="nf">clear_removed_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pvt</span><span class="p">[</span><span class="s2">&quot;removed_entities&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="Entity.set_with_dict"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.set_with_dict">[docs]</a>    <span class="k">def</span> <span class="nf">set_with_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">init</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">att</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;collection&quot;</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">CollValue</span><span class="p">(</span><span class="n">init</span><span class="p">[</span><span class="n">att</span><span class="p">],</span> <span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner_key</span><span class="o">=</span><span class="n">att</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">init</span><span class="p">[</span><span class="n">att</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Entity.set_with_node"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.set_with_node">[docs]</a>    <span class="k">def</span> <span class="nf">set_with_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+        <span class="c1"># this unsets any attribute that is not present in the Node&#39;s properties</span>
+        <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;simple&quot;</span><span class="p">]:</span>
+            <span class="n">patt</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">mapspec</span><span class="p">()[</span><span class="s2">&quot;property&quot;</span><span class="p">][</span><span class="n">att</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">patt</span> <span class="ow">in</span> <span class="n">init</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">init</span><span class="p">[</span><span class="n">patt</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neoid</span> <span class="o">=</span> <span class="n">init</span><span class="o">.</span><span class="n">id</span></div>
+
+<div class="viewcode-block" id="Entity.set_with_entity"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.set_with_entity">[docs]</a>    <span class="k">def</span> <span class="nf">set_with_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
+                <span class="s2">&quot;class mismatch: I am a </span><span class="si">{slf}</span><span class="s2">, but arg is a </span><span class="si">{ent}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">slf</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">ent</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">:</span>
+            <span class="n">atts</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;_next&quot;</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;_prev&quot;</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">atts</span> <span class="o">==</span> <span class="s2">&quot;simple&quot;</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">atts</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">atts</span> <span class="o">==</span> <span class="s2">&quot;collection&quot;</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">CollValue</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner_key</span><span class="o">=</span><span class="n">k</span><span class="p">))</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unknown attribute type &#39;</span><span class="si">{atts}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">atts</span><span class="o">=</span><span class="n">atts</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">okey</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">belongs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">belongs</span><span class="p">[</span><span class="n">okey</span><span class="p">]</span> <span class="o">=</span> <span class="n">ent</span><span class="o">.</span><span class="n">belongs</span><span class="p">[</span><span class="n">okey</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neoid</span> <span class="o">=</span> <span class="n">ent</span><span class="o">.</span><span class="n">neoid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dirty</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Entity.__getattribute__"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.__getattribute__">[docs]</a>    <span class="k">def</span> <span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">:</span>
+            <span class="c1"># declared attr, send to __getattr__ for magic</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Entity.__getattr__"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.__getattr__">[docs]</a>    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">pvt_attr</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;pvt&quot;</span><span class="p">][</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">:</span>
+                <span class="c1"># magic - lazy getting</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">dirty</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">dget</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;get: attribute &#39;</span><span class="si">{name}</span><span class="s2">&#39; neither private nor declared for subclass </span><span class="si">{cls}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Entity.__setattr__"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.__setattr__">[docs]</a>    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;pvt&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;pvt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">pvt_attr</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;pvt&quot;</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_value</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_prev&quot;</span><span class="p">,</span> <span class="s2">&quot;_next&quot;</span><span class="p">,</span> <span class="s2">&quot;_from&quot;</span><span class="p">,</span> <span class="s2">&quot;_to&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dirty</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_declared_attr</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;set: attribute &#39;</span><span class="si">{name}</span><span class="s2">&#39; neither private nor declared for subclass </span><span class="si">{cls}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Entity.version_me"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.version_me">[docs]</a>    <span class="k">def</span> <span class="nf">version_me</span><span class="p">(</span><span class="n">setattr_func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_version_set_declared_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">versioning_on</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">setattr_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">setattr_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">version_count</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_to</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="c1"># dup becomes the &quot;old&quot; object and self the &quot;new&quot;:</span>
+                <span class="n">dup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dup</span><span class="p">()</span>
+                <span class="n">dup</span><span class="o">.</span><span class="n">_to</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">version_count</span>
+                <span class="n">dup</span><span class="o">.</span><span class="n">_from</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_from</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">version_count</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span><span class="p">:</span>
+                    <span class="n">dup</span><span class="o">.</span><span class="n">_prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="n">dup</span>
+                <span class="n">dup</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="bp">self</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span> <span class="o">=</span> <span class="n">dup</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">neoid</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="c1"># make the owners own dup, rather than self - this is under the radar of</span>
+                <span class="c1"># version_me</span>
+                <span class="k">for</span> <span class="n">okey</span> <span class="ow">in</span> <span class="n">dup</span><span class="o">.</span><span class="n">belongs</span><span class="p">:</span>
+                    <span class="n">owner</span> <span class="o">=</span> <span class="n">dup</span><span class="o">.</span><span class="n">belongs</span><span class="p">[</span><span class="n">okey</span><span class="p">]</span>
+                    <span class="p">(</span><span class="n">oid</span><span class="p">,</span> <span class="o">*</span><span class="n">att</span><span class="p">)</span> <span class="o">=</span> <span class="n">okey</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">att</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">att</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">att</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dup</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">owner</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">att</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dup</span>
+                <span class="n">setattr_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>  <span class="c1">#</span>
+                <span class="c1"># this is on version_me&#39;s radar- dups the owning entity if nec</span>
+                <span class="k">for</span> <span class="n">okey</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">belongs</span><span class="p">:</span>
+                    <span class="n">owner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">belongs</span><span class="p">[</span><span class="n">okey</span><span class="p">]</span>
+                    <span class="p">(</span><span class="n">oid</span><span class="p">,</span> <span class="o">*</span><span class="n">att</span><span class="p">)</span> <span class="o">=</span> <span class="n">okey</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">att</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">att</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="n">att</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># if att[0]==&#39;category&#39;:</span>
+                        <span class="c1">#   set_trace()</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">att</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">owner</span><span class="o">.</span><span class="n">_prev</span><span class="p">:</span>
+                        <span class="c1"># dup (old entity) needs to belong to the prev version of owner</span>
+                        <span class="k">del</span> <span class="n">dup</span><span class="o">.</span><span class="n">belongs</span><span class="p">[(</span><span class="nb">id</span><span class="p">(</span><span class="n">owner</span><span class="p">),</span> <span class="o">*</span><span class="n">att</span><span class="p">)]</span>
+                        <span class="n">dup</span><span class="o">.</span><span class="n">belongs</span><span class="p">[(</span><span class="nb">id</span><span class="p">(</span><span class="n">owner</span><span class="o">.</span><span class="n">_prev</span><span class="p">),</span> <span class="o">*</span><span class="n">att</span><span class="p">)]</span> <span class="o">=</span> <span class="n">owner</span><span class="o">.</span><span class="n">_prev</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">setattr_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">_version_set_declared_attr</span></div>
+
+<div class="viewcode-block" id="Entity._set_declared_attr"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity._set_declared_attr">[docs]</a>    <span class="nd">@version_me</span>
+    <span class="k">def</span> <span class="nf">_set_declared_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">atts</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">atts</span> <span class="o">==</span> <span class="s2">&quot;simple&quot;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">atts</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">:</span>
+            <span class="n">oldval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">oldval</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">oldval</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="c1"># a wash</span>
+                    <span class="k">return</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">oldval</span><span class="o">.</span><span class="n">belongs</span><span class="p">[(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">name</span><span class="p">)]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">removed_entities</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">oldval</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+                <span class="n">value</span><span class="o">.</span><span class="n">belongs</span><span class="p">[(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">elif</span> <span class="n">atts</span> <span class="o">==</span> <span class="s2">&quot;collection&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">CollValue</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner_key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>  <span class="c1"># convert list of objs to CollValue</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">mapspec</span><span class="p">()[</span><span class="s2">&quot;key&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">CollValue</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner_key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unknown attspec value &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">atts</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dirty</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="Entity.__delattr__"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.__delattr__">[docs]</a>    <span class="k">def</span> <span class="fm">__delattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Entity._check_init"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity._check_init">[docs]</a>    <span class="k">def</span> <span class="nf">_check_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">init</span><span class="p">[</span><span class="n">att</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_check_value</span><span class="p">(</span><span class="n">att</span><span class="p">,</span> <span class="n">init</span><span class="p">[</span><span class="n">att</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Entity._check_value"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity._check_value">[docs]</a>    <span class="k">def</span> <span class="nf">_check_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">att</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">spec</span> <span class="o">==</span> <span class="s2">&quot;simple&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
+                        <span class="s2">&quot;value for key &#39;</span><span class="si">{att}</span><span class="s2">&#39; is not a simple scalar&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">att</span><span class="o">=</span><span class="n">att</span><span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">spec</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Entity</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
+                        <span class="s2">&quot;value for key &#39;</span><span class="si">{att}</span><span class="s2">&#39; is not an Entity subclass&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">att</span><span class="o">=</span><span class="n">att</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">spec</span> <span class="o">==</span> <span class="s2">&quot;collection&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">CollValue</span><span class="p">))):</span>
+                    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                        <span class="s2">&quot;value for key &#39;</span><span class="si">{att}</span><span class="s2">&#39; is not a dict,list, or CollValue&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">att</span><span class="o">=</span><span class="n">att</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
+                    <span class="s2">&quot;unknown attribute type &#39;</span><span class="si">{type}</span><span class="s2">&#39; for attribute &#39;</span><span class="si">{att}</span><span class="s2">&#39; in attspec&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="nb">type</span><span class="o">=</span><span class="n">spec</span><span class="p">,</span> <span class="n">att</span><span class="o">=</span><span class="n">att</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span></div>
+
+<div class="viewcode-block" id="Entity.dup"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.dup">[docs]</a>    <span class="k">def</span> <span class="nf">dup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Duplicate the object, but not too deeply. Mainly for use of the versioning machinery.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Entity.delete"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete self from the database.</span>
+<span class="sd">        If versioning is active, this will &#39;deprecate&#39; the entity, but not actually remove it from the db</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioning_on</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">version_count</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_to</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">version_count</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;delete - current version count </span><span class="si">{vct}</span><span class="s2"> is &lt;= entity&#39;s _to attribute&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">vct</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">version_count</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># unlink from other entities</span>
+            <span class="k">for</span> <span class="n">okey</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">belongs</span><span class="p">:</span>
+                <span class="n">owner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">belongs</span><span class="p">[</span><span class="n">okey</span><span class="p">]</span>
+                <span class="p">(</span><span class="n">oid</span><span class="p">,</span> <span class="o">*</span><span class="n">att</span><span class="p">)</span> <span class="o">=</span> <span class="n">okey</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">att</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">att</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="n">att</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">att</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Entity.dget"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.dget">[docs]</a>    <span class="k">def</span> <span class="nf">dget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update self from the database</span>
+<span class="sd">        :param boolean refresh: if True, force a retrieval from db;</span>
+<span class="sd">        if False, retrieve from cache;</span>
+<span class="sd">        don&#39;t disrupt changes already made</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">object_map</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">object_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refresh</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Entity.dput"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.dput">[docs]</a>    <span class="k">def</span> <span class="nf">dput</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Put self to the database.</span>
+<span class="sd">        This will set the `neoid` property if not yet set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">object_map</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">object_map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Entity.rm"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.rm">[docs]</a>    <span class="k">def</span> <span class="nf">rm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete self from the database. The object instance survives.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">object_map</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">object_map</span><span class="o">.</span><span class="n">rm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Entity.attr_doc"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity.attr_doc">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">attr_doc</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a docstring for declared attributes on class as configured&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">str_for_obj</span><span class="p">(</span><span class="n">thing</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">thing</span>
+
+        <span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="o">*</span><span class="n">rest</span><span class="p">)</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;Entity&quot;</span><span class="p">:</span>
+            <span class="n">first</span> <span class="o">+=</span> <span class="s2">&quot; Posesses the following attributes:&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">first</span> <span class="o">+=</span> <span class="s2">&quot; Posesses all :class:`Entity` attributes, plus the following:&quot;</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">.. py:class:: </span><span class="si">{cls}</span>
+
+<span class="si">{desc}</span>
+
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">desc</span><span class="o">=</span><span class="n">first</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">attspec_</span> <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;simple&quot;</span><span class="p">]:</span>
+            <span class="n">doc</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">  .. py:attribute:: </span><span class="si">{att}</span>
+<span class="s2">       :type: simple</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">att</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">att</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">attspec_</span> <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">]:</span>
+            <span class="n">doc</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">  .. py:attribute:: </span><span class="si">{att}</span>
+<span class="s2">       :type: </span><span class="si">{obj}</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">att</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">att</span><span class="p">,</span>
+                <span class="n">obj</span><span class="o">=</span><span class="n">str_for_obj</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">mapspec_</span><span class="p">[</span><span class="s2">&quot;relationship&quot;</span><span class="p">][</span><span class="n">att</span><span class="p">][</span><span class="s2">&quot;end_cls&quot;</span><span class="p">]),</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">attspec_</span> <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">attspec</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;collection&quot;</span><span class="p">]:</span>
+            <span class="n">doc</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">  .. py:attribute:: </span><span class="si">{att}</span>
+<span class="s2">       :type: collection of </span><span class="si">{obj}</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">att</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">att</span><span class="p">,</span>
+                <span class="n">obj</span><span class="o">=</span><span class="n">str_for_obj</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">mapspec_</span><span class="p">[</span><span class="s2">&quot;relationship&quot;</span><span class="p">][</span><span class="n">att</span><span class="p">][</span><span class="s2">&quot;end_cls&quot;</span><span class="p">]),</span>
+            <span class="p">)</span>
+        <span class="n">doc</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">doc</span></div></div>
+
+
+<div class="viewcode-block" id="CollValue"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.CollValue">[docs]</a><span class="k">class</span> <span class="nc">CollValue</span><span class="p">(</span><span class="n">UserDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A UserDict for housing Entity collection attributes.</span>
+<span class="sd">    This class contains a hook for recording the Entity that</span>
+<span class="sd">    owns the value that is being set. The value is marked as belonging</span>
+<span class="sd">    to the *containing object*, not this collection object.</span>
+<span class="sd">    It also protects against adding arbitrarily typed elements to the</span>
+<span class="sd">    collection; it throws unless a value to set is an `Entity`. `__setitem__`</span>
+<span class="sd">    is instrumented for managing versioning.</span>
+
+<span class="sd">    :param owner: `Entity` object of which this collection is an attribute</span>
+<span class="sd">    :param owner_key: the attribute name of this collection on the owner</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">owner_key</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;__owner&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">owner</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;__owner_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">owner_key</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">owner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The entity instance of which this collection is an attribute&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;__owner&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">owner_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The attribute name of this collection on the `owner`&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;__owner_key&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="CollValue.version_me"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.CollValue.version_me">[docs]</a>    <span class="k">def</span> <span class="nf">version_me</span><span class="p">(</span><span class="n">setitem_func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_version_set_collvalue_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">versioning_on</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">setitem_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">versioned</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">setitem_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">Entity</span><span class="o">.</span><span class="n">version_count</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">_from</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">_to</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">pass</span>
+                <span class="c1"># dup becomes the &quot;old&quot; object and self the &quot;new&quot;:</span>
+                <span class="n">dup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">dup</span><span class="p">()</span>
+                <span class="n">dup</span><span class="o">.</span><span class="n">_to</span> <span class="o">=</span> <span class="n">Entity</span><span class="o">.</span><span class="n">version_count</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">_from</span> <span class="o">=</span> <span class="n">Entity</span><span class="o">.</span><span class="n">version_count</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">_prev</span><span class="p">:</span>
+                    <span class="n">dup</span><span class="o">.</span><span class="n">_prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">_prev</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">_prev</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="n">dup</span>
+                <span class="n">dup</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">_prev</span> <span class="o">=</span> <span class="n">dup</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">neoid</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="c1"># make the owners own dup, rather than self.owner</span>
+                <span class="k">for</span> <span class="n">okey</span> <span class="ow">in</span> <span class="n">dup</span><span class="o">.</span><span class="n">belongs</span><span class="p">:</span>
+                    <span class="n">owner</span> <span class="o">=</span> <span class="n">dup</span><span class="o">.</span><span class="n">belongs</span><span class="p">[</span><span class="n">okey</span><span class="p">]</span>
+                    <span class="p">(</span><span class="n">oid</span><span class="p">,</span> <span class="o">*</span><span class="n">att</span><span class="p">)</span> <span class="o">=</span> <span class="n">okey</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">att</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">att</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">att</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dup</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">owner</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">att</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dup</span>
+                <span class="n">setitem_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">okey</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">belongs</span><span class="p">:</span>
+                    <span class="n">owner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">belongs</span><span class="p">[</span><span class="n">okey</span><span class="p">]</span>
+                    <span class="p">(</span><span class="n">oid</span><span class="p">,</span> <span class="o">*</span><span class="n">att</span><span class="p">)</span> <span class="o">=</span> <span class="n">okey</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">att</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">att</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span>
+                            <span class="n">att</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span>  <span class="c1"># this dups the owning entity if nec</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">att</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">owner</span><span class="o">.</span><span class="n">_prev</span><span class="p">:</span>
+                        <span class="c1"># dup (old entity) needs to belong to the prev version of owner</span>
+                        <span class="k">del</span> <span class="n">dup</span><span class="o">.</span><span class="n">belongs</span><span class="p">[(</span><span class="nb">id</span><span class="p">(</span><span class="n">owner</span><span class="p">),</span> <span class="o">*</span><span class="n">att</span><span class="p">)]</span>
+                        <span class="n">dup</span><span class="o">.</span><span class="n">belongs</span><span class="p">[(</span><span class="nb">id</span><span class="p">(</span><span class="n">owner</span><span class="o">.</span><span class="n">_prev</span><span class="p">),</span> <span class="o">*</span><span class="n">att</span><span class="p">)]</span> <span class="o">=</span> <span class="n">owner</span><span class="o">.</span><span class="n">_prev</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">setitem_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">_version_set_collvalue_item</span></div>
+
+<div class="viewcode-block" id="CollValue.__setitem__"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.CollValue.__setitem__">[docs]</a>    <span class="nd">@version_me</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
+                <span class="s2">&quot;a collection-valued attribute can only accept Entity members, not &#39;</span><span class="si">{tipe}</span><span class="s2">&#39;s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">tipe</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">oldval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">oldval</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">oldval</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="c1"># a wash</span>
+                    <span class="k">return</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">versioned</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">oldval</span><span class="o">.</span><span class="n">belongs</span><span class="p">[(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner_key</span><span class="p">,</span> <span class="n">name</span><span class="p">)]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">removed_entities</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">owner_key</span><span class="p">,</span> <span class="n">oldval</span><span class="p">))</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">belongs</span><span class="p">[(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner_key</span><span class="p">,</span> <span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span>
+        <span class="c1"># smudge the owner</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">dirty</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="CollValue.__getitem__"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.CollValue.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">dirty</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">dget</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="CollValue.__delitem__"><a class="viewcode-back" href="../../autoapi/bento_meta/entity/index.html#bento_meta.entity.CollValue.__delitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span>  <span class="c1"># trigger __setitem__</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__delitem__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

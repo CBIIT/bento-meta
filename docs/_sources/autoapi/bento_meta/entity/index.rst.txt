@@ -1,0 +1,264 @@
+:py:mod:`bento_meta.entity`
+===========================
+
+.. py:module:: bento_meta.entity
+
+.. autoapi-nested-parse::
+
+   bento_meta.entity
+   =================
+
+   This module contains
+   * `Entity`, the base class for metamodel objects,
+   * the `CollValue` class to manage collection-valued attributes, and
+   * the `ArgError` exception.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.entity.Entity
+   bento_meta.entity.CollValue
+
+
+
+
+.. py:exception:: ArgError
+
+
+   Bases: :py:obj:`Exception`
+
+   Exception for method argument errors
+
+
+.. py:class:: Entity(init=None)
+
+
+   Bases: :py:obj:`object`
+
+   Base class for all metamodel objects.
+
+   Entity contains all the magic for metamodel objects such as
+   `bento_meta.objects.Node` and 'bento_meta.object.Edge`. It will rarely
+   be used directly. Entity redefines `__setattr__` and `__getattr__` to
+   enable necessary bookkeeping for model versioning and graph database
+   object mapping under the hood.
+
+   The Entity class also defines private and declared attributes that are
+   common to all metamodel objects. It provides the machinery to manage
+   private attributes separately from declared attributes, and to raise
+   exceptions when attempts are made to access attributes that are not
+   declared.
+
+   .. py:property:: dirty
+
+      Flag whether this instance has been changed since retrieval from
+      the database
+      Set to -1, ensure that the next time an attribute is accessed, the instance
+      will retrieve itself from the database.
+
+   .. py:property:: versioned
+
+      Is this instance versioned?
+
+   .. py:property:: removed_entities
+
+
+   .. py:property:: object_map
+
+
+   .. py:property:: belongs
+
+      Dict that stores information on the owners (referents) of this instance
+      in the model
+
+   .. py:attribute:: pvt_attr
+      :value: ['pvt', 'neoid', 'dirty', 'removed_entities', 'attspec', 'mapspec', 'belongs']
+
+      
+
+   .. py:attribute:: defaults
+      :value: ()
+
+      
+
+   .. py:attribute:: attspec_
+
+      
+
+   .. py:attribute:: attspec
+
+      
+
+   .. py:attribute:: mapspec_
+
+      
+
+   .. py:attribute:: object_map
+
+      
+
+   .. py:attribute:: version_count
+
+      
+
+   .. py:attribute:: versioning_on
+      :value: False
+
+      
+
+   .. py:method:: mapspec()
+      :classmethod:
+
+      The object to database mapping specification. Is a class method, not a property.
+
+
+   .. py:method:: versioning(on=None)
+      :classmethod:
+
+      Get or set whether versioning is applied to object manipulations
+      :param boolean on: True, apply versioning. False, do not.
+
+
+   .. py:method:: set_version_count(ct)
+      :classmethod:
+
+      Set the integer version counter. This will usually be accessed via a
+      `bento_meta.Model` instance
+      :param int ct: Set version counter to this value
+
+
+   .. py:method:: default(propname)
+      :classmethod:
+
+      Returns a default value for the property named, or None if no default defined.
+
+
+   .. py:method:: get_by_id(id)
+
+      Get an object from the db with the id attribute (not the Neo4j id). Returns a new object.
+      :param string id: value of id for desired object
+
+
+   .. py:method:: clear_removed_entities()
+
+
+   .. py:method:: set_with_dict(init)
+
+
+   .. py:method:: set_with_node(init)
+
+
+   .. py:method:: set_with_entity(ent)
+
+
+   .. py:method:: __getattribute__(name)
+
+      Return getattr(self, name).
+
+
+   .. py:method:: __getattr__(name)
+
+
+   .. py:method:: __setattr__(name, value)
+
+      Implement setattr(self, name, value).
+
+
+   .. py:method:: version_me()
+
+
+   .. py:method:: _set_declared_attr(name, value)
+
+
+   .. py:method:: __delattr__(name)
+
+      Implement delattr(self, name).
+
+
+   .. py:method:: _check_init(init)
+
+
+   .. py:method:: _check_value(att, value)
+
+
+   .. py:method:: dup()
+
+      Duplicate the object, but not too deeply. Mainly for use of the versioning machinery.
+
+
+   .. py:method:: delete()
+
+      Delete self from the database.
+      If versioning is active, this will 'deprecate' the entity, but not actually remove it from the db
+
+
+   .. py:method:: dget(refresh=False)
+
+      Update self from the database
+      :param boolean refresh: if True, force a retrieval from db;
+      if False, retrieve from cache;
+      don't disrupt changes already made
+
+
+   .. py:method:: dput()
+
+      Put self to the database.
+      This will set the `neoid` property if not yet set.
+
+
+   .. py:method:: rm(force)
+
+      Delete self from the database. The object instance survives.
+
+
+   .. py:method:: attr_doc()
+      :classmethod:
+
+      Create a docstring for declared attributes on class as configured
+
+
+
+.. py:class:: CollValue(init=None, *, owner, owner_key)
+
+
+   Bases: :py:obj:`collections.UserDict`
+
+   A UserDict for housing Entity collection attributes.
+   This class contains a hook for recording the Entity that
+   owns the value that is being set. The value is marked as belonging
+   to the *containing object*, not this collection object.
+   It also protects against adding arbitrarily typed elements to the
+   collection; it throws unless a value to set is an `Entity`. `__setitem__`
+   is instrumented for managing versioning.
+
+   :param owner: `Entity` object of which this collection is an attribute
+   :param owner_key: the attribute name of this collection on the owner
+
+   .. py:property:: owner
+
+      The entity instance of which this collection is an attribute
+
+   .. py:property:: owner_key
+
+      The attribute name of this collection on the `owner`
+
+   .. py:method:: version_me()
+
+
+   .. py:method:: __setitem__(name, value)
+
+
+   .. py:method:: __getitem__(name)
+
+
+   .. py:method:: __delitem__(name)
+
+
+

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Object Map Specifications &mdash; bento_meta  documentation</title>
+  <title>Object Map Specifications &mdash; bento-meta  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -14,11 +15,13 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Class Documentation" href="classes.html" />
+    <link rel="next" title="API Reference" href="autoapi/index.html" />
     <link rel="prev" title="Model Versioning" href="model_versioning.html" /> 
 </head>
 
@@ -27,11 +30,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> bento_meta
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            bento-meta
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -40,7 +47,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Conventions and Patterns</a></li>
 <li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
@@ -52,7 +59,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="classes.html">Class Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
 </ul>
 
         </div>
@@ -61,15 +68,15 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">bento_meta</a>
+          <a href="index.html">bento-meta</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Object Map Specifications</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Object Map Specifications</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/object_mapping.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -80,23 +87,23 @@
            <div itemprop="articleBody">
              
   <section id="object-map-specifications">
-<h1>Object Map Specifications<a class="headerlink" href="#object-map-specifications" title="Permalink to this headline"></a></h1>
+<h1>Object Map Specifications<a class="headerlink" href="#object-map-specifications" title="Permalink to this heading"></a></h1>
 <section id="defining-and-updating-objects">
-<h2>Defining and Updating Objects<a class="headerlink" href="#defining-and-updating-objects" title="Permalink to this headline"></a></h2>
-<p>Objects (i.e., subclasses of class <a class="reference internal" href="classes.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.entity.Entity</span></code></a>) are really just containers for <a class="reference internal" href="the_object_model.html#object-attributes"><span class="std std-ref">simple, object and collection attributes</span></a>. They are special, however, in that an object can map to an instance of a <a class="reference external" href="https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-nodes">Neo4j graph node</a> that has a particular <a class="reference external" href="https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-labels">label</a>. Having this mapping means that changes to the object attributes can be pushed to the corresponding node in the graph database, and changes in the graph can be pulled to the object.</p>
+<h2>Defining and Updating Objects<a class="headerlink" href="#defining-and-updating-objects" title="Permalink to this heading"></a></h2>
+<p>Objects (i.e., subclasses of class <a class="reference internal" href="autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.entity.Entity</span></code></a>) are really just containers for <a class="reference internal" href="the_object_model.html#object-attributes"><span class="std std-ref">simple, object and collection attributes</span></a>. They are special, however, in that an object can map to an instance of a <a class="reference external" href="https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-nodes">Neo4j graph node</a> that has a particular <a class="reference external" href="https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-labels">label</a>. Having this mapping means that changes to the object attributes can be pushed to the corresponding node in the graph database, and changes in the graph can be pulled to the object.</p>
 <p>Defining a new object (or changing the attributes on an existing object) is a matter of telling the subclass what the relationships are between the object class and node labels, and object attributes and node <a class="reference external" href="https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-properties">properties</a> or <a class="reference external" href="https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-relationships">links</a> to other nodes. In the process, you are declaring the attributes that are associated with the object.</p>
 <p>These <em>declared attributes</em> can be used in code like standard attributes (i.e., with the dot operator).</p>
 <section id="subclasses-are-derived-from-entity">
-<h3>Subclasses are derived from Entity<a class="headerlink" href="#subclasses-are-derived-from-entity" title="Permalink to this headline"></a></h3>
-<p>The <a class="reference internal" href="classes.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.entity.Entity</span></code></a> class is the base for all mapped objects. <a class="reference internal" href="the_object_model.html#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> contains almost all the functionality required for mapping, including magic setters that perform versioning bookkeeping, and connecting objects with <a class="reference internal" href="classes.html#bento_meta.object_map.ObjectMap" title="bento_meta.object_map.ObjectMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.object_map.ObjectMap</span></code></a> classes that perform the database interactions.</p>
+<h3>Subclasses are derived from Entity<a class="headerlink" href="#subclasses-are-derived-from-entity" title="Permalink to this heading"></a></h3>
+<p>The <a class="reference internal" href="autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.entity.Entity</span></code></a> class is the base for all mapped objects. <a class="reference internal" href="the_object_model.html#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> contains almost all the functionality required for mapping, including magic setters that perform versioning bookkeeping, and connecting objects with <a class="reference internal" href="autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap" title="bento_meta.object_map.ObjectMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.object_map.ObjectMap</span></code></a> classes that perform the database interactions.</p>
 <p>The <a class="reference internal" href="the_object_model.html#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> class also provides attributes that are common to all objects. These include <code class="docutils literal notranslate"><span class="pre">_from</span></code> and <code class="docutils literal notranslate"><span class="pre">_to</span></code> that indicate the versioned “lifetime” of an objects, and <code class="docutils literal notranslate"><span class="pre">_next</span></code> and <code class="docutils literal notranslate"><span class="pre">_prev</span></code>, that point to next and previous versions of an object.</p>
 </section>
 <section id="attspec-and-mapspec">
-<h3>attspec and mapspec<a class="headerlink" href="#attspec-and-mapspec" title="Permalink to this headline"></a></h3>
+<h3>attspec and mapspec<a class="headerlink" href="#attspec-and-mapspec" title="Permalink to this heading"></a></h3>
 <p>Two subclass properties declare attributes and specify the mapping: <em>attspec</em> and <em>mapspec</em>.
 <em>attspec</em> is a dictionary whose keys are the attribute names, and values are the attribute type: <code class="docutils literal notranslate"><span class="pre">simple</span></code>, <code class="docutils literal notranslate"><span class="pre">object</span></code>, or <code class="docutils literal notranslate"><span class="pre">collection</span></code>. <em>mapspec</em> is a dictionary that specifies the database mapping, as described below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Subclass that models a data node.&quot;&quot;&quot;</span>
+<span class="w">  </span><span class="sd">&quot;&quot;&quot;Subclass that models a data node.&quot;&quot;&quot;</span>
   <span class="n">attspec_</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span><span class="s2">&quot;model&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span>
              <span class="s2">&quot;category&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span><span class="s2">&quot;concept&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
              <span class="s2">&quot;props&quot;</span><span class="p">:</span><span class="s2">&quot;collection&quot;</span><span class="p">}</span>
@@ -123,7 +130,7 @@
 <a class="reference internal" href="the_object_model.html#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a> objects. In the database, each <a class="reference internal" href="the_object_model.html#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a> object is connected to its owning <a class="reference internal" href="the_object_model.html#Node" title="Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> by a Neo4j relationship with type <code class="docutils literal notranslate"><span class="pre">has_property</span></code>, with the <a class="reference internal" href="the_object_model.html#Node" title="Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object as source and <a class="reference internal" href="the_object_model.html#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a> as destination of that relationship.</p>
 <p>Looking at the class def for <a class="reference internal" href="the_object_model.html#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Property</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Subclass that models a property of a node or relationship (edge).&quot;&quot;&quot;</span>
+<span class="w">  </span><span class="sd">&quot;&quot;&quot;Subclass that models a property of a node or relationship (edge).&quot;&quot;&quot;</span>
   <span class="n">attspec_</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span><span class="s2">&quot;model&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span>
              <span class="s2">&quot;value_domain&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span><span class="s2">&quot;units&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span>
              <span class="s2">&quot;pattern&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span><span class="s2">&quot;is_required&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span>
@@ -164,13 +171,13 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="model_versioning.html" class="btn btn-neutral float-left" title="Model Versioning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="classes.html" class="btn btn-neutral float-right" title="Class Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autoapi/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, FNLCR.</p>
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

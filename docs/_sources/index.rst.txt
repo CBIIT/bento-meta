@@ -4,17 +4,17 @@
    contain the root `toctree` directive.
 
 .. image:: _static/forkme_right_green_007200.svg
-	   :align: right
-	   :scale: 80%
-	   :alt: Fork me on GitHub
-	   :target: https://github.com/CBIIT/bento-meta
+           :align: right
+           :scale: 80%
+           :alt: Fork me on GitHub
+           :target: https://github.com/CBIIT/bento-meta
 
 bento_meta and Metamodel Database (MDB)
 =======================================
 
 .. image:: https://travis-ci.org/CBIIT/bento-meta.svg?branch=master
-	   :alt: Build Status
-	   :target: https://travis-ci.org/CBIIT/bento-meta
+           :alt: Build Status
+           :target: https://travis-ci.org/CBIIT/bento-meta
 
 **bento_meta** provides an object representation of 
 `property graph <https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph>`_
@@ -49,7 +49,7 @@ ____________
 
 Run::
 
-  pip install https://github.com/CBIIT/bento-meta/raw/master/python/dist/bento-meta-0.0.2.tar.gz
+  pip install bento-meta
 
 
 .. toctree::
@@ -62,7 +62,6 @@ Run::
    ./meta_and_mdf
    ./model_versioning
    ./object_mapping
-   ./classes
 
 A Note on "Nodes"
 _______________________
@@ -113,3 +112,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
