@@ -17,6 +17,7 @@ def load_mdf(mdf, mdb, _commit=None):
     """Load an MDF object into an MDB instance"""
     load_model(mdf.model, mdb, _commit)
 
+
 def load_model(model, mdb, _commit=None):
     """Load a model object into an MDB instance."""
     if not isinstance(mdb, WriteableMDB):
@@ -24,6 +25,7 @@ def load_model(model, mdb, _commit=None):
     cstmts = load_model_statements(model, _commit)
     for stmt in tqdm(cstmts):
         mdb.put_with_statement(str(stmt), stmt.params)
+
 
 def load_model_statements(model, _commit=None):
     """
@@ -126,8 +128,10 @@ def load_model_statements(model, _commit=None):
                 use_params=True
                 ),
             Statement(
-                Match(cProp),
-                Merge(R(Type="has_value_set").relate(_plain_var(cProp), cValueSet)),
+                Match(cProp, cValueSet),
+                Merge(R(Type="has_value_set").
+                      relate(_plain_var(cProp),
+                             _plain_var(cValueSet))),
                 use_params=True
                 )
             ])
@@ -140,7 +144,7 @@ def load_model_statements(model, _commit=None):
             cStatements.extend([
                 Statement(
                     Merge(cTerm),
-                    use_params = True
+                    use_params=True
                     ),
                 Statement(
                     Match(cValueSet, cTerm),
@@ -175,18 +179,18 @@ def _cEntity(ent, model, _commit):
         if ent.origin_definition:
             cEnt._add_props({"origin_defintion": ent.origin_definition})
         if ent.handle:
-            cEnt._add_props({"handle":ent.handle})
+            cEnt._add_props({"handle": ent.handle})
     elif label == 'value_set':
         cEnt = N(label='value_set',
                  props={"handle": ent.handle})
         if ent.url:
             cEnt._add_props({"url": ent.url})
     elif label == 'concept':
-        cEnt = N(label='concept')    
+        cEnt = N(label='concept')
     elif label == 'tag':
         cEnt = N(label="tag",
-                 props={"key": t.key,
-                        "value": t.value})
+                 props={"key": ent.key,
+                        "value": ent.value})
         
     else:
         cEnt = N(label=label,
@@ -246,6 +250,7 @@ def _prop_statements(ent, cEnt, model, _commit):
                 )
     return stmts
 
+
 def _annotate_statements(ent, cEnt, _commit):
     stmts = []
     if not ent.concept:
@@ -267,9 +272,9 @@ def _annotate_statements(ent, cEnt, _commit):
             ),
             Statement(
                 Match(R(Type="has_concept").relate(
-                    cEnt, cConcept)),
+                    cEnt, cConcept), cTerm),
                 Merge(R(Type="represents").relate(
-                    cTerm, _plain_var(cConcept))),
+                    _plain_var(cTerm), _plain_var(cConcept))),
                 use_params=True
             ),
         ])

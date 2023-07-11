@@ -74,6 +74,7 @@ class MDB:
         self.uri = uri
         self.user = user
         self.password = password
+        self.driver = None
         try:
             self.driver = GraphDatabase.driver(self.uri,
                                                auth=(self.user, self.password))

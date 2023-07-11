@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.mdb.writeable &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="bento_meta.util" href="../../util/index.html" />
+    <link rel="prev" title="bento_meta.mdb.searchable" href="../searchable/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../util/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.util</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta</span></code></a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.writeable</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/bento_meta/mdb/writeable/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bento_meta.mdb.writeable">
+<span id="bento-meta-mdb-writeable"></span><h1><a class="reference internal" href="#module-bento_meta.mdb.writeable" title="bento_meta.mdb.writeable"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.writeable</span></code></a><a class="headerlink" href="#module-bento_meta.mdb.writeable" title="Permalink to this heading"></a></h1>
+<p>mdb.writeable: subclass of <cite>class:bento_meta.MDB</cite> to support writing to an MDB</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.mdb.writeable.WriteableMDB" title="bento_meta.mdb.writeable.WriteableMDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WriteableMDB</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.mdb.writeable.write_txn" title="bento_meta.mdb.writeable.write_txn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_txn</span></code></a>(func)</p></td>
+<td><p>Decorates a query function to run a write transaction based</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="bento_meta.mdb.writeable.write_txn">
+<span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.writeable.</span></span><span class="sig-name descname"><span class="pre">write_txn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/bento_meta/mdb/writeable.html#write_txn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.writeable.write_txn" title="Permalink to this definition"></a></dt>
+<dd><p>Decorates a query function to run a write transaction based
+on its query.
+Query function should return a tuple (qry_string, param_dict).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.mdb.writeable.WriteableMDB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.writeable.</span></span><span class="sig-name descname"><span class="pre">WriteableMDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/bento_meta/mdb/writeable.html#WriteableMDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.writeable.WriteableMDB" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../index.html#bento_meta.mdb.MDB" title="bento_meta.mdb.MDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bento_meta.mdb.MDB</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.writeable.WriteableMDB.put_with_statement">
+<span class="sig-name descname"><span class="pre">put_with_statement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/bento_meta/mdb/writeable.html#WriteableMDB.put_with_statement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.writeable.WriteableMDB.put_with_statement" title="Permalink to this definition"></a></dt>
+<dd><p>Run an arbitrary write statement.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.writeable.WriteableMDB.put_term_with_origin">
+<span class="sig-name descname"><span class="pre">put_term_with_origin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_from</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/bento_meta/mdb/writeable.html#WriteableMDB.put_term_with_origin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.writeable.WriteableMDB.put_term_with_origin" title="Permalink to this definition"></a></dt>
+<dd><p>Merge a bento-meta Term object, that has an Origin object set,
+into an MDB. If a new term is created, assign a random 6-char nanoid
+to it. The Origin must already be represented in the database.
+:param Term term: Term object
+:param str commit: GitHub commit SHA1 associated with the term (if any)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../searchable/index.html" class="btn btn-neutral float-left" title="bento_meta.mdb.searchable" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../util/index.html" class="btn btn-neutral float-right" title="bento_meta.util" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

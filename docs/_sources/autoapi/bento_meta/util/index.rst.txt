@@ -1,0 +1,33 @@
+:py:mod:`bento_meta.util`
+=========================
+
+.. py:module:: bento_meta.util
+
+.. autoapi-nested-parse::
+
+   bento_meta.util - Utilities
+
+   bento_meta.util.cypher - Represent Cypher queries programmatically
+   bento_meta.util.makeq - Create Cypher queries from API endpoint paths
+
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   cypher/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   _engine/index.rst
+   makeq/index.rst
+
+

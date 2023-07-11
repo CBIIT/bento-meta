@@ -109,6 +109,26 @@ files = [
 ]
 
 [[package]]
+name = "bento-mdf"
+version = "0.7.2"
+description = "Python driver/validator for Bento Model Description Format"
+category = "dev"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "bento_mdf-0.7.2-py3-none-any.whl", hash = "sha256:94f67c30080cd086dc468e5c3901bb9b7329e17c1bf0275972c62004a2917422"},
+    {file = "bento_mdf-0.7.2.tar.gz", hash = "sha256:889897db66745088a9ab4a947d8a2aadca5a530a650a457609e6338157bd87ec"},
+]
+
+[package.dependencies]
+bento-meta = ">=0.1.3"
+delfick-project = ">=0.7.9,<0.8.0"
+jsonschema = ">=4.17.3,<5.0.0"
+pyyaml = ">=6"
+requests = ">=2.28.2,<3.0.0"
+tqdm = ">=4.64.1,<5.0.0"
+
+[[package]]
 name = "bleach"
 version = "6.0.0"
 description = "An easy safelist-based HTML-sanitizing tool."
@@ -3358,4 +3378,4 @@ tools = ["click", "liquichange", "numpy", "pandas", "spacy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "338ad62ddbc8dc627072cde5689a3f8ff466a0d9f21805bdbe40ba6232ee8704"
+content-hash = "63ebd1c52b7054f6fed2590f4fc27454372c460a9c4226a91dca91c6c4aefea8"

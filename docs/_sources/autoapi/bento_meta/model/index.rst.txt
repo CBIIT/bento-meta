@@ -1,0 +1,232 @@
+:py:mod:`bento_meta.model`
+==========================
+
+.. py:module:: bento_meta.model
+
+.. autoapi-nested-parse::
+
+   bento_meta.model
+   ================
+
+   This module contains :class:`Model`, a class for managing data models housed
+   in the Bento Metamodel Database. Models are built from `bento_meta.Entity`
+   subclasses (see :mod:`bento_meta.objects`). A Model can be used with or
+   without a Neo4j database connection.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.model.Model
+
+
+
+
+.. py:class:: Model(handle=None, mdb=None)
+
+
+   Bases: :py:obj:`object`
+
+   .. py:property:: drv
+
+      Neo4j database driver from MDB object
+
+   .. py:property:: mdb
+
+
+   .. py:method:: versioning(on=None)
+      :classmethod:
+
+      Get or set versioning state.
+
+      :param boolean on: True, apply versioning. False, do not.
+
+      Note: this delegates to :meth:`Entity.versioning`.
+
+
+   .. py:method:: set_version_count(ct)
+      :classmethod:
+
+      Set the integer version counter.
+
+      :param int ct: Set version counter to this value.
+
+      Note: this delegates to :meth:`Entity.set_version_count`.
+
+
+   .. py:method:: add_node(node=None)
+
+      Add a :class:`Node` to the model.
+
+      :param Node node: A :class:`Node` instance, a :class:`neo4j.graph.Node`, or a dict
+
+      The model attribute of ``node`` is set to `Model.handle`
+
+
+   .. py:method:: add_edge(edge=None)
+
+      Add an :class:`Edge` to the model.
+
+      :param Edge edge: A :class:`Edge` instance, a :class:`neo4j.graph.Node`, or a dict
+
+      The model attribute of ``edge`` is set to `Model.handle`
+
+
+   .. py:method:: add_prop(ent, prop=None)
+
+      Add a :class:`Property` to the model.
+
+      :param Node|Edge ent: Attach ``prop`` to this entity
+      :param Property prop: A :class:`Property` instance, a :class: `neo4j.graph.Node`, or a dict
+      :param boolean reuse: If True, reuse existing property with same handle
+
+      The model attribute of ``prop`` is set to `Model.handle`. Within a model,
+      :class:`Property` entities are unique with respect to their
+      handle (but can be reused). This method will look for an existing
+      property within the model with the given handle, and add an item to
+      Model.props pointing to it if found.
+
+
+   .. py:method:: annotate(ent, term)
+
+      Associate a single :class:`Term` with an :class:`Entity`. This creates a Concept entity
+      if needed and links both the Entity and the Term to the concept, in keeping with the MDB
+      spec. It supports the Term key in MDF.
+      :param Entity ent: :class:`Entity` object to annotate
+      :param Term term: :class:`Term` object to describe the Entity
+
+
+   .. py:method:: add_terms(prop, *terms)
+
+      Add a list of :class:`Term` and/or strings to a :class:`Property` with a value domain of ``value_set``
+
+      :param Property prop: :class:`Property` to modify
+      :param list terms: A list of :class:`Term` instances and/or str
+
+      :class:`Term` instances are created for strings;
+      `Term.value` and `Term.handle` is set to the string.
+
+
+   .. py:method:: rm_node(node)
+
+      Remove a :class:`Node` from the Model instance.
+
+      :param Node node: Node to be removed
+
+      Note: A node can't be removed if it is participating in an edge (i.e.,
+      if the node is some edge's src or dst attribute)
+
+      *Clarify what happens in the Model object, in the database when versioning
+      is off, in the database when versioning is on*
+
+
+   .. py:method:: rm_edge(edge)
+
+      Remove an :class:`Edge` instance from the Model instance.
+
+      :param Edge edge: Edge to be removed
+
+      *Clarify what happens in the Model object, in the database when versioning
+      is off, in the database when versioning is on*
+
+
+   .. py:method:: rm_prop(prop)
+
+      Remove a :class:`Property` instance from the Model instance.
+
+      :param Property prop: Property to be removed
+
+      *Clarify what happens in the Model object, in the database when versioning
+      is off, in the database when versioning is on*
+
+
+   .. py:method:: rm_term(term)
+
+      Not implemented.
+
+
+   .. py:method:: assign_edge_end(edge=None, end=None, node=None)
+
+      Move the src or dst of an :class:`Edge` to a different :class:`Node`.
+
+      :param Edge edge: Edge to manipulate
+      :param str end: Edge end to change (src|dst)
+      :param Node node: Node to be connected
+
+      Note: Both ``node`` and ``edge`` must be present in the Model instance
+      (via :meth:`add_node` and :meth:`add_edge`)
+
+
+   .. py:method:: contains(ent)
+
+      Ask whether an entity is present in the Model instance.
+
+      :param Entity ent: Entity in question
+
+      Note: Only works on Nodes, Edges, and Properties
+
+
+   .. py:method:: edges_in(node)
+
+      Get all :class:`Edge` that have a given :class:`Node` as their dst attribute
+
+      :param Node node: The node
+      :return: list of :class:`Edge`
+
+
+   .. py:method:: edges_out(node)
+
+      Get all :class:`Edge` that have a given :class:`Node` as their src attribute
+
+      :param Node node: The node
+      :return: list of :class:`Edge`
+
+
+   .. py:method:: edges_by(key, item)
+
+
+   .. py:method:: edges_by_src(node)
+
+      Get all :class:`Edge` that have a given :class:`Node` as their src attribute
+
+      :param Node node: The node
+      :return: list of :class:`Edge`
+
+
+   .. py:method:: edges_by_dst(node)
+
+      Get all :class:`Edge` that have a given :class:`Node` as their dst attribute
+
+      :param Node node: The node
+      :return: list of :class:`Edge`
+
+
+   .. py:method:: edges_by_type(edge_handle)
+
+      Get all :class:`Edge` that have a given edge type (i.e., handle)
+
+      :param str edge_handle: The edge type
+      :return: list of :class:`Edge`
+
+
+   .. py:method:: dget(refresh=False)
+
+      Pull model from MDB into this Model instance, based on its handle
+
+      Note: is a noop if `Model.mdb` is unset.
+
+
+   .. py:method:: dput()
+
+      Push this Model's objects to MDB.
+
+      Note: is a noop if `Model.mdb` is unset.
+
+
+

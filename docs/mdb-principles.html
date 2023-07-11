@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Metamodel Database (MDB) Principles &mdash; bento_meta  documentation</title>
+  <title>Metamodel Database (MDB) Principles &mdash; bento-meta  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -14,11 +15,13 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="MDB Maintenance Principles and Conventions" href="mdb-conventions.html" />
+    <link rel="next" title="MDB Conventions and Patterns" href="mdb-conventions.html" />
     <link rel="prev" title="bento_meta and Metamodel Database (MDB)" href="index.html" /> 
 </head>
 
@@ -27,11 +30,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> bento_meta
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            bento-meta
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -46,12 +53,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#models-and-meanings">Models and Meanings</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Conventions and Patterns</a></li>
 <li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="classes.html">Class Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
 </ul>
 
         </div>
@@ -60,15 +67,15 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">bento_meta</a>
+          <a href="index.html">bento-meta</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Metamodel Database (MDB) Principles</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Metamodel Database (MDB) Principles</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/mdb-principles.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -79,33 +86,34 @@
            <div itemprop="articleBody">
              
   <section id="metamodel-database-mdb-principles">
-<h1>Metamodel Database (MDB) Principles<a class="headerlink" href="#metamodel-database-mdb-principles" title="Permalink to this headline"></a></h1>
+<h1>Metamodel Database (MDB) Principles<a class="headerlink" href="#metamodel-database-mdb-principles" title="Permalink to this heading"></a></h1>
 <section id="mdb-motivation-and-rationale">
-<h2>MDB Motivation and Rationale<a class="headerlink" href="#mdb-motivation-and-rationale" title="Permalink to this headline"></a></h2>
-<p>The MDB schema is intended to be simple in structure, without a profusion of different classes for specialized entities. At the same time, enough entities are provided to enable a separation between an entity an its sematic meaning as represented in the MDB.
+<h2>MDB Motivation and Rationale<a class="headerlink" href="#mdb-motivation-and-rationale" title="Permalink to this heading"></a></h2>
+<p>The MDB schema is intended to be simple in structure, without a profusion of different classes for specialized entities. At the same time, enough entities are provided to enable a separation between an entity and its semantic meaning as represented in the MDB.
 The goals are:</p>
 <ul class="simple">
 <li><p>To be able to store multiple models, developed independently for specific practical uses, to exist separately in a single data store. and also</p></li>
 <li><p>To be able to relate aspects of these independent models to semantic standards, and so encourage reuse of models, model substructures, and vocabulary.</p></li>
 </ul>
 <p>To the extent the MDB succeeds in meeting these goals, it also yields useful mappings of terminology and structures between models. This feature is intended to facilitate data transformations that contribute to interoperability between projects or programs that might participate in an MDB.</p>
-<p>A key aspect of the MDB, one that distinguishes it from systems that serve similar purposes, is that it is meant to be responsive and dynamic – easily and perhaps frequently changed and updated. An MDB requires curation and quality management, but it is not devised to be a standard reference or a database of record. Its value is increased by incorporating stable entities from external such references (e.g., the NCIt), but it is designed as a tool to assist data SMEs who are managing new or rapidly changing data resources, characterized by frequent data augmentation, addition of new data sources, or modification of data models or structures, often based on scientific considerations or policy decisions.</p>
+<p>A key aspect of the MDB, one that distinguishes it from systems that serve similar purposes, is that it is meant to be responsive and dynamic – easily and perhaps frequently changed and updated. An MDB requires curation and quality management, but it is not devised to be a standard reference or a database of record. Its value is increased by incorporating stable entities from external such references (e.g., the <a class="reference external" href="https://ncit.nci.nih.gov/ncitbrowser/">NCIt</a>), but it is designed as a tool to assist data SMEs who are managing new or rapidly changing data resources, characterized by frequent data augmentation, addition of new data sources, or modification of data models or structures, often based on scientific considerations or policy decisions.</p>
 </section>
 <section id="mdb-design-decisions">
-<h2>MDB Design Decisions<a class="headerlink" href="#mdb-design-decisions" title="Permalink to this headline"></a></h2>
+<h2>MDB Design Decisions<a class="headerlink" href="#mdb-design-decisions" title="Permalink to this heading"></a></h2>
 <p>This milieu in which the MDB operates leads to the following design decisions and usage conventions:</p>
 <ul class="simple">
 <li><p><em>Creating, updating, and reading information from the MDB must be easy and intuitive for data management subject matter experts (SME).</em></p></li>
 </ul>
-<p>Software to perform these functions must support the SME users in this regard. For examgple, an SME needs robust and straightforward tools to manipulate the MDB that make the underlying database structure and conventions transparent. The SME should be able to change or update what is necessary in the database, without worrying about whether she will “break it” by doing so.</p>
+<p>Software to perform these functions must support the SME users in this regard. For example, an SME needs robust and straightforward tools to manipulate the MDB that make the underlying database structure and conventions transparent. The SME should be able to change or update what is necessary in the database, without worrying about whether she will “break it” by doing so.</p>
 <ul class="simple">
 <li><p><em>It is more important that the MDB describes the current data models (and so the current data) in the ecosystem accurately, than it is that the MDB is “complete” in other respects.</em></p></li>
 </ul>
-<p>The MDB is a tool for managing active data. It can and should be anchored by elements of standards, and should by virtue of its capacity as a management tool reflect changes to those standards. However, the goal is not to incorporate a complete rendition of any standard, but to track the current modeling of current data in the managed ecosystem. Practically, this may mean that semantic annotation of model lags behind the development <em>and use</em> of the model themselves. A value set of acceptable terms as recorded in an MDB may not immediately cover the entire value set defined by an external standard, yet the MDB is still useful for data validation in this state, and can be quickly updated to include valid terms as gaps are encountered.</p>
+<p>The MDB is a tool for managing active data. It can and should be anchored by elements of standards, and should by virtue of its capacity as a management tool reflect changes to those standards. However, the goal is not to incorporate a complete rendition of any standard, but to track the current modeling of current data in the managed ecosystem.</p>
+<p>Practically, this may mean that semantic annotation of model lags behind the development <em>and use</em> of the model themselves. A value set of acceptable terms as recorded in an MDB may not immediately cover the entire value set defined by an external standard, yet the MDB is still useful for data validation in this state, and can be quickly updated to include valid terms as gaps are encountered.</p>
 <ul class="simple">
 <li><p><em>The MDB is intentionally designed to capture logical data models easily. Conceptual data models and abstract metamodels can indeed be captured and annotated, but this is secondary to the main use case of the MDB.</em></p></li>
 </ul>
-<p>In our (FNLCR/BIDS/CTOS) systems, the logical data model as captured in the MDB is very close to the physical representation of the data in our underlying native graph databases. This is intentional, in that it enables our databases to be directly configured by data SMEs, with little work necessary from engineering. However, the graph model underlying the MDB is a flexible abstraction that can capture the structure of RDBMS schemas, document-based data stores, UML representations, and other such artifacts.</p>
+<p>In our (FNLCR/BACS/CTOS) systems, the logical data model as captured in the MDB is very close to the physical representation of the data in our underlying native graph databases. This is intentional, in that it enables our databases to be directly configured by data SMEs, with little work necessary from engineering. However, the graph model underlying the MDB is a flexible abstraction that can capture the structure of RDBMS schemas, document-based data stores, UML representations, and other such artifacts.</p>
 <ul class="simple">
 <li><p><em>The MDB can represent semantic information and relationships among concepts, such as synonymy of terms. These features are designed primarily to facilitate pragmatic mapping between models from constituent systems that need to interoperate.</em></p></li>
 </ul>
@@ -114,9 +122,9 @@ The goals are:</p>
 <p>An MDB may capture this pragmatic synonymy to support the task of aligning and aggregating data, without representing an subject matter opinion or implying any universal statement about the two concepts.</p>
 </section>
 <section id="mdb-entities-and-structures">
-<h2>MDB Entities and Structures<a class="headerlink" href="#mdb-entities-and-structures" title="Permalink to this headline"></a></h2>
+<h2>MDB Entities and Structures<a class="headerlink" href="#mdb-entities-and-structures" title="Permalink to this heading"></a></h2>
 <p>A basic working principle is that a data model of almost any type can be rendered usefully as a <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph">graph</a>, containing</p>
-<ul class="simple">
+<ul class="simple" id="nodes-relationships-properties">
 <li><p><em>Nodes</em> - logical data groupings</p></li>
 <li><p><em>Relationships</em> - logical or structural links or references between nodes, and</p></li>
 <li><p><em>Properties</em> - Variables, columns, or slots for actual data items.</p></li>
@@ -124,17 +132,17 @@ The goals are:</p>
 <p>A data model may be concieved of directly in this form, or translated from a different form. For example, in an <a class="reference external" href="https://en.wikipedia.org/wiki/Relational_database">RDBMS</a> schema, tables can map to nodes, columns to properties, and foreign key references to relationships.</p>
 <p>Other means of describing a data model may do so with more detail, or be more complete in some other sense. For example, in a <a class="reference external" href="https://en.wikipedia.org/wiki/Unified_Modeling_Language">UML representation</a>, a specific model entity (say, a “clinical data form”) may derive from a more general entity (say, a “form”), and may inherit certain variables or other attributes from the general entity (say, a form field such as “Patient ID”). This kind of class inheritance is <em>not</em> part of the MDB specification, although it could be emulated within MDB conventions. This is an example of how an MDB model intentionally tends to reflect how the data itself will be stored.</p>
 <p>Data items are very frequently codes or strings chosen from a closed set of acceptable or valid values. In the MDB, the entity that represents a single such value is the Term.</p>
-<ul class="simple">
+<ul class="simple" id="terms">
 <li><p><em>Terms</em> - entities which include a string representation (value) for a specific datum, and information on its source origin or authority.</p></li>
 </ul>
 <p>Term entities may also include semantic information such as definitions and external identifiers that link back to their authoritative origin. For example, a Term adopted from the NCI Thesaurus would have an origin_id attribute set to its NCIt Concept Code.</p>
 <p>Terms are associated with their Origin, but not directly with any Model. This is an intentional design decision that allows a model to build value sets by reusing terms from different sources, via the Value Set entity.</p>
-<ul class="simple">
+<ul class="simple" id="value-sets">
 <li><p><em>Value Sets</em> - entities which aggregate Terms and so represent controlled vocabularies or acceptable value lists for Property values.</p></li>
 </ul>
-<p>When Term entities are used to describe an acceptable value for a Property, they do so via a grouping entity called a Value Set. A given Term can be a part of any Value Set for any Model via the addition of a graph edge. Properties that accept data from a controlled vocabulary are linked to a Value Set entity, and Term entities that represent the acceptable values link to the Value Set.</p>
+<p>When Term entities are used to describe an acceptable value for a Property, they do so via a grouping entity called a Value Set. A given Term can be a part of any Value Set for any Model via the addition of a graph edge. Properties that accept data from a controlled vocabulary are linked to a Value Set entity, and Term entities that represent the acceptable values link to the Value Set. See <a class="reference internal" href="mdb-conventions.html#term-valueset-pattern"><span class="std std-ref">this figure</span></a>.</p>
 <p>Terms have an additional role in the MDB, to annotate Concept entities with semantic information.</p>
-<ul class="simple">
+<ul class="simple" id="concepts">
 <li><p><em>Concepts</em> - entities which represent any abstract intellectual concept; a Concept’s meaning is “induced” by Term entities that are linked to it via a “represents” graph edge.</p></li>
 </ul>
 <p>The Concept entity is essentially a Term aggregation node, similar in function to a Value Set entity. It is an abstraction that enables the meanings of entities (not just Terms, but also Node, Relationships, and Properties) to be present in the database, and allows different models to reuse conceptual constructs and meanings defined by external authorities and elsewhere.</p>
@@ -142,16 +150,16 @@ The goals are:</p>
 In this example, Nodes from different models that group infomation bearing on diagnosis would all have an edge (<code class="docutils literal notranslate"><span class="pre">has_concept</span></code>) directed to a single Concept node.</p>
 <p>The Concept node itself, as a database entity, does not describe the concept. Instead, the semantic meaning of a Concept is imputed by the Terms that are linked to the Concept. The Terms are said to “represent” the Concept.</p>
 <p>Continuing with the example:  “Diagnosis” is an intellectual concept that is defined, among other places, at the NCI Thesaurus, where its concept code is C15220. In the formalism of the MDB, a Term entity, containing the <code class="docutils literal notranslate"><span class="pre">value</span></code> “Diagnosis”, the <code class="docutils literal notranslate"><span class="pre">origin_name</span></code> “NCIt”, and the <code class="docutils literal notranslate"><span class="pre">origin_code</span></code> C15220, would link to the Concept through a <code class="docutils literal notranslate"><span class="pre">represents</span></code> graph edge.</p>
-<p>One might rather simply put that information directly into the Concept node –  this is not disallowed. However, by using the Concept-Term indirection, one can also very simply add other Terms that describe synonyous concepts coming from other external authorities. Another Term, with <code class="docutils literal notranslate"><span class="pre">value</span></code> <code class="docutils literal notranslate"><span class="pre">SDTM-MHEDTTYP</span></code> and <code class="docutils literal notranslate"><span class="pre">origin_name</span></code> CDISC, could be created and linked to the Concept node. This single _addition_ to the MDB graph then captures the idea that the two notions of diagnosis are synonymous. Further, models that agree with each other with respect to NCIt could be translated into <a class="reference external" href="https://www.cdisc.org/">CDISC</a> representations with straightforward graph database queries. Because this update adds to the graph and does not change its previous structure, existing queries or interpretations that rely on the MDB are not affected.</p>
+<p>One might rather simply put that information directly into the Concept node –  this is not disallowed. However, by using the Concept-Term indirection, one can also very simply add other Terms that describe synonyous concepts coming from other external authorities. Another Term, with <code class="docutils literal notranslate"><span class="pre">value</span></code> <code class="docutils literal notranslate"><span class="pre">SDTM-MHEDTTYP</span></code> and <code class="docutils literal notranslate"><span class="pre">origin_name</span></code> CDISC, could be created and linked to the Concept node. This single <em>addition</em> to the MDB graph then captures the idea that the two notions of diagnosis are synonymous. Further, models that agree with each other with respect to NCIt could be translated into <a class="reference external" href="https://www.cdisc.org/">CDISC</a> representations with straightforward graph database queries. Because this update adds to the graph and does not change its previous structure, existing queries or interpretations that rely on the MDB are not affected.</p>
 <p>Although the MDB is not primarily a knowledge base, it may be useful to record additional semantic information, especially for situations in which the mappings between model entities are not precisely synonymous, but reflect another kind of relationship. Mapping model entities to the <a class="reference external" href="https://bridgmodel.nci.nih.gov/">BRIDG</a> conceptual model, for example, is often characterized by a number of semantic “steps” beyond synonymy. For this purpose, the MDB defines a Predicate entity.</p>
-<ul class="simple">
+<ul class="simple" id="predicates">
 <li><p><em>Predicates</em> - entities which represent a semantic relationship between two concepts, the “subject” and the “object”.</p></li>
 </ul>
 <p>A Predicate entity enables the formation of “triples” among Concept entities in the MDB. For example, the “generative” or “parent-child” relationship mentioned above can be represented by a Predicate entity linking parent and child concepts.</p>
 <p>The Predicate is also abstract entity, which can be linked to its own Concept entity, annotated by a Term. In practice, this fully general structure may not be required, especially if the entity it is meant to be used to facilitate mapping and not to be visible per se to the end users of an implementation. For example, a Predicate to indicate a hierarchical relationship may simply have a handle <code class="docutils literal notranslate"><span class="pre">broader</span></code> or <code class="docutils literal notranslate"><span class="pre">is_a</span></code> and an additional attribute indicating a formal source (<a class="reference external" href="https://www.w3.org/TR/skos-reference/#broader">skos:broader</a>).</p>
 </section>
 <section id="models-and-meanings">
-<h2>Models and Meanings<a class="headerlink" href="#models-and-meanings" title="Permalink to this headline"></a></h2>
+<h2>Models and Meanings<a class="headerlink" href="#models-and-meanings" title="Permalink to this heading"></a></h2>
 <p>A helpful way to think of an MDB is to consider it as a layering of three views or functions on a data model:</p>
 <ul class="simple">
 <li><p>Structure: consisting of Models, Nodes, Relationships, and Properties;</p></li>
@@ -165,7 +173,6 @@ In this example, Nodes from different models that group infomation bearing on di
 <p>In the MDB, the way to connect the Term with the Node (or other) entity is indirect. It might be natural to simply link the Term directly to the Node. It is more flexible, and easier to change the connections between evolving models and evolving vocabularies, to consider that Model entities and associated Terms reflect an _interaction_ between two independent structure, the pragmatic project model, and an external standard. That interaction is captured in the Concept entity. To relate the Term “Clinical Diagnosis” and the Node <code class="docutils literal notranslate"><span class="pre">clinical_diagnosis</span></code> in the MDB, we create an (anonymous) Concept instance, and create links to say that the Node “has_concept” Concept, and the Term “represent” that same Concept.</p>
 <p>This seems cumbersome, and it may be, but with appropriate APIs to the database, an SME or engineer will not need to think about it. One benefit of the approach, however, is that one can query the MDB for semantic mapping completely independently of any models stored there. All Terms that attach (via <code class="docutils literal notranslate"><span class="pre">represent</span></code>) to a given Concept entity are considered to be synoymous, in the working context of the MDB. New models with semantically identical Nodes can be mapped into existing terminology (and therefore, existing mappings and translations) by a single association of the new model’s entities to the correct Concept entities. This is a curation step that can be performed separately from creating the model structure itself.</p>
 <p>If there is a distinction of meaning between two nodes with a similar structural role in two models (say “veterinary diagnosis” and “clinical diagnosis”), this can also be handled by addition to the MDB, without structurally changing it. In this case, creating a new Concept entity to attach to a Node <code class="docutils literal notranslate"><span class="pre">veterinary_diagnosis</span></code>, and linking that Concept to the “Clinical Diagnosis” Concept with a Predicate <code class="docutils literal notranslate"><span class="pre">is_related_to</span></code>, may suffice for the practical purposes of mapping between models. If a Term (again, an external stable semantic entity) that represents the idea of “veterinary diagnosis” is found, that can be added to the new Concept in the MDB later.</p>
-<p>[GDC examples of confusion because these distinctions are blurred.]</p>
 </section>
 </section>
 
@@ -174,13 +181,13 @@ In this example, Nodes from different models that group infomation bearing on di
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="bento_meta and Metamodel Database (MDB)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="mdb-conventions.html" class="btn btn-neutral float-right" title="MDB Maintenance Principles and Conventions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="mdb-conventions.html" class="btn btn-neutral float-right" title="MDB Conventions and Patterns" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, FNLCR.</p>
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

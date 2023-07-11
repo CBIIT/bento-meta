@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.util.cypher.entities &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bento_meta.util.cypher.entities</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bento_meta.util.cypher.entities</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">bento_meta.util.cypher.entities</span>
+
+<span class="sd">Representations of cypher nodes, relationships, properties, paths</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">pdb</span> <span class="kn">import</span> <span class="n">set_trace</span>
+<span class="kn">from</span> <span class="nn">bento_meta.util.cypher.functions</span> <span class="kn">import</span> <span class="n">Func</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span> <span class="k">as</span> <span class="n">clone</span>
+
+
+<div class="viewcode-block" id="countmaker"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.countmaker">[docs]</a><span class="k">def</span> <span class="nf">countmaker</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Entity"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.Entity">[docs]</a><span class="k">class</span> <span class="nc">Entity</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A property graph Entity. Base class.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">As</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ct</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_reset_counter</span><span class="p">()</span>
+            <span class="n">ct</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Entity._reset_counter"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.Entity._reset_counter">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_reset_counter</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">countmaker</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Entity.pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.Entity.pattern">[docs]</a>    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render entity as a match pattern.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Entity.condition"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.Entity.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render entity as a condition (for WHERE, e.g.).&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Entity.Return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.Entity.Return">[docs]</a>    <span class="k">def</span> <span class="nf">Return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render entity as a return value.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Entity._add_props"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.Entity._add_props">[docs]</a>    <span class="k">def</span> <span class="nf">_add_props</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">props</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">N</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">R</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">props</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">props</span><span class="p">)</span> <span class="o">==</span> <span class="n">P</span><span class="p">:</span>
+            <span class="n">props</span><span class="o">.</span><span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">props</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">props</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">props</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">props</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">props</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">hdl</span> <span class="ow">in</span> <span class="n">props</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">hdl</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">hdl</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">props</span><span class="p">[</span><span class="n">hdl</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="n">hdl</span><span class="p">]</span><span class="o">.</span><span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t interpret props arg &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">props</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="N"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.N">[docs]</a><span class="k">class</span> <span class="nc">N</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A property graph Node.&quot;&quot;&quot;</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">countmaker</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">As</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_props</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">As</span> <span class="o">=</span> <span class="n">As</span>
+
+<div class="viewcode-block" id="N.relate_to"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.N.relate_to">[docs]</a>    <span class="k">def</span> <span class="nf">relate_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="c1"># always obj --&gt; arg direction</span>
+        <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="N.pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.N.pattern">[docs]</a>    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">pattern</span><span class="p">()])</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot; {&quot;</span><span class="o">+</span><span class="n">ret</span><span class="o">+</span><span class="s2">&quot;}&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">{}{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="N.condition"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.N.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">condition</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="N.Return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.N.Return">[docs]</a>    <span class="k">def</span> <span class="nf">Return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot; as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">As</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">As</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+
+<div class="viewcode-block" id="R"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.R">[docs]</a><span class="k">class</span> <span class="nc">R</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A property graph Relationship or edge.&quot;&quot;&quot;</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">countmaker</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">As</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_dir</span><span class="o">=</span><span class="s1">&#39;_right&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Type</span> <span class="o">=</span> <span class="n">Type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_props</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_join</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dir</span> <span class="o">=</span> <span class="n">_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">As</span> <span class="o">=</span> <span class="n">As</span>
+
+    <span class="c1"># n --&gt; m direction</span>
+<div class="viewcode-block" id="R.relate"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.R.relate">[docs]</a>    <span class="k">def</span> <span class="nf">relate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">T</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dir</span> <span class="o">==</span> <span class="s1">&#39;_right&#39;</span> <span class="k">else</span> <span class="n">T</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="R.pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.R.pattern">[docs]</a>    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">pattern</span><span class="p">()])</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot; {&quot;</span><span class="o">+</span><span class="n">ret</span><span class="o">+</span><span class="s2">&quot;}&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Type</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;-[</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}{}</span><span class="s2">]-&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Type</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;-[</span><span class="si">{}{}</span><span class="s2">]-&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="R.condition"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.R.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">condition</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="R.Return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.R.Return">[docs]</a>    <span class="k">def</span> <span class="nf">Return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot; as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">As</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">As</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+<div class="viewcode-block" id="VarLenR"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.VarLenR">[docs]</a><span class="k">class</span> <span class="nc">VarLenR</span><span class="p">(</span><span class="n">R</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Variable length property graph Relationship or edge.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+        <span class="n">min_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> 
+        <span class="n">Type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">As</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_dir</span><span class="o">=</span><span class="s1">&#39;_right&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Type</span> <span class="o">=</span> <span class="n">Type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_props</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_len</span> <span class="o">=</span> <span class="n">min_len</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_len</span> <span class="o">=</span> <span class="n">max_len</span>
+
+<div class="viewcode-block" id="VarLenR.pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.VarLenR.pattern">[docs]</a>    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">pattern</span><span class="p">()])</span>
+        <span class="n">var_len</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_len</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">min_len_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">min_len_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_len</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_len</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">max_len_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">max_len_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_len</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_len_str</span> <span class="ow">or</span> <span class="n">max_len_str</span><span class="p">:</span>
+            <span class="n">var_len</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">min_len_str</span><span class="si">}</span><span class="s2">..</span><span class="si">{</span><span class="n">max_len_str</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot; {&quot;</span><span class="o">+</span><span class="n">ret</span><span class="o">+</span><span class="s2">&quot;}&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Type</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-[:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">Type</span><span class="si">}{</span><span class="n">ret</span><span class="si">}{</span><span class="n">var_len</span><span class="si">}</span><span class="s2">]-&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-[</span><span class="si">{</span><span class="n">ret</span><span class="si">}{</span><span class="n">var_len</span><span class="si">}</span><span class="s2">]-&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+
+<div class="viewcode-block" id="N0"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.N0">[docs]</a><span class="k">class</span> <span class="nc">N0</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Completely anonymous node ().&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="N0.pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.N0.pattern">[docs]</a>    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;()&quot;</span></div>
+
+<div class="viewcode-block" id="N0.Return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.N0.Return">[docs]</a>    <span class="k">def</span> <span class="nf">Return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="R0"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.R0">[docs]</a><span class="k">class</span> <span class="nc">R0</span><span class="p">(</span><span class="n">R</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Completely anonymous relationship -[]-, i.e. --&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="R0.pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.R0.pattern">[docs]</a>    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;--&quot;</span></div>
+
+<div class="viewcode-block" id="R0.Return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.R0.Return">[docs]</a>    <span class="k">def</span> <span class="nf">Return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="P"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.P">[docs]</a><span class="k">class</span> <span class="nc">P</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A property graph Property.&quot;&quot;&quot;</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">countmaker</span><span class="p">()</span>
+    <span class="n">parameterize</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">As</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle</span> <span class="o">=</span> <span class="n">handle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">As</span> <span class="o">=</span> <span class="n">As</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="P.pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.P.pattern">[docs]</a>    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameterize</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">s*[$]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>  <span class="c1"># a parameter</span>
+                    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:$</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="P.condition"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.P.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameterize</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span>
+                                               <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">s*[$]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>  <span class="c1"># a parameter</span>
+                    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2"> = &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span>
+                                                 <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2"> = $</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="P.Return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.P.Return">[docs]</a>    <span class="k">def</span> <span class="nf">Return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot; as </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">As</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">As</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="T"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.T">[docs]</a><span class="k">class</span> <span class="nc">T</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A property graph Triple; i.e., (n)-[r]-&gt;(m).&quot;&quot;&quot;</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">countmaker</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_from</span> <span class="o">=</span> <span class="n">n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_to</span> <span class="o">=</span> <span class="n">m</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edge</span> <span class="o">=</span> <span class="n">r</span>
+
+<div class="viewcode-block" id="T.nodes"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.T.nodes">[docs]</a>    <span class="k">def</span> <span class="nf">nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_from</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="T.edge"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.T.edge">[docs]</a>    <span class="k">def</span> <span class="nf">edge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge</span></div>
+
+<div class="viewcode-block" id="T.edges"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.T.edges">[docs]</a>    <span class="k">def</span> <span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edge</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="T.pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.T.pattern">[docs]</a>    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_edge</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot;&gt;&quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_to</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="T.condition"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.T.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="T.Return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.T.Return">[docs]</a>    <span class="k">def</span> <span class="nf">Return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">Return</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span>
+                <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_from</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">var</span><span class="p">]</span></div></div>
+
+<div class="viewcode-block" id="NoDirT"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.NoDirT">[docs]</a><span class="k">class</span> <span class="nc">NoDirT</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A directionless property graph Triple; i.e., (n)-[r]-(m).&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NoDirT.pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.NoDirT.pattern">[docs]</a>    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_edge</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_to</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="NoDirT.nodes"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.NoDirT.nodes">[docs]</a>    <span class="k">def</span> <span class="nf">nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_from</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="NoDirT.edge"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.NoDirT.edge">[docs]</a>    <span class="k">def</span> <span class="nf">edge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge</span></div>
+
+<div class="viewcode-block" id="NoDirT.edges"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.NoDirT.edges">[docs]</a>    <span class="k">def</span> <span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edge</span><span class="p">()]</span></div></div>
+
+<div class="viewcode-block" id="G"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.G">[docs]</a><span class="k">class</span> <span class="nc">G</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A property graph Path.</span>
+<span class="sd">    Defined as an ordered set of partially overlapping triples.&quot;&quot;&quot;</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">countmaker</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_path</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+<div class="viewcode-block" id="G._create_path"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.G._create_path">[docs]</a>    <span class="k">def</span> <span class="nf">_create_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="n">numargs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">scr</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">ent</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+                    <span class="n">scr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">:</span>
+                        <span class="n">scr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Entity &#39;</span><span class="si">{}</span><span class="s2">&#39; is not valid at arg position </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+                        <span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">G</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Adjacent triples/paths do not overlap, &quot;</span>
+                            <span class="s2">&quot;at arg position </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+                        <span class="p">)</span>
+                    <span class="n">scr</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># reset parse</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="s2">&quot;Entity &#39;</span><span class="si">{}</span><span class="s2">&#39; is not valid at arg position </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+                    <span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">scr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">N</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">R</span><span class="p">)):</span>
+                    <span class="n">scr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">R</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+                        <span class="n">scr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">G</span><span class="p">))</span> <span class="ow">and</span> <span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_join</span><span class="p">:</span>
+                        <span class="c1"># may be able to link self to ent with _join hints</span>
+                        <span class="n">r</span> <span class="o">=</span> <span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">n1</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span>
+                              <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">r</span><span class="o">.</span><span class="n">_join</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                        <span class="n">n2</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">r</span><span class="o">.</span><span class="n">_join</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                        <span class="k">if</span> <span class="n">n1</span> <span class="ow">and</span> <span class="n">n2</span><span class="p">:</span>
+                            <span class="n">t</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">n1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+                                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;WTF error; this should not fail&quot;</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+                                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                                    <span class="s2">&quot;Found right-hand node but could not append path&quot;</span>
+                                    <span class="p">)</span>
+                            <span class="n">scr</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># success</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                                <span class="s2">&quot;Can&#39;t find endpoint nodes specified in _join for &quot;</span>
+                                <span class="s2">&quot;relationship at arg position </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                                <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Ends of relationship are ambiguous; relationship &quot;</span>
+                            <span class="s2">&quot;at arg position </span><span class="si">{}</span><span class="s2"> needs _join hints&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="s2">&quot;Entity &#39;</span><span class="si">{}</span><span class="s2">&#39; is not valid at arg position </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+                    <span class="p">)</span>
+                <span class="k">pass</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">scr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">N</span><span class="p">):</span>
+                    <span class="n">success</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+                        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ent</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+                        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                             <span class="n">ent</span><span class="o">.</span><span class="n">_from</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+                            <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ent</span><span class="o">.</span><span class="n">triples</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                                <span class="s2">&quot;Can&#39;t create start triple, &quot;</span>
+                                <span class="s2">&quot;to-node is ambiguous, &quot;</span>
+                                <span class="s2">&quot;at arg position </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+                            <span class="p">)</span>
+                        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span>
+                            <span class="n">scr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ent</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_from</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Entity &#39;</span><span class="si">{}</span><span class="s2">&#39; is not valid at arg position </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+                        <span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Resulting adjacent triples/paths do not overlap, &quot;</span>
+                            <span class="s2">&quot;at arg position </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+                        <span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">R</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_to</span><span class="p">,</span>
+                                                      <span class="n">scr</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Resulting adjacent triples/paths do not overlap, &quot;</span>
+                            <span class="s2">&quot;at arg position </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+                        <span class="p">)</span>
+                <span class="n">scr</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Shouldn&#39;t happen.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">scr</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+                    <span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">R</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scr</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">N</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="s2">&quot;Can&#39;t create end triple, from-node is ambiguous, &quot;</span>
+                        <span class="s2">&quot;at arg position </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append</span><span class="p">(</span>
+                        <span class="n">scr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_to</span><span class="p">,</span> <span class="n">scr</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="s2">&quot;Resulting adjacent triples/paths do not overlap, &quot;</span>
+                        <span class="s2">&quot;at arg position </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numargs</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Args do not define a complete Path.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="G._append"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.G._append">[docs]</a>    <span class="k">def</span> <span class="nf">_append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_overlap</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="n">t</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mb">0b000</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">_from</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">_from</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">s</span><span class="o">.</span><span class="n">_from</span><span class="o">.</span><span class="n">var</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">_from</span><span class="o">.</span><span class="n">var</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">_from</span><span class="o">.</span><span class="n">var</span><span class="p">):</span>
+                <span class="k">return</span> <span class="mb">0b001</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">_from</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">_to</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">s</span><span class="o">.</span><span class="n">_from</span><span class="o">.</span><span class="n">var</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">_from</span><span class="o">.</span><span class="n">var</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">_to</span><span class="o">.</span><span class="n">var</span><span class="p">):</span>
+                <span class="k">return</span> <span class="mb">0b010</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">_to</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">_from</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">s</span><span class="o">.</span><span class="n">_to</span><span class="o">.</span><span class="n">var</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">_to</span><span class="o">.</span><span class="n">var</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">_from</span><span class="o">.</span><span class="n">var</span><span class="p">):</span>
+                <span class="k">return</span> <span class="mb">0b011</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">_to</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">_to</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">s</span><span class="o">.</span><span class="n">_to</span><span class="o">.</span><span class="n">var</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">_to</span><span class="o">.</span><span class="n">var</span> <span class="o">==</span> <span class="n">t</span><span class="o">.</span><span class="n">_to</span><span class="o">.</span><span class="n">var</span><span class="p">):</span>
+                <span class="k">return</span> <span class="mb">0b100</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">G</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t append a </span><span class="si">{}</span><span class="s2"> to a Path.&quot;</span>
+                               <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">:</span>
+            <span class="n">ovr</span> <span class="o">=</span> <span class="n">_overlap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ent</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ovr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># same object, skip</span>
+            <span class="k">if</span> <span class="n">ovr</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Adjacent triples/paths do not overlap</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ent</span><span class="o">.</span><span class="n">triples</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="G.nodes"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.G.nodes">[docs]</a>    <span class="k">def</span> <span class="nf">nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">_from</span><span class="p">)</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">_to</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="G.edges"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.G.edges">[docs]</a>    <span class="k">def</span> <span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">_edge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="G.pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.G.pattern">[docs]</a>    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">jn</span><span class="p">(</span><span class="n">trps</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">ret</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">trps</span><span class="p">:</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">ret</span>
+            <span class="n">trp</span> <span class="o">=</span> <span class="n">trps</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">acc</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">jn</span><span class="p">(</span><span class="n">trps</span><span class="p">,</span> <span class="p">[</span><span class="n">trp</span><span class="o">.</span><span class="n">_from</span><span class="p">,</span> <span class="n">trp</span><span class="o">.</span><span class="n">_edge</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">trp</span><span class="o">.</span><span class="n">_to</span><span class="p">],</span> <span class="n">ret</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">trp</span><span class="o">.</span><span class="n">_from</span> <span class="o">==</span> <span class="n">acc</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">acc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">trp</span><span class="o">.</span><span class="n">_to</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">trp</span><span class="o">.</span><span class="n">_edge</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">trp</span><span class="o">.</span><span class="n">_from</span> <span class="o">==</span> <span class="n">acc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">acc</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">trp</span><span class="o">.</span><span class="n">_edge</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">trp</span><span class="o">.</span><span class="n">_to</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">trp</span><span class="o">.</span><span class="n">_to</span> <span class="o">==</span> <span class="n">acc</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">acc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">trp</span><span class="o">.</span><span class="n">_from</span><span class="p">,</span> <span class="n">trp</span><span class="o">.</span><span class="n">_edge</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">trp</span><span class="o">.</span><span class="n">_to</span> <span class="o">==</span> <span class="n">acc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">acc</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">trp</span><span class="o">.</span><span class="n">_edge</span><span class="p">,</span> <span class="n">trp</span><span class="o">.</span><span class="n">_from</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
+                    <span class="n">acc</span> <span class="o">=</span> <span class="p">[</span><span class="n">trp</span><span class="o">.</span><span class="n">_from</span><span class="p">,</span> <span class="n">trp</span><span class="o">.</span><span class="n">_edge</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">trp</span><span class="o">.</span><span class="n">_to</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">jn</span><span class="p">(</span><span class="n">trps</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+            <span class="k">pass</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="p">:</span>
+            <span class="n">trps</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">)</span>
+            <span class="n">grps</span> <span class="o">=</span> <span class="n">jn</span><span class="p">(</span><span class="n">trps</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+            <span class="n">pats</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">grp</span> <span class="ow">in</span> <span class="n">grps</span><span class="p">:</span>
+                <span class="n">pats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span>
+                             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">grp</span><span class="p">])</span>
+                    <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pats</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span></div>
+
+<div class="viewcode-block" id="G.condition"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.G.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="G.Return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities.G.Return">[docs]</a>    <span class="k">def</span> <span class="nf">Return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">_from</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">_to</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">_return</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">s</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">var</span><span class="p">])</span></div></div>
+
+<span class="c1"># modifiers</span>
+
+
+<div class="viewcode-block" id="_as"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities._as">[docs]</a><span class="k">def</span> <span class="nf">_as</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">alias</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return copy of ent with As alias set.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ent</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+    <span class="n">ret</span><span class="o">.</span><span class="n">As</span> <span class="o">=</span> <span class="n">alias</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="_plain"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities._plain">[docs]</a><span class="k">def</span> <span class="nf">_plain</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return entity without properties.&quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">R</span><span class="p">)):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">_from</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">_to</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">_edge</span><span class="o">.</span><span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ent</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="_anon"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities._anon">[docs]</a><span class="k">def</span> <span class="nf">_anon</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return entity without variable name.&quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+    <span class="n">ret</span><span class="o">.</span><span class="n">var</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="_var"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities._var">[docs]</a><span class="k">def</span> <span class="nf">_var</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return entity without label or type.&quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">R</span><span class="p">)):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">):</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="s2">&quot;Type&quot;</span><span class="p">):</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">Type</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">_from</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">_to</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># leave the edge type alone in a triple...</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ent</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="_plain_var"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities._plain_var">[docs]</a><span class="k">def</span> <span class="nf">_plain_var</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return entity with only the variable, no label or properties&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_plain</span><span class="p">(</span><span class="n">_var</span><span class="p">(</span><span class="n">ent</span><span class="p">))</span></div>
+
+<span class="c1"># rendering contexts</span>
+
+
+<div class="viewcode-block" id="_pattern"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities._pattern">[docs]</a><span class="k">def</span> <span class="nf">_pattern</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Func</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ent</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_condition"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities._condition">[docs]</a><span class="k">def</span> <span class="nf">_condition</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Func</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ent</span><span class="o">.</span><span class="n">condition</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="_return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/entities/index.html#bento_meta.util.cypher.entities._return">[docs]</a><span class="k">def</span> <span class="nf">_return</span><span class="p">(</span><span class="n">ent</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Func</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ent</span><span class="o">.</span><span class="n">Return</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+:py:mod:`bento_meta.util.makeq`
+===============================
+
+.. py:module:: bento_meta.util.makeq
+
+.. autoapi-nested-parse::
+
+   makeq - make a Neo4j query from an endpoint path.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.util.makeq.Query
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.util.makeq.f
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   bento_meta.util.makeq.avail_funcs
+
+
+.. py:data:: avail_funcs
+
+   
+
+.. py:function:: f(pfx, pth)
+
+
+.. py:class:: Query(path, use_cache=True)
+
+
+   Bases: :py:obj:`object`
+
+   .. py:property:: statement
+
+
+   .. py:property:: params
+
+
+   .. py:property:: path_id
+
+
+   .. py:attribute:: paths
+
+      
+
+   .. py:attribute:: cache
+
+      
+
+   .. py:method:: set_paths(paths)
+      :classmethod:
+
+
+   .. py:method:: load_paths(flo)
+      :classmethod:
+
+
+   .. py:method:: __str__()
+
+      Return str(self).
+
+
+

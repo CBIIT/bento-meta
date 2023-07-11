@@ -310,6 +310,8 @@ Subclass that models a property of a node or relationship (edge). Posesses all :
 
 Subclass that models a term from a terminology. Posesses all :class:`Entity` attributes, plus the following:
 
+  .. py:attribute:: term.handle
+       :type: simple
   .. py:attribute:: term.value
        :type: simple
   .. py:attribute:: term.nanoid
@@ -338,6 +340,8 @@ Subclass that models a semantic concept. Posesses all :class:`Entity` attributes
 
 Subclass that models a semantic link between concepts. Posesses all :class:`Entity` attributes, plus the following:
 
+  .. py:attribute:: predicate.handle
+       :type: simple
   .. py:attribute:: predicate.subject
        :type: Concept
   .. py:attribute:: predicate.object

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.mdb &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="bento_meta.mdb.mdb_tools" href="mdb_tools/index.html" />
+    <link rel="prev" title="bento_meta" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.util</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/bento_meta/mdb/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bento_meta.mdb">
+<span id="bento-meta-mdb"></span><h1><a class="reference internal" href="#module-bento_meta.mdb" title="bento_meta.mdb"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb</span></code></a><a class="headerlink" href="#module-bento_meta.mdb" title="Permalink to this heading"></a></h1>
+<section id="id1">
+<p>This module contains <a class="reference internal" href="#bento_meta.mdb.MDB" title="bento_meta.mdb.MDB"><code class="xref py py-class docutils literal notranslate"><span class="pre">MDB</span></code></a>, with machinery for efficiently
+querying a Neo4j instance of a Metamodel Database.</p>
+</section>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mdb_tools/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.mdb_tools</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mdb_tools/mdb_tools/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.mdb_tools.mdb_tools</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="loaders/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.loaders</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="mdb/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.mdb</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="searchable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.searchable</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="writeable/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta.mdb.writeable</span></code></a></li>
+</ul>
+</div>
+</section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Permalink to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.mdb.MDB" title="bento_meta.mdb.MDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MDB</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.mdb.WriteableMDB" title="bento_meta.mdb.WriteableMDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WriteableMDB</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.mdb.SearchableMDB" title="bento_meta.mdb.SearchableMDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SearchableMDB</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.mdb.make_nanoid" title="bento_meta.mdb.make_nanoid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_nanoid</span></code></a>([alphabet, size])</p></td>
+<td><p>Create a random nanoid and return it as a string.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.mdb.read_txn" title="bento_meta.mdb.read_txn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_txn</span></code></a>(func)</p></td>
+<td><p>Decorates a query function to run a read transaction based on</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.mdb.read_txn_value" title="bento_meta.mdb.read_txn_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_txn_value</span></code></a>(func)</p></td>
+<td><p>Decorates a query function to run a read transaction based on</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.mdb.read_txn_data" title="bento_meta.mdb.read_txn_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_txn_data</span></code></a>(func)</p></td>
+<td><p>Decorates a query function to run a read transaction based on</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.mdb.load_mdf" title="bento_meta.mdb.load_mdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_mdf</span></code></a>(mdf, mdb[, _commit])</p></td>
+<td><p>Load an MDF object into an MDB instance</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.mdb.load_model" title="bento_meta.mdb.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(model, mdb[, _commit])</p></td>
+<td><p>Load a model object into an MDB instance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.mdb.load_model_statements" title="bento_meta.mdb.load_model_statements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model_statements</span></code></a>(model[, _commit])</p></td>
+<td><p>Create Cypher statements from a model to load it de novo into an</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">MDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">os.environ.get('NEO4J_MDB_URI')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">os.environ.get('NEO4J_MDB_USER')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">os.environ.get('NEO4J_MDB_PASS')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB" title="Permalink to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB._txfns">
+<span class="sig-name descname"><span class="pre">_txfns</span></span><a class="headerlink" href="#bento_meta.mdb.MDB._txfns" title="Permalink to this definition"></a></dt>
+<dd><p>Create an <a class="reference internal" href="#bento_meta.mdb.MDB" title="bento_meta.mdb.MDB"><code class="xref py py-class docutils literal notranslate"><span class="pre">MDB</span></code></a> object, with a connection to a Neo4j instance of a metamodel database.
+:param bolt_url uri: The Bolt protocol endpoint to the Neo4j instance (default, use the
+<code class="docutils literal notranslate"><span class="pre">NEO4J_MDB_URI</span></code> env variable)
+:param str user: Username for Neo4j access (default, use the <code class="docutils literal notranslate"><span class="pre">NEO4J_MDB_USER</span></code> env variable)
+:param str password: Password for user (default, use the <code class="docutils literal notranslate"><span class="pre">NEO4J_MDB_PASS</span></code> env variable)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.close" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.register_txfn">
+<span class="sig-name descname"><span class="pre">register_txfn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.register_txfn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.register_txfn" title="Permalink to this definition"></a></dt>
+<dd><p>Register a transaction function
+(see <a class="reference external" href="https://neo4j.com/docs/api/python-driver/current/api.html#managed-transactions-transaction-functions">https://neo4j.com/docs/api/python-driver/current/api.html#managed-transactions-transaction-functions</a>)
+with the class for later use.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_model_handles">
+<span class="sig-name descname"><span class="pre">get_model_handles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_model_handles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_model_handles" title="Permalink to this definition"></a></dt>
+<dd><p>Return a simple list of model handles available.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_model_nodes">
+<span class="sig-name descname"><span class="pre">get_model_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_model_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_model_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Return a list of dicts representing Model nodes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_nodes_by_model">
+<span class="sig-name descname"><span class="pre">get_nodes_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_nodes_by_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_nodes_by_model" title="Permalink to this definition"></a></dt>
+<dd><p>Get all nodes for a given model. If :param:model is None,
+get all nodes in database.
+Returns [ &lt;node&gt; ].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_model_nodes_edges">
+<span class="sig-name descname"><span class="pre">get_model_nodes_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_model_nodes_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_model_nodes_edges" title="Permalink to this definition"></a></dt>
+<dd><p>Get all node-relationship-node paths for a given model.
+Returns [ path ]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_node_edges_by_node_id">
+<span class="sig-name descname"><span class="pre">get_node_edges_by_node_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_node_edges_by_node_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_node_edges_by_node_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get incoming and outgoing relationship information for a node,
+given its nanoid.
+Returns [ {id, handle, model, near_type, far_type, rln, far_node} ].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_node_and_props_by_node_id">
+<span class="sig-name descname"><span class="pre">get_node_and_props_by_node_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_node_and_props_by_node_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_node_and_props_by_node_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get a node and its properties, given the node nanoid.
+Returns [ {id, handle, model, node, props[]} ].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_nodes_and_props_by_model">
+<span class="sig-name descname"><span class="pre">get_nodes_and_props_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_nodes_and_props_by_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_nodes_and_props_by_model" title="Permalink to this definition"></a></dt>
+<dd><p>Get all nodes with associated properties given a model handle. If
+model is None, get all nodes with their properties.
+Returns [ {id, handle, model, props[]} ]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_prop_node_and_domain_by_prop_id">
+<span class="sig-name descname"><span class="pre">get_prop_node_and_domain_by_prop_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_prop_node_and_domain_by_prop_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_prop_node_and_domain_by_prop_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get a property, its node, and its value domain or value set
+of terms, given the property nanoid.
+Returns [ { id, handle, model, value_domain, prop, node, value_set, terms[] } ].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_valueset_by_id">
+<span class="sig-name descname"><span class="pre">get_valueset_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_valueset_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_valueset_by_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get a valueset with the properties that use it and the terms
+that constitute it.
+Returns [ {id, handle, url, terms[], props[]} ]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_valuesets_by_model">
+<span class="sig-name descname"><span class="pre">get_valuesets_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_valuesets_by_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_valuesets_by_model" title="Permalink to this definition"></a></dt>
+<dd><p>Get all valuesets that are used by properties in the given
+model (or all valuesets if model is None). Also return list of properties using
+each valueset.
+Returns [ {value_set, props[]} ].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_term_by_id">
+<span class="sig-name descname"><span class="pre">get_term_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_term_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_term_by_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get a term having the given nanoid, with its origin.
+Returns {term, origin}.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_props_and_terms_by_model">
+<span class="sig-name descname"><span class="pre">get_props_and_terms_by_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_props_and_terms_by_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_props_and_terms_by_model" title="Permalink to this definition"></a></dt>
+<dd><p>Get terms from valuesets associated with properties in a given model
+(or all such terms if model is None).
+Returns [ {prop, terms[]} ]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_origins">
+<span class="sig-name descname"><span class="pre">get_origins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_origins"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_origins" title="Permalink to this definition"></a></dt>
+<dd><p>Get all origins.
+Returns [ &lt;origin&gt; ]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_origin_by_id">
+<span class="sig-name descname"><span class="pre">get_origin_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_origin_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_origin_by_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get an origin by nanoid.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_tags_for_entity_by_id">
+<span class="sig-name descname"><span class="pre">get_tags_for_entity_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_tags_for_entity_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_tags_for_entity_by_id" title="Permalink to this definition"></a></dt>
+<dd><p>Get all tags attached to an entity, given the entity’s nanoid.
+Returns [ {model(str), tags[]} ].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_tags_and_values">
+<span class="sig-name descname"><span class="pre">get_tags_and_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_tags_and_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_tags_and_values" title="Permalink to this definition"></a></dt>
+<dd><p>Get all tag key/value pairs that are present in database.
+Returns [ { key(str) : values[] } ]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_entities_by_tag">
+<span class="sig-name descname"><span class="pre">get_entities_by_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_entities_by_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_entities_by_tag" title="Permalink to this definition"></a></dt>
+<dd><p>Get all entities, optionally from a given model,
+tagged with a given key or key:value pair.
+Returns [ {tag_key(str), tag_value(str), entity(str - label), entities[]} ]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.MDB.get_with_statement">
+<span class="sig-name descname"><span class="pre">get_with_statement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#MDB.get_with_statement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.MDB.get_with_statement" title="Permalink to this definition"></a></dt>
+<dd><p>Run an arbitrary read statement and return data.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bento_meta.mdb.make_nanoid">
+<span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">make_nanoid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alphabet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#make_nanoid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.make_nanoid" title="Permalink to this definition"></a></dt>
+<dd><p>Create a random nanoid and return it as a string.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bento_meta.mdb.read_txn">
+<span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">read_txn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#read_txn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.read_txn" title="Permalink to this definition"></a></dt>
+<dd><p>Decorates a query function to run a read transaction based on
+its query.
+Query function should return a tuple (qry_string, param_dict).
+Returns list of driver Records.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bento_meta.mdb.read_txn_value">
+<span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">read_txn_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#read_txn_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.read_txn_value" title="Permalink to this definition"></a></dt>
+<dd><p>Decorates a query function to run a read transaction based on
+its query.
+Query function should return a tuple (qry_string, param_dict, values_key).
+Returns list of values for key specified by query function.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bento_meta.mdb.read_txn_data">
+<span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">read_txn_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/mdb.html#read_txn_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.read_txn_data" title="Permalink to this definition"></a></dt>
+<dd><p>Decorates a query function to run a read transaction based on
+its query.
+Query function should return a tuple (qry_string, param_dict).
+Returns records as a list of simple dicts.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.mdb.WriteableMDB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">WriteableMDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/writeable.html#WriteableMDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.WriteableMDB" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.mdb.MDB" title="bento_meta.mdb.MDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bento_meta.mdb.MDB</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.WriteableMDB.put_with_statement">
+<span class="sig-name descname"><span class="pre">put_with_statement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/writeable.html#WriteableMDB.put_with_statement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.WriteableMDB.put_with_statement" title="Permalink to this definition"></a></dt>
+<dd><p>Run an arbitrary write statement.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.WriteableMDB.put_term_with_origin">
+<span class="sig-name descname"><span class="pre">put_term_with_origin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_from</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/writeable.html#WriteableMDB.put_term_with_origin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.WriteableMDB.put_term_with_origin" title="Permalink to this definition"></a></dt>
+<dd><p>Merge a bento-meta Term object, that has an Origin object set,
+into an MDB. If a new term is created, assign a random 6-char nanoid
+to it. The Origin must already be represented in the database.
+:param Term term: Term object
+:param str commit: GitHub commit SHA1 associated with the term (if any)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.mdb.SearchableMDB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">SearchableMDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/searchable.html#SearchableMDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.SearchableMDB" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.mdb.MDB" title="bento_meta.mdb.MDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bento_meta.mdb.MDB</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.SearchableMDB.available_indexes">
+<span class="sig-name descname"><span class="pre">available_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/searchable.html#SearchableMDB.available_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.SearchableMDB.available_indexes" title="Permalink to this definition"></a></dt>
+<dd><p>Fulltext indexes present in database.
+Returns { &lt;index_name&gt; : { entity_type:&lt;NODE|RELATIONSHIP&gt;, entities:[&lt;labels&gt;],
+properties:[ [&lt;props&gt;] ] } }</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.SearchableMDB.query_index">
+<span class="sig-name descname"><span class="pre">query_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qstring</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/searchable.html#SearchableMDB.query_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.SearchableMDB.query_index" title="Permalink to this definition"></a></dt>
+<dd><p>Query a named fulltext index of nodes or relationships.
+Returns [ {ent:{}, label:&lt;label&gt;, score:&lt;lucene score&gt;} ].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.SearchableMDB.search_entity_handles">
+<span class="sig-name descname"><span class="pre">search_entity_handles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qstring</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/searchable.html#SearchableMDB.search_entity_handles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.SearchableMDB.search_entity_handles" title="Permalink to this definition"></a></dt>
+<dd><p>Fulltext search of qstring over node, relationship, and property handles.
+Returns { node:[ {ent:&lt;entity dict&gt;,score:&lt;lucene score&gt;},… ],
+relationship:[ &lt;…&gt; ], property:[ &lt;…&gt; ] }</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.mdb.SearchableMDB.search_terms">
+<span class="sig-name descname"><span class="pre">search_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qstring</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_definitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/searchable.html#SearchableMDB.search_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.SearchableMDB.search_terms" title="Permalink to this definition"></a></dt>
+<dd><p>Fulltext for qstring over terms, by value, definition, or both (default).
+Returns [ { ent:&lt;term dict&gt;, score:&lt;lucene score&gt; } ]}</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bento_meta.mdb.load_mdf">
+<span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">load_mdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/loaders.html#load_mdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.load_mdf" title="Permalink to this definition"></a></dt>
+<dd><p>Load an MDF object into an MDB instance</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bento_meta.mdb.load_model">
+<span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/loaders.html#load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.load_model" title="Permalink to this definition"></a></dt>
+<dd><p>Load a model object into an MDB instance.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bento_meta.mdb.load_model_statements">
+<span class="sig-prename descclassname"><span class="pre">bento_meta.mdb.</span></span><span class="sig-name descname"><span class="pre">load_model_statements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/mdb/loaders.html#load_model_statements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.mdb.load_model_statements" title="Permalink to this definition"></a></dt>
+<dd><p>Create Cypher statements from a model to load it de novo into an
+MDB instance.</p>
+<p>:param <code class="xref py py-class docutils literal notranslate"><span class="pre">mdb.Model</span></code> model: Model instance for loading
+:param str _commit: ‘Commit string’ for marking entities in DB. If set, this will override
+_commit attributes already existing on Model entities.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="bento_meta" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mdb_tools/index.html" class="btn btn-neutral float-right" title="bento_meta.mdb.mdb_tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
