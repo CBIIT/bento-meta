@@ -4,8 +4,8 @@ model and produces a Liquibase Changelog with the necessary changes to
 an MDB in Neo4J to update the model from the old version to the new one.
 """
 
-
 import configparser
+import logging
 from pathlib import Path
 from typing import Dict, Generator, List, Optional, Tuple, Union
 
@@ -25,6 +25,8 @@ from bento_meta.util.cypher.clauses import (
 )
 from bento_meta.util.cypher.entities import G, N, P, R, T, _plain_var
 from liquichange.changelog import Changelog, Changeset, CypherChange
+
+logger = logging.getLogger(__name__)
 
 ADD_NODE = "add property graph node"
 REMOVE_NODE = "remove property graph node"
@@ -189,11 +191,15 @@ def split_diff(
                         )
     if prop_diff:
         if prop_diff.get("a"):
-            for parent_hdl, prop_hdl in prop_diff.get("a"):
+            for prop_tuple in prop_diff.get("a"):
+                # parent_hdls = prop_tuple[:-1]
+                prop_hdl = prop_tuple[-1]
                 prop = Property({"handle": prop_hdl, "model": model_handle})
                 remove_node(prop, diff_segments)
         if prop_diff.get("b"):
-            for parent_hdl, prop_hdl in prop_diff.get("b"):
+            for prop_tuple in prop_diff.get("b"):
+                # parent_hdls = prop_tuple[:-1]
+                prop_hdl = prop_tuple[-1]
                 prop = Property({"handle": prop_hdl, "model": model_handle})
                 add_node(prop, diff_segments)
         for prop_tup, change_dict in prop_diff.items():
@@ -326,7 +332,7 @@ def convert_diff_to_changelog(
 
     for segment in diff_segments:
         cypher_stmt = convert_diff_segment_to_cypher_statement(segment)
-        changelog.subelements.append(
+        changelog.add_changeset(
             Changeset(
                 id=str(next(changeset_id)),
                 author=author,

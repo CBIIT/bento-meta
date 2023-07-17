@@ -17,7 +17,7 @@ from bento_meta.util.cypher.clauses import (
     When,
     With,
 )
-from bento_meta.util.cypher.entities import G, N, R, T, _plain_var
+from bento_meta.util.cypher.entities import G, N, R, T, _anon, _plain_var
 from liquichange.changelog import Changelog, Changeset, CypherChange
 
 
@@ -83,9 +83,9 @@ def get_mapping_source(mapping_dict: Dict) -> str:
     return mapping_dict.get("Source", "")
 
 
-def get_target_models(mapping_dict: Dict) -> List[str]:
+def get_target_models(mapping_dict: Dict) -> Dict[str, str]:
     """returns target models"""
-    return mapping_dict.get("Models", [])
+    return mapping_dict.get("Models", dict())
 
 
 def get_parents_as_list(parent_str: str) -> List[str]:
@@ -116,8 +116,8 @@ def generate_mapping_cypher(
 
     _commit will be added to newly created nodes
     """
-    src_triple = T(src_parent, parent_child_rel, src_ent)
-    dst_triple = T(dst_parent, parent_child_rel, dst_ent)
+    src_triple = T(src_parent, _anon(parent_child_rel), src_ent)
+    dst_triple = T(dst_parent, _anon(parent_child_rel), dst_ent)
     src_concept = N(label="concept")
     dst_concept = N(label="concept")
     src_concept_path = G(
@@ -162,6 +162,7 @@ def generate_mapping_cypher(
         # neither ent has a concept, create a new one, tag it, link ents to it
         ForEach(),
         f"(_ IN {Case()}{When(f'{src_concept.var} IS NULL', f'{dst_concept.var} IS NULL')} ",
+        "THEN [1] ELSE [] END |",
         Create(T(new_concept, R(Type="has_tag"), new_tag)),
         Create(
             T(
@@ -202,7 +203,7 @@ def process_props(mapping_dict: Dict, _commit: Optional[str] = None) -> List[Sta
                             ),
                             dst_ent=N(
                                 label="property",
-                                props={"handle": src_prop, "model": dst_model},
+                                props={"handle": dst_prop, "model": dst_model},
                             ),
                             src_parent=N(
                                 props={
@@ -234,7 +235,7 @@ def convert_mappings_to_changelog(
     mapping_dict = load_yaml(mapping_mdf)
     cypher_stmts = process_props(mapping_dict, _commit)
     for stmt in cypher_stmts:
-        changelog.subelements.append(
+        changelog.add_changeset(
             Changeset(
                 id=str(next(changeset_id)),
                 author=author,
