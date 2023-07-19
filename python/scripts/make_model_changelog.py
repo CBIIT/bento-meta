@@ -54,9 +54,6 @@ def escape_quotes_in_attr(entity: Entity) -> None:
     Quotes in string attributes may or may not already be escaped, so this function
     unescapes all previously escaped ' and " characters and replaces them with
     """
-    escape_table = str.maketrans({"'": r"\'", '"': r"\""})
-    unescape_table = str.maketrans({r"\'": "'", r"\"": '"'})
-
     for key, val in vars(entity).items():
         if (
             val
@@ -68,10 +65,10 @@ def escape_quotes_in_attr(entity: Entity) -> None:
             )
         ):
             # First unescape any previously escaped quotes
-            val = val.translate(unescape_table)
+            val = val.replace(r"\'", "'").replace(r"\"", '"')
 
             # Escape all quotes
-            val = val.translate(escape_table)
+            val = val.replace("'", r"\'").replace('"', r"\"")
 
             # Update the modified value back to the attribute
             setattr(entity, key, val)

@@ -1,0 +1,31 @@
+# sample mappings for testing
+Source: MAP_SRC
+Models:
+  DST_MDL_1:
+    Version: v1.0.2
+    VersionDate: "2023-12-25"
+  DST_MDL_2:
+    Version: "14"
+    VersionDate: "1990-01-01"
+Props:
+  node_1:
+    src_prop_1:
+      DST_MDL_1:
+        - dst_1_prop_1:
+            Parents: dst_1_endpoint_1
+      DST_MDL_2:
+        - dst_2_prop_1:
+            Parents: dst_2_node1.dst_2_node_2.dst_2_node_3
+        - dst_2_prop_2:
+            Parents: dst_2_node1.dst_2_node_2
+    src_prop_2:
+      DST_MDL_1:
+        - dst_1_prop_1:
+            Parents: dst_1_endpoint_1
+        - dst_1_const_1:
+            Constant: true
+  node_2:
+    prop_3:
+      DST_MDL_2:
+        - dst_2_prop_3:
+            Parents: dst_2_node_1
