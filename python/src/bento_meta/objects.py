@@ -7,9 +7,12 @@ in representing the models contained in the `MDB <https://github.com/CBIIT/bento
 
 """
 import sys
+
 sys.path.append("..")
 from copy import deepcopy
+
 from bento_meta.entity import Entity
+
 # from pdb import set_trace
 
 
@@ -50,7 +53,7 @@ class Node(Entity):
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "props": {"rel": ":has_property>", "end_cls": "Property"},
-            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
+            "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
     }
     (attspec, _mapspec) = mergespec("Node", attspec_, mapspec_)
@@ -61,6 +64,7 @@ class Node(Entity):
 
 class Property(Entity):
     """Subclass that models a property of a node or relationship (edge)."""
+
     pvt_attr = Entity.pvt_attr + ["value_types"]
     attspec_ = {
         "handle": "simple",
@@ -90,12 +94,12 @@ class Property(Entity):
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "value_set": {"rel": ":has_value_set>", "end_cls": "ValueSet"},
-            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
+            "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
     }
     (attspec, _mapspec) = mergespec("Property", attspec_, mapspec_)
-    defaults = { "value_domain":"TBD" }
-    
+    defaults = {"value_domain": "TBD"}
+
     def __init__(self, init=None):
         super().__init__(init=init)
         self.value_types = []
@@ -121,6 +125,7 @@ class Property(Entity):
 
 class Edge(Entity):
     """Subclass that models a relationship between model nodes."""
+
     defaults = {
         "multiplicity": "many_to_many",
     }
@@ -150,11 +155,11 @@ class Edge(Entity):
             "dst": {"rel": ":has_dst>", "end_cls": "Node"},
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "props": {"rel": ":has_property>", "end_cls": "Property"},
-            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
+            "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
     }
     (attspec, _mapspec) = mergespec("Edge", attspec_, mapspec_)
-     
+
     def __init__(self, init=None):
         super().__init__(init=init)
 
@@ -165,10 +170,6 @@ class Edge(Entity):
         """
         if self.handle and self.src and self.dst:
             return (self.handle, self.src.handle, self.dst.handle)
-
-    def get_label(self) -> str:
-        """returns type of entity as label"""
-        return "relationship"
 
 
 class Term(Entity):
@@ -204,7 +205,7 @@ class Term(Entity):
         "relationship": {
             "concept": {"rel": ":represents>", "end_cls": "Concept"},
             "origin": {"rel": ":has_origin>", "end_cls": "Origin"},
-            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
+            "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
     }
     (attspec, _mapspec) = mergespec("Term", attspec_, mapspec_)
@@ -220,6 +221,7 @@ class ValueSet(Entity):
     """Subclass that models an enumerated set of :class:`Property` values.
     Essentially a container for :class:`Term` instances.
     """
+
     attspec_ = {
         "handle": "simple",
         "nanoid": "simple",
@@ -230,12 +232,16 @@ class ValueSet(Entity):
     }
     mapspec_ = {
         "label": "value_set",
-        "property": {"handle": "handle", "url": "url", "nanoid": "nanoid",},
+        "property": {
+            "handle": "handle",
+            "url": "url",
+            "nanoid": "nanoid",
+        },
         "relationship": {
             "prop": {"rel": "<:has_value_set", "end_cls": "Property"},
             "terms": {"rel": ":has_term>", "end_cls": "Term"},
             "origin": {"rel": ":has_origin>", "end_cls": "Origin"},
-            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
+            "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
     }
     (attspec, _mapspec) = mergespec("ValueSet", attspec_, mapspec_)
@@ -267,7 +273,7 @@ class Concept(Entity):
         "label": "concept",
         "relationship": {
             "terms": {"rel": "<:represents", "end_cls": "Term"},
-            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}            
+            "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
     }
     (attspec, _mapspec) = mergespec("Concept", attspec_, mapspec_)
@@ -275,12 +281,11 @@ class Concept(Entity):
     def __init__(self, init=None):
         super().__init__(init=init)
 
+
 class Predicate(Entity):
     """Subclass that models a semantic link between concepts."""
-    attspec_ = {
-        "handle": "simple",
-        "subject": "object",
-        "object": "object"}
+
+    attspec_ = {"handle": "simple", "subject": "object", "object": "object"}
     mapspec_ = {
         "label": "predicate",
         "key": "handle",
@@ -290,19 +295,24 @@ class Predicate(Entity):
         "relationship": {
             "subject": {"rel": ":has_subject>", "end_cls": "Concept"},
             "object": {"rel": ":has_object>", "end_cls": "Concept"},
-            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}            
+            "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
     }
     (attspec, _mapspec) = mergespec("Predicate", attspec_, mapspec_)
 
     def __init__(self, init=None):
         super().__init__(init=init)
-        
+
 
 class Origin(Entity):
     """Subclass that models a :class:`Term` 's authoritative source."""
 
-    attspec_ = {"url": "simple", "is_external": "simple", "name": "simple", "nanoid": "simple",}
+    attspec_ = {
+        "url": "simple",
+        "is_external": "simple",
+        "name": "simple",
+        "nanoid": "simple",
+    }
     mapspec_ = {
         "label": "origin",
         "key": "name",
@@ -312,9 +322,7 @@ class Origin(Entity):
             "is_external": "is_external",
             "nanoid": "nanoid",
         },
-        "relationship": {
-            "tags": {"rel": ":has_tag>", "end_cls":"Tag"}
-        }
+        "relationship": {"tags": {"rel": ":has_tag>", "end_cls": "Tag"}},
     }
     (attspec, _mapspec) = mergespec("Origin", attspec_, mapspec_)
 
@@ -325,13 +333,37 @@ class Origin(Entity):
 class Tag(Entity):
     """Subclass that allows simple key-value tagging of a model at arbitrary points."""
 
-    attspec_ = {"key":"simple", "value": "simple"}
+    attspec_ = {"key": "simple", "value": "simple"}
     mapspec_ = {
         "label": "tag",
         "key": "key",
         "property": {"key": "key", "value": "value"},
     }
     (attspec, _mapspec) = mergespec("Tag", attspec_, mapspec_)
+
+    def __init__(self, init=None):
+        super().__init__(init=init)
+
+
+class Model(Entity):
+    """Subclass with information regarding data model."""
+
+    attspec_ = {
+        "handle": "simple",
+        "name": "simple",
+        "repository": "simple",
+        "nanoid": "simple",
+    }
+    mapspec_ = {
+        "label": "model",
+        "key": "handle",
+        "property": {
+            "handle": "handle",
+            "name": "name",
+            "repository": "repository",
+        },
+    }
+    (attspec, _mapspec) = mergespec("Model", attspec_, mapspec_)
 
     def __init__(self, init=None):
         super().__init__(init=init)

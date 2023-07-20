@@ -10,6 +10,7 @@ from typing import Dict, Generator, List, Optional, Union
 import click
 from bento_mdf.mdf import MDF
 from bento_meta.entity import Entity
+from bento_meta.mdb.mdb import make_nanoid
 from bento_meta.model import Model
 from bento_meta.objects import Concept, Term, ValueSet
 from bento_meta.util.cypher.clauses import Create, Match, Merge, OnCreateSet, Statement
@@ -111,6 +112,10 @@ def generate_cypher_to_add_relationship(
     """Generates cypher statement to create relationship from src to dst entity"""
     cypher_src = cypherize_entity(src)
     cypher_dst = cypherize_entity(dst)
+    # remove _commit attr from Term and VS ents
+    for cypher_ent in (cypher_src, cypher_dst):
+        if isinstance(cypher_ent, (Term, ValueSet)) and "_commit" in cypher_ent.props:
+            cypher_ent.props.pop("_commit")
     cypher_stmts["add_rels"].append(
         Statement(
             Match(cypher_src, cypher_dst),
@@ -124,6 +129,7 @@ def process_tags(entity: Entity, cypher_stmts) -> None:
     if not entity.tags:
         return
     for tag in entity.tags.values():
+        tag.nanoid = make_nanoid()
         generate_cypher_to_add_entity(tag, cypher_stmts)
         generate_cypher_to_add_relationship(entity, "has_tag", tag, cypher_stmts)
 
