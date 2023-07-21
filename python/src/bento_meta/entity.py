@@ -7,13 +7,15 @@ This module contains
 * the `CollValue` class to manage collection-valued attributes, and 
 * the `ArgError` exception.
 """
+from collections import UserDict
+
 # from pdb import set_trace
 from warnings import warn
-from collections import UserDict
 
 
 class ArgError(Exception):
     """Exception for method argument errors"""
+
     pass
 
 
@@ -32,6 +34,7 @@ class Entity(object):
     exceptions when attempts are made to access attributes that are not
     declared.
     """
+
     pvt_attr = [
         "pvt",
         "neoid",
@@ -41,7 +44,7 @@ class Entity(object):
         "mapspec",
         "belongs",
     ]
-    defaults = {},
+    defaults = ({},)
     attspec_ = {
         "_id": "simple",
         "nanoid": "simple",
@@ -57,9 +60,14 @@ class Entity(object):
     mapspec_ = {
         "label": None,
         "key": "_id",
-        "property": {"_id": "id", "desc": "desc",
-                     "_from": "_from", "_to": "_to",
-                     "_commit": "_commit", "nanoid": "nanoid"},
+        "property": {
+            "_id": "id",
+            "desc": "desc",
+            "_from": "_from",
+            "_to": "_to",
+            "_commit": "_commit",
+            "nanoid": "nanoid",
+        },
         "relationship": {
             "_next": {"rel": ":_next>", "end_cls": set()},
             "_prev": {"rel": ":_prev>", "end_cls": set()},
@@ -143,7 +151,6 @@ class Entity(object):
             return cls.defaults[propname]
         else:
             return None
-        
 
     # @classmethod
     def get_by_id(self, id):
@@ -151,11 +158,11 @@ class Entity(object):
         :param string id: value of id for desired object
         """
         if self.object_map:
-            print('  > now in entity.get_by_id where self is {}'.format(self))
-            print('  > and class is {}'.format(self.__class__))
+            print("  > now in entity.get_by_id where self is {}".format(self))
+            print("  > and class is {}".format(self.__class__))
             return self.object_map.get_by_id(self, id)
         else:
-            print('    _NO_ cls.object_map detected')
+            print("    _NO_ cls.object_map detected")
             pass
 
     @property
@@ -506,6 +513,28 @@ class Entity(object):
         doc += "\n"
         return doc
 
+    def get_label(self) -> str:
+        """returns type of entity as label"""
+        return self.mapspec_["label"]
+
+    def get_attr_dict(self):
+        """
+        Returns given entity's set attributes as a dictionary.
+
+        Dictionary of attributes used as the parameters
+        of methods with the write_txn decorator.
+        """
+        attr_dict = {}
+        for key, val in vars(self).items():
+            if (
+                val
+                and val is not None
+                and key != "pvt"
+                and isinstance(val, (str, int, float, complex, bool))
+            ):
+                attr_dict[key] = str(val)
+        return attr_dict
+
 
 class CollValue(UserDict):
     """A UserDict for housing Entity collection attributes.
@@ -519,6 +548,7 @@ class CollValue(UserDict):
     :param owner: `Entity` object of which this collection is an attribute
     :param owner_key: the attribute name of this collection on the owner
     """
+
     def __init__(self, init=None, *, owner, owner_key):
         self.__dict__["__owner"] = owner
         self.__dict__["__owner_key"] = owner_key

@@ -1,6 +1,6 @@
 [project]
 name = "bento-meta"
-version = "0.1.3"
+version = "0.2.2"
 description = "Python drivers for Bento Metamodel Database"
 authors = [
   { name="Mark A. Jensen", email = "mark.jensen@nih.gov"},
@@ -20,7 +20,7 @@ classifiers = [
 
 [tool.poetry]
 name = "bento-meta"
-version = "0.1.3"
+version = "0.2.2"
 description = "Python drivers for Bento Metamodel Database"
 authors = [
     "Mark A. Jensen <mark.jensen@nih.gov>",
@@ -33,7 +33,7 @@ include = ["logs/log.ini"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-PyYAML = ">=6"
+PyYAML = ">=6.0.1"
 delfick-project = "^0.7.9"
 neo4j = ">=4.0"
 nanoid = "^2.0.0"
@@ -44,14 +44,14 @@ numpy = {version = "^1.23.5", optional = true}
 pandas = {version = "^1.5.2", optional = true}
 spacy = {version = "^3.4.3", optional = true}
 click = {version = "^8.1.3", optional = true}
-#scispacy = {version = "^0.5.1", optional = true}
+liquichange = "^0.2.1"
+bento-mdf = "^0.9.1"
 
 [tool.poetry.extras]
-Tools = ["click", "numpy", "pandas", "spacy"] #"scispacy",
+Tools = ["click", "numpy", "pandas", "spacy", "liquichange"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
-# docker-compose = {version = "^1.29.2", optional = true}
 pytest-docker = "^1.0.1"
 requests = "^2.28.1"
 myst-nb = {version = "^0.17.1", python = "^3.8"}
@@ -59,8 +59,16 @@ sphinx-autoapi = "^2.0.1"
 sphinx-rtd-theme = "^1.1.1"
 python-semantic-release = "^7.33.0"
 pytest-cov = "^4.0.0"
+liquichange = "^0.2.1"
 sphinx = "5.3.0"
-bento-mdf = "^0.7.2"
+bento-mdf = "^0.9.1"
+
+[tool.poetry.scripts]
+"compare_models" = { reference = "scripts/compare_models.py", type = "file", extras = ["click", "spacy", "pandas"]}
+"compare_val_set_terms" = { reference = "scripts/compare_val_set_terms.py", type = "file", extras = ["click", "pandas"] }
+"make_model_changelog" = {reference = "scripts/make_model_changelog.py", type = "file", extras = ["click", "liquichange"]}
+"make_diff_changelog" = {reference = "scripts/make_diff_changelog.py", type = "file", extras = ["click", "liquichange"]}
+"make_mapping_changelog" = {reference = "scripts/make_mapping_changelog.py", type = "file", extras = ["click", "liquichange"]}
 
 [build-system]
 requires = ["poetry-core"]
@@ -76,5 +84,5 @@ upload_to_release = true
 upload_to_pypi = false
 remove_dist = false
 patch_without_tag = true
-major_on_zero = false # while major version on 0.y.z, won't bump to 1.0.0
-version_source = "tag" # temp?
+major_on_zero = false
+version_source = "tag"

@@ -1,0 +1,137 @@
+# different version of test_mdf.yml for testing diff
+# changes from test_mdf.yml include:
+#   add/remove/modify node/edge/property/term/tag
+#   add/remove/modify attr of node/edge/prop/term/tag
+# sample mdf file for testing
+Handle: TEST
+Nodes:
+  node_1:
+    Props:
+      - prop_1
+      - prop_2_mod
+  # modified node
+  node_2_mod:
+    UniqueKeys:
+      - ['prop_3']
+    Props:
+      - prop_3
+      - prop_7
+      - prop_5
+      # - prop_4
+    # add tag
+    Tags:
+      tagged_by: node_2 tag adder
+  # removed node/ removed tag
+  # node_3:
+  #   Props:
+  #     - prop_5
+  #   Tags:
+  #     tagged_by: node 3 tag adder
+  # new node
+  node_4:
+    Props: 
+      - prop_7
+Relationships:
+  # removed edge
+  # edge_1:
+  #   Props:
+  #     - prop_6
+  #   Req: true
+  #   Mul: one_to_one
+  #   Ends:
+  #     - Src: node_1
+  #       Dst: node_2
+  # modified edge
+  edge_2_mod:
+    Props:
+      - prop_7
+      - prop_6
+    Mul: many_to_one
+    Ends:
+      - Src: node_2_mod
+        Dst: node_1
+      - Src: node_4
+        Dst: node_1
+    Tags:
+      tagged_by: edge 2 tag adder
+  # new edge
+  edge_3:
+    Props:
+      - prop_7
+    Req: false
+    Mul: one_to_many
+    Ends:
+      - Src: node_1
+        Dst: node_2_mod
+PropDefinitions:
+  prop_1:
+    Desc: TEST's prop 1\'s "description\"
+    Type: integer
+    Req: true
+    Private: true
+    Key: true
+  # modified prop
+  prop_2_mod:
+    Desc: modified prop 2 description
+    Enum:
+      - term_4
+      # - term_2
+      - term_3_mod
+    Req: true
+    Private: false
+  prop_3:
+    Desc: prop 3 description
+    Type: string
+    Term:
+      - Origin: Terms R Us
+        Code: 1234567
+        Value: term_1
+  # remove prop
+  # prop_4:
+  #   Desc: prop 4 description
+  #   Type: string
+  prop_5:
+    Desc: prop 5 description
+    Type: datetime
+  prop_6:
+    Desc: prop 6 description
+    Type: boolean
+    Tags:
+      tagged_by: prop 6 tag adder
+  # new prop
+  prop_7:
+    Desc: prop 7 description
+    Type: string
+Terms:
+  term_1:
+    Value: term_1
+    Origin: Terms R Us
+    Code: 1234567
+    Version: "1"
+    Definition: |
+      term 1's definition
+  # remove term
+  # term_2:
+  #   Value: term_2
+  #   Origin: Terms R Us
+  #   Code: 2345671
+  #   Version: "2"
+  #   Definition: |
+  #     term 2 "definition"
+  # modified term
+  term_3_mod:
+    Value: term_3_mod
+    Origin: Terms R Us
+    Code: 3456712
+    Version: "2"
+    Definition: "modified term 3 definition"
+  # modified tag
+    Tags:
+      tagged_by: term 3 tag adder (modified)
+  # new term
+  term_4:
+    Value: term_4
+    Origin: Terms R Us
+    Code: 4567123
+    Version: "1"
+    Definition: "term 4 definition"
