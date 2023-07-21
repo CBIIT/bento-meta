@@ -87,7 +87,7 @@ def generate_cypher_to_add_entity(
     """Generates cypher statement to create or merge Entity."""
     if entity in cypher_stmts["added_entities"]:
         return
-    # escape_quotes_in_attr(entity)
+    escape_quotes_in_attr(entity)
     cypher_ent = cypherize_entity(entity)
     if isinstance(entity, (Term, ValueSet)):
         if "_commit" not in cypher_ent.props:

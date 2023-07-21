@@ -125,7 +125,7 @@ def generate_mapping_cypher(
         T(
             _plain_var(src_concept),
             R(Type="has_tag"),
-            N(label="tag", props={"mapping_source": mapping_source}),
+            N(label="tag", props={"key": "mapping_source", "value": mapping_source}),
         ),
     )
     dst_concept_path = G(
@@ -133,12 +133,13 @@ def generate_mapping_cypher(
         T(
             _plain_var(dst_concept),
             R(Type="has_tag"),
-            N(label="tag", props={"mapping_source": mapping_source}),
+            N(label="tag", props={"key": "mapping_source", "value": mapping_source}),
         ),
     )
     new_concept = N(label="concept", props={"_commit": _commit})
     new_tag = N(
-        label="tag", props={"mapping_source": mapping_source, "_commit": _commit}
+        label="tag",
+        props={"key": "mapping_source", "value": mapping_source, "_commit": _commit},
     )
     return Statement(
         # find src & dst entities using parent triples
