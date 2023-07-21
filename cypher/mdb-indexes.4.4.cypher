@@ -12,8 +12,8 @@ create fulltext index termValueDefn for (t:term) on each [t.value, t.origin_defi
 
 create fulltext index tagKeyValue for (g:tag) on each [g.key, g.value];
 
-create fulltext index nodeHandle on (n:node) on each [n.handle];
-create fulltext index edgeHandle on (n:relationship) on each [n.handle];
-create fulltext index propHandle on (n:property) on each [n.handle];
+create fulltext index nodeHandle for (n:node) on each [n.handle];
+create fulltext index edgeHandle for (n:relationship) on each [n.handle];
+create fulltext index propHandle for (n:property) on each [n.handle];
 
 
