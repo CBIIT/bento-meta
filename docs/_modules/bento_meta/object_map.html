@@ -104,7 +104,7 @@
 <span class="c1"># from pdb import set_trace</span>
 
 
-<div class="viewcode-block" id="ObjectMap"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap">[docs]</a><span class="k">class</span> <span class="nc">ObjectMap</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap">[docs]</a><span class="k">class</span> <span class="nc">ObjectMap</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This module contains :class:`ObjectMap`, a class which provides the </span>
 <span class="sd">    machinery for mapping bento_meta objects to a Bento Metamodel Database</span>
 <span class="sd">    in Neo4j. Mostly not for human consumption.&quot;&quot;&quot;</span>
@@ -123,11 +123,11 @@
                 <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maps</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="ObjectMap.clear_cache"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.clear_cache">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ObjectMap.clear_cache"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.clear_cache">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">clear_cache</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="ObjectMap.cls_by_label"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.cls_by_label">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ObjectMap.cls_by_label"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.cls_by_label">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">cls_by_label</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lbl</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;_clsxlbl&quot;</span><span class="p">):</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_clsxlbl</span> <span class="o">=</span> <span class="p">{}</span>
@@ -135,7 +135,7 @@
                 <span class="bp">cls</span><span class="o">.</span><span class="n">_clsxlbl</span><span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">mapspec</span><span class="p">()[</span><span class="s2">&quot;label&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">o</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_clsxlbl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ObjectMap.keys_by_cls_and_reln"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.keys_by_cls_and_reln">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ObjectMap.keys_by_cls_and_reln"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.keys_by_cls_and_reln">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">keys_by_cls_and_reln</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">qcls</span><span class="p">,</span> <span class="n">reln</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;_keysxcls&quot;</span><span class="p">):</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_keysxcls</span> <span class="o">=</span> <span class="p">{}</span>
@@ -150,7 +150,7 @@
                     <span class="bp">cls</span><span class="o">.</span><span class="n">_keysxcls</span><span class="p">[(</span><span class="n">o</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">r</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">catt</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">mapspec</span><span class="p">()[</span><span class="s2">&quot;key&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_keysxcls</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">qcls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">reln</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="ObjectMap._quote_val"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap._quote_val">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ObjectMap._quote_val"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap._quote_val">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_quote_val</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># double quote unless single is set</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -162,7 +162,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="s1">&#39;&quot;</span><span class="si">{val}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># quote</span></div>
 
-<div class="viewcode-block" id="ObjectMap.get_by_id"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.get_by_id"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an entity given an id attribute value (not the Neo4j id)&quot;&quot;&quot;</span>
         <span class="n">neoid</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -184,7 +184,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span></div>
 
-<div class="viewcode-block" id="ObjectMap.get_by_node_nanoid"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_by_node_nanoid">[docs]</a>    <span class="k">def</span> <span class="nf">get_by_node_nanoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">nanoid</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.get_by_node_nanoid"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_by_node_nanoid">[docs]</a>    <span class="k">def</span> <span class="nf">get_by_node_nanoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">nanoid</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;PROTOTYPE</span>
 <span class="sd">        Get an entity given an id attribute value (not the Neo4j id)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -208,7 +208,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span></div>
 
-<div class="viewcode-block" id="ObjectMap.get"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.get"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the data for an object instance from the db and load the instance with it&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">drv</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;get() requires Neo4j driver instance&quot;</span><span class="p">)</span>
@@ -279,7 +279,7 @@
         <span class="n">obj</span><span class="o">.</span><span class="n">dirty</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">obj</span></div>
 
-<div class="viewcode-block" id="ObjectMap.put"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.put"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Put the object instance&#39;s attributes to the mapped data node in the database&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">drv</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;put() requires Neo4j driver instance&quot;</span><span class="p">)</span>
@@ -329,7 +329,7 @@
         <span class="n">obj</span><span class="o">.</span><span class="n">dirty</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">obj</span></div>
 
-<div class="viewcode-block" id="ObjectMap.rm"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.rm">[docs]</a>    <span class="k">def</span> <span class="nf">rm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.rm"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.rm">[docs]</a>    <span class="k">def</span> <span class="nf">rm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;&#39;Delete&#39; the object&#39;s mapped node from the database&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">drv</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;rm() requires Neo4j driver instance&quot;</span><span class="p">)</span>
@@ -343,7 +343,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">value</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ObjectMap.add"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">tgt</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.add"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">tgt</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a link between an object instance and a target object in the database.</span>
 <span class="sd">        This represents adding an object-valued attribute to the object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -357,7 +357,7 @@
                 <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;add() - corresponding db node not found&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">tgt_id</span></div>
 
-<div class="viewcode-block" id="ObjectMap.drop"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.drop">[docs]</a>    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">tgt</span><span class="p">,</span> <span class="n">tx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.drop"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.drop">[docs]</a>    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">tgt</span><span class="p">,</span> <span class="n">tx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove an existing link between an object instance and a target object in the database.</span>
 <span class="sd">        This represents dropping an object-valued attribute from the object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -387,7 +387,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">value</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ObjectMap.get_owners"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_owners">[docs]</a>    <span class="k">def</span> <span class="nf">get_owners</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.get_owners"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_owners">[docs]</a>    <span class="k">def</span> <span class="nf">get_owners</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the nodes which are linked to the object instance (the owners of the object)&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">drv</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span><span class="s2">&quot;get_owners() requires Neo4j driver instance&quot;</span><span class="p">)</span>
@@ -411,7 +411,7 @@
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">o</span><span class="p">,</span> <span class="n">keys</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="ObjectMap.get_q"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_q">[docs]</a>    <span class="k">def</span> <span class="nf">get_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.get_q"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_q">[docs]</a>    <span class="k">def</span> <span class="nf">get_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
                 <span class="s2">&quot;arg1 must be object of class </span><span class="si">{cls}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -422,16 +422,16 @@
             <span class="n">lbl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">mapspec</span><span class="p">()[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span> <span class="n">neoid</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">neoid</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ObjectMap.get_by_id_q"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_by_id_q">[docs]</a>    <span class="k">def</span> <span class="nf">get_by_id_q</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.get_by_id_q"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_by_id_q">[docs]</a>    <span class="k">def</span> <span class="nf">get_by_id_q</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;MATCH (n:</span><span class="si">{lbl}</span><span class="s2">) WHERE id(n)=$id and n._to IS NULL RETURN id(n)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">lbl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">mapspec</span><span class="p">()[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ObjectMap.get_by_node_nanoid_q"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_by_node_nanoid_q">[docs]</a>    <span class="k">def</span> <span class="nf">get_by_node_nanoid_q</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.get_by_node_nanoid_q"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_by_node_nanoid_q">[docs]</a>    <span class="k">def</span> <span class="nf">get_by_node_nanoid_q</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;PROTOTYPE&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;MATCH (n:node) WHERE n.nanoid=$nanoid and n._to is NULL RETURN id(n)&quot;</span></div>
 
-<div class="viewcode-block" id="ObjectMap.get_attr_q"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_attr_q">[docs]</a>    <span class="k">def</span> <span class="nf">get_attr_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.get_attr_q"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_attr_q">[docs]</a>    <span class="k">def</span> <span class="nf">get_attr_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
                 <span class="s2">&quot;arg1 must be object of class </span><span class="si">{cls}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -473,7 +473,7 @@
                 <span class="p">)</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ObjectMap.get_owners_q"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_owners_q">[docs]</a>    <span class="k">def</span> <span class="nf">get_owners_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.get_owners_q"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.get_owners_q">[docs]</a>    <span class="k">def</span> <span class="nf">get_owners_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
                 <span class="s2">&quot;arg1 must be object of class </span><span class="si">{cls}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -485,7 +485,7 @@
             <span class="n">neoid</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">neoid</span><span class="p">,</span> <span class="n">lbl</span><span class="o">=</span><span class="n">label</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ObjectMap.put_q"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.put_q">[docs]</a>    <span class="k">def</span> <span class="nf">put_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.put_q"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.put_q">[docs]</a>    <span class="k">def</span> <span class="nf">put_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
                 <span class="s2">&quot;arg1 must be object of class </span><span class="si">{cls}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -531,7 +531,7 @@
                 <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">mapspec</span><span class="p">()[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span> <span class="n">spec</span><span class="p">)</span>
             <span class="p">]</span></div>
 
-<div class="viewcode-block" id="ObjectMap.put_attr_q"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.put_attr_q">[docs]</a>    <span class="k">def</span> <span class="nf">put_attr_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.put_attr_q"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.put_attr_q">[docs]</a>    <span class="k">def</span> <span class="nf">put_attr_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
                 <span class="s2">&quot;arg1 must be object of class </span><span class="si">{cls}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -604,7 +604,7 @@
                 <span class="p">)</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ObjectMap.rm_q"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.rm_q">[docs]</a>    <span class="k">def</span> <span class="nf">rm_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">detach</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.rm_q"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.rm_q">[docs]</a>    <span class="k">def</span> <span class="nf">rm_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">detach</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
                 <span class="s2">&quot;arg1 must be object of class </span><span class="si">{cls}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -618,7 +618,7 @@
         <span class="k">return</span> <span class="n">qry</span> <span class="o">+</span> <span class="n">dlt</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="ObjectMap.rm_attr_q"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.rm_attr_q">[docs]</a>    <span class="k">def</span> <span class="nf">rm_attr_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap.rm_attr_q"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap.rm_attr_q">[docs]</a>    <span class="k">def</span> <span class="nf">rm_attr_q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ArgError</span><span class="p">(</span>
                 <span class="s2">&quot;arg1 must be object of class </span><span class="si">{cls}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -693,7 +693,7 @@
                 <span class="p">)</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ObjectMap._check_values_list"><a class="viewcode-back" href="../../autoapi_/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap._check_values_list">[docs]</a>    <span class="k">def</span> <span class="nf">_check_values_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<div class="viewcode-block" id="ObjectMap._check_values_list"><a class="viewcode-back" href="../../autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap._check_values_list">[docs]</a>    <span class="k">def</span> <span class="nf">_check_values_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">att</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">values</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">CollValue</span><span class="p">):</span>
             <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>

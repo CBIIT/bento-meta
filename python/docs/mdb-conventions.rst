@@ -81,7 +81,7 @@ _______________________________________________
 
 For integration with the STS, and for performance, the Neo4j instance
 of an MDB requires certain indexes to be established. These are
-specified in `these Cypher statements <githubref>`_. The primary
+specified in `these Cypher statements <https://github.com/CBIIT/bento-mdb/blob/main/changelogs/mdb_setup_changelog.xml>`_. The primary
 requirement is that fulltext, Lucene-based indexes should be created
 on entity ``description`` and Term ``origin_definition`` properties to
 enable "search box" like queries over the the entire graph. Regular
@@ -120,7 +120,7 @@ on `Cypher <https://neo4j.com/docs/cypher-manual/current/>`_.)
   
 * *Concept*: For any `(c:concept)` and `(k:concept)` where `(n)--(c)` and `(n)--(k)` return exactly the same graph nodes `[n1, n2, ...]`, one of `c` or `k` should be removed from the database.
   
-* *Tag*: For two tag nodes, all of whose properties except nanoid are identical in key and value, and which are linked to exactly the same graph nodes, one must be removed.
+* *Tag*: Any node should have *at most one* Tag node with a given pair of values for `key` and `value` properties. Tags should attach to at most one node; that is, the `()-[:has_tag]->(:tag)` relationship is one-to-many, not many-to-many. Practically, this means that to use Tags to group a set of different nodes with a key-value pair, a separate Tag with that key-value pair should be created and linked to each nodes. 
 
 * *Nanoid*: Each unique unversioned graph node as defined above must have a unique nanoid.
 

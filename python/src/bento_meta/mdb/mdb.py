@@ -244,8 +244,8 @@ class MDB:
         qry = (
             "match (t:term {nanoid:$nanoid}) "
             "where not exists(t._to) "
-            "with t "
-            "optional match (t)-[:has_origin]->(o:origin) "
+            "with t, t.origin_name as origin_name "
+            "optional match (o:origin {name: origin_name}) "
             "where not exists(o._to) "
             "return t as term, o as origin "
             )

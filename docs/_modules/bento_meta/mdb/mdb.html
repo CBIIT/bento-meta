@@ -323,8 +323,8 @@
         <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s2">&quot;match (t:term {nanoid:$nanoid}) &quot;</span>
             <span class="s2">&quot;where not exists(t._to) &quot;</span>
-            <span class="s2">&quot;with t &quot;</span>
-            <span class="s2">&quot;optional match (t)-[:has_origin]-&gt;(o:origin) &quot;</span>
+            <span class="s2">&quot;with t, t.origin_name as origin_name &quot;</span>
+            <span class="s2">&quot;optional match (o:origin {name: origin_name}) &quot;</span>
             <span class="s2">&quot;where not exists(o._to) &quot;</span>
             <span class="s2">&quot;return t as term, o as origin &quot;</span>
             <span class="p">)</span>
