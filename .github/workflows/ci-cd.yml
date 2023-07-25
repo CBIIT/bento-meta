@@ -4,7 +4,8 @@ on: [push, pull_request]
 
 jobs:
     ci-cd:
-      uses: CBIIT/bento-workflows/.github/workflows/ci-cd.yml@v2.1
+      uses: CBIIT/bento-workflows/.github/workflows/ci-cd.yml@v2.2.10
       with:
         workdir: ./python
         pkg_name: bento-meta
+      secrets: inherit
