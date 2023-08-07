@@ -77,6 +77,7 @@ class Property(Entity):
         "is_required": "simple",
         "concept": "object",
         "value_set": "object",
+        "parent_handle": "simple",
     }
     mapspec_ = {
         "label": "property",

@@ -191,6 +191,7 @@ def process_props(entity: Entity, cypher_stmts) -> None:
     if not entity.props:
         return
     for prop in entity.props.values():
+        prop.nanoid = make_nanoid()
         generate_cypher_to_add_entity(prop, cypher_stmts)
         generate_cypher_to_add_relationship(entity, "has_property", prop, cypher_stmts)
         process_tags(prop, cypher_stmts)
