@@ -1,11 +1,12 @@
 """converts mapping MDF to changelog"""
-import configparser
+
 from ast import literal_eval
 from pathlib import Path
-from typing import Dict, Generator, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import click
 import yaml
+from bento_meta.util.changelog import changeset_id_generator, update_config_changeset_id
 from bento_meta.util.cypher.clauses import (
     Case,
     Create,
@@ -19,37 +20,6 @@ from bento_meta.util.cypher.clauses import (
 )
 from bento_meta.util.cypher.entities import G, N, R, T, _anon, _plain_var
 from liquichange.changelog import Changelog, Changeset, CypherChange
-
-
-def get_initial_changeset_id(config_file_path: str) -> int:
-    """Gets initial changeset id from changelog config file"""
-    config = configparser.ConfigParser()
-    config.read(config_file_path)
-    try:
-        return config.getint(section="changelog", option="changeset_id")
-    except (configparser.NoSectionError, configparser.NoOptionError) as error:
-        print(error)
-        raise
-
-
-def changeset_id_generator(config_file_path: str) -> Generator[int, None, None]:
-    """
-    Iterator for changeset_id. Gets latest changeset id from changelog.ini
-    and provides up-to-date changeset id as
-    """
-    i = get_initial_changeset_id(config_file_path)
-    while True:
-        yield i
-        i += 1
-
-
-def update_config_changeset_id(config_file_path: str, new_changeset_id: int) -> None:
-    """Updates changelog config file with new changeset id"""
-    config = configparser.ConfigParser()
-    config.read(config_file_path)
-    config.set(section="changelog", option="changeset_id", value=str(new_changeset_id))
-    with open(file=config_file_path, mode="w", encoding="UTF-8") as config_file:
-        config.write(fp=config_file)
 
 
 def load_yaml(
