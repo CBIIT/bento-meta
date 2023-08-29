@@ -183,6 +183,7 @@ def process_model_nodes(model: Model, cypher_stmts) -> None:
 def process_model_edges(model: Model, cypher_stmts) -> None:
     """Generates cypher statements to create/merge an model's edges."""
     for edge in model.edges.values():
+        edge.nanoid = make_nanoid()
         generate_cypher_to_add_entity(edge, cypher_stmts)
         generate_cypher_to_add_relationship(edge, "has_src", edge.src, cypher_stmts)
         generate_cypher_to_add_relationship(edge, "has_dst", edge.dst, cypher_stmts)
