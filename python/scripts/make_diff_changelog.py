@@ -4,16 +4,16 @@ model and produces a Liquibase Changelog with the necessary changes to
 an MDB in Neo4J to update the model from the old version to the new one.
 """
 
-import configparser
 import logging
 from pathlib import Path
-from typing import Dict, Generator, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import click
 from bento_mdf.diff import diff_models
 from bento_mdf.mdf import MDF
 from bento_meta.entity import Entity
 from bento_meta.objects import Edge, Node, Property, Term
+from bento_meta.util.changelog import changeset_id_generator, update_config_changeset_id
 from bento_meta.util.cypher.clauses import (
     Delete,
     DetachDelete,
@@ -289,37 +289,6 @@ def convert_diff_segment_to_cypher_statement(
     else:
         raise RuntimeError(f"invalid diff segment {diff_segment}")
     return stmt
-
-
-def get_initial_changeset_id(config_file_path: str) -> int:
-    """Gets initial changeset id from changelog config file"""
-    config = configparser.ConfigParser()
-    config.read(config_file_path)
-    try:
-        return config.getint(section="changelog", option="changeset_id")
-    except (configparser.NoSectionError, configparser.NoOptionError) as error:
-        print(error)
-        raise
-
-
-def changeset_id_generator(config_file_path: str) -> Generator[int, None, None]:
-    """
-    Iterator for changeset_id. Gets latest changeset id from changelog.ini
-    and provides up-to-date changeset id as
-    """
-    i = get_initial_changeset_id(config_file_path)
-    while True:
-        yield i
-        i += 1
-
-
-def update_config_changeset_id(config_file_path: str, new_changeset_id: int) -> None:
-    """Updates changelog config file with new changeset id"""
-    config = configparser.ConfigParser()
-    config.read(config_file_path)
-    config.set(section="changelog", option="changeset_id", value=str(new_changeset_id))
-    with open(file=config_file_path, mode="w", encoding="UTF-8") as config_file:
-        config.write(fp=config_file)
 
 
 def convert_diff_to_changelog(

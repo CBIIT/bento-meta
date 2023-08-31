@@ -77,6 +77,7 @@ class Property(Entity):
         "is_required": "simple",
         "concept": "object",
         "value_set": "object",
+        "parent_handle": "simple",
     }
     mapspec_ = {
         "label": "property",
@@ -90,6 +91,7 @@ class Property(Entity):
             "units": "units",
             "item_domain": "item_domain",
             "is_required": "is_required",
+            "parent_handle": "parent_handle",
         },
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},

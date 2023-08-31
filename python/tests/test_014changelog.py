@@ -5,6 +5,7 @@ import sys
 from bento_mdf.diff import diff_models
 from bento_mdf.mdf import MDF
 from bento_meta.objects import Property
+from bento_meta.util.changelog import update_config_changeset_id
 from scripts.make_diff_changelog import convert_diff_to_changelog
 from scripts.make_mapping_changelog import convert_mappings_to_changelog
 from scripts.make_model_changelog import (
@@ -33,6 +34,7 @@ def test_make_model_changelog():
     changelog = convert_model_to_changelog(
         model=mdf.model, author=AUTHOR, config_file_path=TEST_CHANGELOG_CONFIG
     )
+    update_config_changeset_id(TEST_CHANGELOG_CONFIG, 1)
     assert len(changelog.subelements) == 46
 
 
@@ -47,6 +49,7 @@ def test_make_diff_changelog():
         author=AUTHOR,
         config_file_path=TEST_CHANGELOG_CONFIG,
     )
+    update_config_changeset_id(TEST_CHANGELOG_CONFIG, 1)
     assert len(changelog.subelements) == 33
 
 
@@ -58,6 +61,7 @@ def test_make_mapping_changelog():
         config_file_path=TEST_CHANGELOG_CONFIG,
         _commit=_COMMIT,
     )
+    update_config_changeset_id(TEST_CHANGELOG_CONFIG, 1)
     assert len(changelog.subelements) == 6
 
 
@@ -69,6 +73,3 @@ def test_escape_quotes_in_attr():
 
     assert prop.handle == r"""Quote\'s Handle"""
     assert prop.desc == r"""quote\'s quote\'s \"quotes\""""
-
-
-test_make_model_changelog()
