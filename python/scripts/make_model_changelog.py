@@ -12,39 +12,16 @@ from bento_meta.entity import Entity
 from bento_meta.mdb.mdb import make_nanoid
 from bento_meta.model import Model
 from bento_meta.objects import Concept, Term, ValueSet
-from bento_meta.util.changelog import changeset_id_generator, update_config_changeset_id
+from bento_meta.util.changelog import (
+    changeset_id_generator,
+    escape_quotes_in_attr,
+    update_config_changeset_id,
+)
 from bento_meta.util.cypher.clauses import Create, Match, Merge, OnCreateSet, Statement
 from bento_meta.util.cypher.entities import N, R, T, _plain_var
 from liquichange.changelog import Changelog, Changeset, CypherChange
 
 logger = logging.getLogger(__name__)
-
-
-def escape_quotes_in_attr(entity: Entity) -> None:
-    """
-    Escapes quotes in entity attributes.
-
-    Quotes in string attributes may or may not already be escaped, so this function
-    unescapes all previously escaped ' and " characters and replaces them with
-    """
-    for key, val in vars(entity).items():
-        if (
-            val
-            and val is not None
-            and key != "pvt"
-            and isinstance(
-                val,
-                str,
-            )
-        ):
-            # First unescape any previously escaped quotes
-            val = val.replace(r"\'", "'").replace(r"\"", '"')
-
-            # Escape all quotes
-            val = val.replace("'", r"\'").replace('"', r"\"")
-
-            # Update the modified value back to the attribute
-            setattr(entity, key, val)
 
 
 def cypherize_entity(entity: Entity) -> N:
