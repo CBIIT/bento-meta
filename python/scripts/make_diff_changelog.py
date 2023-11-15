@@ -3,7 +3,6 @@ Script takes two MDF files representing different versions of the same
 model and produces a Liquibase Changelog with the necessary changes to
 an MDB in Neo4J to update the model from the old version to the new one.
 """
-
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -83,6 +82,7 @@ class DiffSplitter:
     def add_node_statement(self, entity: Entity) -> None:
         """Add cypher statement that adds an entity"""
         escape_quotes_in_attr(entity)
+        self.reset_pg_ent_counter()
         ent_c = N(label=entity.get_label(), props=entity.get_attr_dict())
         stmt = Statement(Merge(ent_c))
         self.diff_statements.append((ADD_NODE, stmt))
@@ -90,16 +90,9 @@ class DiffSplitter:
     def remove_node_statement(self, entity: Entity) -> None:
         """Add cypher statement that removes an entity"""
         escape_quotes_in_attr(entity)
+        self.reset_pg_ent_counter()
         ent_c = N(label=entity.get_label(), props=entity.get_attr_dict())
-        if isinstance(entity, Edge):
-            src_c = N(label="node", props=entity.src.get_attr_dict())
-            dst_c = N(label="node", props=entity.dst.get_attr_dict())
-            src_trip = T(ent_c, R(Type="has_src"), src_c)
-            dst_trip = T(ent_c, R(Type="has_dst"), dst_c)
-            path = G(src_trip, dst_trip)
-            match_clause = Match(path)
-        else:
-            match_clause = Match(ent_c)
+        match_clause = self.generate_match_clause(entity=entity, ent_c=ent_c)
         stmt = Statement(match_clause, DetachDelete(ent_c.var))
 
         self.diff_statements.append((REMOVE_NODE, stmt))
@@ -108,11 +101,28 @@ class DiffSplitter:
         """Add cypher statement that adds a relationship from src to dst entities"""
         for ent in [src, dst]:
             escape_quotes_in_attr(ent)
+        self.reset_pg_ent_counter()
+        src_attrs = src.get_attr_dict()
+        dst_attrs = dst.get_attr_dict()
         rel_c = R(Type=rel)
-        src_c = N(label=src.get_label(), props=src.get_attr_dict())
-        dst_c = N(label=dst.get_label(), props=dst.get_attr_dict())
-        plain_trip = T(_plain_var(src_c), rel_c, _plain_var(dst_c))
-        stmt = Statement(Match(src_c, dst_c), Merge(plain_trip))
+        src_c = N(label=src.get_label(), props=src_attrs)
+        dst_c = N(label=dst.get_label(), props=dst_attrs)
+        src_match_clause = self.generate_match_clause(entity=src, ent_c=src_c)
+        dst_match_clause = self.generate_match_clause(entity=dst, ent_c=dst_c)
+        if (src_attrs and not dst_attrs) or (
+            isinstance(src, Property) and isinstance(dst, Tag)  # temp for tags of props
+        ):
+            stmt = Statement(
+                src_match_clause,
+                Merge(T(_plain_var(src_c), rel_c, dst_c)),
+            )
+        elif dst_attrs and not src_attrs:
+            stmt = Statement(
+                dst_match_clause,
+                Merge(T(src_c, rel_c, _plain_var(dst_c))),
+            )
+        else:
+            stmt = Statement(Merge(T(src_c, rel_c, dst_c)))
 
         self.diff_statements.append((ADD_RELATIONSHIP, stmt))
 
@@ -120,11 +130,31 @@ class DiffSplitter:
         """Add cypher statement that removes a relationship from src to dst entities"""
         for ent in [src, dst]:
             escape_quotes_in_attr(ent)
+        self.reset_pg_ent_counter()
+        src_attrs = src.get_attr_dict()
+        dst_attrs = dst.get_attr_dict()
         rel_c = R(Type=rel)
         src_c = N(label=src.get_label(), props=src.get_attr_dict())
         dst_c = N(label=dst.get_label(), props=dst.get_attr_dict())
         trip = T(src_c, rel_c, dst_c)
-        stmt = Statement(Match(trip), Delete(_plain_var(rel_c)))
+        src_match_clause = self.generate_match_clause(entity=src, ent_c=src_c)
+        dst_match_clause = self.generate_match_clause(entity=dst, ent_c=dst_c)
+        if src_attrs and not dst_attrs:
+            stmt = Statement(
+                src_match_clause,
+                ",",
+                T(_plain_var(src_c), rel_c, dst_c),
+                Delete(_plain_var(rel_c)),
+            )
+        elif dst_attrs and not src_attrs:
+            stmt = Statement(
+                dst_match_clause,
+                ",",
+                T(src_c, rel_c, _plain_var(dst_c)),
+                Delete(_plain_var(rel_c)),
+            )
+        else:
+            stmt = Statement(Match(trip), Delete(_plain_var(rel_c)))
 
         self.diff_statements.append((REMOVE_RELATIONSHIP, stmt))
 
@@ -144,6 +174,7 @@ class DiffSplitter:
         """
         for ent in [parent, obj_ent, src, dst]:
             escape_quotes_in_attr(ent)
+        self.reset_pg_ent_counter()
         parent_c = N(label=parent.get_label(), props=parent.get_attr_dict())
         parent_rel_c = R(Type=parent_rel)
         rel_c = R(Type=rel)
@@ -152,12 +183,22 @@ class DiffSplitter:
 
         # kludge for concepts - need to clean up rel. direction stuff
         if obj_ent.get_label() == src_c.label:
-            parent_trip = T(parent_c, parent_rel_c, src_c)
+            parent_trip = T(_plain_var(parent_c), parent_rel_c, src_c)
+            match_c = dst_c
         else:
-            parent_trip = T(parent_c, parent_rel_c, dst_c)
+            parent_trip = T(_plain_var(parent_c), parent_rel_c, dst_c)
+            match_c = src_c
 
+        parent_match_clause = self.generate_match_clause(entity=parent, ent_c=parent_c)
         plain_trip = T(_plain_var(src_c), rel_c, _plain_var(dst_c))
-        stmt = Statement(Match(parent_trip, dst_c), Merge(plain_trip))
+        stmt = Statement(
+            parent_match_clause,
+            ",",
+            parent_trip.pattern(),
+            ",",
+            match_c.pattern(),
+            Merge(plain_trip),
+        )
 
         self.diff_statements.append((ADD_RELATIONSHIP, stmt))
 
@@ -177,6 +218,7 @@ class DiffSplitter:
         """
         for ent in [parent, obj_ent, src, dst]:
             escape_quotes_in_attr(ent)
+        self.reset_pg_ent_counter()
         parent_c = N(label=parent.get_label(), props=parent.get_attr_dict())
         parent_rel_c = R(Type=parent_rel)
         rel_c = R(Type=rel)
@@ -185,12 +227,21 @@ class DiffSplitter:
 
         # kludge for concepts - need to clean up rel. direction stuff
         if obj_ent.get_label() == src_c.label:
-            parent_trip = T(parent_c, parent_rel_c, src_c)
+            parent_trip = T(_plain_var(parent_c), parent_rel_c, src_c)
+            trip = T(_plain_var(src_c), rel_c, dst_c)
         else:
-            parent_trip = T(parent_c, parent_rel_c, dst_c)
+            parent_trip = T(_plain_var(parent_c), parent_rel_c, dst_c)
+            trip = T(src_c, rel_c, _plain_var(dst_c))
 
-        trip = T(src_c, rel_c, dst_c)
-        stmt = Statement(Match(parent_trip, trip), Delete(_plain_var(rel_c)))
+        parent_match_clause = self.generate_match_clause(entity=parent, ent_c=parent_c)
+        stmt = Statement(
+            parent_match_clause,
+            ",",
+            parent_trip.pattern(),
+            ",",
+            trip.pattern(),
+            Delete(_plain_var(parent_c)),
+        )
 
         self.diff_statements.append((REMOVE_RELATIONSHIP, stmt))
 
@@ -199,25 +250,79 @@ class DiffSplitter:
     ) -> None:
         """Add cypher statement that adds a property to an entity"""
         escape_quotes_in_attr(entity)
-        prop_value_unesc = prop_value.replace(r"\'", "'").replace(r"\"", '"')
-        prop_value_esc = prop_value_unesc.replace("'", r"\'").replace('"', r"\"")
+        self.reset_pg_ent_counter()
+        if isinstance(prop_value, str):
+            prop_value = prop_value.replace(r"\'", "'").replace(r"\"", '"')
+            prop_value = prop_value.replace("'", r"\'").replace('"', r"\"")
 
-        prop_c = P(handle=prop_handle, value=prop_value_esc)
+        prop_c = P(handle=prop_handle, value=prop_value)
         ent_c_noprop = N(label=entity.get_label(), props=entity.get_attr_dict())
         ent_c_prop = N(label=entity.get_label(), props=entity.get_attr_dict())
         ent_c_prop._add_props(prop_c)
         ent_c_prop.var = ent_c_noprop.var
-        stmt = Statement(Match(ent_c_noprop), Set(ent_c_prop.props[prop_handle]))
+        match_clause = self.generate_match_clause(entity=entity, ent_c=ent_c_noprop)
+        stmt = Statement(match_clause, Set(ent_c_prop.props[prop_handle]))
 
         self.diff_statements.append((ADD_PROPERTY, stmt))
 
     def remove_property_statement(self, entity: Entity, prop_handle: str) -> None:
         """Add cypher statement that removes a property from an entity"""
         escape_quotes_in_attr(entity)
+        self.reset_pg_ent_counter()
         ent_c = N(label=entity.get_label(), props=entity.get_attr_dict())
-        stmt = Statement(Match(ent_c), Remove(ent_c, prop=prop_handle))
+        match_clause = self.generate_match_clause(entity=entity, ent_c=ent_c)
+        stmt = Statement(match_clause, Remove(ent_c, prop=prop_handle))
 
         self.diff_statements.append((REMOVE_PROPERTY, stmt))
+
+    def generate_match_clause(self, entity: Entity, ent_c: N) -> Match:
+        """Generate Match clause for entity"""
+        if isinstance(entity, Edge):
+            return self.match_edge(edge=entity, ent_c=ent_c)
+        if isinstance(entity, Property):
+            # remove '_parent_handle' from ent_c property
+            ent_c.props.pop("_parent_handle", None)
+            return self.match_prop(prop=entity, ent_c=ent_c)
+        if isinstance(entity, Tag):
+            return self.match_tag(tag=entity, ent_c=ent_c)
+        return Match(ent_c)
+
+    def match_edge(self, edge: Edge, ent_c: N) -> Match:
+        """Add MATCH statement for edge"""
+        src_c = N(label="node", props=edge.src.get_attr_dict())
+        dst_c = N(label="node", props=edge.dst.get_attr_dict())
+        src_trip = T(ent_c, R(Type="has_src"), src_c)
+        dst_trip = T(ent_c, R(Type="has_dst"), dst_c)
+        path = G(src_trip, dst_trip)
+        return Match(path)
+
+    def match_prop(self, prop: Property, ent_c: N) -> Match:
+        """Add MATCH statement for property"""
+        if not prop._parent_handle:
+            raise AttributeError(
+                f"Property missing parent handle {prop.get_attr_dict()}"
+            )
+        par_c = N(props={"handle": prop._parent_handle})
+        prop_trip = T(par_c, R(Type="has_property"), ent_c)
+        return Match(prop_trip)
+
+    def match_tag(self, tag: Tag, ent_c: N) -> Match:
+        """Add MATCH statement for tag"""
+        if not tag._parent:
+            raise AttributeError(f"Tag {tag.get_attr_dict()} missing parent")
+        parent = tag._parent
+        par_c = N(label=parent.get_label(), props=parent.get_attr_dict())
+        par_c.props.pop("_parent_handle", None)
+        # temp workaround for long matches
+        par_match_clause = self.generate_match_clause(entity=parent, ent_c=par_c)
+        par_match_str = str(par_match_clause)[6:]
+        tag_trip = T(_plain_var(par_c), R(Type="has_tag"), ent_c)
+        return Match(par_match_str, tag_trip)
+
+    def reset_pg_ent_counter(self) -> None:
+        """Reset property graph entity variable counters to 0"""
+        N._reset_counter()
+        R._reset_counter()
 
     def update_simple_attr_segment(
         self, entity: Entity, attr: str, old_value: Any, new_value: Any
@@ -258,6 +363,7 @@ class DiffSplitter:
         if new_values and not old_values:
             # add relationship between entity and object attr if DNE
             self.add_relationship_statement(src=parent, rel=parent_rel, dst=obj_ent)
+            old_values = {}
         for old_value in old_values.values():
             old_entity = self.get_entity_of_type(
                 entity_type="terms", entity_attr_dict=old_value.get_attr_dict()
@@ -298,22 +404,25 @@ class DiffSplitter:
     ) -> None:
         """
         Update collection attr (e.g. list of props, tags, terms of an object attr)
-
-        parent_entity is for Valuesets & Concepts so that it can locate the correct one.
         """
         for old_value in old_values.values():
             old_entity = self.get_entity_of_type(
                 entity_type=attr, entity_attr_dict=old_value.get_attr_dict()
             )
             if isinstance(old_entity, Tag):  # not handled in add/rem
+                old_entity._parent = entity
                 self.remove_node_statement(entity=old_entity)
-            src, rel, dst = self.get_triplet(entity=entity, attr=attr, value=old_entity)
-            self.remove_relationship_statement(src=src, rel=rel, dst=dst)
+            else:
+                src, rel, dst = self.get_triplet(
+                    entity=entity, attr=attr, value=old_entity
+                )
+                self.remove_relationship_statement(src=src, rel=rel, dst=dst)
         for new_value in new_values.values():
             new_entity = self.get_entity_of_type(
                 entity_type=attr, entity_attr_dict=new_value.get_attr_dict()
             )
             if isinstance(new_entity, Tag):  # not handled in add/rem
+                new_entity._parent = entity
                 self.add_node_statement(entity=new_entity)
             src, rel, dst = self.get_triplet(entity=entity, attr=attr, value=new_entity)
             self.add_relationship_statement(src=src, rel=rel, dst=dst)
@@ -401,23 +510,27 @@ class DiffSplitter:
         if not entity_diff:
             logger.warning(f"No diff for entity type {entity_type}")
             return
+        # change Nones to empty dicts for .items()
+        for change in ("removed", "added", "changed"):
+            if entity_diff.get(change) is None:
+                entity_diff[change] = {}
         # removed entities
-        removed_entities = entity_diff.get("removed", {})
-        if removed_entities:
-            for entity in removed_entities.values():
-                self.remove_node_statement(entity=entity)
+        for entity_key, entity in entity_diff.get("removed", {}).items():
+            if isinstance(entity, Property) and entity._parent_handle is None:
+                entity._parent_handle = entity_key[0]
+            self.remove_node_statement(entity=entity)
         # added entities
-        added_entities = entity_diff.get("added", {})
-        if added_entities:
-            for entity in added_entities.values():
-                self.add_node_statement(entity=entity)
-                if entity_type == "edges":
-                    self.add_relationship_statement(
-                        src=entity, rel="has_src", dst=entity.src
-                    )
-                    self.add_relationship_statement(
-                        src=entity, rel="has_dst", dst=entity.dst
-                    )
+        for entity_key, entity in entity_diff.get("added", {}).items():
+            if isinstance(entity, Property) and entity._parent_handle is None:
+                entity._parent_handle = entity_key[0]
+            self.add_node_statement(entity=entity)
+            if entity_type == "edges":
+                self.add_relationship_statement(
+                    src=entity, rel="has_src", dst=entity.src
+                )
+                self.add_relationship_statement(
+                    src=entity, rel="has_dst", dst=entity.dst
+                )
         # changed entities (updated attrs)
         class_attrs = self.get_class_attrs(entity_type=self.entity_classes[entity_type])
         for entity_key, change_dict in entity_diff.get("changed", {}).items():
@@ -425,29 +538,33 @@ class DiffSplitter:
                 entity_type=entity_type, entity_key=entity_key
             )
             for attr, attr_changes in change_dict.items():
+                old_val = attr_changes.get("removed", {})
+                new_val = attr_changes.get("added", {})
+                # change None vals to {}s for .values()
+                old_val, new_val = (old_val or {}, new_val or {})
                 # update simple attribute (e.g. desc/is_required)
                 if attr in class_attrs["simple"]:
                     self.update_simple_attr_segment(
                         entity=entity,
                         attr=attr,
-                        old_value=attr_changes.get("removed", []),
-                        new_value=attr_changes.get("added", []),
+                        old_value=old_val,
+                        new_value=new_val,
                     )
                 # update object attr (i.e. term container, e.g. concept, value_set)
                 elif attr in class_attrs["object"]:
                     self.update_object_attr_segment(
                         entity=entity,
                         attr=attr,
-                        old_values=attr_changes.get("removed", []),
-                        new_values=attr_changes.get("added", []),
+                        old_values=old_val,
+                        new_values=new_val,
                     )
                 # update collection attr (e.g. list of props, tags)
                 elif attr in class_attrs["collection"]:
                     self.update_collection_attr_segment(
                         entity=entity,
                         attr=attr,
-                        old_values=attr_changes.get("removed", []),
-                        new_values=attr_changes.get("added", []),
+                        old_values=old_val,
+                        new_values=new_val,
                     )
                 else:
                     raise AttributeError(

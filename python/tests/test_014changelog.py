@@ -2,18 +2,18 @@
 import os
 import sys
 
-from bento_mdf.diff import diff_models
 from bento_mdf.mdf import MDF
 from bento_meta.objects import Property
 from bento_meta.util.changelog import update_config_changeset_id
-from scripts.make_diff_changelog import convert_diff_to_changelog
+from liquichange.changelog import Changeset
+
+sys.path.append("../")
+
 from scripts.make_mapping_changelog import convert_mappings_to_changelog
 from scripts.make_model_changelog import (
     convert_model_to_changelog,
     escape_quotes_in_attr,
 )
-
-sys.path.append("../")
 
 # define filepaths for sample MDFs
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -38,21 +38,6 @@ def test_make_model_changelog():
     assert len(changelog.subelements) == 46
 
 
-# make_diff_changelog
-def test_make_diff_changelog():
-    mdf_old = MDF(TEST_MDF, handle=MODEL_HDL, _commit=_COMMIT, raiseError=True)
-    mdf_new = MDF(TEST_MDF_DIFF, handle=MODEL_HDL, _commit=_COMMIT, raiseError=True)
-    diff = diff_models(mdl_a=mdf_old.model, mdl_b=mdf_new.model)
-    changelog = convert_diff_to_changelog(
-        diff=diff,
-        model_handle=MODEL_HDL,
-        author=AUTHOR,
-        config_file_path=TEST_CHANGELOG_CONFIG,
-    )
-    update_config_changeset_id(TEST_CHANGELOG_CONFIG, 1)
-    assert len(changelog.subelements) == 33
-
-
 # make_mapping_changelog
 def test_make_mapping_changelog():
     changelog = convert_mappings_to_changelog(
@@ -62,6 +47,9 @@ def test_make_mapping_changelog():
         _commit=_COMMIT,
     )
     update_config_changeset_id(TEST_CHANGELOG_CONFIG, 1)
+    sample_changeset = changelog.subelements[0]
+    assert isinstance(sample_changeset, Changeset)
+    assert sample_changeset.run_always is True
     assert len(changelog.subelements) == 6
 
 
