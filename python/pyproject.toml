@@ -45,7 +45,7 @@ pandas = {version = "^1.5.2", optional = true}
 spacy = {version = "^3.4.3", optional = true}
 click = {version = "^8.1.3", optional = true}
 liquichange = "^0.2.1"
-bento-mdf = "^0.9.1"
+bento-mdf = "0.9.5"
 tornado = "6.3.3"
 cryptography = "41.0.3"
 certifi = "2023.7.22"

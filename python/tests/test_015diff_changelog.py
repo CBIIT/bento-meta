@@ -382,7 +382,4 @@ class TestGetDiffStatements:
                 "MERGE (n0)-[r0:has_tag]->(n1:tag {key:'class',value:'secondary'})"
             ),
         ]
-        print(f"{actual=}")
-        print("\n------\n")
-        print(f"{expected=}")
         assert actual == expected
