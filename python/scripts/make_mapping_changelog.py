@@ -210,6 +210,7 @@ def convert_mappings_to_changelog(
             Changeset(
                 id=str(next(changeset_id)),
                 author=author,
+                run_always=True,
                 change_type=CypherChange(text=str(stmt)),
             )
         )

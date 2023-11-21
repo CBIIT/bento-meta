@@ -77,7 +77,7 @@ class Property(Entity):
         "is_required": "simple",
         "concept": "object",
         "value_set": "object",
-        "parent_handle": "simple",
+        "_parent_handle": "simple",
     }
     mapspec_ = {
         "label": "property",
@@ -91,7 +91,7 @@ class Property(Entity):
             "units": "units",
             "item_domain": "item_domain",
             "is_required": "is_required",
-            "parent_handle": "parent_handle",
+            "_parent_handle": "_parent_handle",
         },
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
@@ -335,11 +335,12 @@ class Origin(Entity):
 class Tag(Entity):
     """Subclass that allows simple key-value tagging of a model at arbitrary points."""
 
-    attspec_ = {"key": "simple", "value": "simple"}
+    attspec_ = {"key": "simple", "value": "simple", "_parent": "object"}
     mapspec_ = {
         "label": "tag",
         "key": "key",
         "property": {"key": "key", "value": "value"},
+        "relationship": {"_parent": {"rel": "<:has_tag", "end_cls": "Entity"}},
     }
     (attspec, _mapspec) = mergespec("Tag", attspec_, mapspec_)
 
