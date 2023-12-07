@@ -15,6 +15,7 @@ from bento_meta.objects import Concept, Edge, Node, Property, Tag, Term, ValueSe
 from bento_meta.util.changelog import (
     changeset_id_generator,
     escape_quotes_in_attr,
+    reset_pg_ent_counter,
     update_config_changeset_id,
 )
 from bento_meta.util.cypher.clauses import (
@@ -82,7 +83,7 @@ class DiffSplitter:
     def add_node_statement(self, entity: Entity) -> None:
         """Add cypher statement that adds an entity"""
         escape_quotes_in_attr(entity)
-        self.reset_pg_ent_counter()
+        reset_pg_ent_counter()
         ent_c = N(label=entity.get_label(), props=entity.get_attr_dict())
         stmt = Statement(Merge(ent_c))
         self.diff_statements.append((ADD_NODE, stmt))
@@ -90,7 +91,7 @@ class DiffSplitter:
     def remove_node_statement(self, entity: Entity) -> None:
         """Add cypher statement that removes an entity"""
         escape_quotes_in_attr(entity)
-        self.reset_pg_ent_counter()
+        reset_pg_ent_counter()
         ent_c = N(label=entity.get_label(), props=entity.get_attr_dict())
         match_clause = self.generate_match_clause(entity=entity, ent_c=ent_c)
         stmt = Statement(match_clause, DetachDelete(ent_c.var))
@@ -101,7 +102,7 @@ class DiffSplitter:
         """Add cypher statement that adds a relationship from src to dst entities"""
         for ent in [src, dst]:
             escape_quotes_in_attr(ent)
-        self.reset_pg_ent_counter()
+        reset_pg_ent_counter()
         src_attrs = src.get_attr_dict()
         dst_attrs = dst.get_attr_dict()
         rel_c = R(Type=rel)
@@ -130,7 +131,7 @@ class DiffSplitter:
         """Add cypher statement that removes a relationship from src to dst entities"""
         for ent in [src, dst]:
             escape_quotes_in_attr(ent)
-        self.reset_pg_ent_counter()
+        reset_pg_ent_counter()
         src_attrs = src.get_attr_dict()
         dst_attrs = dst.get_attr_dict()
         rel_c = R(Type=rel)
@@ -174,7 +175,7 @@ class DiffSplitter:
         """
         for ent in [parent, obj_ent, src, dst]:
             escape_quotes_in_attr(ent)
-        self.reset_pg_ent_counter()
+        reset_pg_ent_counter()
         parent_c = N(label=parent.get_label(), props=parent.get_attr_dict())
         parent_rel_c = R(Type=parent_rel)
         rel_c = R(Type=rel)
@@ -218,7 +219,7 @@ class DiffSplitter:
         """
         for ent in [parent, obj_ent, src, dst]:
             escape_quotes_in_attr(ent)
-        self.reset_pg_ent_counter()
+        reset_pg_ent_counter()
         parent_c = N(label=parent.get_label(), props=parent.get_attr_dict())
         parent_rel_c = R(Type=parent_rel)
         rel_c = R(Type=rel)
@@ -250,7 +251,7 @@ class DiffSplitter:
     ) -> None:
         """Add cypher statement that adds a property to an entity"""
         escape_quotes_in_attr(entity)
-        self.reset_pg_ent_counter()
+        reset_pg_ent_counter()
         if isinstance(prop_value, str):
             prop_value = prop_value.replace(r"\'", "'").replace(r"\"", '"')
             prop_value = prop_value.replace("'", r"\'").replace('"', r"\"")
@@ -268,7 +269,7 @@ class DiffSplitter:
     def remove_property_statement(self, entity: Entity, prop_handle: str) -> None:
         """Add cypher statement that removes a property from an entity"""
         escape_quotes_in_attr(entity)
-        self.reset_pg_ent_counter()
+        reset_pg_ent_counter()
         ent_c = N(label=entity.get_label(), props=entity.get_attr_dict())
         match_clause = self.generate_match_clause(entity=entity, ent_c=ent_c)
         stmt = Statement(match_clause, Remove(ent_c, prop=prop_handle))

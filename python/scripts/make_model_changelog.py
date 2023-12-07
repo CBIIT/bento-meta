@@ -11,10 +11,11 @@ from bento_mdf.mdf import MDF
 from bento_meta.entity import Entity
 from bento_meta.mdb.mdb import make_nanoid
 from bento_meta.model import Model
-from bento_meta.objects import Concept, Term, ValueSet
+from bento_meta.objects import Concept, Property, Term, ValueSet
 from bento_meta.util.changelog import (
     changeset_id_generator,
     escape_quotes_in_attr,
+    reset_pg_ent_counter,
     update_config_changeset_id,
 )
 from bento_meta.util.cypher.clauses import Create, Match, Merge, OnCreateSet, Statement
@@ -35,8 +36,10 @@ def generate_cypher_to_add_entity(
 ) -> None:
     """Generates cypher statement to create or merge Entity."""
     if entity in cypher_stmts["added_entities"]:
+        logger.warning(f"Entity with attrs: {entity.get_attr_dict()} already added.")
         return
     escape_quotes_in_attr(entity)
+    reset_pg_ent_counter()
     cypher_ent = cypherize_entity(entity)
     if isinstance(entity, (Term, ValueSet)):
         if "_commit" not in cypher_ent.props:
@@ -59,6 +62,7 @@ def generate_cypher_to_add_relationship(
     cypher_stmts: Dict[str, List],
 ) -> None:
     """Generates cypher statement to create relationship from src to dst entity"""
+    reset_pg_ent_counter()
     cypher_src = cypherize_entity(src)
     cypher_dst = cypherize_entity(dst)
     # remove _commit attr from Term and VS ents
@@ -78,7 +82,8 @@ def process_tags(entity: Entity, cypher_stmts) -> None:
     if not entity.tags:
         return
     for tag in entity.tags.values():
-        tag.nanoid = make_nanoid()
+        if not tag.nanoid:
+            tag.nanoid = make_nanoid()
         generate_cypher_to_add_entity(tag, cypher_stmts)
         generate_cypher_to_add_relationship(entity, "has_tag", tag, cypher_stmts)
 
@@ -140,7 +145,8 @@ def process_props(entity: Entity, cypher_stmts) -> None:
     if not entity.props:
         return
     for prop in entity.props.values():
-        prop.nanoid = make_nanoid()
+        if not prop.nanoid:
+            prop.nanoid = make_nanoid()
         generate_cypher_to_add_entity(prop, cypher_stmts)
         generate_cypher_to_add_relationship(entity, "has_property", prop, cypher_stmts)
         process_tags(prop, cypher_stmts)
@@ -160,13 +166,32 @@ def process_model_nodes(model: Model, cypher_stmts) -> None:
 def process_model_edges(model: Model, cypher_stmts) -> None:
     """Generates cypher statements to create/merge an model's edges."""
     for edge in model.edges.values():
-        edge.nanoid = make_nanoid()
+        if not edge.nanoid:
+            edge.nanoid = make_nanoid()
         generate_cypher_to_add_entity(edge, cypher_stmts)
         generate_cypher_to_add_relationship(edge, "has_src", edge.src, cypher_stmts)
         generate_cypher_to_add_relationship(edge, "has_dst", edge.dst, cypher_stmts)
         process_tags(edge, cypher_stmts)
         process_concept(edge, cypher_stmts)
         process_props(edge, cypher_stmts)
+
+
+def separate_shared_props(model: Model) -> None:
+    """
+    If a property is shared by > 1 entity, duplicate it
+    with new nanoid to ensure each entity has its own copy.
+    """
+    initial_props = set()
+
+    for key, prop in model.props.items():
+        if prop in initial_props:
+            new_prop = Property(prop.get_attr_dict())
+            if new_prop.nanoid:
+                new_prop.nanoid = make_nanoid()
+            model.nodes[key[0]].props[key[1]] = new_prop
+            model.props[(key[0], key[1])] = new_prop
+        else:
+            initial_props.add(prop)
 
 
 def convert_model_to_changelog(
@@ -193,15 +218,14 @@ def convert_model_to_changelog(
     cypher_stmts: Dict[str, List] = {
         "add_ents": [],
         "add_rels": [],
-        # cypher_stmts["added_entities"] used to prevent duplicate props/terms
-        # from being created when they are shared by >1 node/prop
         "added_entities": [],
     }
 
-    # track created props and terms to prevent duplication
+    # if property shared by multiple nodes/edges,
+    separate_shared_props(model=model)
 
-    process_model_nodes(model, cypher_stmts)
-    process_model_edges(model, cypher_stmts)
+    process_model_nodes(model=model, cypher_stmts=cypher_stmts)
+    process_model_edges(model=model, cypher_stmts=cypher_stmts)
 
     changeset_id = changeset_id_generator(config_file_path=config_file_path)
     changelog = Changelog()

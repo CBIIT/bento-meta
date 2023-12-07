@@ -8,6 +8,7 @@ import logging
 from typing import Generator
 
 from bento_meta.entity import Entity
+from bento_meta.util.cypher.entities import N, R
 
 logger = logging.getLogger(__name__)
 
@@ -65,3 +66,9 @@ def escape_quotes_in_attr(entity: Entity) -> None:
 
             # Update the modified value back to the attribute
             setattr(entity, key, val)
+
+
+def reset_pg_ent_counter() -> None:
+    """Reset property graph entity variable counters to 0"""
+    N._reset_counter()
+    R._reset_counter()
