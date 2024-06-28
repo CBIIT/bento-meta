@@ -4,36 +4,40 @@ bento_meta.model
 
 This module contains :class:`Model`, a class for managing data models housed
 in the Bento Metamodel Database. Models are built from `bento_meta.Entity`
-subclasses (see :mod:`bento_meta.objects`). A Model can be used with or 
+subclasses (see :mod:`bento_meta.objects`). A Model can be used with or
 without a Neo4j database connection.
 
 """
+
 import re
 import sys
+
 sys.path.append("..")
 from uuid import uuid4
 from warnings import warn
+
 import neo4j.graph
+
+from bento_meta.entity import ArgError, Entity
 from bento_meta.mdb import MDB, make_nanoid
 from bento_meta.object_map import ObjectMap
-from bento_meta.entity import Entity, ArgError
 from bento_meta.objects import (
-    Node,
-    Property,
+    Concept,
     Edge,
+    Node,
+    Origin,
+    Predicate,
+    Property,
+    Tag,
     Term,
     ValueSet,
-    Concept,
-    Predicate,
-    Origin,
-    Tag,
 )
-# from pdb import set_trace
 
 
-class Model(object):
+class Model:
     def __init__(self, handle=None, mdb=None):
-        """Model constructor.
+        """
+        Model constructor.
 
         :param str handle: A string name for the model. Corresponds to the model property in MDB database nodes.
         :param bento_meta.mdb.MDB mdb: An MDB object containing the db connection (see :class:`bento_meta.mdb.MDB`)
@@ -53,7 +57,8 @@ class Model(object):
 
     @classmethod
     def versioning(cls, on=None):
-        """Get or set versioning state.
+        """
+        Get or set versioning state.
 
         :param boolean on: True, apply versioning. False, do not.
 
@@ -66,7 +71,8 @@ class Model(object):
 
     @classmethod
     def set_version_count(cls, ct):
-        """Set the integer version counter.
+        """
+        Set the integer version counter.
 
         :param int ct: Set version counter to this value.
 
@@ -82,12 +88,22 @@ class Model(object):
     @property
     def mdb(self):
         return self._mdb
-    
+
     @mdb.setter
     def mdb(self, value):
         if isinstance(value, MDB):
             self._mdb = value
-            for cls in (Node, Property, Edge, Term, ValueSet, Concept, Predicate, Origin, Tag):
+            for cls in (
+                Node,
+                Property,
+                Edge,
+                Term,
+                ValueSet,
+                Concept,
+                Predicate,
+                Origin,
+                Tag,
+            ):
                 cls.object_map = ObjectMap(cls=cls, drv=value.driver)
         elif not value:
             self._mdb = None
@@ -95,11 +111,12 @@ class Model(object):
                 cls.object_map = None
         else:
             raise ArgError(
-                "mdb= arg must be a bento_meta.mdb.MDB object"
+                "mdb= arg must be a bento_meta.mdb.MDB object",
             )
 
     def add_node(self, node=None):
-        """Add a :class:`Node` to the model.
+        """
+        Add a :class:`Node` to the model.
 
         :param Node node: A :class:`Node` instance, a :class:`neo4j.graph.Node`, or a dict
 
@@ -117,7 +134,8 @@ class Model(object):
         return node
 
     def add_edge(self, edge=None):
-        """Add an :class:`Edge` to the model.
+        """
+        Add an :class:`Edge` to the model.
 
         :param Edge edge: A :class:`Edge` instance, a :class:`neo4j.graph.Node`, or a dict
 
@@ -143,7 +161,8 @@ class Model(object):
         return edge
 
     def add_prop(self, ent, prop=None):
-        """Add a :class:`Property` to the model.
+        """
+        Add a :class:`Property` to the model.
 
         :param Node|Edge ent: Attach ``prop`` to this entity
         :param Property prop: A :class:`Property` instance, a :class: `neo4j.graph.Node`, or a dict
@@ -166,7 +185,7 @@ class Model(object):
         key = [ent.handle] if isinstance(ent, Node) else list(ent.triplet)
         key.append(prop.handle)
         ent.props[getattr(prop, type(prop).mapspec()["key"])] = prop
-        if not tuple(key) in self.props:
+        if tuple(key) not in self.props:
             self.props[tuple(key)] = prop
         return prop
 
@@ -183,28 +202,31 @@ class Model(object):
         if not isinstance(term, Term):
             raise ArgError("arg2 must be Term")
         if not ent.concept:
-            ent.concept = Concept({"nanoid":make_nanoid()})
-        term_key = term.handle if term.handle else term.value;
+            ent.concept = Concept({"nanoid": make_nanoid()})
+        term_key = term.handle if term.handle else term.value
         if (term_key, term.origin_name) in ent.concept.terms:
-            raise ValueError("Concept already represented by a Term with handle or value '{}'"
-                             "and origin_name '{}'".format(term_key, term.origin_name))
+            raise ValueError(
+                f"Concept already represented by a Term with handle or value '{term_key}'"
+                f"and origin_name '{term.origin_name}'",
+            )
         ent.concept.terms[(term_key, term.origin_name)] = term
         self.terms[(term_key, term.origin_name)] = term
-        
+
     def add_terms(self, prop, *terms):
-        """Add a list of :class:`Term` and/or strings to a :class:`Property` with a value domain of ``value_set``
+        """
+        Add a list of :class:`Term` and/or strings to a :class:`Property` with a value domain of ``value_set``
 
         :param Property prop: :class:`Property` to modify
         :param list terms: A list of :class:`Term` instances and/or str
 
-        :class:`Term` instances are created for strings; 
+        :class:`Term` instances are created for strings;
         `Term.value` and `Term.handle` is set to the string.
         """
         if not isinstance(prop, Property):
             raise ArgError("arg1 must be Property")
         if not re.match("value_set|enum", prop.value_domain):
             raise AttributeError(
-                "Property value domain is not value_set or enum, can't add terms"
+                "Property value domain is not value_set or enum, can't add terms",
             )
         if not prop.value_set:
             warn("Creating ValueSet object for Property " + prop.handle)
@@ -213,8 +235,8 @@ class Model(object):
 
         for t in terms:
             if isinstance(t, str):
-                warn("Creating Term object for string '{term}'".format(term=t))
-                t = Term({"handle":t, "value": t})
+                warn(f"Creating Term object for string '{t}'")
+                t = Term({"handle": t, "value": t})
             elif not isinstance(t, Term):
                 raise ArgError("encountered arg that was not a str or Term object")
             tm_key = t.handle if t.handle else t.value
@@ -222,7 +244,8 @@ class Model(object):
             self.terms[(tm_key, t.origin_name)] = t
 
     def rm_node(self, node):
-        """Remove a :class:`Node` from the Model instance.
+        """
+        Remove a :class:`Node` from the Model instance.
 
         :param Node node: Node to be removed
 
@@ -236,16 +259,12 @@ class Model(object):
             raise ArgError("arg must be a Node object")
         if not self.contains(node):
             warn(
-                "node '{node}' not contained in model '{model}'".format(
-                    node=node.handle, model=self.handle
-                )
+                f"node '{node.handle}' not contained in model '{self.handle}'",
             )
-            return
+            return None
         if self.edges_by_src(node) or self.edges_by_dst(node):
             raise ValueError(
-                "can't remove node '{node}', it is participating in edges".format(
-                    node=node.handle
-                )
+                f"can't remove node '{node.handle}', it is participating in edges",
             )
         for p in node.props:
             try:
@@ -257,7 +276,8 @@ class Model(object):
         return node
 
     def rm_edge(self, edge):
-        """Remove an :class:`Edge` instance from the Model instance.
+        """
+        Remove an :class:`Edge` instance from the Model instance.
 
         :param Edge edge: Edge to be removed
 
@@ -268,11 +288,9 @@ class Model(object):
             raise ArgError("arg must be an Edge object")
         if not self.contains(edge):
             warn(
-                "edge '{edge}' not contained in model '{model}'".format(
-                    edge=edge.triplet, model=self.handle
-                )
+                f"edge '{edge.triplet}' not contained in model '{self.handle}'",
             )
-            return
+            return None
         for p in edge.props:
             try:
                 k = list(edge.triplet)
@@ -287,7 +305,8 @@ class Model(object):
         return edge
 
     def rm_prop(self, prop):
-        """Remove a :class:`Property` instance from the Model instance.
+        """
+        Remove a :class:`Property` instance from the Model instance.
 
         :param Property prop: Property to be removed
 
@@ -298,9 +317,7 @@ class Model(object):
             raise ArgError("arg must be a Property object")
         if not self.contains(prop):
             warn(
-                "prop '{prop}' not contained in model '{model}'".format(
-                    prop=prop.handle, model=self.handle
-                )
+                f"prop '{prop.handle}' not contained in model '{self.handle}'",
             )
             return
         for okey in prop.belongs:
@@ -311,16 +328,15 @@ class Model(object):
             k.append(key)
             del self.props[tuple(k)]
         self.removed_entities.append(prop)
-        pass
 
     def rm_term(self, term):
         """Not implemented."""
         if not isinstance(term, Term):
             raise ArgError("arg must be a Term object")
-        pass
 
     def assign_edge_end(self, edge=None, end=None, node=None):
-        """Move the src or dst of an :class:`Edge` to a different :class:`Node`.
+        """
+        Move the src or dst of an :class:`Edge` to a different :class:`Node`.
 
         :param Edge edge: Edge to manipulate
         :param str end: Edge end to change (src|dst)
@@ -337,14 +353,15 @@ class Model(object):
             raise ArgError("end= must be one of 'src' or 'dst'")
         if not self.contains(edge) or not self.contains(node):
             warn("model must contain both edge and node")
-            return
+            return None
         del self.edges[edge.triplet]
         setattr(edge, end, node)
         self.edges[edge.triplet] = edge
         return edge
 
     def contains(self, ent):
-        """Ask whether an entity is present in the Model instance.
+        """
+        Ask whether an entity is present in the Model instance.
 
         :param Entity ent: Entity in question
 
@@ -352,7 +369,7 @@ class Model(object):
         """
         if not isinstance(ent, Entity):
             warn("argument is not an Entity subclass")
-            return
+            return None
         if isinstance(ent, Node):
             return ent in set(self.nodes.values())
         if isinstance(ent, Edge):
@@ -361,10 +378,10 @@ class Model(object):
             return ent in set(self.props.values())
         if isinstance(ent, Term):
             return ent in set(self.terms.values())
-        pass
 
     def edges_in(self, node):
-        """Get all :class:`Edge` that have a given :class:`Node` as their dst attribute
+        """
+        Get all :class:`Edge` that have a given :class:`Node` as their dst attribute
 
         :param Node node: The node
         :return: list of :class:`Edge`
@@ -372,10 +389,10 @@ class Model(object):
         if not isinstance(node, Node):
             raise ArgError("arg must be Node")
         return [self.edges[i] for i in self.edges if i[2] == node.handle]
-        pass
 
     def edges_out(self, node):
-        """Get all :class:`Edge` that have a given :class:`Node` as their src attribute
+        """
+        Get all :class:`Edge` that have a given :class:`Node` as their src attribute
 
         :param Node node: The node
         :return: list of :class:`Edge`
@@ -383,7 +400,6 @@ class Model(object):
         if not isinstance(node, Node):
             raise ArgError("arg must be Node")
         return [self.edges[i] for i in self.edges if i[1] == node.handle]
-        pass
 
     def edges_by(self, key, item):
         if key not in ["src", "dst", "type"]:
@@ -395,7 +411,8 @@ class Model(object):
             return [self.edges[x] for x in self.edges if x[0] == item]
 
     def edges_by_src(self, node):
-        """Get all :class:`Edge` that have a given :class:`Node` as their src attribute
+        """
+        Get all :class:`Edge` that have a given :class:`Node` as their src attribute
 
         :param Node node: The node
         :return: list of :class:`Edge`
@@ -403,7 +420,8 @@ class Model(object):
         return self.edges_by("src", node)
 
     def edges_by_dst(self, node):
-        """Get all :class:`Edge` that have a given :class:`Node` as their dst attribute
+        """
+        Get all :class:`Edge` that have a given :class:`Node` as their dst attribute
 
         :param Node node: The node
         :return: list of :class:`Edge`
@@ -411,7 +429,8 @@ class Model(object):
         return self.edges_by("dst", node)
 
     def edges_by_type(self, edge_handle):
-        """Get all :class:`Edge` that have a given edge type (i.e., handle)
+        """
+        Get all :class:`Edge` that have a given edge type (i.e., handle)
 
         :param str edge_handle: The edge type
         :return: list of :class:`Edge`
@@ -421,12 +440,13 @@ class Model(object):
         return self.edges_by("type", edge_handle)
 
     def dget(self, refresh=False):
-        """Pull model from MDB into this Model instance, based on its handle
+        """
+        Pull model from MDB into this Model instance, based on its handle
 
         Note: is a noop if `Model.mdb` is unset.
         """
         if not self.mdb:
-            return
+            return None
         if refresh:
             ObjectMap.clear_cache()
         with self.drv.session() as session:
@@ -458,7 +478,7 @@ class Model(object):
                 n = ObjectMap.cache.get(rec["id(n)"])
                 if n is None:
                     warn(
-                        "node with id {nid} not yet retrieved".format(nid=rec["id(n)"])
+                        "node with id {nid} not yet retrieved".format(nid=rec["id(n)"]),
                     )
                     continue
                 p = Property(rec["p"])
@@ -477,8 +497,8 @@ class Model(object):
                 if e is None:
                     warn(
                         "relationship with id {rid} not yet retrieved".format(
-                            rid=rec["id(r)"]
-                        )
+                            rid=rec["id(r)"],
+                        ),
                     )
                     continue
                 p = Property(rec["p"])
@@ -491,7 +511,8 @@ class Model(object):
         return self
 
     def dput(self):
-        """Push this Model's objects to MDB.
+        """
+        Push this Model's objects to MDB.
 
         Note: is a noop if `Model.mdb` is unset.
         """
