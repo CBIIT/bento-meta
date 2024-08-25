@@ -35,7 +35,7 @@ from bento_meta.objects import (
 
 
 class Model:
-    def __init__(self, handle=None, mdb=None):
+    def __init__(self, handle=None, version=None, uri=None,  mdb=None):
         """
         Model constructor.
 
@@ -45,6 +45,8 @@ class Model:
         if not handle:
             raise ArgError("model requires arg 'handle' set")
         self.handle = handle
+        self.version = version
+        self.uri = uri
         self._mdb = None
         self.nodes = {}
         self.edges = {}  # keys are (edge.handle, src.handle, dst.handle) tuples
