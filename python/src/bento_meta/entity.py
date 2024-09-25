@@ -2,25 +2,25 @@
 bento_meta.entity
 =================
 
-This module contains 
-* `Entity`, the base class for metamodel objects, 
-* the `CollValue` class to manage collection-valued attributes, and 
+This module contains
+* `Entity`, the base class for metamodel objects,
+* the `CollValue` class to manage collection-valued attributes, and
 * the `ArgError` exception.
 """
-from collections import UserDict
 
-# from pdb import set_trace
+from __future__ import annotations
+
+from collections import UserDict
 from warnings import warn
 
 
 class ArgError(Exception):
-    """Exception for method argument errors"""
-
-    pass
+    """Exception for method argument errors."""
 
 
-class Entity(object):
-    """Base class for all metamodel objects.
+class Entity:
+    """
+    Base class for all metamodel objects.
 
     Entity contains all the magic for metamodel objects such as
     `bento_meta.objects.Node` and 'bento_meta.object.Edge`. It will rarely
@@ -79,14 +79,16 @@ class Entity(object):
     versioning_on = False
 
     def __init__(self, init=None):
-        """Entity constructor. Always called by subclasses.
+        """
+        Entity constructor. Always called by subclasses.
+
         .. py:function:: Node(init)
         :param dict init: A dict of attribute names and values. Undeclared attributes are ignored.
         :param neo4j.graph.Node init: a `neo4j.graph.Node` object to be stored as a model object.
         :param `bento_meta.Entity` init: an Entity (of matching subclass). Used to duplicate another model object.
         """
         if not set(type(self).attspec.values()) <= set(
-            ["simple", "object", "collection"]
+            ["simple", "object", "collection"],
         ):
             raise ArgError("unknown attribute type in attspec")
 
@@ -126,8 +128,10 @@ class Entity(object):
 
     @classmethod
     def versioning(cls, on=None):
-        """Get or set whether versioning is applied to object manipulations
-        :param boolean on: True, apply versioning. False, do not.
+        """
+        Get or set whether versioning is applied to object manipulations.
+
+            :param boolean on: True, apply versioning. False, do not.
         """
         if on is None:
             return cls.versioning_on
@@ -136,9 +140,12 @@ class Entity(object):
 
     @classmethod
     def set_version_count(cls, ct):
-        """Set the integer version counter. This will usually be accessed via a
-        `bento_meta.Model` instance
-        :param int ct: Set version counter to this value
+        """
+        Set the integer version counter.
+
+        This will usually be accessed via a `bento_meta.Model` instance.
+
+            :param int ct: Set version counter to this value
         """
         if not isinstance(ct, int) or ct < 0:
             raise ArgError("arg must be a positive integer")
@@ -154,21 +161,24 @@ class Entity(object):
 
     # @classmethod
     def get_by_id(self, id):
-        """Get an object from the db with the id attribute (not the Neo4j id). Returns a new object.
+        """
+        Get an object from the db with the id attribute (not the Neo4j id).
+
+        Returns a new object.
         :param string id: value of id for desired object
         """
         if self.object_map:
-            print("  > now in entity.get_by_id where self is {}".format(self))
-            print("  > and class is {}".format(self.__class__))
+            print(f"  > now in entity.get_by_id where self is {self}")
+            print(f"  > and class is {self.__class__}")
             return self.object_map.get_by_id(self, id)
         else:
             print("    _NO_ cls.object_map detected")
-            pass
 
     @property
     def dirty(self):
-        """Flag whether this instance has been changed since retrieval from
-        the database
+        """
+        Flag whether this instance has been changed since retrieval from the database.
+
         Set to -1, ensure that the next time an attribute is accessed, the instance
         will retrieve itself from the database.
         """
@@ -193,7 +203,8 @@ class Entity(object):
 
     @property
     def belongs(self):
-        """Dict that stores information on the owners (referents) of this instance
+        """
+        Dict that stores information on the owners (referents) of this instance
         in the model
         """
         return self.pvt["belongs"]
@@ -222,23 +233,18 @@ class Entity(object):
     def set_with_entity(self, ent):
         if not isinstance(self, type(ent)):
             raise ArgError(
-                "class mismatch: I am a {slf}, but arg is a {ent}".format(
-                    slf=type(self).__name__, ent=type(ent).__name__
-                )
+                f"class mismatch: I am a {type(self).__name__}, but arg is a {type(ent).__name__}",
             )
         for k in type(self).attspec:
             atts = type(self).attspec[k]
             if k == "_next" or k == "_prev":
                 break
-            if atts == "simple":
-                setattr(self, k, getattr(ent, k))
-            elif atts == "object":
+            if atts == "simple" or atts == "object":
                 setattr(self, k, getattr(ent, k))
             elif atts == "collection":
                 setattr(self, k, CollValue(getattr(ent, k), owner=self, owner_key=k))
-                pass
             else:
-                raise RuntimeError("unknown attribute type '{atts}'".format(atts=atts))
+                raise RuntimeError(f"unknown attribute type '{atts}'")
         for okey in ent.belongs:
             self.belongs[okey] = ent.belongs[okey]
         self.neoid = ent.neoid
@@ -265,9 +271,7 @@ class Entity(object):
             return self.__dict__[name]
         else:
             raise AttributeError(
-                "get: attribute '{name}' neither private nor declared for subclass {cls}".format(
-                    name=name, cls=type(self).__name__
-                )
+                f"get: attribute '{name}' neither private nor declared for subclass {type(self).__name__}",
             )
 
     def __setattr__(self, name, value):
@@ -284,9 +288,7 @@ class Entity(object):
                 self._set_declared_attr(name, value)
         else:
             raise AttributeError(
-                "set: attribute '{name}' neither private nor declared for subclass {cls}".format(
-                    name=name, cls=type(self).__name__
-                )
+                f"set: attribute '{name}' neither private nor declared for subclass {type(self).__name__}",
             )
 
     def version_me(setattr_func):
@@ -361,7 +363,7 @@ class Entity(object):
                     d[getattr(v, type(v).mapspec()["key"])] = v
                 value = CollValue(d, owner=self, owner_key=name)
         else:
-            raise RuntimeError("unknown attspec value '{}'".format(atts))
+            raise RuntimeError(f"unknown attspec value '{atts}'")
         self.dirty = 1
         self.__dict__[name] = value
 
@@ -377,45 +379,42 @@ class Entity(object):
         spec = type(self).attspec[att]
         try:
             if spec == "simple":
-                if not (
-                    isinstance(value, int)
-                    or isinstance(value, str)
-                    or isinstance(value, float)
-                    or isinstance(value, bool)
-                    or value is None
+                if (
+                    not (isinstance(value, (bool, float, int, str)))
+                    and value is not None
                 ):
                     raise ArgError(
-                        "value for key '{att}' is not a simple scalar".format(att=att)
+                        f"value for key '{att}' is not a simple scalar",
                     )
             elif spec == "object":
                 if not (isinstance(value, Entity) or value is None):
                     raise ArgError(
-                        "value for key '{att}' is not an Entity subclass".format(
-                            att=att
-                        )
+                        f"value for key '{att}' is not an Entity subclass",
                     )
             elif spec == "collection":
                 if not (isinstance(value, (dict, list, CollValue))):
                     raise AttributeError(
-                        "value for key '{att}' is not a dict,list, or CollValue".format(
-                            att=att
-                        )
+                        f"value for key '{att}' is not a dict,list, or CollValue",
                     )
             else:
                 raise ArgError(
-                    "unknown attribute type '{type}' for attribute '{att}' in attspec".format(
-                        type=spec, att=att
-                    )
+                    f"unknown attribute type '{spec}' for attribute '{att}' in attspec",
                 )
         except Exception:
             raise
 
     def dup(self):
-        """Duplicate the object, but not too deeply. Mainly for use of the versioning machinery."""
+        """
+        Duplicate the object, but not too deeply.
+
+        Mainly for use of the versioning machinery.
+        """
         return type(self)(self)
 
     def delete(self):
-        """Delete self from the database.
+        """
+        Delete self from the database.
+
         If versioning is active, this will 'deprecate' the entity, but not actually remove it from the db
         """
         if self.versioning_on and self.versioned:
@@ -423,9 +422,7 @@ class Entity(object):
                 self._to = type(self).version_count
             else:
                 warn(
-                    "delete - current version count {vct} is <= entity's _to attribute".format(
-                        vct=type(self).version_count
-                    )
+                    f"delete - current version count {type(self).version_count} is <= entity's _to attribute",
                 )
         else:
             # unlink from other entities
@@ -438,7 +435,9 @@ class Entity(object):
                     setattr(owner, att[0], None)
 
     def dget(self, refresh=False):
-        """Update self from the database
+        """
+        Update self from the database.
+
         :param boolean refresh: if True, force a retrieval from db;
         if False, retrieve from cache;
         don't disrupt changes already made
@@ -449,7 +448,9 @@ class Entity(object):
             pass
 
     def dput(self):
-        """Put self to the database.
+        """
+        Put self to the database.
+
         This will set the `neoid` property if not yet set.
         """
         if type(self).object_map:
@@ -466,7 +467,7 @@ class Entity(object):
 
     @classmethod
     def attr_doc(cls):
-        """Create a docstring for declared attributes on class as configured"""
+        """Create a docstring for declared attributes on class as configured."""
 
         def str_for_obj(thing):
             if isinstance(thing, set):
@@ -479,20 +480,18 @@ class Entity(object):
             first += " Posesses the following attributes:"
         else:
             first += " Posesses all :class:`Entity` attributes, plus the following:"
-        doc = """\
-.. py:class:: {cls}
+        doc = f"""\
+.. py:class:: {cls.__name__}
 
-{desc}
+{first}
 
-""".format(
-            desc=first, cls=cls.__name__
-        )
+"""
         for att in [x for x in cls.attspec_ if cls.attspec[x] == "simple"]:
             doc += """\
   .. py:attribute:: {att}
        :type: simple
 """.format(
-                att=cls.__name__.lower() + "." + att
+                att=cls.__name__.lower() + "." + att,
             )
         for att in [x for x in cls.attspec_ if cls.attspec[x] == "object"]:
             doc += """\
@@ -514,30 +513,26 @@ class Entity(object):
         return doc
 
     def get_label(self) -> str:
-        """returns type of entity as label"""
+        """Return type of entity as label."""
         return self.mapspec_["label"]
 
-    def get_attr_dict(self):
+    def get_attr_dict(self) -> dict[str, str]:
         """
-        Returns given entity's set attributes as a dictionary.
+        Return simple attributes set for Entity as a dict.
 
-        Dictionary of attributes used as the parameters
-        of methods with the write_txn decorator.
+        Attr values are converted to strings. Doesn't include attrs with None values.
         """
-        attr_dict = {}
-        for key, val in vars(self).items():
-            if (
-                val
-                and val is not None
-                and key != "pvt"
-                and isinstance(val, (str, int, float, complex, bool))
-            ):
-                attr_dict[key] = str(val)
-        return attr_dict
+        return {
+            k: str(getattr(self, k))
+            for k in self.attspec
+            if self.attspec[k] == "simple" and getattr(self, k) is not None
+        }
 
 
 class CollValue(UserDict):
-    """A UserDict for housing Entity collection attributes.
+    """
+    A UserDict for housing Entity collection attributes.
+
     This class contains a hook for recording the Entity that
     owns the value that is being set. The value is marked as belonging
     to the *containing object*, not this collection object.
@@ -556,12 +551,12 @@ class CollValue(UserDict):
 
     @property
     def owner(self):
-        """The entity instance of which this collection is an attribute"""
+        """The entity instance of which this collection is an attribute."""
         return self.__dict__["__owner"]
 
     @property
     def owner_key(self):
-        """The attribute name of this collection on the `owner`"""
+        """The attribute name of this collection on the `owner`."""
         return self.__dict__["__owner_key"]
 
     def version_me(setitem_func):
@@ -571,7 +566,6 @@ class CollValue(UserDict):
             if not self.owner.versioned:
                 return setitem_func(self, name, value)
             elif (Entity.version_count > self.owner._from) and (self.owner._to is None):
-                pass
                 # dup becomes the "old" object and self the "new":
                 dup = self.owner.dup()
                 dup._to = Entity.version_count
@@ -595,9 +589,9 @@ class CollValue(UserDict):
                     owner = self.owner.belongs[okey]
                     (oid, *att) = okey
                     if len(att) == 2:
-                        getattr(owner, att[0])[
-                            att[1]
-                        ] = self.owner  # this dups the owning entity if nec
+                        getattr(owner, att[0])[att[1]] = (
+                            self.owner
+                        )  # this dups the owning entity if nec
                     else:
                         setattr(owner, att[0], self.owner)
                     if owner._prev:
@@ -613,9 +607,7 @@ class CollValue(UserDict):
     def __setitem__(self, name, value):
         if not isinstance(value, Entity):
             raise ArgError(
-                "a collection-valued attribute can only accept Entity members, not '{tipe}'s".format(
-                    tipe=type(value)
-                )
+                f"a collection-valued attribute can only accept Entity members, not '{type(value)}'s",
             )
         if name in self:
             oldval = self.data.get(name)
@@ -634,7 +626,7 @@ class CollValue(UserDict):
 
     def __getitem__(self, name):
         if name not in self.data:
-            return
+            return None
         if self.data[name].dirty < 0:
             self.data[name].dget()
         return self.data[name]
@@ -642,4 +634,3 @@ class CollValue(UserDict):
     def __delitem__(self, name):
         self[name] == None  # trigger __setitem__
         super().__delitem__(name)
-        return
