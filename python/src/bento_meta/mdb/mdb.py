@@ -4,6 +4,12 @@ bento_meta.mdb
 
 This module contains :class:`MDB`, with machinery for efficiently
 querying a Neo4j instance of a Metamodel Database.
+
+The constructor queries the database for registered models.
+The attribute models : Dict contains model handles (names) as keys,
+and a list of version strings as values.
+The attribute latest_version : Dict contains model handles as keys
+and the version string tagged "is_latest" as values.
 """
 
 import os
@@ -95,10 +101,19 @@ class MDB:
         user=os.environ.get("NEO4J_MDB_USER"),
         password=os.environ.get("NEO4J_MDB_PASS"),
     ):
+        """
+        Create an :class:`MDB` object, with a connection to a Neo4j instance of a metamodel database.
+        :param bolt_url uri: The Bolt protocol endpoint to the Neo4j instance (default, use the
+        ``NEO4J_MDB_URI`` env variable)
+        :param str user: Username for Neo4j access (default, use the ``NEO4J_MDB_USER`` env variable)
+        :param str password: Password for user (default, use the ``NEO4J_MDB_PASS`` env variable)
+        """
         self.uri = uri
         self.user = user
         self.password = password
         self.driver = None
+        self.models = {}
+        self.latest_version = {}
         try:
             self.driver = GraphDatabase.driver(
                 self.uri,
@@ -106,12 +121,24 @@ class MDB:
             )
         except Exception as e:
             warn(f"MDB not connected: {e}")
+        try:
+            # query DB and cache the models and their versions in the MDB object
+            info = self.get_model_info()
+            if not info or len(info) == 0:
+                raise RuntimeError("No Model nodes found")
+            for m in info:
+                if self.models.get(m['handle']):
+                    self.models[m['handle']].append(m['version'])
+                else:
+                    self.models[m['handle']] = [m['version']]
+                if m['is_latest'] and not self.latest_version.get(m['handle']):
+                    self.latest_version[m['handle']] = m['version']
+            for hdl in self.models:
+                if not self.latest_version.get(hdl):
+                    self.latest_version[hdl] = None
+        except Exception as e:
+            raise RuntimeError(f"Database doesn't look like an MDB: {e}")
         self._txfns = {}
-        """ Create an :class:`MDB` object, with a connection to a Neo4j instance of a metamodel database.
-        :param bolt_url uri: The Bolt protocol endpoint to the Neo4j instance (default, use the
-        ``NEO4J_MDB_URI`` env variable)
-        :param str user: Username for Neo4j access (default, use the ``NEO4J_MDB_USER`` env variable)
-        :param str password: Password for user (default, use the ``NEO4J_MDB_PASS`` env variable)"""
 
     def close(self):
         self.driver.close()
@@ -126,28 +153,71 @@ class MDB:
 
     # def run_txfn(self, name, *args, **kwargs):
 
-    @read_txn_value
+    @read_txn_data
+    def get_model_info(self):
+        """
+        Get models, versions, and latest versions from MDB Model nodes
+        """
+        return ("match (m:model) return m", None)
+    
     def get_model_handles(self):
-        """Return a simple list of model handles available."""
-        qry = "match (p:node) where not exists(p._to) return distinct p.model"
-        return (qry, None, "p.model")
+        """
+        Return a simple list of model handles available.
+        Queries Model nodes (not model properties in Entity nodes)
+        """
+        return [x for x in self.models.keys()]
+
+    def get_model_versions(self, model):
+        """
+        Get list of version strings present in database for a given model.
+        Returns [ <string> ].
+        """
+        if self.models.get(model):
+            return self.models[model]
+        else:
+            return
+    
+    def get_latest_version(self, model):
+        """
+        Get the version string from Model node marked is_latest:True for a given
+        model handle.
+        Returns <string>
+        """
+        if self.models.get(model):
+            return self.latest_version[model]
+        else:
+            return
 
     @read_txn_data
     def get_model_nodes(self, model=None):
-        """Return a list of dicts representing Model nodes."""
-        qry = ("match (m:model) {} with m where not exists(m._to) return m").format(
+        """
+        Return a list of dicts representing Model nodes.
+        Returns all versions.
+        """
+        qry = ("match (m:model) {} return m").format(
             "where m.handle = $model" if model else ""
         )
         return (qry, {"model": model} if model else None)
 
     @read_txn_value
-    def get_nodes_by_model(self, model=None):
+    def get_nodes_by_model(self, model=None, version=None):
         """
-        Get all nodes for a given model. If :param:model is None,
-        get all nodes in database.
+        Get all nodes for a given model.
+        If :param:model is set but :param:version is None, get nodes from model version
+        marked is_latest:true
+        If :param:model is set and :param:version is '*', get nodes from all model versions.
+        If :param:model is None, get all nodes in database.
         Returns [ <node> ].
         """
-        qry = ("match (n:node) {} with n where not exists(n._to) return n").format(
+        cond = ""
+        if model:
+            if version:
+                cond = "where n.model = $model" if version == "*" else
+                "where n.model = $model and n.version = $version"
+            else:
+                cond = "where n.model = $model and 
+        
+        qry = ("match (n:node) {}  return n").format(
             "where n.model = $model" if model else ""
         )
         return (qry, {"model": model} if model else None, "n")
