@@ -209,34 +209,39 @@ class MDB:
         If :param:model is None, get all nodes in database.
         Returns [ <node> ].
         """
-        cond = ""
+        cond = "where n.model = $model and n.version = $version"
+        parms = {}
         if model:
-            if version:
-                cond = "where n.model = $model" if version == "*" else
-                "where n.model = $model and n.version = $version"
+            if version is None:
+                parms = {"model": model,
+                         "version": self.get_latest_version(model)}
+            elif version == "*":
+                cond = "where n.model = $model" 
+                parms = {"model": model}
             else:
-                cond = "where n.model = $model and 
+                parms = {"model": model, "version": version}
         
-        qry = ("match (n:node) {}  return n").format(
-            "where n.model = $model" if model else ""
-        )
-        return (qry, {"model": model} if model else None, "n")
+        qry = f"match (n:node) {cond} return n"
+
+        return (qry, parms, "n")
 
     @read_txn_data
-    def get_model_nodes_edges(self, model):
+    def get_model_nodes_edges(self, model, version=None):
         """
-        Get all node-relationship-node paths for a given model.
+        Get all node-relationship-node paths for a given model and version.
+        If :param:version is None, use version marked is_latest:true for
+        :param:model.
         Returns [ path ]
         """
+        if version is None:
+            version = self.get_latest_version(model)
         qry = (
-            "match p = (s:node {model: $model})<-[:has_src]-"
-            "          (r:relationship {model: $model})-[:has_dst]->"
-            "          (d:node {model: $model}) "
-            "where not exists(s._to) and not exists(r._to) and "
-            "not exists(d._to) "
+            "match p = (s:node {model: $model, version: $version})<-[:has_src]-"
+            "          (r:relationship {model: $model, version: $version})-[:has_dst]->"
+            "          (d:node {model: $model, version: $version}) "
             "return p as path"
         )
-        return (qry, {"model": model})
+        return (qry, {"model": model, "version": version})
 
     @read_txn_data
     def get_node_edges_by_node_id(self, nanoid):
@@ -247,10 +252,8 @@ class MDB:
         """
         qry = (
             "match (n:node {nanoid:$nanoid}) "
-            "where not exists(n._to) "
             "with n "
             "optional match (n)<-[e1]-(r:relationship)-[e2]->(m:node) "
-            "where not exists(r._to) and not exists(m._to) "
             "return n.nanoid as id, n.handle as handle, n.model as model, "
             "       type(e1) as near_type, type(e2) as far_type, r as rln, m as far_node"
         )
@@ -264,28 +267,45 @@ class MDB:
         """
         qry = (
             "match (n:node {nanoid:$nanoid}) "
-            "where not exists(n._to) "
             "with n "
             "optional match (n)-[:has_property]->(p) "
-            "where not exists(p._to) "
             "return n.nanoid as id, n.handle as handle, n.model as model, n as node, "
             "       collect(p) as props"
         )
         return (qry, {"nanoid": nanoid})
 
     @read_txn_data
-    def get_nodes_and_props_by_model(self, model=None):
+    def get_nodes_and_props_by_model(self, model=None, version=None):
         """
         Get all nodes with associated properties given a model handle. If
         model is None, get all nodes with their properties.
         Returns [ {id, handle, model, props[]} ]
         """
+        cond = "where n.model = $model and n.version = $version"
+        parms = {}
+        if model:
+            if version is None:
+                parms = {"model": model,
+                         "version": self.get_latest_version(model)}
+            elif version == "*":
+                cond = "where n.model = $model" 
+                parms = {"model": model}
+            else:
+                parms = {"model": model, "version": version}
+
+        qry = (
+            "match (n:node)-[:has_property]->(p:property) "
+            "return n.nanoid as id, n.handle as handle, n.model as model, "
+            "       collect(p) as props"
+        ).format("and n.model = $model" if model else "")
+
         qry = (
             "match (n:node)-[:has_property]->(p:property) "
             "where not exists(n._to) and not exists(p._to) {} "
             "return n.nanoid as id, n.handle as handle, n.model as model, "
             "       collect(p) as props"
         ).format("and n.model = $model" if model else "")
+
         return (qry, {"model": model})
 
     @read_txn_data
@@ -297,7 +317,6 @@ class MDB:
         """
         qry = (
             "match (p:property {nanoid:$nanoid})<-[:has_property]-(n:node) "
-            "where not exists(p._to) "
             "with p,n "
             "optional match (p)-[:has_value_set]->(vs:value_set)-[:has_term]->(t:term) "
             "return p.nanoid as id, p.handle as handle, p.model as model, "
@@ -317,7 +336,6 @@ class MDB:
             "match (vs:value_set {nanoid:$nanoid}) "
             "with vs "
             "match (t)<-[:has_term]-(vs)<-[:has_value_set]-(p:property) "
-            "where not exists(t._to) and not exists(p._to) "
             "return vs.nanoid as id, vs.handle as handle, vs.url as url, "
             "       collect(t) as terms, collect(p) as props"
         )
@@ -333,7 +351,6 @@ class MDB:
         """
         qry = (
             "match (vs:value_set)<-[:has_value_set]-(p:property) "
-            "where not exists(vs._to) and not exists(p._to) {} "
             "return vs as value_set, collect(p) as props"
         ).format("and p.model=$model" if model else "")
         return (qry, {"model": model})
@@ -346,10 +363,8 @@ class MDB:
         """
         qry = (
             "match (t:term {nanoid:$nanoid}) "
-            "where not exists(t._to) "
             "with t, t.origin_name as origin_name "
             "optional match (o:origin {name: origin_name}) "
-            "where not exists(o._to) "
             "return t as term, o as origin "
         )
         return (qry, {"nanoid": nanoid})
@@ -364,10 +379,11 @@ class MDB:
         qry = (
             "match (p:property)-[:has_value_set]->(v:value_set)"
             "-[:has_term]->(t:term) "
-            "where not( exists(p._to) or exists(v._to) or exists(t._to)) {} "
             "return p as prop, collect(t) as terms"
         ).format("and p.model = $model" if model else "")
         return (qry, {"model": model})
+
+    ###
 
     @read_txn_data
     def get_origins(self):
@@ -375,7 +391,7 @@ class MDB:
         Get all origins.
         Returns [ <origin> ]
         """
-        qry = "match (o:origin) where not exists (o._to) return o"
+        qry = "match (o:origin) return o"
         return (qry, None)
 
     @read_txn_value
@@ -392,7 +408,6 @@ class MDB:
         """
         qry = (
             "match (a {nanoid:$nanoid})-[:has_tag]->(g:tag) "
-            "where not exists(a._to) "
             "with a, g "
             "return a.nanoid as id, head(labels(a)) as label, a.handle as handle, "
             "a.model as model, collect(g) as tags"
@@ -422,7 +437,6 @@ class MDB:
             "match (t:tag {{key:$key}}) {} "
             "with t "
             "match (e)-[:has_tag]->(t) "
-            "where not exists(e._to) {}"
             "return t.key as tag_key, t.value as tag_value, head(labels(e)) as entity, collect(e) as entities"
         ).format(
             "where t.value = $value" if value else "",
