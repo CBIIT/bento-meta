@@ -20,6 +20,8 @@ from warnings import warn
 from nanoid import generate as nanoid_generate
 from neo4j import GraphDatabase
 
+from pdb import set_trace
+
 # Decorator functions to produce executed transactions based on an
 # underlying query/param function:
 
@@ -135,7 +137,10 @@ class MDB:
                     self.latest_version[m['handle']] = m['version']
             for hdl in self.models:
                 if not self.latest_version.get(hdl):
-                    self.latest_version[hdl] = None
+                    if len(self.models[hdl]) == 1:  # only one version
+                        self.latest_version[hdl] = self.models[hdl][0]
+                    else:
+                        self.latest_version[hdl] = None
         except Exception as e:
             raise RuntimeError(f"Database doesn't look like an MDB: {e}")
         self._txfns = {}
@@ -153,12 +158,12 @@ class MDB:
 
     # def run_txfn(self, name, *args, **kwargs):
 
-    @read_txn_data
+    @read_txn_value
     def get_model_info(self):
         """
         Get models, versions, and latest versions from MDB Model nodes
         """
-        return ("match (m:model) return m", None)
+        return ("match (m:model) return m", None, "m")
     
     def get_model_handles(self):
         """
@@ -220,6 +225,8 @@ class MDB:
                 parms = {"model": model}
             else:
                 parms = {"model": model, "version": version}
+        else:
+            cond = ""
         
         qry = f"match (n:node) {cond} return n"
 
@@ -248,13 +255,14 @@ class MDB:
         """
         Get incoming and outgoing relationship information for a node,
         given its nanoid.
-        Returns [ {id, handle, model, near_type, far_type, rln, far_node} ].
+        Returns [ {id, handle, model, version, near_type, far_type, rln, far_node} ].
         """
         qry = (
             "match (n:node {nanoid:$nanoid}) "
             "with n "
             "optional match (n)<-[e1]-(r:relationship)-[e2]->(m:node) "
             "return n.nanoid as id, n.handle as handle, n.model as model, "
+            "       n.version as version, "
             "       type(e1) as near_type, type(e2) as far_type, r as rln, m as far_node"
         )
         return (qry, {"nanoid": nanoid})
@@ -263,13 +271,14 @@ class MDB:
     def get_node_and_props_by_node_id(self, nanoid):
         """
         Get a node and its properties, given the node nanoid.
-        Returns [ {id, handle, model, node, props[]} ].
+        Returns [ {id, handle, model, version, node, props[]} ].
         """
         qry = (
             "match (n:node {nanoid:$nanoid}) "
             "with n "
             "optional match (n)-[:has_property]->(p) "
-            "return n.nanoid as id, n.handle as handle, n.model as model, n as node, "
+            "return n.nanoid as id, n.handle as handle, n.model as model, "
+            "       n.version as version, n as node, "
             "       collect(p) as props"
         )
         return (qry, {"nanoid": nanoid})
@@ -279,47 +288,43 @@ class MDB:
         """
         Get all nodes with associated properties given a model handle. If
         model is None, get all nodes with their properties.
-        Returns [ {id, handle, model, props[]} ]
+        Returns [ {id, handle, model, version, props[]} ]
         """
-        cond = "where n.model = $model and n.version = $version"
+        cond = ("where n.model = $model and n.version = $version and "
+                "p.model = $model and p.version = $version")
         parms = {}
         if model:
             if version is None:
                 parms = {"model": model,
                          "version": self.get_latest_version(model)}
             elif version == "*":
-                cond = "where n.model = $model" 
+                cond = "where n.model = $model and p.model = $model" 
                 parms = {"model": model}
             else:
                 parms = {"model": model, "version": version}
-
+        else:
+            cond = ""
         qry = (
             "match (n:node)-[:has_property]->(p:property) "
+            f"{cond}"
             "return n.nanoid as id, n.handle as handle, n.model as model, "
-            "       collect(p) as props"
-        ).format("and n.model = $model" if model else "")
-
-        qry = (
-            "match (n:node)-[:has_property]->(p:property) "
-            "where not exists(n._to) and not exists(p._to) {} "
-            "return n.nanoid as id, n.handle as handle, n.model as model, "
-            "       collect(p) as props"
-        ).format("and n.model = $model" if model else "")
-
-        return (qry, {"model": model})
+            "n.version as version, collect(p) as props"
+        )
+        return (qry, parms)
 
     @read_txn_data
     def get_prop_node_and_domain_by_prop_id(self, nanoid):
         """
         Get a property, its node, and its value domain or value set
         of terms, given the property nanoid.
-        Returns [ { id, handle, model, value_domain, prop, node, value_set, terms[] } ].
+        Returns [ { id, handle, model, version, value_domain, prop, node, value_set, terms[] } ].
         """
         qry = (
             "match (p:property {nanoid:$nanoid})<-[:has_property]-(n:node) "
             "with p,n "
             "optional match (p)-[:has_value_set]->(vs:value_set)-[:has_term]->(t:term) "
             "return p.nanoid as id, p.handle as handle, p.model as model, "
+            "p.version as version, "
             "p.value_domain as value_domain, p as prop, n as node, "
             "  vs as value_set, collect(t) as terms"
         )
@@ -333,27 +338,42 @@ class MDB:
         Returns [ {id, handle, url, terms[], props[]} ]
         """
         qry = (
-            "match (vs:value_set {nanoid:$nanoid}) "
-            "with vs "
-            "match (t)<-[:has_term]-(vs)<-[:has_value_set]-(p:property) "
+            "match (vs:value_set {nanoid:$nanoid})-[:has_term]->(t) "
+            "with vs, collect(t) as terms "
+            "match (vs)<-[:has_value_set]-(p:property) "
             "return vs.nanoid as id, vs.handle as handle, vs.url as url, "
-            "       collect(t) as terms, collect(p) as props"
+            "       terms, collect(p) as props"
         )
         return (qry, {"nanoid": nanoid})
 
     @read_txn_data
-    def get_valuesets_by_model(self, model=None):
+    def get_valuesets_by_model(self, model=None, version=None):
         """
         Get all valuesets that are used by properties in the given
-        model (or all valuesets if model is None). Also return list of properties using
-        each valueset.
+        model and version (or all valuesets if model is None).
+        Also return list of properties using each valueset.
         Returns [ {value_set, props[]} ].
         """
+        cond = "where p.model = $model and p.version = $version"
+        parms = {}
+        if model:
+            if version is None:
+                parms = {"model": model,
+                         "version": self.get_latest_version(model)}
+            elif version == "*":
+                cond = "where p.model = $model" 
+                parms = {"model": model}
+            else:
+                parms = {"model": model, "version": version}
+        else:
+            cond = ""
+        
         qry = (
             "match (vs:value_set)<-[:has_value_set]-(p:property) "
+            f"{cond} "
             "return vs as value_set, collect(p) as props"
-        ).format("and p.model=$model" if model else "")
-        return (qry, {"model": model})
+        )
+        return (qry, parms)
 
     @read_txn_data
     def get_term_by_id(self, nanoid):
@@ -370,20 +390,31 @@ class MDB:
         return (qry, {"nanoid": nanoid})
 
     @read_txn_data
-    def get_props_and_terms_by_model(self, model=None):
+    def get_props_and_terms_by_model(self, model=None, version=None):
         """
         Get terms from valuesets associated with properties in a given model
-        (or all such terms if model is None).
+        and version (or all such terms if model is None).
         Returns [ {prop, terms[]} ]
         """
+        cond = "where p.model = $model and p.version = $version"
+        parms = {}
+        if model:
+            if version is None:
+                parms = {"model": model,
+                         "version": self.get_latest_version(model)}
+            elif version == "*":
+                cond = "where p.model = $model" 
+                parms = {"model": model}
+            else:
+                parms = {"model": model, "version": version}
+
         qry = (
             "match (p:property)-[:has_value_set]->(v:value_set)"
             "-[:has_term]->(t:term) "
+            f"{cond} "
             "return p as prop, collect(t) as terms"
-        ).format("and p.model = $model" if model else "")
-        return (qry, {"model": model})
-
-    ###
+        )
+        return (qry, parms)
 
     @read_txn_data
     def get_origins(self):
@@ -434,7 +465,7 @@ class MDB:
         Returns [ {tag_key(str), tag_value(str), entity(str - label), entities[]} ]
         """
         qry = (
-            "match (t:tag {{key:$key}}) {} "
+            "match (t:tag {{key:$key}}) {} {} "
             "with t "
             "match (e)-[:has_tag]->(t) "
             "return t.key as tag_key, t.value as tag_value, head(labels(e)) as entity, collect(e) as entities"
