@@ -240,15 +240,26 @@ class MDB:
         :param:model.
         Returns [ path ]
         """
+        cond = ("where s.model = $model and s.version = $version and "
+                "r.model = $model and r.version = $version and "
+                "d.model = $model and d.version = $version ")
+        parms = {}
         if version is None:
-            version = self.get_latest_version(model)
+            parms = {"model": model,
+                     "version": self.get_latest_version(model)}
+        elif version == "*":
+            cond = ("where s.model = $model and "
+                    "r.model = $model and "
+                    "d.model = $model ")
+            parms = {"model": model}
+        else:
+            parms = {"model": model, "version": version}
         qry = (
-            "match p = (s:node {model: $model, version: $version})<-[:has_src]-"
-            "          (r:relationship {model: $model, version: $version})-[:has_dst]->"
-            "          (d:node {model: $model, version: $version}) "
+            "match p = (s:node)<-[:has_src]-(r:relationship)-[:has_dst]->(d:node)"
+            f"{cond}"
             "return p as path"
-        )
-        return (qry, {"model": model, "version": version})
+            )
+        return (qry, parms)
 
     @read_txn_data
     def get_node_edges_by_node_id(self, nanoid):
@@ -291,14 +302,14 @@ class MDB:
         Returns [ {id, handle, model, version, props[]} ]
         """
         cond = ("where n.model = $model and n.version = $version and "
-                "p.model = $model and p.version = $version")
+                "p.model = $model and p.version = $version ")
         parms = {}
         if model:
             if version is None:
                 parms = {"model": model,
                          "version": self.get_latest_version(model)}
             elif version == "*":
-                cond = "where n.model = $model and p.model = $model" 
+                cond = "where n.model = $model and p.model = $model " 
                 parms = {"model": model}
             else:
                 parms = {"model": model, "version": version}
@@ -407,7 +418,8 @@ class MDB:
                 parms = {"model": model}
             else:
                 parms = {"model": model, "version": version}
-
+        else:
+            cond = ""
         qry = (
             "match (p:property)-[:has_value_set]->(v:value_set)"
             "-[:has_term]->(t:term) "
@@ -451,33 +463,36 @@ class MDB:
         Get all tag key/value pairs that are present in database.
         Returns [ { key(str) : values[] } ]
         """
+        cond = ""
+        parms = {}
+        if key is not None:
+            cond = "where t.key = $key"
+            parms = {"key":key}
         qry = (
-            "match (t:tag) {} "
+            "match (t:tag)"
+            f"{cond}"
             "return t.key as key, collect(distinct t.value) as values "
-        ).format("where t.key = $key" if key else "")
-        return (qry, {"key": key} if key else {})
+            )
+        return (qry, parms)
 
     @read_txn_data
-    def get_entities_by_tag(self, key, value=None, model=None):
+    def get_entities_by_tag(self, key, value=None):
         """
-        Get all entities, optionally from a given model,
-        tagged with a given key or key:value pair.
+        Get all entities, tagged with a given key or key:value pair.
         Returns [ {tag_key(str), tag_value(str), entity(str - label), entities[]} ]
         """
+        cond = "where t.key = $key "
+        parms = {"key":key}
+        if value is not None:
+            cond = "where t.key = $key and t.value = $value "
+            parms = {"key":key, "value": value}
         qry = (
-            "match (t:tag {{key:$key}}) {} {} "
+            "match (t:tag) "
+            f"{cond}"
             "with t "
             "match (e)-[:has_tag]->(t) "
-            "return t.key as tag_key, t.value as tag_value, head(labels(e)) as entity, collect(e) as entities"
-        ).format(
-            "where t.value = $value" if value else "",
-            "and e.model = $model " if model else "",
+            "return t.key as tag_key, t.value as tag_value, collect(e) as entities"
         )
-        parms = {"key": key}
-        if value:
-            parms["value"] = value
-        if model:
-            parms["model"] = model
         return (qry, parms)
 
     @read_txn_data
