@@ -142,7 +142,8 @@ class MDB:
                     else:
                         self.latest_version[hdl] = None
         except Exception as e:
-            raise RuntimeError(f"Database doesn't look like an MDB: {e}")
+            # raise RuntimeError
+            warn(f"Database doesn't look like an MDB: {e}")
         self._txfns = {}
 
     def close(self):
@@ -238,6 +239,7 @@ class MDB:
         Get all node-relationship-node paths for a given model and version.
         If :param:version is None, use version marked is_latest:true for
         :param:model.
+        If :param:version is '*', retrieve from all versions.
         Returns [ path ]
         """
         cond = ("where s.model = $model and s.version = $version and "
@@ -297,8 +299,13 @@ class MDB:
     @read_txn_data
     def get_nodes_and_props_by_model(self, model=None, version=None):
         """
-        Get all nodes with associated properties given a model handle. If
-        model is None, get all nodes with their properties.
+        Get all nodes with associated properties given a model handle.
+        If model is None, get all nodes with their properties.
+        If :param:model is set but :param:version is None, get nodes and props
+        from model version marked is_latest:true
+        If :param:model is set and :param:version is '*', get nodes and props
+        from all model versions.
+        
         Returns [ {id, handle, model, version, props[]} ]
         """
         cond = ("where n.model = $model and n.version = $version and "
@@ -363,6 +370,8 @@ class MDB:
         Get all valuesets that are used by properties in the given
         model and version (or all valuesets if model is None).
         Also return list of properties using each valueset.
+        If version is None, get value sets associated with latest model version.
+        If version is '*', get those associated with all versions of given model.
         Returns [ {value_set, props[]} ].
         """
         cond = "where p.model = $model and p.version = $version"
@@ -405,6 +414,8 @@ class MDB:
         """
         Get terms from valuesets associated with properties in a given model
         and version (or all such terms if model is None).
+        If version is None, get props and terms from the latest model version.
+        If version is set to '*', get those from all versions of the given model.
         Returns [ {prop, terms[]} ]
         """
         cond = "where p.model = $model and p.version = $version"
