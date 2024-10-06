@@ -256,7 +256,7 @@ class MDB:
             parms = {"model": model, "version": version}
         qry = (
             "match p = (s:node)<-[:has_src]-(r:relationship)-[:has_dst]->(d:node)"
-            f"{cond}"
+            f"{cond} "
             "return p as path"
             )
         return (qry, parms)
@@ -317,7 +317,7 @@ class MDB:
             cond = ""
         qry = (
             "match (n:node)-[:has_property]->(p:property) "
-            f"{cond}"
+            f"{cond} "
             "return n.nanoid as id, n.handle as handle, n.model as model, "
             "n.version as version, collect(p) as props"
         )
@@ -466,11 +466,11 @@ class MDB:
         cond = ""
         parms = {}
         if key is not None:
-            cond = "where t.key = $key"
+            cond = "where t.key = $key "
             parms = {"key":key}
         qry = (
-            "match (t:tag)"
-            f"{cond}"
+            "match (t:tag) "
+            f"{cond} "
             "return t.key as key, collect(distinct t.value) as values "
             )
         return (qry, parms)
@@ -488,7 +488,7 @@ class MDB:
             parms = {"key":key, "value": value}
         qry = (
             "match (t:tag) "
-            f"{cond}"
+            f"{cond} "
             "with t "
             "match (e)-[:has_tag]->(t) "
             "return t.key as tag_key, t.value as tag_value, collect(e) as entities"
