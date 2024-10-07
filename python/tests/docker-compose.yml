@@ -19,7 +19,7 @@ services:
       - "7473"
       - "7687"
   mdb-versioned:
-    image: 'maj1/mdb-test-versioned'
+    image: 'maj1/mdb-test-versioned:latest'
     ports:
       - "7474"
       - "7473"
