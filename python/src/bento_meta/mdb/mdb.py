@@ -138,7 +138,7 @@ class MDB:
             for hdl in self.models:
                 if not self.latest_version.get(hdl):
                     if len(self.models[hdl]) == 1:  # only one version
-                        self.latest_version[hdl] = self.models[hdl][0]
+                        self.latest_version[hdl] = self.models[hdl][0] or "unversioned"
                     else:
                         self.latest_version[hdl] = None
         except Exception as e:
@@ -218,10 +218,11 @@ class MDB:
         cond = "where n.model = $model and n.version = $version"
         parms = {}
         if model:
-            if version is None:
+            latest = self.get_latest_version(model)
+            if version is None and latest != "unversioned":
                 parms = {"model": model,
-                         "version": self.get_latest_version(model)}
-            elif version == "*":
+                         "version": latest}
+            elif version == "*" or latest == "unversioned":
                 cond = "where n.model = $model" 
                 parms = {"model": model}
             else:
@@ -246,10 +247,11 @@ class MDB:
                 "r.model = $model and r.version = $version and "
                 "d.model = $model and d.version = $version ")
         parms = {}
-        if version is None:
+        latest = self.get_latest_version(model)
+        if version is None and latest != "unversioned":
             parms = {"model": model,
-                     "version": self.get_latest_version(model)}
-        elif version == "*":
+                     "version": latest}
+        elif version == "*" or latest == "unversioned":
             cond = ("where s.model = $model and "
                     "r.model = $model and "
                     "d.model = $model ")
@@ -312,10 +314,11 @@ class MDB:
                 "p.model = $model and p.version = $version ")
         parms = {}
         if model:
-            if version is None:
+            latest = self.get_latest_version(model)
+            if version is None and latest != "unversioned":
                 parms = {"model": model,
-                         "version": self.get_latest_version(model)}
-            elif version == "*":
+                         "version": latest}
+            elif version == "*" or latest == "unversioned":
                 cond = "where n.model = $model and p.model = $model " 
                 parms = {"model": model}
             else:
@@ -377,10 +380,11 @@ class MDB:
         cond = "where p.model = $model and p.version = $version"
         parms = {}
         if model:
-            if version is None:
+            latest = self.get_latest_version(model)
+            if version is None and latest != "unversioned":
                 parms = {"model": model,
-                         "version": self.get_latest_version(model)}
-            elif version == "*":
+                         "version": latest}
+            elif version == "*" or latest == "unversioned":
                 cond = "where p.model = $model" 
                 parms = {"model": model}
             else:
@@ -421,10 +425,11 @@ class MDB:
         cond = "where p.model = $model and p.version = $version"
         parms = {}
         if model:
-            if version is None:
+            latest = self.get_latest_version(model)
+            if version is None and latest != "unversioned": 
                 parms = {"model": model,
-                         "version": self.get_latest_version(model)}
-            elif version == "*":
+                         "version": latest}
+            elif version == "*" or latest == "unversioned":
                 cond = "where p.model = $model" 
                 parms = {"model": model}
             else:
