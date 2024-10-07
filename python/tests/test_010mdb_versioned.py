@@ -7,15 +7,15 @@ from pdb import set_trace
 from bento_meta.mdb import MDB
 
 @pytest.mark.docker
-def test_mdb(mdb_local):
-    (b, h) = mdb_local
+def test_mdb(mdb_versioned):
+    (b, h) = mdb_versioned
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")
     assert mdb
 
 
 @pytest.mark.docker
-def test_non_versioned_getters(mdb_local):
-    (b, h) = mdb_local
+def test_non_versioned_getters(mdb_versioned):
+    (b, h) = mdb_versioned
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")
     result = mdb.get_model_handles()
     assert set(result) == {"A", "B"}
@@ -70,8 +70,8 @@ def test_non_versioned_getters(mdb_local):
     assert sum([len(r['entities']) for r in result]) == 4
 
 @pytest.mark.docker
-def test_versioned_getters(mdb_local):
-    (b, h) = mdb_local
+def test_versioned_getters(mdb_versioned):
+    (b, h) = mdb_versioned
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")
 
     result = mdb.get_nodes_by_model()
