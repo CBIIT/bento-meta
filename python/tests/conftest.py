@@ -64,7 +64,7 @@ def mdb_versioned(docker_services, docker_ip):
     http_url = "http://{}:{}".format(docker_ip, http_port)
     sleep(wait)
     docker_services.wait_until_responsive(
-        timeout=30.0, pause=0.5, check=lambda: is_responsive(http_url)
+        timeout=60.0, pause=1.0, check=lambda: is_responsive(http_url)
     )
     return (bolt_url, http_url)
 
