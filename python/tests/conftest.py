@@ -61,10 +61,6 @@ def mdb(docker_services, docker_ip):
   
 @pytest.fixture(scope="session")
 def mdb_versioned(docker_services, docker_ip):
-    cp = subprocess.check_output(["docker","ps","-a"],stderr=subprocess.STDOUT);
-    logging.error(cp)
-    cp = subprocess.check_output(["docker","logs","mdb-versioned"],stderr=subprocess.STDOUT);
-    logging.error(cp)
     bolt_port = docker_services.port_for("mdb-versioned", 7687)
     http_port = docker_services.port_for("mdb-versioned", 7474)
     bolt_url = "bolt://{}:{}".format(docker_ip, bolt_port)
