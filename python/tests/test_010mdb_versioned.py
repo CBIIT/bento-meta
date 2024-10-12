@@ -3,14 +3,11 @@ sys.path.insert(0, ".")
 sys.path.insert(0, "..")
 import pytest
 import pytest_docker
-import subprocess
 from pdb import set_trace
 from bento_meta.mdb import MDB
 
 @pytest.mark.docker
 def test_mdb(mdb_versioned):
-    cp = subprocess.run(["docker","logs","mdb-versioned"], capture_output=True)
-    print(cp.stdout)
     (b, h) = mdb_versioned
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")
     assert mdb

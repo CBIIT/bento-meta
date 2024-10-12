@@ -1,6 +1,8 @@
 import pytest
 import requests
 import string
+import subprocess
+from warnings import warn
 from requests.exceptions import ConnectionError
 from time import sleep
 from pdb import set_trace
@@ -58,6 +60,10 @@ def mdb(docker_services, docker_ip):
   
 @pytest.fixture(scope="session")
 def mdb_versioned(docker_services, docker_ip):
+    cp = subprocess.run(["docker","ps","-a"],capture_output=True);
+    warn(cp.stdout)
+    cp = subprocess.run(["docker","logs","mdb-versioned"],capture_output=True);
+    warn(cp.stdout)
     bolt_port = docker_services.port_for("mdb-versioned", 7687)
     http_port = docker_services.port_for("mdb-versioned", 7474)
     bolt_url = "bolt://{}:{}".format(docker_ip, bolt_port)
