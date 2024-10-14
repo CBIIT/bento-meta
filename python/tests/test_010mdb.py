@@ -4,13 +4,17 @@ sys.path.insert(0, "..")
 import pytest
 import pytest_docker
 from pdb import set_trace
-from bento_meta.mdb import MDB
+from bento_meta.mdb import MDB, WriteableMDB
 
 @pytest.mark.docker
 def test_mdb(mdb):
     (b, h) = mdb
-    mdb = MDB(uri=b, user="neo4j", password="neo4j1")
+    mdb = WriteableMDB(uri=b, user="neo4j", password="neo4j1")
     assert mdb
+    # add Model nodes to the example DB
+    mdb.put_with_statement('create (:model {handle: $hdl})',{"hdl":"ICDC"});
+    mdb.put_with_statement('create (:model {handle: $hdl})',{"hdl":"CTDC"});
+    mdb.put_with_statement('create (:model {handle: $hdl})',{"hdl":"Bento"});    
 
 @pytest.mark.docker
 def test_rd_txns(mdb):
