@@ -1,0 +1,88 @@
+Handle: B
+Version: v0.1.0
+Nodes:
+  subject:
+    Props:
+      - subject_id
+      - patient_id
+  biospecimen:
+    Props:
+      - specimen_type
+      - amount
+  file:
+    Props:
+      - md5sum
+      - filename
+      - filesize
+  diagnosis:
+    Props:
+      - disease
+Relationships:
+  of_case:
+    Mul: one_to_one
+    Ends:
+      - Src: biospecimen
+        Dst: subject
+        Mul: many_to_one
+        Props:
+          - days_to_sample
+      - Src: diagnosis
+        Dst: subject
+  of_sample:
+    Mul: one_to_one
+    Ends:
+      - Src: file
+        Dst: biospecimen
+        Mul: many_to_many
+  derived_from:
+    Mul: one_to_many
+    Props:
+      - id
+    Ends:
+      - Src: file
+        Dst: file
+        Props:
+          - workflow_id
+      - Src: biospecimen
+        Dst: biospecimen
+PropDefinitions:
+  subject_id:
+    Type:
+      pattern: "^SUBJ-[0-9]+$"
+  patient_id:
+    Type: string
+  specimen_type:
+    Type:
+      - normal
+      - tumor
+  amount:
+    Type:
+      units:
+        - mg
+      value_type: number
+  md5sum:
+    Type:
+      pattern: "^[a-f0-9]{40}"
+  filename:
+    Type: string
+  filesize:
+    Type:
+      units:
+        - Gb
+        - Mb
+      value_type: integer
+  disease:
+    Type: url
+  days_to_sample:
+    Type:
+      units:
+        - days
+      value_type: integer
+  id:
+    Type: string
+  workflow_id:
+    Type:
+      # uuid
+      pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+      
+  

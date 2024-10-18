@@ -1,6 +1,9 @@
 import pytest
 import requests
 import string
+import subprocess
+import logging
+from warnings import warn
 from requests.exceptions import ConnectionError
 from time import sleep
 from pdb import set_trace
@@ -25,24 +28,11 @@ def bento_neo4j(docker_services, docker_ip):
     http_url = "http://{}:{}".format(docker_ip, http_port)
     sleep(wait)
     docker_services.wait_until_responsive(
-        timeout=5.0, pause=1.0, check=lambda: is_responsive(http_url)
+        timeout=15.0, pause=1.0, check=lambda: is_responsive(http_url)
     )
     return (bolt_url, http_url)
 
-  
-@pytest.fixture(scope="session")
-def plain_neo4j(docker_services, docker_ip):
-    bolt_port = docker_services.port_for("plain-neo4j", 7687)
-    http_port = docker_services.port_for("plain-neo4j", 7474)
-    bolt_url = "bolt://{}:{}".format(docker_ip, bolt_port)
-    http_url = "http://{}:{}".format(docker_ip, http_port)
-    sleep(wait)
-    docker_services.wait_until_responsive(
-        timeout=30.0, pause=0.5, check=lambda: is_responsive(http_url)
-    )
-    return (bolt_url, http_url)
 
-  
 @pytest.fixture(scope="session")
 def mdb(docker_services, docker_ip):
     bolt_port = docker_services.port_for("mdb", 7687)
@@ -57,8 +47,16 @@ def mdb(docker_services, docker_ip):
 
   
 @pytest.fixture(scope="session")
-def mdb_local():
-    return ("bolt://localhost", "http://localhost")
+def mdb_versioned(docker_services, docker_ip):
+    bolt_port = docker_services.port_for("mdb-versioned", 7687)
+    http_port = docker_services.port_for("mdb-versioned", 7474)
+    bolt_url = "bolt://{}:{}".format(docker_ip, bolt_port)
+    http_url = "http://{}:{}".format(docker_ip, http_port)
+    sleep(wait)
+    docker_services.wait_until_responsive(
+        timeout=30.0, pause=1.0, check=lambda: is_responsive(http_url)
+    )
+    return (bolt_url, http_url)
 
 @pytest.fixture()
 def test_paths(model="ICDC", handle="diagnosis", phandle="disease_term", key="Class", value="primary", nanoid="abF32k"):
