@@ -43,6 +43,7 @@ class Node(Entity):
         "handle": "simple",
         "model": "simple",
         "nanoid": "simple",
+        "version": "simple",
         "concept": "object",
         "props": "collection",
     }
@@ -70,6 +71,7 @@ class Property(Entity):
         "handle": "simple",
         "model": "simple",
         "nanoid": "simple",
+        "version": "simple",
         "value_domain": "simple",
         "units": "simple",
         "pattern": "simple",
@@ -143,6 +145,7 @@ class Edge(Entity):
         "handle": "simple",
         "model": "simple",
         "nanoid": "simple",
+        "version": "simple",
         "multiplicity": "simple",
         "is_required": "simple",
         "src": "object",
