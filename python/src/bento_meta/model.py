@@ -47,6 +47,7 @@ class Model:
         self.handle = handle
         self.version = version
         self.uri = uri
+        self.repository = None
         self._mdb = None
         self.nodes = {}
         self.edges = {}  # keys are (edge.handle, src.handle, dst.handle) tuples
