@@ -2,10 +2,11 @@
 bento_meta.objects
 ==================
 
-This module contains the subclasses of :class:`Entity` which are used 
+This module contains the subclasses of :class:`Entity` which are used
 in representing the models contained in the `MDB <https://github.com/CBIIT/bento-mdf>`_.
 
 """
+
 import sys
 
 sys.path.append("..")
@@ -13,11 +14,10 @@ from copy import deepcopy
 
 from bento_meta.entity import Entity
 
-# from pdb import set_trace
-
 
 def mergespec(clsname, attspec, mapspec):
-    """Merge subclass attribute and mapping specification dicts with the
+    """
+    Merge subclass attribute and mapping specification dicts with the
     base class's. Not for human consumption.
     """
     spec = deepcopy(attspec)
@@ -45,11 +45,17 @@ class Node(Entity):
         "nanoid": "simple",
         "concept": "object",
         "props": "collection",
+        "version": "simple",
     }
     mapspec_ = {
         "label": "node",
         "key": "handle",
-        "property": {"handle": "handle", "model": "model", "nanoid": "nanoid"},
+        "property": {
+            "handle": "handle",
+            "model": "model",
+            "nanoid": "nanoid",
+            "version": "version",
+        },
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
             "props": {"rel": ":has_property>", "end_cls": "Property"},
@@ -82,6 +88,7 @@ class Property(Entity):
         "concept": "object",
         "value_set": "object",
         "_parent_handle": "simple",
+        "version": "simple",
     }
     mapspec_ = {
         "label": "property",
@@ -100,6 +107,7 @@ class Property(Entity):
             "is_deprecated": "is_deprecated",
             "is_strict": "is_strict",
             "_parent_handle": "_parent_handle",
+            "version": "version",
         },
         "relationship": {
             "concept": {"rel": ":has_concept>", "end_cls": "Concept"},
@@ -116,8 +124,10 @@ class Property(Entity):
 
     @property
     def terms(self):
-        """If the `Property` has a ``value_set`` domain, return the `Term` objects
-        of its `ValueSet`"""
+        """
+        If the `Property` has a ``value_set`` domain, return the `Term` objects
+        of its `ValueSet`
+        """
         if self.value_set:
             return self.value_set.terms
         else:
@@ -125,7 +135,8 @@ class Property(Entity):
 
     @property
     def values(self):
-        """If the `Property` as a ``value_set`` domain, return its term values as a list of str.
+        """
+        If the `Property` as a ``value_set`` domain, return its term values as a list of str.
         :return: list of term values
         :rtype: list
         """
@@ -149,6 +160,7 @@ class Edge(Entity):
         "dst": "object",
         "concept": "object",
         "props": "collection",
+        "version": "simple",
     }
     mapspec_ = {
         "label": "relationship",
@@ -159,6 +171,7 @@ class Edge(Entity):
             "nanoid": "nanoid",
             "multiplicity": "multiplicity",
             "is_required": "is_required",
+            "version": "version",
         },
         "relationship": {
             "src": {"rel": ":has_src>", "end_cls": "Node"},
@@ -175,7 +188,8 @@ class Edge(Entity):
 
     @property
     def triplet(self):
-        """A 3-tuple that fully qualifies the edge: ``(edge.handle, src.handle, dst.handle)``
+        """
+        A 3-tuple that fully qualifies the edge: ``(edge.handle, src.handle, dst.handle)``
         ``src`` and ``dst`` attributes must be set.
         """
         if self.handle and self.src and self.dst:
@@ -228,7 +242,8 @@ class Term(Entity):
 # (from Bento::Meta), signal need to refresh. Engineer so this happens
 # here (__setattr__ override), not in Entity
 class ValueSet(Entity):
-    """Subclass that models an enumerated set of :class:`Property` values.
+    """
+    Subclass that models an enumerated set of :class:`Property` values.
     Essentially a container for :class:`Term` instances.
     """
 
@@ -364,6 +379,8 @@ class Model(Entity):
         "name": "simple",
         "repository": "simple",
         "nanoid": "simple",
+        "version": "simple",
+        "latest_version": "simple",
     }
     mapspec_ = {
         "label": "model",
@@ -372,9 +389,12 @@ class Model(Entity):
             "handle": "handle",
             "name": "name",
             "repository": "repository",
+            "version": "version",
+            "latest_version": "latest_version",
         },
     }
     (attspec, _mapspec) = mergespec("Model", attspec_, mapspec_)
+    defaults = {"latest_version": False}
 
     def __init__(self, init=None):
         super().__init__(init=init)
