@@ -1,13 +1,10 @@
-import re
 import sys
 
 sys.path.insert(0, ".")
 sys.path.insert(0, "..")
-from pdb import set_trace
 
-import pytest
-from bento_meta.entity import *
-from bento_meta.objects import *
+from bento_meta.entity import Entity
+from bento_meta.objects import Edge, Node, Property
 
 
 def test_object_versioning():
@@ -102,7 +99,7 @@ def test_object_versioning():
     p41 = Property({"handle": "p41"})
     n2.props["p41"] = p41
     assert n2._prev
-    assert not "p41" in n2._prev.props
+    assert "p41" not in n2._prev.props
     assert n2.props["p41"] == p41
     Entity.versioning(False)
     assert not Entity.versioning_on

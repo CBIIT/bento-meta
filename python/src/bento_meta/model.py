@@ -35,7 +35,7 @@ from bento_meta.objects import (
 
 
 class Model:
-    def __init__(self, handle=None, version=None, uri=None,  mdb=None):
+    def __init__(self, handle=None, version=None, uri=None, mdb=None):
         """
         Model constructor.
 
