@@ -254,6 +254,7 @@ class ValueSet(Entity):
         "handle": "simple",
         "nanoid": "simple",
         "url": "simple",
+        "path": "simple",
         "prop": "object",
         "origin": "object",
         "terms": "collection",
@@ -263,6 +264,7 @@ class ValueSet(Entity):
         "property": {
             "handle": "handle",
             "url": "url",
+            "path": "path",
             "nanoid": "nanoid",
         },
         "relationship": {
