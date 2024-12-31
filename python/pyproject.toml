@@ -20,7 +20,11 @@ classifiers = [
 
 [tool.poetry]
 name = "bento-meta"
+<<<<<<< HEAD
 version = "0.2.10"
+=======
+version = "0.2.9"
+>>>>>>> sts-driven-updates
 description = "Python drivers for Bento Metamodel Database"
 authors = [
     "Mark A. Jensen <mark.jensen@nih.gov>",

@@ -3,7 +3,8 @@ mdb.searchable
 Subclass of `class:bento_meta.mdb.MDB` to support searching fulltext indices on an MDB
 Note: certain fulltext indexes on certain MDB nodes and properties must be present in 
 the Neo4j instance: 
-- entityHandles
+- nodeHandle
+- propHandle
 - termValue
 - termDefn
 - termValueDefn
