@@ -39,7 +39,7 @@ neo4j = ">=4.0"
 nanoid = "^2.0.0"
 requests = "2.31.0"
 tqdm = "^4.64.1"
-setuptools = "^65.4.1"
+setuptools = ">=65.4.1,<71.0.0"
 numpy = {version = "^1.23.5", optional = true}
 pandas = {version = "^1.5.2", optional = true}
 spacy = {version = "^3.4.3", optional = true}
