@@ -1,22 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>bento_meta.util._engine &mdash; bento-meta  documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -44,7 +43,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../the_object_model.html">The Object Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../meta_and_mdf.html">bento_meta and MDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model_versioning.html">Model Versioning</a></li>
@@ -77,28 +76,30 @@
            <div itemprop="articleBody">
              
   <h1>Source code for bento_meta.util._engine</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">bento_meta.util.cypher.entities</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa E402</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.entities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa E402</span>
     <span class="n">N</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">N0</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span>
     <span class="n">_as</span><span class="p">,</span> <span class="n">_var</span><span class="p">,</span> <span class="n">_plain</span><span class="p">,</span> <span class="n">_anon</span><span class="p">,</span>
     <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">bento_meta.util.cypher.functions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.functions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">count</span><span class="p">,</span> <span class="n">exists</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">Not</span><span class="p">,</span>
     <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">bento_meta.util.cypher.clauses</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.clauses</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Match</span><span class="p">,</span> <span class="n">Where</span><span class="p">,</span> <span class="n">With</span><span class="p">,</span> <span class="n">Return</span><span class="p">,</span>
     <span class="n">Statement</span>
     <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pdb</span> <span class="kn">import</span> <span class="n">set_trace</span>  <span class="c1"># noqa E402</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_trace</span>  <span class="c1"># noqa E402</span>
 
 <span class="n">avail_funcs</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">exists</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">Not</span><span class="p">)}</span>
 
 
-<div class="viewcode-block" id="_engine"><a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine">[docs]</a><span class="k">class</span> <span class="nc">_engine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="_engine">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_engine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="n">paths</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_params</span> <span class="o">=</span> <span class="n">use_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">statement</span> <span class="o">=</span> <span class="kc">None</span>
@@ -107,16 +108,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">path_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="_engine.set_paths"><a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine.set_paths">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">set_paths</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">paths</span><span class="p">):</span>
+<div class="viewcode-block" id="_engine.set_paths">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine.set_paths">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_paths</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">paths</span><span class="p">):</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="n">paths</span></div>
 
-<div class="viewcode-block" id="_engine.parse"><a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toks</span><span class="p">):</span>
+
+<div class="viewcode-block" id="_engine.parse">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine.parse">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toks</span><span class="p">):</span>
         <span class="n">toks</span> <span class="o">=</span> <span class="n">toks</span>
         <span class="n">pth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walk</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">toks</span><span class="p">,</span> <span class="n">pth</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="_engine._process_node"><a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_node">[docs]</a>    <span class="k">def</span> <span class="nf">_process_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+
+<div class="viewcode-block" id="_engine._process_node">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_node">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;_var&#39;</span><span class="p">:</span>
@@ -145,7 +154,10 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="_engine._process_prop"><a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_prop">[docs]</a>    <span class="k">def</span> <span class="nf">_process_prop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="_engine._process_prop">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_prop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_prop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">block</span><span class="p">,</span>
@@ -162,7 +174,10 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="_engine._process_edge"><a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_edge">[docs]</a>    <span class="k">def</span> <span class="nf">_process_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+
+<div class="viewcode-block" id="_engine._process_edge">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_edge">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
@@ -183,7 +198,10 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="_engine._process_func"><a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_func">[docs]</a>    <span class="k">def</span> <span class="nf">_process_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+
+<div class="viewcode-block" id="_engine._process_func">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_func">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">as_</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="n">block</span><span class="p">)</span>
@@ -209,8 +227,11 @@
                 <span class="p">}</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">ret</span></div>
+
                 
-<div class="viewcode-block" id="_engine._create_statement"><a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._create_statement">[docs]</a>    <span class="k">def</span> <span class="nf">_create_statement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">,</span> <span class="n">pad</span><span class="p">):</span>
+<div class="viewcode-block" id="_engine._create_statement">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._create_statement">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_statement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">,</span> <span class="n">pad</span><span class="p">):</span>
         <span class="n">match_clause</span> <span class="o">=</span> <span class="n">Match</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
         <span class="n">ret_clause</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">a</span> <span class="o">=</span> <span class="p">[]</span>
@@ -332,7 +353,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statement</span><span class="o">.</span><span class="n">params</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="_engine._walk"><a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._walk">[docs]</a>    <span class="k">def</span> <span class="nf">_walk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">,</span> <span class="n">toks</span><span class="p">,</span> <span class="n">pth</span><span class="p">):</span>
+
+<div class="viewcode-block" id="_engine._walk">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._walk">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_walk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">,</span> <span class="n">toks</span><span class="p">,</span> <span class="n">pth</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">toks</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">pth</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;_walk: Either toks or pth is empty&quot;</span>
@@ -470,7 +494,9 @@
                     <span class="p">}</span>
                 <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># ERR reached end of toks, no _return found</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walk</span><span class="p">(</span><span class="n">new_ent</span> <span class="ow">or</span> <span class="n">ent</span><span class="p">,</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">pth</span><span class="p">)</span></div></div>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walk</span><span class="p">(</span><span class="n">new_ent</span> <span class="ow">or</span> <span class="n">ent</span><span class="p">,</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">pth</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>
@@ -480,7 +506,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, FNLCR.</p>
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

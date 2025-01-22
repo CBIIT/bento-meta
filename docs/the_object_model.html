@@ -1,23 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Object Model &mdash; bento-meta  documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -64,26 +63,30 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#database-interaction">Database Interaction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#objects-and-their-attributes">Objects and their Attributes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Entity"><code class="docutils literal notranslate"><span class="pre">Entity</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#entity._id"><code class="docutils literal notranslate"><span class="pre">entity._id</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#entity.nanoid"><code class="docutils literal notranslate"><span class="pre">entity.nanoid</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#entity.desc"><code class="docutils literal notranslate"><span class="pre">entity.desc</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#entity._from"><code class="docutils literal notranslate"><span class="pre">entity._from</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#entity._to"><code class="docutils literal notranslate"><span class="pre">entity._to</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#entity._commit"><code class="docutils literal notranslate"><span class="pre">entity._commit</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#entity._next"><code class="docutils literal notranslate"><span class="pre">entity._next</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#entity._prev"><code class="docutils literal notranslate"><span class="pre">entity._prev</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#entity.tags"><code class="docutils literal notranslate"><span class="pre">entity.tags</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Entity"><code class="docutils literal notranslate"><span class="pre">Entity</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Entity.entity._id"><code class="docutils literal notranslate"><span class="pre">Entity.entity._id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Entity.entity.nanoid"><code class="docutils literal notranslate"><span class="pre">Entity.entity.nanoid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Entity.entity.desc"><code class="docutils literal notranslate"><span class="pre">Entity.entity.desc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Entity.entity._from"><code class="docutils literal notranslate"><span class="pre">Entity.entity._from</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Entity.entity._to"><code class="docutils literal notranslate"><span class="pre">Entity.entity._to</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Entity.entity._commit"><code class="docutils literal notranslate"><span class="pre">Entity.entity._commit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Entity.entity._next"><code class="docutils literal notranslate"><span class="pre">Entity.entity._next</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Entity.entity._prev"><code class="docutils literal notranslate"><span class="pre">Entity.entity._prev</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Entity.entity.tags"><code class="docutils literal notranslate"><span class="pre">Entity.entity.tags</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#Node"><code class="docutils literal notranslate"><span class="pre">Node</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#node.handle"><code class="docutils literal notranslate"><span class="pre">node.handle</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#node.model"><code class="docutils literal notranslate"><span class="pre">node.model</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#node.nanoid"><code class="docutils literal notranslate"><span class="pre">node.nanoid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#node.version"><code class="docutils literal notranslate"><span class="pre">node.version</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#node.concept"><code class="docutils literal notranslate"><span class="pre">node.concept</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#node.props"><code class="docutils literal notranslate"><span class="pre">node.props</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Edge"><code class="docutils literal notranslate"><span class="pre">Edge</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#edge.handle"><code class="docutils literal notranslate"><span class="pre">edge.handle</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#edge.model"><code class="docutils literal notranslate"><span class="pre">edge.model</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#edge.nanoid"><code class="docutils literal notranslate"><span class="pre">edge.nanoid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edge.version"><code class="docutils literal notranslate"><span class="pre">edge.version</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#edge.multiplicity"><code class="docutils literal notranslate"><span class="pre">edge.multiplicity</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#edge.is_required"><code class="docutils literal notranslate"><span class="pre">edge.is_required</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#edge.src"><code class="docutils literal notranslate"><span class="pre">edge.src</span></code></a></li>
@@ -94,11 +97,17 @@
 <li class="toctree-l3"><a class="reference internal" href="#property.handle"><code class="docutils literal notranslate"><span class="pre">property.handle</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property.model"><code class="docutils literal notranslate"><span class="pre">property.model</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property.nanoid"><code class="docutils literal notranslate"><span class="pre">property.nanoid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#property.version"><code class="docutils literal notranslate"><span class="pre">property.version</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property.value_domain"><code class="docutils literal notranslate"><span class="pre">property.value_domain</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property.units"><code class="docutils literal notranslate"><span class="pre">property.units</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property.pattern"><code class="docutils literal notranslate"><span class="pre">property.pattern</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property.item_domain"><code class="docutils literal notranslate"><span class="pre">property.item_domain</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property.is_required"><code class="docutils literal notranslate"><span class="pre">property.is_required</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#property.is_key"><code class="docutils literal notranslate"><span class="pre">property.is_key</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#property.is_nullable"><code class="docutils literal notranslate"><span class="pre">property.is_nullable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#property.is_deprecated"><code class="docutils literal notranslate"><span class="pre">property.is_deprecated</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#property.is_strict"><code class="docutils literal notranslate"><span class="pre">property.is_strict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#property._parent_handle"><code class="docutils literal notranslate"><span class="pre">property._parent_handle</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property.concept"><code class="docutils literal notranslate"><span class="pre">property.concept</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#property.value_set"><code class="docutils literal notranslate"><span class="pre">property.value_set</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Term"><code class="docutils literal notranslate"><span class="pre">Term</span></code></a></li>
@@ -125,6 +134,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#Tag"><code class="docutils literal notranslate"><span class="pre">Tag</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tag.key"><code class="docutils literal notranslate"><span class="pre">tag.key</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tag.value"><code class="docutils literal notranslate"><span class="pre">tag.value</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tag._parent"><code class="docutils literal notranslate"><span class="pre">tag._parent</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -160,9 +170,9 @@
            <div itemprop="articleBody">
              
   <section id="the-object-model">
-<span id="id1"></span><h1>The Object Model<a class="headerlink" href="#the-object-model" title="Permalink to this heading"></a></h1>
+<span id="id1"></span><h1>The Object Model<a class="headerlink" href="#the-object-model" title="Link to this heading"></a></h1>
 <section id="working-with-models">
-<h2>Working with Models<a class="headerlink" href="#working-with-models" title="Permalink to this heading"></a></h2>
+<h2>Working with Models<a class="headerlink" href="#working-with-models" title="Link to this heading"></a></h2>
 <p>Each model stored in the MDB has a simple name, or handle. The word
 <strong>handle</strong> is used throughout the metamodel to distinguish internal
 names (strings that are used within the system and downstream
@@ -173,7 +183,7 @@ model supports.</p>
 <p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> object is meant to represent only one model.</p>
 </section>
 <section id="component-objects">
-<h2>Component Objects<a class="headerlink" href="#component-objects" title="Permalink to this heading"></a></h2>
+<h2>Component Objects<a class="headerlink" href="#component-objects" title="Link to this heading"></a></h2>
 <p>Individual entities in the MDB - nodes, relationships, properties,
 value sets, terms, concepts, and origins, are represented by instances
 of corresponding <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> subclasses:</p>
@@ -196,7 +206,7 @@ attribute on the object itself:</p>
 </pre></div>
 </div>
 <section id="object-attributes">
-<span id="id2"></span><h3>Object attributes<a class="headerlink" href="#object-attributes" title="Permalink to this heading"></a></h3>
+<span id="id2"></span><h3>Object attributes<a class="headerlink" href="#object-attributes" title="Link to this heading"></a></h3>
 <p>A node in the graph database can possess two kinds of related data. In
 the (Neo4j) database, <em>node properties</em> are named items of scalar
 data. These belong directly to the individual nodes, and are
@@ -224,7 +234,7 @@ In the code, such attributes are referred to as <em>relationship</em>,
 </section>
 </section>
 <section id="model-as-a-container">
-<h2>Model as a Container<a class="headerlink" href="#model-as-a-container" title="Permalink to this heading"></a></h2>
+<h2>Model as a Container<a class="headerlink" href="#model-as-a-container" title="Link to this heading"></a></h2>
 <p>The Model object is a direct container of nodes, edges (relationships), and
 properties. To get a simple list of all relevant entities in a model, use the
 model attributes:</p>
@@ -258,7 +268,7 @@ node or edge itself:</p>
 </pre></div>
 </div>
 <section id="accessing-other-objects">
-<h3>Accessing other objects<a class="headerlink" href="#accessing-other-objects" title="Permalink to this heading"></a></h3>
+<h3>Accessing other objects<a class="headerlink" href="#accessing-other-objects" title="Link to this heading"></a></h3>
 <p>The Model object does not provide access to <a class="reference internal" href="#Concept" title="Concept"><code class="xref py py-class docutils literal notranslate"><span class="pre">Concept</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSet</span></code>, or
 <a class="reference internal" href="#Origin" title="Origin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Origin</span></code></a> objects directly. These are accessible via the linked obects
 themselves, according to the <a class="reference external" href="https://github.com/CBIIT/bento-meta#structure">metamodel structure</a>.
@@ -274,7 +284,7 @@ For example:</p>
 </section>
 </section>
 <section id="model-as-an-interface">
-<h2>Model as an Interface<a class="headerlink" href="#model-as-an-interface" title="Permalink to this heading"></a></h2>
+<h2>Model as an Interface<a class="headerlink" href="#model-as-an-interface" title="Link to this heading"></a></h2>
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> object has methods that allow the user to add, remove and
 modify entities in the model. The Model object is an interface, in that it loosely
 encapsulates the MDB structure and tries to relieve the user from having to
@@ -315,7 +325,7 @@ the object itself:</p>
 example. Analogous to Neo4j, attempting to remove a node will throw,
 if the node participates in any relationships/edges.</p>
 <section id="manipulating-terms">
-<h3>Manipulating Terms<a class="headerlink" href="#manipulating-terms" title="Permalink to this heading"></a></h3>
+<h3>Manipulating Terms<a class="headerlink" href="#manipulating-terms" title="Link to this heading"></a></h3>
 <p>One of the key uses of the MDB is for storing lists of acceptable values for
 properties that require them. In the MDB schema, a property is linked to
 a value set entity, and the value set aggregates the term entities. The model
@@ -332,7 +342,7 @@ object tries to hide some of this structure. It will also create a set of
 </section>
 </section>
 <section id="database-interaction">
-<h2>Database Interaction<a class="headerlink" href="#database-interaction" title="Permalink to this heading"></a></h2>
+<h2>Database Interaction<a class="headerlink" href="#database-interaction" title="Link to this heading"></a></h2>
 <p>The approach to the back and forth between the object representation
 and the database attempts to be simple and robust. The pattern is a
 push/pull cycle to and from the database. The database instrumentation
@@ -360,336 +370,381 @@ from the database, use <code class="docutils literal notranslate"><span class="p
 </div>
 </section>
 <section id="objects-and-their-attributes">
-<span id="object-attribute-lists"></span><h2>Objects and their Attributes<a class="headerlink" href="#objects-and-their-attributes" title="Permalink to this heading"></a></h2>
+<span id="object-attribute-lists"></span><h2>Objects and their Attributes<a class="headerlink" href="#objects-and-their-attributes" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="Entity">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Entity</span></span><a class="headerlink" href="#Entity" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<p>Base class for all metamodel objects. Posesses the following attributes:</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Entity</span></span><a class="headerlink" href="#Entity" title="Link to this definition"></a></dt>
+<dd><p>Posesses the following attributes:</p>
 <blockquote>
 <div><dl class="py attribute">
-<dt class="sig sig-object py" id="entity._id">
-<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#entity._id" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="Entity.entity._id">
+<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#Entity.entity._id" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="entity.nanoid">
-<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#entity.nanoid" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="Entity.entity.nanoid">
+<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#Entity.entity.nanoid" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="entity.desc">
-<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">desc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#entity.desc" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="Entity.entity.desc">
+<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">desc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#Entity.entity.desc" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="entity._from">
-<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_from</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#entity._from" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="Entity.entity._from">
+<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_from</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#Entity.entity._from" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="entity._to">
-<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_to</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#entity._to" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="Entity.entity._to">
+<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_to</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#Entity.entity._to" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="entity._commit">
-<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_commit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#entity._commit" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="Entity.entity._commit">
+<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_commit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#Entity.entity._commit" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="entity._next">
-<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_next</span></span><a class="headerlink" href="#entity._next" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="Entity.entity._next">
+<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_next</span></span><a class="headerlink" href="#Entity.entity._next" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="entity._prev">
-<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_prev</span></span><a class="headerlink" href="#entity._prev" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="Entity.entity._prev">
+<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">_prev</span></span><a class="headerlink" href="#Entity.entity._prev" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="entity.tags">
-<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collection</span> <span class="pre">of</span> <span class="pre">Tag</span></em><a class="headerlink" href="#entity.tags" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="Entity.entity.tags">
+<span class="sig-prename descclassname"><span class="pre">entity.</span></span><span class="sig-name descname"><span class="pre">tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collection</span> <span class="pre">of</span> <span class="pre">Tag</span></em><a class="headerlink" href="#Entity.entity.tags" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="Node">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Node</span></span><a class="headerlink" href="#Node" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Node</span></span><a class="headerlink" href="#Node" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <p>Subclass that models a data node. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt class="sig sig-object py" id="node.handle">
-<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#node.handle" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#node.handle" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="node.model">
-<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#node.model" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#node.model" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="node.nanoid">
-<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#node.nanoid" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#node.nanoid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="node.version">
+<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#node.version" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="node.concept">
-<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">concept</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#node.concept" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">concept</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#node.concept" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="node.props">
-<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">props</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collection</span> <span class="pre">of</span> <span class="pre">Property</span></em><a class="headerlink" href="#node.props" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">node.</span></span><span class="sig-name descname"><span class="pre">props</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collection</span> <span class="pre">of</span> <span class="pre">Property</span></em><a class="headerlink" href="#node.props" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="Edge">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Edge</span></span><a class="headerlink" href="#Edge" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Edge</span></span><a class="headerlink" href="#Edge" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <p>Subclass that models a relationship between model nodes. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt class="sig sig-object py" id="edge.handle">
-<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.handle" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.handle" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="edge.model">
-<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.model" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.model" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="edge.nanoid">
-<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.nanoid" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.nanoid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="edge.version">
+<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.version" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="edge.multiplicity">
-<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">multiplicity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.multiplicity" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">multiplicity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.multiplicity" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="edge.is_required">
-<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">is_required</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.is_required" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">is_required</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#edge.is_required" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="edge.src">
-<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">src</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Node" title="Node"><span class="pre">Node</span></a></em><a class="headerlink" href="#edge.src" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">src</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Node" title="Node"><span class="pre">Node</span></a></em><a class="headerlink" href="#edge.src" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="edge.dst">
-<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">dst</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Node" title="Node"><span class="pre">Node</span></a></em><a class="headerlink" href="#edge.dst" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">dst</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Node" title="Node"><span class="pre">Node</span></a></em><a class="headerlink" href="#edge.dst" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="edge.concept">
-<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">concept</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#edge.concept" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">concept</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#edge.concept" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="edge.props">
-<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">props</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collection</span> <span class="pre">of</span> <span class="pre">Property</span></em><a class="headerlink" href="#edge.props" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">edge.</span></span><span class="sig-name descname"><span class="pre">props</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collection</span> <span class="pre">of</span> <span class="pre">Property</span></em><a class="headerlink" href="#edge.props" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="Property">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Property</span></span><a class="headerlink" href="#Property" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Property</span></span><a class="headerlink" href="#Property" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <p>Subclass that models a property of a node or relationship (edge). Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt class="sig sig-object py" id="property.handle">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.handle" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.handle" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="property.model">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.model" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.model" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="property.nanoid">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.nanoid" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.nanoid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="property.version">
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.version" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="property.value_domain">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">value_domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.value_domain" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">value_domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.value_domain" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="property.units">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">units</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.units" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">units</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.units" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="property.pattern">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.pattern" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="property.item_domain">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">item_domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.item_domain" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">item_domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.item_domain" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="property.is_required">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">is_required</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.is_required" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">is_required</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.is_required" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="property.is_key">
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">is_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.is_key" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="property.is_nullable">
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">is_nullable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.is_nullable" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="property.is_deprecated">
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">is_deprecated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.is_deprecated" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="property.is_strict">
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">is_strict</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property.is_strict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="property._parent_handle">
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">_parent_handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#property._parent_handle" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="property.concept">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">concept</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#property.concept" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">concept</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#property.concept" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="property.value_set">
-<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">value_set</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="autoapi/bento_meta/objects/index.html#bento_meta.objects.ValueSet" title="bento_meta.objects.ValueSet"><span class="pre">ValueSet</span></a></em><a class="headerlink" href="#property.value_set" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">property.</span></span><span class="sig-name descname"><span class="pre">value_set</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="autoapi/bento_meta/objects/index.html#bento_meta.objects.ValueSet" title="bento_meta.objects.ValueSet"><span class="pre">ValueSet</span></a></em><a class="headerlink" href="#property.value_set" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="Term">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Term</span></span><a class="headerlink" href="#Term" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Term</span></span><a class="headerlink" href="#Term" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <p>Subclass that models a term from a terminology. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt class="sig sig-object py" id="term.handle">
-<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.handle" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.handle" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="term.value">
-<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.value" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.value" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="term.nanoid">
-<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.nanoid" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.nanoid" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="term.origin_id">
-<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_id" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_id" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="term.origin_version">
-<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_version" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_version" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="term.origin_definition">
-<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_definition</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_definition" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_definition</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_definition" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="term.origin_name">
-<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_name" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#term.origin_name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="term.concept">
-<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">concept</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#term.concept" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">concept</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#term.concept" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="term.origin">
-<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Origin" title="Origin"><span class="pre">Origin</span></a></em><a class="headerlink" href="#term.origin" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">term.</span></span><span class="sig-name descname"><span class="pre">origin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Origin" title="Origin"><span class="pre">Origin</span></a></em><a class="headerlink" href="#term.origin" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="Concept">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Concept</span></span><a class="headerlink" href="#Concept" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Concept</span></span><a class="headerlink" href="#Concept" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <p>Subclass that models a semantic concept. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt class="sig sig-object py" id="concept.terms">
-<span class="sig-prename descclassname"><span class="pre">concept.</span></span><span class="sig-name descname"><span class="pre">terms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collection</span> <span class="pre">of</span> <span class="pre">Term</span></em><a class="headerlink" href="#concept.terms" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">concept.</span></span><span class="sig-name descname"><span class="pre">terms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collection</span> <span class="pre">of</span> <span class="pre">Term</span></em><a class="headerlink" href="#concept.terms" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="Predicate">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Predicate</span></span><a class="headerlink" href="#Predicate" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Predicate</span></span><a class="headerlink" href="#Predicate" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <p>Subclass that models a semantic link between concepts. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt class="sig sig-object py" id="predicate.handle">
-<span class="sig-prename descclassname"><span class="pre">predicate.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#predicate.handle" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">predicate.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#predicate.handle" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="predicate.subject">
-<span class="sig-prename descclassname"><span class="pre">predicate.</span></span><span class="sig-name descname"><span class="pre">subject</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#predicate.subject" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">predicate.</span></span><span class="sig-name descname"><span class="pre">subject</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#predicate.subject" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="predicate.object">
-<span class="sig-prename descclassname"><span class="pre">predicate.</span></span><span class="sig-name descname"><span class="pre">object</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#predicate.object" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">predicate.</span></span><span class="sig-name descname"><span class="pre">object</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Concept" title="Concept"><span class="pre">Concept</span></a></em><a class="headerlink" href="#predicate.object" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="Origin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Origin</span></span><a class="headerlink" href="#Origin" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Origin</span></span><a class="headerlink" href="#Origin" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <p>Subclass that models a <a class="reference internal" href="#Term" title="Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> ‘s authoritative source. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt class="sig sig-object py" id="origin.url">
-<span class="sig-prename descclassname"><span class="pre">origin.</span></span><span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#origin.url" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">origin.</span></span><span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#origin.url" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="origin.is_external">
-<span class="sig-prename descclassname"><span class="pre">origin.</span></span><span class="sig-name descname"><span class="pre">is_external</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#origin.is_external" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">origin.</span></span><span class="sig-name descname"><span class="pre">is_external</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#origin.is_external" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="origin.name">
-<span class="sig-prename descclassname"><span class="pre">origin.</span></span><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#origin.name" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">origin.</span></span><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#origin.name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="origin.nanoid">
-<span class="sig-prename descclassname"><span class="pre">origin.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#origin.nanoid" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">origin.</span></span><span class="sig-name descname"><span class="pre">nanoid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#origin.nanoid" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="Tag">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tag</span></span><a class="headerlink" href="#Tag" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tag</span></span><a class="headerlink" href="#Tag" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <p>Subclass that allows simple key-value tagging of a model at arbitrary points. Posesses all <a class="reference internal" href="#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> attributes, plus the following:</p>
 <blockquote>
 <div><dl class="py attribute">
 <dt class="sig sig-object py" id="tag.key">
-<span class="sig-prename descclassname"><span class="pre">tag.</span></span><span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#tag.key" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">tag.</span></span><span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#tag.key" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tag.value">
-<span class="sig-prename descclassname"><span class="pre">tag.</span></span><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#tag.value" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">tag.</span></span><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">simple</span></em><a class="headerlink" href="#tag.value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tag._parent">
+<span class="sig-prename descclassname"><span class="pre">tag.</span></span><span class="sig-name descname"><span class="pre">_parent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#Entity" title="Entity"><span class="pre">Entity</span></a></em><a class="headerlink" href="#tag._parent" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </div></blockquote>

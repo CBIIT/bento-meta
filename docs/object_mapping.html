@@ -1,23 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Object Map Specifications &mdash; bento-meta  documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -87,22 +86,22 @@
            <div itemprop="articleBody">
              
   <section id="object-map-specifications">
-<h1>Object Map Specifications<a class="headerlink" href="#object-map-specifications" title="Permalink to this heading"></a></h1>
+<h1>Object Map Specifications<a class="headerlink" href="#object-map-specifications" title="Link to this heading"></a></h1>
 <section id="defining-and-updating-objects">
-<h2>Defining and Updating Objects<a class="headerlink" href="#defining-and-updating-objects" title="Permalink to this heading"></a></h2>
+<h2>Defining and Updating Objects<a class="headerlink" href="#defining-and-updating-objects" title="Link to this heading"></a></h2>
 <p>Objects (i.e., subclasses of class <a class="reference internal" href="autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.entity.Entity</span></code></a>) are really just containers for <a class="reference internal" href="the_object_model.html#object-attributes"><span class="std std-ref">simple, object and collection attributes</span></a>. They are special, however, in that an object can map to an instance of a <a class="reference external" href="https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-nodes">Neo4j graph node</a> that has a particular <a class="reference external" href="https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-labels">label</a>. Having this mapping means that changes to the object attributes can be pushed to the corresponding node in the graph database, and changes in the graph can be pulled to the object.</p>
 <p>Defining a new object (or changing the attributes on an existing object) is a matter of telling the subclass what the relationships are between the object class and node labels, and object attributes and node <a class="reference external" href="https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-properties">properties</a> or <a class="reference external" href="https://neo4j.com/docs/getting-started/4.1/graphdb-concepts/#graphdb-relationships">links</a> to other nodes. In the process, you are declaring the attributes that are associated with the object.</p>
 <p>These <em>declared attributes</em> can be used in code like standard attributes (i.e., with the dot operator).</p>
 <section id="subclasses-are-derived-from-entity">
-<h3>Subclasses are derived from Entity<a class="headerlink" href="#subclasses-are-derived-from-entity" title="Permalink to this heading"></a></h3>
+<h3>Subclasses are derived from Entity<a class="headerlink" href="#subclasses-are-derived-from-entity" title="Link to this heading"></a></h3>
 <p>The <a class="reference internal" href="autoapi/bento_meta/entity/index.html#bento_meta.entity.Entity" title="bento_meta.entity.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.entity.Entity</span></code></a> class is the base for all mapped objects. <a class="reference internal" href="the_object_model.html#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> contains almost all the functionality required for mapping, including magic setters that perform versioning bookkeeping, and connecting objects with <a class="reference internal" href="autoapi/bento_meta/object_map/index.html#bento_meta.object_map.ObjectMap" title="bento_meta.object_map.ObjectMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.object_map.ObjectMap</span></code></a> classes that perform the database interactions.</p>
 <p>The <a class="reference internal" href="the_object_model.html#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> class also provides attributes that are common to all objects. These include <code class="docutils literal notranslate"><span class="pre">_from</span></code> and <code class="docutils literal notranslate"><span class="pre">_to</span></code> that indicate the versioned “lifetime” of an objects, and <code class="docutils literal notranslate"><span class="pre">_next</span></code> and <code class="docutils literal notranslate"><span class="pre">_prev</span></code>, that point to next and previous versions of an object.</p>
 </section>
 <section id="attspec-and-mapspec">
-<h3>attspec and mapspec<a class="headerlink" href="#attspec-and-mapspec" title="Permalink to this heading"></a></h3>
+<h3>attspec and mapspec<a class="headerlink" href="#attspec-and-mapspec" title="Link to this heading"></a></h3>
 <p>Two subclass properties declare attributes and specify the mapping: <em>attspec</em> and <em>mapspec</em>.
 <em>attspec</em> is a dictionary whose keys are the attribute names, and values are the attribute type: <code class="docutils literal notranslate"><span class="pre">simple</span></code>, <code class="docutils literal notranslate"><span class="pre">object</span></code>, or <code class="docutils literal notranslate"><span class="pre">collection</span></code>. <em>mapspec</em> is a dictionary that specifies the database mapping, as described below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Node</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
 <span class="w">  </span><span class="sd">&quot;&quot;&quot;Subclass that models a data node.&quot;&quot;&quot;</span>
   <span class="n">attspec_</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span><span class="s2">&quot;model&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span>
              <span class="s2">&quot;category&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span><span class="s2">&quot;concept&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
@@ -129,7 +128,7 @@
 <p>So, in the example, <code class="docutils literal notranslate"><span class="pre">props</span></code> is an attribute of <a class="reference internal" href="the_object_model.html#Node" title="Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> objects that refers to a collection of
 <a class="reference internal" href="the_object_model.html#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a> objects. In the database, each <a class="reference internal" href="the_object_model.html#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a> object is connected to its owning <a class="reference internal" href="the_object_model.html#Node" title="Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> by a Neo4j relationship with type <code class="docutils literal notranslate"><span class="pre">has_property</span></code>, with the <a class="reference internal" href="the_object_model.html#Node" title="Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object as source and <a class="reference internal" href="the_object_model.html#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a> as destination of that relationship.</p>
 <p>Looking at the class def for <a class="reference internal" href="the_object_model.html#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>,</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Property</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Property</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
 <span class="w">  </span><span class="sd">&quot;&quot;&quot;Subclass that models a property of a node or relationship (edge).&quot;&quot;&quot;</span>
   <span class="n">attspec_</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span><span class="s2">&quot;model&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span>
              <span class="s2">&quot;value_domain&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span><span class="s2">&quot;units&quot;</span><span class="p">:</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span>

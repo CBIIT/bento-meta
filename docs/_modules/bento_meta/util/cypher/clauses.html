@@ -1,22 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>bento_meta.util.cypher.clauses &mdash; bento-meta  documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -44,7 +43,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../the_object_model.html">The Object Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../meta_and_mdf.html">bento_meta and MDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model_versioning.html">Model Versioning</a></li>
@@ -83,27 +82,35 @@
 <span class="sd">Representations of Cypher statement clauses, statements,</span>
 <span class="sd">and statement parameters.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">bento_meta.util.cypher.entities</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">N</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">_return</span><span class="p">,</span> <span class="n">_condition</span><span class="p">,</span> <span class="n">_pattern</span>
-    <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">bento_meta.util.cypher.functions</span> <span class="kn">import</span> <span class="n">Func</span>
-<span class="kn">from</span> <span class="nn">pdb</span> <span class="kn">import</span> <span class="n">set_trace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_trace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">string</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
 
-<div class="viewcode-block" id="Clause"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Clause">[docs]</a><span class="k">class</span> <span class="nc">Clause</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">N</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">_condition</span><span class="p">,</span> <span class="n">_pattern</span><span class="p">,</span> <span class="n">_return</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Func</span>
+
+
+<div class="viewcode-block" id="Clause">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Clause">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Clause</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a generic Cypher clause.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;$slot1&quot;</span><span class="p">)</span>
     <span class="n">joiner</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span>
 
-<div class="viewcode-block" id="Clause.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Clause.context">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+<div class="viewcode-block" id="Clause.context">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Clause.context">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_return</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
 
-<div class="viewcode-block" id="Clause.__str__"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Clause.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Clause.__str__">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Clause.__str__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -114,38 +121,53 @@
                 <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">c</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
-            <span class="n">slot1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">joiner</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-            <span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">slot1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">joiner</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">))</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Match"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Match">[docs]</a><span class="k">class</span> <span class="nc">Match</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Match">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Match">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Match</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a MATCH clause with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;MATCH $slot1&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Match.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Match.context">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+<div class="viewcode-block" id="Match.context">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Match.context">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_pattern</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Where"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Where">[docs]</a><span class="k">class</span> <span class="nc">Where</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Where">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Where">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Where</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a WHERE clause with the arguments</span>
 <span class="sd">    (joining conditions with &#39;op&#39;).&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;WHERE $slot1&quot;</span><span class="p">)</span>
     <span class="n">joiner</span> <span class="o">=</span> <span class="s2">&quot; </span><span class="si">{}</span><span class="s2"> &quot;</span>
 
-<div class="viewcode-block" id="Where.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Where.context">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+<div class="viewcode-block" id="Where.context">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Where.context">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_condition</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="s1">&#39;AND&#39;</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="s2">&quot;AND&quot;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">op</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">op</span>
 
-<div class="viewcode-block" id="Where.__str__"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Where.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Where.__str__">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Where.__str__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -156,48 +178,74 @@
                 <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">c</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
-            <span class="n">slot1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">joiner</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-            <span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">slot1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">joiner</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">))</span></div>
+</div>
 
 
-<div class="viewcode-block" id="With"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.With">[docs]</a><span class="k">class</span> <span class="nc">With</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+<div class="viewcode-block" id="With">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.With">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">With</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a WITH clause with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;WITH $slot1&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Create"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Create">[docs]</a><span class="k">class</span> <span class="nc">Create</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Create">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Create">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Create</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a CREATE clause with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;CREATE $slot1&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="Create.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Create.context">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Create.context">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Create.context">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_pattern</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Merge"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Merge">[docs]</a><span class="k">class</span> <span class="nc">Merge</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Merge">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Merge">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Merge</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a MERGE clause with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;MERGE $slot1&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="Merge.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Merge.context">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Merge.context">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Merge.context">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_pattern</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Remove"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Remove">[docs]</a><span class="k">class</span> <span class="nc">Remove</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+
+<div class="viewcode-block" id="Remove">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Remove">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Remove</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a REMOVE clause with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;REMOVE $slot1&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Remove.__str__"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Remove.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Remove.__str__">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Remove.__str__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">item</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -208,24 +256,34 @@
             <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
             <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
-            <span class="n">slot1</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">ent</span><span class="p">),</span><span class="n">sep</span><span class="p">,</span><span class="n">item</span><span class="p">)</span>
-            <span class="p">)</span></div></div>
-        
+            <span class="n">slot1</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">ent</span><span class="p">),</span> <span class="n">sep</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+        <span class="p">)</span></div>
+</div>
 
-<div class="viewcode-block" id="Set"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Set">[docs]</a><span class="k">class</span> <span class="nc">Set</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+
+<div class="viewcode-block" id="Set">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Set">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Set</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a SET clause with the arguments. (Only property arguments matter.)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;SET $slot1&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Set.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Set.context">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+<div class="viewcode-block" id="Set.context">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Set.context">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_condition</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Set.__str__"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Set.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Set.__str__">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Set.__str__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">)]:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -236,82 +294,239 @@
                 <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">c</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
-        <span class="k">if</span> <span class="s1">&#39;update&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span><span class="s2">&quot;+=&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
-            <span class="n">slot1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">joiner</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-            <span class="p">)</span></div></div>
+        <span class="k">if</span> <span class="s2">&quot;update&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="s2">&quot;+=&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">slot1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">joiner</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">))</span></div>
+</div>
 
 
-<div class="viewcode-block" id="OnCreateSet"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.OnCreateSet">[docs]</a><span class="k">class</span> <span class="nc">OnCreateSet</span><span class="p">(</span><span class="n">Set</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OnCreateSet">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.OnCreateSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OnCreateSet</span><span class="p">(</span><span class="n">Set</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an ON CREATE SET clause for a MERGE with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;ON CREATE SET $slot1&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="OnMatchSet"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.OnMatchSet">[docs]</a><span class="k">class</span> <span class="nc">OnMatchSet</span><span class="p">(</span><span class="n">Set</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OnMatchSet">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.OnMatchSet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OnMatchSet</span><span class="p">(</span><span class="n">Set</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an ON CREATE SET clause for a MERGE with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;ON MATCH SET $slot1&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Return"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Return">[docs]</a><span class="k">class</span> <span class="nc">Return</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Return">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Return">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Return</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a RETURN clause with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;RETURN $slot1&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="OptionalMatch"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.OptionalMatch">[docs]</a><span class="k">class</span> <span class="nc">OptionalMatch</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OptionalMatch">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.OptionalMatch">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OptionalMatch</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an OPTIONAL MATCH clause with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;OPTIONAL MATCH $slot1&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OptionalMatch.context"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.OptionalMatch.context">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+<div class="viewcode-block" id="OptionalMatch.context">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.OptionalMatch.context">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_pattern</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Collect"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Collect">[docs]</a><span class="k">class</span> <span class="nc">Collect</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Collect">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Collect">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Collect</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a COLLECT clause with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;COLLECT $slot1&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Unwind"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Unwind">[docs]</a><span class="k">class</span> <span class="nc">Unwind</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Unwind">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Unwind">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Unwind</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an UNWIND clause with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;UNWIND $slot1&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="As"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.As">[docs]</a><span class="k">class</span> <span class="nc">As</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+
+<div class="viewcode-block" id="As">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.As">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">As</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an AS clause with the arguments.&quot;&quot;&quot;</span>
+
     <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;AS $slot1&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Statement"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Statement">[docs]</a><span class="k">class</span> <span class="nc">Statement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Delete">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Delete">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Delete</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a DELETE clause with the arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;DELETE $slot1&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DetachDelete">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.DetachDelete">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DetachDelete</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a DETACH DELETE clause with the arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;DETACH DELETE $slot1&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Case">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Case">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Case</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a CASE clause with the arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;CASE $slot1&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="When">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.When">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">When</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a WHEN clause with the arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;WHEN $slot1&quot;</span><span class="p">)</span>
+    <span class="n">joiner</span> <span class="o">=</span> <span class="s2">&quot; </span><span class="si">{}</span><span class="s2"> &quot;</span>
+
+<div class="viewcode-block" id="When.context">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.When.context">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_condition</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="s2">&quot;AND&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">op</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">op</span>
+
+<div class="viewcode-block" id="When.__str__">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.When.__str__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Func</span><span class="p">):</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">c</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">slot1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">joiner</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Then">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Then">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Then</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a THEN clause with the arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;THEN $slot1&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Else">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Else">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Else</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an ELSE clause with the arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;ELSE $slot1&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="End">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.End">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">End</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an END clause with the arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;END $slot1&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ForEach">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.ForEach">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ForEach</span><span class="p">(</span><span class="n">Clause</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an FOREACH clause with the arguments.&quot;&quot;&quot;</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;FOREACH $slot1&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Statement">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Statement">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Statement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a Neo4j statement comprised of clauses (and strings) in order.&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">terminate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_params</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">terminate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_params</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clauses</span> <span class="o">=</span> <span class="n">args</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">terminate</span> <span class="o">=</span> <span class="n">terminate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_params</span> <span class="o">=</span> <span class="n">use_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="Statement.__str__"><a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Statement.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Statement.__str__">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/util/cypher/clauses/index.html#bento_meta.util.cypher.clauses.Statement.__str__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">stash</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">parameterize</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_params</span><span class="p">:</span>
             <span class="n">P</span><span class="o">.</span><span class="n">parameterize</span> <span class="o">=</span> <span class="kc">True</span>
@@ -319,16 +534,17 @@
             <span class="n">P</span><span class="o">.</span><span class="n">parameterize</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clauses</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminate</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">+</span><span class="s2">&quot;;&quot;</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span>
         <span class="n">P</span><span class="o">.</span><span class="n">parameterize</span> <span class="o">=</span> <span class="n">stash</span>
         <span class="k">return</span> <span class="n">ret</span></div>
+
 
     <span class="c1"># def params(self):</span>
     <span class="c1">#     if not self._params:</span>
     <span class="c1">#         self._params = re.findall(&quot;\\$[a-zA-A0-9_]+&quot;, str(self))</span>
     <span class="c1">#     return self._params</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clauses</span><span class="p">:</span>
@@ -337,15 +553,16 @@
                         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">value</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="s1">&#39;nodes&#39;</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">)):</span>
+                        <span class="k">if</span> <span class="s2">&quot;nodes&quot;</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">)):</span>
                             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
                                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">n</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">value</span>
-                        <span class="k">if</span> <span class="s1">&#39;edges&#39;</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">)):</span>
+                        <span class="k">if</span> <span class="s2">&quot;edges&quot;</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">)):</span>
                             <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
                                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span></div>
+
 </pre></div>
 
            </div>
@@ -355,7 +572,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, FNLCR.</p>
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

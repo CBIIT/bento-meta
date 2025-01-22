@@ -1,23 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>bento_meta and MDF &mdash; bento-meta  documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -85,9 +84,9 @@
            <div itemprop="articleBody">
              
   <section id="bento-meta-and-mdf">
-<h1>bento_meta and MDF<a class="headerlink" href="#bento-meta-and-mdf" title="Permalink to this heading"></a></h1>
+<h1>bento_meta and MDF<a class="headerlink" href="#bento-meta-and-mdf" title="Link to this heading"></a></h1>
 <section id="model-description-files">
-<h2>Model Description Files<a class="headerlink" href="#model-description-files" title="Permalink to this heading"></a></h2>
+<h2>Model Description Files<a class="headerlink" href="#model-description-files" title="Link to this heading"></a></h2>
 <p><a class="reference external" href="https://github.com/CBIIT/bento-mdf">Model description files</a>, or MDF, are simple descriptions of a graph data model, usually written in <a class="reference external" href="https://learnxinyminutes.com/docs/yaml/">YAML</a>. They are organized in terms of sections defined by the top-level keys <code class="docutils literal notranslate"><span class="pre">Nodes</span></code>, <code class="docutils literal notranslate"><span class="pre">Relationships</span></code>, and <code class="docutils literal notranslate"><span class="pre">PropDefinitions</span></code>. They describe the graph nodes and relationships belonging to a model, the properties associated with each. The MDF details and documents:</p>
 <ul class="simple">
 <li><p>the “local” or internal names for each of these entities,</p></li>
@@ -104,14 +103,14 @@
 <p>The MDF syntax is described <a class="reference external" href="https://github.com/CBIIT/bento-mdf#model-description-files-mdf">here in detail</a>. This syntax is defined by and can be validated against a <a class="reference external" href="https://json-schema.org/understanding-json-schema/">JSONSchema</a> document. This document lives <a class="reference external" href="https://github.com/CBIIT/bento-mdf/blob/master/schema/mdf-schema.yaml">here</a>.</p>
 </section>
 <section id="slurping-mdf-into-bento-meta">
-<h2>Slurping MDF into bento_meta<a class="headerlink" href="#slurping-mdf-into-bento-meta" title="Permalink to this heading"></a></h2>
+<h2>Slurping MDF into bento_meta<a class="headerlink" href="#slurping-mdf-into-bento-meta" title="Link to this heading"></a></h2>
 <p>MDF functionality for bento_meta is included in the <code class="docutils literal notranslate"><span class="pre">bento_mdf</span></code> package, found at
 <cite>https://github.com/CBIIT/bento-mdf</cite>. The latest version can be installed as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install bento_mdf@git+https://github.com/CBIIT/bento-mdf.git#egg=subdir\&amp;subdirectory=drivers/python
 </pre></div>
 </div>
 <p>Create a <a class="reference internal" href="autoapi/bento_meta/model/index.html#bento_meta.model.Model" title="bento_meta.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.model.Model</span></code></a> from MDF files as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bento_mdf.mdf</span> <span class="kn">import</span> <span class="n">MDF</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bento_mdf.mdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">MDF</span>
 
 <span class="n">mdf</span> <span class="o">=</span> <span class="n">MDF</span><span class="p">(</span><span class="s1">&#39;model.yml&#39;</span><span class="p">,</span><span class="s1">&#39;model-props.yml&#39;</span><span class="p">,</span> <span class="n">handle</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">mdf</span><span class="o">.</span><span class="n">model</span>
@@ -122,7 +121,7 @@
 nodes and relationships are defined in one file, and the properties in a separate files. <cite>MDF</cite> merges the files provided according to <a class="reference external" href="https://github.com/CBIIT/bento-mdf#multiple-input-yaml-files-and-overlays">the spec</a>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">handle=</span></code> is a keyword-only argument that must be provided, which sets the name (a.k.a. handle) for the model. This is used, for example, in setting the <cite>Entity.model</cite> attribute for the model objects. It enables pushing and pulling a model to and from a Neo4j database in a single call.</p>
 <p>URLs that resolve to MDF files can also be used. To load the latest CTDC model, for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">bento_mdf.mdf</span> <span class="kn">import</span> <span class="n">MDF</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">bento_mdf.mdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">MDF</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mdf</span> <span class="o">=</span> <span class="n">MDF</span><span class="p">(</span><span class="s1">&#39;https://cbiit.github.io/ctdc-model/model-desc/ctdc_model_file.yaml&#39;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>          <span class="s1">&#39;https://cbiit.github.io/ctdc-model/model-desc/ctdc_model_properties_file.yaml&#39;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>           <span class="n">handle</span><span class="o">=</span><span class="s1">&#39;CTDC&#39;</span><span class="p">)</span>
@@ -135,7 +134,7 @@ nodes and relationships are defined in one file, and the properties in a separat
 </div>
 </section>
 <section id="squirting-a-model-into-mdf-yaml">
-<h2>Squirting a Model into MDF YAML<a class="headerlink" href="#squirting-a-model-into-mdf-yaml" title="Permalink to this heading"></a></h2>
+<h2>Squirting a Model into MDF YAML<a class="headerlink" href="#squirting-a-model-into-mdf-yaml" title="Link to this heading"></a></h2>
 <p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">MDF.write_mdf()</span></code> returns a MDF-structured dictionary for a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> object, and optionally
 writes a YAML file encoding this dictionary:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mdf_dict</span> <span class="o">=</span> <span class="n">MDF</span><span class="o">.</span><span class="n">write_mdf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">your_model</span><span class="p">)</span>

@@ -1,23 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>bento_meta and Metamodel Database (MDB) &mdash; bento-meta  documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -78,10 +77,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <a class="reference external image-reference" href="https://github.com/CBIIT/bento-meta"><img alt="Fork me on GitHub" class="align-right" height="117" src="_images/forkme_right_green_007200.svg" width="117" /></a>
+  <a class="reference external image-reference" href="https://github.com/CBIIT/bento-meta"><img alt="Fork me on GitHub" class="align-right" src="_images/forkme_right_green_007200.svg" style="width: 117.60000000000001px; height: 117.60000000000001px;" />
+</a>
 <section id="bento-meta-and-metamodel-database-mdb">
-<h1>bento_meta and Metamodel Database (MDB)<a class="headerlink" href="#bento-meta-and-metamodel-database-mdb" title="Permalink to this heading"></a></h1>
-<a class="reference external image-reference" href="https://travis-ci.org/CBIIT/bento-meta"><img alt="Build Status" src="https://travis-ci.org/CBIIT/bento-meta.svg?branch=master" /></a>
+<h1>bento_meta and Metamodel Database (MDB)<a class="headerlink" href="#bento-meta-and-metamodel-database-mdb" title="Link to this heading"></a></h1>
+<a class="reference external image-reference" href="https://travis-ci.org/CBIIT/bento-meta"><img alt="Build Status" src="https://travis-ci.org/CBIIT/bento-meta.svg?branch=master" />
+</a>
 <p><strong>bento_meta</strong> provides an object representation of
 <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph">property graph</a>
 based data models, as embodied in the structure of the
@@ -89,7 +90,8 @@ based data models, as embodied in the structure of the
 MDB. The MDB can store multiple data models in terms of their nodes,
 relationships, and properties. The MDB links these entities according to the structure of
 the individual models:</p>
-<a class="reference external image-reference" href="https://github.com/CBIIT/bento-meta#bento-meta-db"><img alt="https://raw.githubusercontent.com/CBIIT/bento-meta/master/metamodel.svg" class="align-center" height="600px" src="https://raw.githubusercontent.com/CBIIT/bento-meta/master/metamodel.svg" width="500px" /></a>
+<a class="reference external image-reference" href="https://github.com/CBIIT/bento-meta#bento-meta-db"><img alt="https://raw.githubusercontent.com/CBIIT/bento-meta/master/metamodel.svg" class="align-center" src="https://raw.githubusercontent.com/CBIIT/bento-meta/master/metamodel.svg" style="width: 500px; height: 600px;" />
+</a>
 <p>For example, model nodes are represented as metamodel nodes of type
 <code class="docutils literal notranslate"><span class="pre">node</span></code>, model relationships as metamodel nodes of type
 <code class="docutils literal notranslate"><span class="pre">relationship</span></code>, and metamodel <code class="docutils literal notranslate"><span class="pre">relationships</span></code> link to the
@@ -103,7 +105,7 @@ terminology associated with the stored models. These include the
 and <code class="docutils literal notranslate"><span class="pre">predicates</span></code>. Each
 of these entities can be created, read, and updated using <em>bento_meta</em>.</p>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <p>Run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">bento</span><span class="o">-</span><span class="n">meta</span>
 </pre></div>
@@ -149,14 +151,14 @@ of these entities can be created, read, and updated using <em>bento_meta</em>.</
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="autoapi/bento_meta/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bento_meta</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/bento_meta/index.html">bento_meta</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </section>
 <section id="a-note-on-nodes">
-<h2>A Note on “Nodes”<a class="headerlink" href="#a-note-on-nodes" title="Permalink to this heading"></a></h2>
+<h2>A Note on “Nodes”<a class="headerlink" href="#a-note-on-nodes" title="Link to this heading"></a></h2>
 <p>The metamodel is a property graph, designed to store specific property
 graph models, in a database built for property graphs. The word “node”
 is therefore used in different contexts and can be confusing,
@@ -181,7 +183,7 @@ the CRDC, such as the <a class="reference external" href="https://caninecommons.
 </ul>
 </section>
 <section id="a-note-on-objects-properties-and-attributes">
-<h2>A Note on Objects, Properties, and Attributes<a class="headerlink" href="#a-note-on-objects-properties-and-attributes" title="Permalink to this heading"></a></h2>
+<h2>A Note on Objects, Properties, and Attributes<a class="headerlink" href="#a-note-on-objects-properties-and-attributes" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="autoapi/bento_meta/index.html#module-bento_meta" title="bento_meta"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta</span></code></a> creates a mapping between Neo4j nodes and Python
 objects. Of course, the objects have data associated with them,
 accessed via setters and getters. These object-associated data are
@@ -195,7 +197,7 @@ to its metamodel property-type nodes.</p>
 </section>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>

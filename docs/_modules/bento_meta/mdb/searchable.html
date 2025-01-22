@@ -1,22 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>bento_meta.mdb.searchable &mdash; bento-meta  documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -82,17 +81,20 @@
 <span class="sd">Subclass of `class:bento_meta.mdb.MDB` to support searching fulltext indices on an MDB</span>
 <span class="sd">Note: certain fulltext indexes on certain MDB nodes and properties must be present in </span>
 <span class="sd">the Neo4j instance: </span>
-<span class="sd">- entityHandles</span>
+<span class="sd">- nodeHandle</span>
+<span class="sd">- propHandle</span>
 <span class="sd">- termValue</span>
 <span class="sd">- termDefn</span>
 <span class="sd">- termValueDefn</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">bento_meta.mdb</span> <span class="kn">import</span> <span class="n">read_txn</span><span class="p">,</span> <span class="n">read_txn_data</span><span class="p">,</span> <span class="n">read_txn_value</span>
-<span class="kn">from</span> <span class="nn">bento_meta.mdb</span> <span class="kn">import</span> <span class="n">MDB</span>
-<span class="kn">from</span> <span class="nn">pdb</span> <span class="kn">import</span> <span class="n">set_trace</span>
-<div class="viewcode-block" id="SearchableMDB"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB">[docs]</a><span class="k">class</span> <span class="nc">SearchableMDB</span><span class="p">(</span><span class="n">MDB</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.mdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_txn</span><span class="p">,</span> <span class="n">read_txn_data</span><span class="p">,</span> <span class="n">read_txn_value</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.mdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">MDB</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_trace</span>
+<div class="viewcode-block" id="SearchableMDB">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SearchableMDB</span><span class="p">(</span><span class="n">MDB</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ftindexes</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
@@ -105,14 +107,19 @@
                         <span class="s2">&quot;properties&quot;</span><span class="p">:</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">],</span>
                     <span class="p">}</span>
 
-<div class="viewcode-block" id="SearchableMDB.available_indexes"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.available_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">available_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SearchableMDB.available_indexes">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.available_indexes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">available_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Fulltext indexes present in database. </span>
 <span class="sd">        Returns { &lt;index_name&gt; : { entity_type:&lt;NODE|RELATIONSHIP&gt;, entities:[&lt;labels&gt;], </span>
 <span class="sd">        properties:[ [&lt;props&gt;] ] } } &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftindexes</span></div>
 
-<div class="viewcode-block" id="SearchableMDB.query_index"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.query_index">[docs]</a>    <span class="nd">@read_txn_data</span>
-    <span class="k">def</span> <span class="nf">query_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">qstring</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SearchableMDB.query_index">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.query_index">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">query_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">qstring</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Query a named fulltext index of nodes or relationships.</span>
 <span class="sd">        Returns [ {ent:{}, label:&lt;label&gt;, score:&lt;lucene score&gt;} ].&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftindexes</span><span class="p">:</span>
@@ -139,7 +146,10 @@
             <span class="n">parms</span><span class="p">[</span><span class="s1">&#39;limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">limit</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SearchableMDB.search_entity_handles"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.search_entity_handles">[docs]</a>    <span class="k">def</span> <span class="nf">search_entity_handles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qstring</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SearchableMDB.search_entity_handles">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.search_entity_handles">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_entity_handles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qstring</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Fulltext search of qstring over node, relationship, and property handles.</span>
 <span class="sd">        Returns { node:[ {ent:&lt;entity dict&gt;,score:&lt;lucene score&gt;},... ],</span>
 <span class="sd">        relationship:[ &lt;...&gt; ], property:[ &lt;...&gt; ] }&quot;&quot;&quot;</span>
@@ -154,7 +164,10 @@
             <span class="n">ret</span><span class="p">[</span><span class="n">plural</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]]]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;ent&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;ent&#39;</span><span class="p">],</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">]})</span> 
         <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="SearchableMDB.search_terms"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.search_terms">[docs]</a>    <span class="k">def</span> <span class="nf">search_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qstring</span><span class="p">,</span> <span class="n">search_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="SearchableMDB.search_terms">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.search_terms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qstring</span><span class="p">,</span> <span class="n">search_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                      <span class="n">search_definitions</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Fulltext for qstring over terms, by value, definition, or both (default).</span>
 <span class="sd">        Returns [ { ent:&lt;term dict&gt;, score:&lt;lucene score&gt; } ]}&quot;&quot;&quot;</span>
@@ -162,7 +175,9 @@
                  <span class="kc">False</span><span class="p">:</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;termValue&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="kc">None</span><span class="p">}}</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_index</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="n">search_definitions</span><span class="p">][</span><span class="n">search_values</span><span class="p">],</span>
                                   <span class="n">qstring</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span></div></div>
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
+
 </pre></div>
 
            </div>

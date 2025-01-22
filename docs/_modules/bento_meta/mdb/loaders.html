@@ -1,22 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>bento_meta.mdb.loaders &mdash; bento-meta  documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -44,7 +43,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Maintenance Principles and Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../the_object_model.html">The Object Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../meta_and_mdf.html">bento_meta and MDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model_versioning.html">Model Versioning</a></li>
@@ -81,23 +80,28 @@
 <span class="sd">mdb.loaders: load models into an MDB instance consistently</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
-<span class="kn">from</span> <span class="nn">bento_meta.mdb</span> <span class="kn">import</span> <span class="n">WriteableMDB</span>
-<span class="kn">from</span> <span class="nn">bento_meta.util.cypher.entities</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.mdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">WriteableMDB</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.entities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">N</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">_plain_var</span>
     <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">bento_meta.util.cypher.clauses</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.clauses</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Match</span><span class="p">,</span> <span class="n">Create</span><span class="p">,</span> <span class="n">Merge</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">OnMatchSet</span><span class="p">,</span> <span class="n">OnCreateSet</span><span class="p">,</span>
     <span class="n">Remove</span><span class="p">,</span> <span class="n">Statement</span><span class="p">,</span>
     <span class="p">)</span>
 
 
-<div class="viewcode-block" id="load_mdf"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb.load_mdf">[docs]</a><span class="k">def</span> <span class="nf">load_mdf</span><span class="p">(</span><span class="n">mdf</span><span class="p">,</span> <span class="n">mdb</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="load_mdf">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb.load_mdf">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_mdf</span><span class="p">(</span><span class="n">mdf</span><span class="p">,</span> <span class="n">mdb</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an MDF object into an MDB instance&quot;&quot;&quot;</span>
     <span class="n">load_model</span><span class="p">(</span><span class="n">mdf</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">mdb</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">mdb</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="load_model">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb.load_model">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">mdb</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a model object into an MDB instance.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mdb</span><span class="p">,</span> <span class="n">WriteableMDB</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;mdb object must be a WriteableMDB&quot;</span><span class="p">)</span>
@@ -106,7 +110,10 @@
         <span class="n">mdb</span><span class="o">.</span><span class="n">put_with_statement</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">),</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="load_model_statements"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb.load_model_statements">[docs]</a><span class="k">def</span> <span class="nf">load_model_statements</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="load_model_statements">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb.load_model_statements">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_model_statements</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create Cypher statements from a model to load it de novo into an</span>
 <span class="sd">    MDB instance.</span>
@@ -235,7 +242,10 @@
     <span class="k">return</span> <span class="n">cStatements</span></div>
 
 
-<div class="viewcode-block" id="_cEntity"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._cEntity">[docs]</a><span class="k">def</span> <span class="nf">_cEntity</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
+
+<div class="viewcode-block" id="_cEntity">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._cEntity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_cEntity</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
     <span class="n">label</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="n">cEnt</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -288,7 +298,10 @@
     <span class="k">return</span> <span class="n">cEnt</span></div>
 
 
-<div class="viewcode-block" id="_tag_statements"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._tag_statements">[docs]</a><span class="k">def</span> <span class="nf">_tag_statements</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">cEnt</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
+
+<div class="viewcode-block" id="_tag_statements">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._tag_statements">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_tag_statements</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">cEnt</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
     <span class="n">stmts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">cTags</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
@@ -306,7 +319,10 @@
     <span class="k">return</span> <span class="n">stmts</span></div>
 
 
-<div class="viewcode-block" id="_prop_statements"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._prop_statements">[docs]</a><span class="k">def</span> <span class="nf">_prop_statements</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">cEnt</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
+
+<div class="viewcode-block" id="_prop_statements">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._prop_statements">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prop_statements</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">cEnt</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
     <span class="n">stmts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="n">cProp</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
@@ -330,7 +346,10 @@
     <span class="k">return</span> <span class="n">stmts</span></div>
 
 
-<div class="viewcode-block" id="_annotate_statements"><a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._annotate_statements">[docs]</a><span class="k">def</span> <span class="nf">_annotate_statements</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">cEnt</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
+
+<div class="viewcode-block" id="_annotate_statements">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._annotate_statements">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_annotate_statements</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">cEnt</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
     <span class="n">stmts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ent</span><span class="o">.</span><span class="n">concept</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
@@ -358,6 +377,7 @@
             <span class="p">),</span>
         <span class="p">])</span>
     <span class="k">return</span> <span class="n">stmts</span></div>
+
 </pre></div>
 
            </div>
@@ -367,7 +387,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, FNLCR.</p>
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

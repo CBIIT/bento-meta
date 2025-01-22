@@ -222,7 +222,7 @@ ____________________________
 
 .. py:class:: Entity
 
-Base class for all metamodel objects. Posesses the following attributes:
+ Posesses the following attributes:
 
   .. py:attribute:: entity._id
        :type: simple
@@ -253,6 +253,8 @@ Subclass that models a data node. Posesses all :class:`Entity` attributes, plus 
        :type: simple
   .. py:attribute:: node.nanoid
        :type: simple
+  .. py:attribute:: node.version
+       :type: simple
   .. py:attribute:: node.concept
        :type: Concept
   .. py:attribute:: node.props
@@ -267,6 +269,8 @@ Subclass that models a relationship between model nodes. Posesses all :class:`En
   .. py:attribute:: edge.model
        :type: simple
   .. py:attribute:: edge.nanoid
+       :type: simple
+  .. py:attribute:: edge.version
        :type: simple
   .. py:attribute:: edge.multiplicity
        :type: simple
@@ -291,6 +295,8 @@ Subclass that models a property of a node or relationship (edge). Posesses all :
        :type: simple
   .. py:attribute:: property.nanoid
        :type: simple
+  .. py:attribute:: property.version
+       :type: simple
   .. py:attribute:: property.value_domain
        :type: simple
   .. py:attribute:: property.units
@@ -300,6 +306,16 @@ Subclass that models a property of a node or relationship (edge). Posesses all :
   .. py:attribute:: property.item_domain
        :type: simple
   .. py:attribute:: property.is_required
+       :type: simple
+  .. py:attribute:: property.is_key
+       :type: simple
+  .. py:attribute:: property.is_nullable
+       :type: simple
+  .. py:attribute:: property.is_deprecated
+       :type: simple
+  .. py:attribute:: property.is_strict
+       :type: simple
+  .. py:attribute:: property._parent_handle
        :type: simple
   .. py:attribute:: property.concept
        :type: Concept
@@ -368,4 +384,6 @@ Subclass that allows simple key-value tagging of a model at arbitrary points. Po
        :type: simple
   .. py:attribute:: tag.value
        :type: simple
+  .. py:attribute:: tag._parent
+       :type: Entity
 

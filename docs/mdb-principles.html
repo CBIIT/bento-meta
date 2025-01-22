@@ -1,23 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Metamodel Database (MDB) Principles &mdash; bento-meta  documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -86,9 +85,9 @@
            <div itemprop="articleBody">
              
   <section id="metamodel-database-mdb-principles">
-<h1>Metamodel Database (MDB) Principles<a class="headerlink" href="#metamodel-database-mdb-principles" title="Permalink to this heading"></a></h1>
+<h1>Metamodel Database (MDB) Principles<a class="headerlink" href="#metamodel-database-mdb-principles" title="Link to this heading"></a></h1>
 <section id="mdb-motivation-and-rationale">
-<h2>MDB Motivation and Rationale<a class="headerlink" href="#mdb-motivation-and-rationale" title="Permalink to this heading"></a></h2>
+<h2>MDB Motivation and Rationale<a class="headerlink" href="#mdb-motivation-and-rationale" title="Link to this heading"></a></h2>
 <p>The MDB schema is intended to be simple in structure, without a profusion of different classes for specialized entities. At the same time, enough entities are provided to enable a separation between an entity and its semantic meaning as represented in the MDB.
 The goals are:</p>
 <ul class="simple">
@@ -99,7 +98,7 @@ The goals are:</p>
 <p>A key aspect of the MDB, one that distinguishes it from systems that serve similar purposes, is that it is meant to be responsive and dynamic – easily and perhaps frequently changed and updated. An MDB requires curation and quality management, but it is not devised to be a standard reference or a database of record. Its value is increased by incorporating stable entities from external such references (e.g., the <a class="reference external" href="https://ncit.nci.nih.gov/ncitbrowser/">NCIt</a>), but it is designed as a tool to assist data SMEs who are managing new or rapidly changing data resources, characterized by frequent data augmentation, addition of new data sources, or modification of data models or structures, often based on scientific considerations or policy decisions.</p>
 </section>
 <section id="mdb-design-decisions">
-<h2>MDB Design Decisions<a class="headerlink" href="#mdb-design-decisions" title="Permalink to this heading"></a></h2>
+<h2>MDB Design Decisions<a class="headerlink" href="#mdb-design-decisions" title="Link to this heading"></a></h2>
 <p>This milieu in which the MDB operates leads to the following design decisions and usage conventions:</p>
 <ul class="simple">
 <li><p><em>Creating, updating, and reading information from the MDB must be easy and intuitive for data management subject matter experts (SME).</em></p></li>
@@ -122,7 +121,7 @@ The goals are:</p>
 <p>An MDB may capture this pragmatic synonymy to support the task of aligning and aggregating data, without representing an subject matter opinion or implying any universal statement about the two concepts.</p>
 </section>
 <section id="mdb-entities-and-structures">
-<h2>MDB Entities and Structures<a class="headerlink" href="#mdb-entities-and-structures" title="Permalink to this heading"></a></h2>
+<h2>MDB Entities and Structures<a class="headerlink" href="#mdb-entities-and-structures" title="Link to this heading"></a></h2>
 <p>A basic working principle is that a data model of almost any type can be rendered usefully as a <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph">graph</a>, containing</p>
 <ul class="simple" id="nodes-relationships-properties">
 <li><p><em>Nodes</em> - logical data groupings</p></li>
@@ -159,7 +158,7 @@ In this example, Nodes from different models that group infomation bearing on di
 <p>The Predicate is also abstract entity, which can be linked to its own Concept entity, annotated by a Term. In practice, this fully general structure may not be required, especially if the entity it is meant to be used to facilitate mapping and not to be visible per se to the end users of an implementation. For example, a Predicate to indicate a hierarchical relationship may simply have a handle <code class="docutils literal notranslate"><span class="pre">broader</span></code> or <code class="docutils literal notranslate"><span class="pre">is_a</span></code> and an additional attribute indicating a formal source (<a class="reference external" href="https://www.w3.org/TR/skos-reference/#broader">skos:broader</a>).</p>
 </section>
 <section id="models-and-meanings">
-<h2>Models and Meanings<a class="headerlink" href="#models-and-meanings" title="Permalink to this heading"></a></h2>
+<h2>Models and Meanings<a class="headerlink" href="#models-and-meanings" title="Link to this heading"></a></h2>
 <p>A helpful way to think of an MDB is to consider it as a layering of three views or functions on a data model:</p>
 <ul class="simple">
 <li><p>Structure: consisting of Models, Nodes, Relationships, and Properties;</p></li>
