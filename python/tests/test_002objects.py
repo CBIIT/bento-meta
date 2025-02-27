@@ -47,6 +47,7 @@ def test_init_and_link_objects():
     [o] = [x for x in term.belongs.values()]
     assert o == concept
     assert of_sample.src.concept.terms["sample"].value == "sample"
+    assert of_sample.src.annotations["sample"].value == "sample"    
     pred = Predicate({"subject": concept, "object": other_concept, "handle": "isa"})
     assert type(pred.subject) == Concept
     assert type(pred.object) == Concept

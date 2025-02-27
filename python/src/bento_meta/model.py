@@ -185,6 +185,10 @@ class Model:
             prop = Property(prop)
         if not prop.model:
             prop.model = self.handle
+        if prop.value_domain == 'value_set' and not prop.value_set:
+            warn("(add_prop) Creating ValueSet object for Property " + prop.handle)
+            prop.value_set = ValueSet({"prop": prop, "_id": str(uuid4())})
+            prop.value_set.handle = self.handle + prop.value_set._id[0:8]
         key = [ent.handle] if isinstance(ent, Node) else list(ent.triplet)
         key.append(prop.handle)
         ent.props[getattr(prop, type(prop).mapspec()["key"])] = prop
@@ -232,7 +236,7 @@ class Model:
                 "Property value domain is not value_set or enum, can't add terms",
             )
         if not prop.value_set:
-            warn("Creating ValueSet object for Property " + prop.handle)
+            warn("(add_terms) Creating ValueSet object for Property " + prop.handle)
             prop.value_set = ValueSet({"prop": prop, "_id": str(uuid4())})
             prop.value_set.handle = self.handle + prop.value_set._id[0:8]
 

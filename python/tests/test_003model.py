@@ -26,6 +26,7 @@ def test_create_model():
     assert model.props[("case", "days_to_enrollment")]
     model.annotate(case, Term({"value": "case", "origin_name": "CTOS"}))
     assert model.nodes["case"].concept.terms[("case", "CTOS")]
+    assert model.nodes["case"].annotations[("case", "CTOS")]
     model.add_node({"handle": "sample"})
     assert model.nodes["sample"]
     assert isinstance(model.nodes["sample"], Node)
@@ -45,6 +46,7 @@ def test_create_model():
         Term({"value": "case_id", "origin_name": "CTOS"}),
     )
     assert case_id.concept.terms[("case_id", "CTOS")]
+    assert case_id.annotations[("case_id", "CTOS")]
     model.add_edge(of_case)
     assert model.edges[("of_case", "sample", "case")]
     assert model.contains(of_case.props["operator"])
@@ -55,6 +57,7 @@ def test_create_model():
     )
     model.annotate(of_case, Term({"value": "of_case", "origin_name": "CTOS"}))
     assert model.edges[("of_case", "sample", "case")].concept.terms[("of_case", "CTOS")]
+    assert model.edges[("of_case", "sample", "case")].annotations[("of_case", "CTOS")]
     dx = Property({"handle": "diagnosis", "value_domain": "value_set"})
     tm = Term({"value": "CRS", "origin_name": "Marilyn"})
     model.add_prop(case, dx)

@@ -68,6 +68,16 @@ class Node(Entity):
     def __init__(self, init=None):
         super().__init__(init=init)
 
+    @property
+    def annotations(self):
+        """
+        If the `Node` is annotated by `Term`s via a `Concept`,
+        return the `Term`s
+        """
+        if self.concept:
+            return self.concept.terms
+        else:
+            return None
 
 class Property(Entity):
     """Subclass that models a property of a node or relationship (edge)."""
@@ -123,6 +133,17 @@ class Property(Entity):
     def __init__(self, init=None):
         super().__init__(init=init)
         self.value_types = []
+
+    @property
+    def annotations(self):
+        """
+        If the `Property` is annotated by `Term`s via a `Concept`,
+        return the `Term`s
+        """
+        if self.concept:
+            return self.concept.terms
+        else:
+            return None
 
     @property
     def terms(self):
@@ -188,6 +209,17 @@ class Edge(Entity):
 
     def __init__(self, init=None):
         super().__init__(init=init)
+
+    @property
+    def annotations(self):
+        """
+        If the `Edge` is annotated by `Term`s via a `Concept`,
+        return the `Term`s
+        """
+        if self.concept:
+            return self.concept.terms
+        else:
+            return None
 
     @property
     def triplet(self):

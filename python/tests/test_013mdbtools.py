@@ -11,7 +11,7 @@ from bento_meta.mdb.mdb_tools import EntityValidator, ToolsMDB
 from bento_meta.objects import Concept, Edge, Entity, Node, Property, Term, ValueSet
 from bento_meta.util.cypher.entities import G, N, R, T
 
-
+@pytest.mark.slow
 class TestToolsMDB:
     """
     Test suite for the ToolsMDB class. It includes tests for initializing ToolsMDB,
