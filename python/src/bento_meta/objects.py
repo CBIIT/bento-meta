@@ -76,8 +76,8 @@ class Node(Entity):
         """
         if self.concept:
             return self.concept.terms
-        else:
-            return None
+        return None
+
 
 class Property(Entity):
     """Subclass that models a property of a node or relationship (edge)."""
@@ -142,8 +142,7 @@ class Property(Entity):
         """
         if self.concept:
             return self.concept.terms
-        else:
-            return None
+        return None
 
     @property
     def terms(self):
@@ -153,8 +152,7 @@ class Property(Entity):
         """
         if self.value_set:
             return self.value_set.terms
-        else:
-            return None
+        return None
 
     @property
     def values(self):
@@ -218,8 +216,7 @@ class Edge(Entity):
         """
         if self.concept:
             return self.concept.terms
-        else:
-            return None
+        return None
 
     @property
     def triplet(self):
@@ -417,7 +414,7 @@ class Model(Entity):
         "repository": "simple",
         "nanoid": "simple",
         "version": "simple",
-        "latest_version": "simple",
+        "is_latest_version": "simple",
     }
     mapspec_ = {
         "label": "model",
@@ -427,11 +424,11 @@ class Model(Entity):
             "name": "name",
             "repository": "repository",
             "version": "version",
-            "latest_version": "latest_version",
+            "is_latest_version": "is_latest_version",
         },
     }
     (attspec, _mapspec) = mergespec("Model", attspec_, mapspec_)
-    defaults = {"latest_version": False}
+    defaults = {"is_latest_version": False}
 
     def __init__(self, init=None):
         super().__init__(init=init)
