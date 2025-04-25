@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
     ci-cd:
-      uses: CBIIT/bento-workflows/.github/workflows/ci-cd.yml@c1fc92ea00e7a8960b4dfd9306eb3e985821d37f
+      uses: CBIIT/bento-workflows/.github/workflows/ci-cd.yml@24a75ede6370fcdf8a4792e53f17607138e127db
       with:
         workdir: ./python
         versions: |
