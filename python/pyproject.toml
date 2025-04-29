@@ -37,7 +37,7 @@ PyYAML = ">=6.0.1"
 delfick-project = "^0.7.9"
 neo4j = ">=4.0"
 nanoid = "^2.0.0"
-requests = "2.31.0"
+requests = "2.32.2"
 tqdm = "^4.64.1"
 setuptools = "^65.4.1"
 numpy = {version = "^1.23.5", optional = true}
