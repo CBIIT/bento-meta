@@ -3,6 +3,7 @@ ToolsMDB: subclass of 'WriteableMDB' to support interactions with the MDB.
 
 EntityValidator: validates that entities have required attributes.
 """
+
 import csv
 import logging
 from importlib.util import find_spec
@@ -104,7 +105,10 @@ class ToolsMDB(WriteableMDB):
         If count > 1, more attributes needed to uniquely id pattern in MDB.
         """
         stmt = Statement(
-            Match(pattern), Return(count("*")), As("pattern_count"), use_params=True
+            Match(pattern),
+            Return(count("*")),
+            As("pattern_count"),
+            use_params=True,
         )
 
         qry = str(stmt)
@@ -125,7 +129,6 @@ class ToolsMDB(WriteableMDB):
             necessarily required to locate an entity in the MDB.
             (e.g. handle and model OR nanoid alone can identify a node)
         """
-
         ent_count = int(self._get_entity_count(entity)[0])
         if ent_count > 1:
             logger.error(str(self.EntityNotUniqueError))
@@ -153,20 +156,20 @@ class ToolsMDB(WriteableMDB):
             logger.error(
                 str(
                     self.PatternNotUniqueError(
-                        f"Pattern: {pattern.pattern()} not unique."
-                    )
-                )
+                        f"Pattern: {pattern.pattern()} not unique.",
+                    ),
+                ),
             )
             raise self.PatternNotUniqueError(
-                f"Pattern: {pattern.pattern()} not unique."
+                f"Pattern: {pattern.pattern()} not unique.",
             )
         if pattern_count < 1:
             logger.error(
                 str(
                     self.PatternNotFoundError(
-                        f"Pattern: {pattern.pattern()} not found."
-                    )
-                )
+                        f"Pattern: {pattern.pattern()} not found.",
+                    ),
+                ),
             )
             raise self.PatternNotFoundError(f"Pattern: {pattern.pattern()} not found.")
 
@@ -233,14 +236,16 @@ class ToolsMDB(WriteableMDB):
         parms = stmt.params
 
         logging.info(
-            f"Merging new {ent_label} node with properties: {ent_attrs} into the MDB"
+            f"Merging new {ent_label} node with properties: {ent_attrs} into the MDB",
         )
 
         return (qry, parms)
 
     @read_txn_value
     def get_concept_nanoids_linked_to_entity(
-        self, entity: Entity, mapping_source: Optional[str] = None
+        self,
+        entity: Entity,
+        mapping_source: Optional[str] = None,
     ):
         """
         Returns list of concept nanoids linked to given entity by
@@ -318,7 +323,7 @@ class ToolsMDB(WriteableMDB):
         logging.info(
             f"Adding {relationship_type} relationship between src {src.label} with "
             f"properties: {src_entity.get_attr_dict()} to dst {dst.label} "
-            f"with properties: {dst_entity.get_attr_dict()}"
+            f"with properties: {dst_entity.get_attr_dict()}",
         )
         return (qry, parms)
 
@@ -344,10 +349,12 @@ class ToolsMDB(WriteableMDB):
         self.validate_entities_unique([entity_1, entity_2])
 
         ent_1_concepts = self.get_concept_nanoids_linked_to_entity(
-            entity=entity_1, mapping_source=mapping_source
+            entity=entity_1,
+            mapping_source=mapping_source,
         )
         ent_2_concepts = self.get_concept_nanoids_linked_to_entity(
-            entity=entity_2, mapping_source=mapping_source
+            entity=entity_2,
+            mapping_source=mapping_source,
         )
         shared_concepts = list(set(ent_1_concepts).intersection(ent_2_concepts))
 
@@ -355,7 +362,7 @@ class ToolsMDB(WriteableMDB):
         if shared_concepts:
             logging.warning(
                 f"This mapping has already been added by this source via "
-                f"Concept with nanoid: {shared_concepts[0]}"
+                f"Concept with nanoid: {shared_concepts[0]}",
             )
             return
 
@@ -375,7 +382,7 @@ class ToolsMDB(WriteableMDB):
                         "key": "mapping_source",
                         "value": mapping_source,
                         "nanoid": make_nanoid(),
-                    }
+                    },
                 ),
                 entity=concept,
             )
@@ -587,7 +594,8 @@ class ToolsMDB(WriteableMDB):
         for nanoid in c2_predicate_nanoids:
             predicate = Predicate({"nanoid": nanoid})
             predicate_rel = self.get_relationship_between_entities(
-                src_entity=predicate, dst_entity=concept_2
+                src_entity=predicate,
+                dst_entity=concept_2,
             )[0]
             c2_predicates_with_rel.append((predicate, predicate_rel))
 
@@ -627,7 +635,9 @@ class ToolsMDB(WriteableMDB):
         return (qry, parms)
 
     def get_potential_term_synonyms(
-        self, term: Term, threshhold: float = 0.8
+        self,
+        term: Term,
+        threshhold: float = 0.8,
     ) -> List[dict]:
         """
         Returns list of dicts representing potential Term nodes synonymous to given Term
@@ -661,7 +671,9 @@ class ToolsMDB(WriteableMDB):
         return synonyms_sorted
 
     def potential_synonyms_to_csv(
-        self, input_data: List[dict], output_path: str
+        self,
+        input_data: List[dict],
+        output_path: str,
     ) -> None:
         """Given a list of synonymous Terms as dicts, outputs to CSV file at given output path"""
         with open(output_path, "w", encoding="utf8", newline="") as output_file:
@@ -670,7 +682,11 @@ class ToolsMDB(WriteableMDB):
             dict_writer.writerows(input_data)
 
     def link_term_synonyms_csv(
-        self, term: Term, csv_path: str, mapping_source: str, _commit: str = ""
+        self,
+        term: Term,
+        csv_path: str,
+        mapping_source: str,
+        _commit: str = "",
     ) -> None:
         """Given a CSV of syonymous Terms, links each via a Concept node to given Term"""
         with open(csv_path, encoding="UTF-8") as csvfile:
@@ -725,7 +741,7 @@ class ToolsMDB(WriteableMDB):
 
     def _get_property_synonyms_direct_as_list(self, entity: Property) -> List[Property]:
         """
-        converts results of read_txn_data-wrapped function
+        Converts results of read_txn_data-wrapped function
         with one item to a simple list of bento_meta.objects.Property entities
         """
         data = self.get_property_synonyms_direct(entity)
@@ -754,8 +770,10 @@ class ToolsMDB(WriteableMDB):
 
     @read_txn_data
     def _get_property_parents_data(self, entity: Property):
-        """get list of nodes/edges connected to given property
-        via the "has_property" relationship"""
+        """
+        Get list of nodes/edges connected to given property
+        via the "has_property" relationship
+        """
         self.validate_entity_unique(entity)
         p_attrs = entity.get_attr_dict()
         child_prop = N(label="property", props=p_attrs)
@@ -786,7 +804,7 @@ class ToolsMDB(WriteableMDB):
 
     def get_property_parents(self, entity: Property) -> List[Union[Node, Edge]]:
         """
-        returns results of _get_property_parents_data as a list of
+        Returns results of _get_property_parents_data as a list of
         bento_meta Nodes or Edges
         """
         self.validate_entity_unique(entity)
@@ -801,7 +819,9 @@ class ToolsMDB(WriteableMDB):
         self.validate_entity_unique(entity)
         self.add_entity_to_mdb(tag)
         self.add_relationship_to_mdb(
-            relationship_type="has_tag", src_entity=entity, dst_entity=tag
+            relationship_type="has_tag",
+            src_entity=entity,
+            dst_entity=tag,
         )
 
 
@@ -826,7 +846,7 @@ class EntityValidator:
             "broader",
             "narrower",
             "related",
-        }
+        },
     }
 
     class MissingAttributeError(Exception):
@@ -840,7 +860,7 @@ class EntityValidator:
         """Validates the presence of an entity's attribute"""
         if not getattr(entity, attr_name):
             raise EntityValidator.MissingAttributeError(
-                f"{entity.__class__.__name__} needs a {attr_name} attribute"
+                f"{entity.__class__.__name__} needs a {attr_name} attribute",
             )
 
     @staticmethod
@@ -851,7 +871,7 @@ class EntityValidator:
         if valid_attrs and getattr(entity_type, attr_name) not in valid_attrs:
             raise EntityValidator.InvalidAttributeError(
                 f"{entity_type.__name__} {attr_name} must be one of: "
-                f"{', '.join(list(valid_attrs))}"
+                f"{', '.join(list(valid_attrs))}",
             )
 
     @staticmethod
