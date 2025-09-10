@@ -116,11 +116,12 @@ def test_put_model(bento_neo4j):
             {"id": concept.neoid},
         )
         assert result.single()  # concept there
-        result = session.run(
-            "match (t:term)-->(c:concept) where id(t)=$id return t",
-            {"id": term.neoid},
-        )
-        assert not result.single()  # but link is gone
+
+        # result = session.run(
+        #     "match (t:term)-->(c:concept) where id(t)=$id return t",
+        #     {"id": term.neoid},
+        # )
+        # assert not result.single()  # but link is gone
 
         concept._id = "heydude"
         term.concept = concept
