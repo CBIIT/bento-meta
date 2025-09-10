@@ -7,18 +7,30 @@ in representing the models contained in the `MDB <https://github.com/CBIIT/bento
 
 """
 
+from __future__ import annotations
+
 import sys
 
 sys.path.append("..")
 from copy import deepcopy
+from typing import TYPE_CHECKING
+from warnings import warn
 
 from bento_meta.entity import Entity
 
+if TYPE_CHECKING:
+    import neo4j
 
-def mergespec(clsname, attspec, mapspec):
+
+def mergespec(
+    clsname: str,
+    attspec: dict[str, str],
+    mapspec: dict[str, str | dict[str, str]],
+) -> tuple[dict[str, str], dict[str, str | dict[str, str]]]:
     """
-    Merge subclass attribute and mapping specification dicts with the
-    base class's. Not for human consumption.
+    Merge subclass attribute and mapping specification dicts with the base class's.
+
+    Not for human consumption.
     """
     spec = deepcopy(attspec)
     spec.update(Entity.attspec_)
@@ -46,7 +58,6 @@ class Node(Entity):
         "version": "simple",
         "concept": "object",
         "props": "collection",
-        "version": "simple",
     }
     mapspec_ = {
         "label": "node",
@@ -65,7 +76,8 @@ class Node(Entity):
     }
     (attspec, _mapspec) = mergespec("Node", attspec_, mapspec_)
 
-    def __init__(self, init=None):
+    def __init__(self, init: dict | neo4j.graph.Node | Node | None = None) -> None:
+        """Initialize a `Node` instance."""
         super().__init__(init=init)
 
     @property
@@ -77,6 +89,24 @@ class Node(Entity):
         if self.concept:
             return self.concept.terms
         return None
+
+    def get_key_prop(self) -> Property | list[Property] | None:
+        """
+        Return the `Property` entity with `is_key=True` for this `Node` if it exists.
+
+        If multiple key props exist, return a list of them; if none exist, return None.
+        """
+        if not self.props.values():
+            warn("No properties found for Node - returning None", stacklevel=2)
+            return None
+        keys = [p for p in self.props.values() if p.is_key]
+        if not keys:
+            warn("No key properties found for Node - returning None", stacklevel=2)
+            return None
+        if len(keys) == 1:
+            return keys[0]
+        warn("Multiple key properties found for Node - returning all", stacklevel=2)
+        return keys
 
 
 class Property(Entity):
@@ -129,16 +159,14 @@ class Property(Entity):
     (attspec, _mapspec) = mergespec("Property", attspec_, mapspec_)
     defaults = {"value_domain": "TBD"}
 
-    def __init__(self, init=None):
+    def __init__(self, init: dict | neo4j.graph.Node | Property | None = None) -> None:
+        """Initialize a `Property` instance."""
         super().__init__(init=init)
         self.value_types = []
 
     @property
     def annotations(self):
-        """
-        If the `Property` is annotated by `Term`s via a `Concept`,
-        return the `Term`s
-        """
+        """If the `Property` is annotated by `Term`s via a `Concept`, return the `Term`s."""
         if self.concept:
             return self.concept.terms
         return None
@@ -203,7 +231,8 @@ class Edge(Entity):
     }
     (attspec, _mapspec) = mergespec("Edge", attspec_, mapspec_)
 
-    def __init__(self, init=None):
+    def __init__(self, init: dict | neo4j.graph.Node | Edge | None = None) -> None:
+        """Initialize an `Edge` instance."""
         super().__init__(init=init)
 
     @property
@@ -264,7 +293,8 @@ class Term(Entity):
     }
     (attspec, _mapspec) = mergespec("Term", attspec_, mapspec_)
 
-    def __init__(self, init=None):
+    def __init__(self, init: dict | neo4j.graph.Node | Term | None = None) -> None:
+        """Initialize a `Term` instance."""
         super().__init__(init=init)
 
 
@@ -303,7 +333,8 @@ class ValueSet(Entity):
     }
     (attspec, _mapspec) = mergespec("ValueSet", attspec_, mapspec_)
 
-    def __init__(self, init=None):
+    def __init__(self, init: dict | neo4j.graph.Node | ValueSet | None = None) -> None:
+        """Initialize a `ValueSet` instance."""
         super().__init__(init=init)
 
     # @property
@@ -335,7 +366,8 @@ class Concept(Entity):
     }
     (attspec, _mapspec) = mergespec("Concept", attspec_, mapspec_)
 
-    def __init__(self, init=None):
+    def __init__(self, init: dict | neo4j.graph.Node | Concept | None = None) -> None:
+        """Initialize a `Concept` instance."""
         super().__init__(init=init)
 
 
@@ -357,7 +389,7 @@ class Predicate(Entity):
     }
     (attspec, _mapspec) = mergespec("Predicate", attspec_, mapspec_)
 
-    def __init__(self, init=None):
+    def __init__(self, init: dict | neo4j.graph.Node | Predicate | None = None) -> None:
         super().__init__(init=init)
 
 
@@ -383,7 +415,8 @@ class Origin(Entity):
     }
     (attspec, _mapspec) = mergespec("Origin", attspec_, mapspec_)
 
-    def __init__(self, init=None):
+    def __init__(self, init: dict | neo4j.graph.Node | Origin | None = None) -> None:
+        """Initialize an `Origin` instance."""
         super().__init__(init=init)
 
 
@@ -399,7 +432,7 @@ class Tag(Entity):
     }
     (attspec, _mapspec) = mergespec("Tag", attspec_, mapspec_)
 
-    def __init__(self, init=None):
+    def __init__(self, init: dict | neo4j.graph.Node | Tag | None = None) -> None:
         super().__init__(init=init)
 
 
@@ -428,5 +461,6 @@ class Model(Entity):
     (attspec, _mapspec) = mergespec("Model", attspec_, mapspec_)
     defaults = {"is_latest_version": False}
 
-    def __init__(self, init=None):
+    def __init__(self, init: dict | neo4j.graph.Node | Model | None = None) -> None:
+        """Initialize a `Model` instance."""
         super().__init__(init=init)

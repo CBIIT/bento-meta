@@ -47,7 +47,7 @@ def test_init_and_link_objects():
     [o] = [x for x in term.belongs.values()]
     assert o == concept
     assert of_sample.src.concept.terms["sample"].value == "sample"
-    assert of_sample.src.annotations["sample"].value == "sample"    
+    assert of_sample.src.annotations["sample"].value == "sample"
     pred = Predicate({"subject": concept, "object": other_concept, "handle": "isa"})
     assert type(pred.subject) == Concept
     assert type(pred.object) == Concept
@@ -121,3 +121,18 @@ def test_some_object_methods():
     assert vs.get_label() == "value_set"
     assert s.get_label() == "node"
     assert e.get_label() == "relationship"
+
+
+def test_get_key_prop() -> None:
+    """Test get_key_prop() method."""
+    pk1 = Property({"handle": "major_key", "is_key": True})
+    pk2 = Property({"handle": "minor_key", "is_key": True})
+    nk1 = Property({"handle": "keyless", "is_key": False})
+    n = Node({"handle": "lock", "model": "test"})
+    assert n.get_key_prop() is None
+    n.props[pk1.handle] = pk1
+    assert n.get_key_prop() == pk1
+    n.props[nk1.handle] = nk1
+    assert n.get_key_prop() == pk1
+    n.props[pk2.handle] = pk2
+    assert n.get_key_prop() == [pk1, pk2]
