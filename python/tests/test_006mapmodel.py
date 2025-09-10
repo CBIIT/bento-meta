@@ -9,6 +9,7 @@ from bento_meta.model import Model
 from bento_meta.object_map import ObjectMap
 from bento_meta.objects import Term
 
+from pdb import set_trace
 
 @pytest.mark.docker()
 def test_get_model(bento_neo4j):
@@ -94,12 +95,15 @@ def test_put_model(bento_neo4j):
     term = m.props[("demographic", "sex")].terms["M"]
     assert term.concept
     assert term.concept._id == "337c0e4f-506a-4f4e-95f6-07c3462b81ff"
-
     concept = term.concept
     assert term in concept.belongs.values()
-    term.concept = None
-    assert term not in concept.belongs.values()
-    assert ("concept", concept) in term.removed_entities
+
+    ## just setting an attribute to None doesn't currently trigger belongs/removed
+    ## updates -- that is done in the Model update methods
+    # term.concept = None
+    # assert term not in concept.belongs.values()
+    # assert ("concept", concept) in term.removed_entities
+
     m.dput()
     with m.drv.session() as session:
         result = session.run(

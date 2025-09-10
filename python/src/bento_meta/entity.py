@@ -75,8 +75,6 @@ class Entity:
         },
     }
     object_map = None
-    version_count = None
-    versioning_on = False
 
     def __init__(self, init=None):
         """
@@ -116,8 +114,6 @@ class Entity:
                     setattr(self, att, CollValue({}, owner=self, owner_key=att))
                 else:
                     setattr(self, att, None)
-        if type(self).versioning_on:
-            self._from = type(self).version_count
 
     @classmethod
     def mapspec(cls):
@@ -125,31 +121,6 @@ class Entity:
         if not hasattr(cls, "_mapspec"):
             cls.mergespec()
         return cls._mapspec
-
-    @classmethod
-    def versioning(cls, on=None):
-        """
-        Get or set whether versioning is applied to object manipulations.
-
-            :param boolean on: True, apply versioning. False, do not.
-        """
-        if on is None:
-            return cls.versioning_on
-        cls.versioning_on = on
-        return cls.versioning_on
-
-    @classmethod
-    def set_version_count(cls, ct):
-        """
-        Set the integer version counter.
-
-        This will usually be accessed via a `bento_meta.Model` instance.
-
-            :param int ct: Set version counter to this value
-        """
-        if not isinstance(ct, int) or ct < 0:
-            raise ArgError("arg must be a positive integer")
-        cls.version_count = ct
 
     @classmethod
     def default(cls, propname):
@@ -187,11 +158,6 @@ class Entity:
     @dirty.setter
     def dirty(self, value):
         self.pvt["dirty"] = value
-
-    @property
-    def versioned(self):
-        """Is this instance versioned?"""
-        return self._from
 
     @property
     def removed_entities(self):
@@ -291,54 +257,6 @@ class Entity:
                 f"set: attribute '{name}' neither private nor declared for subclass {type(self).__name__}",
             )
 
-    def version_me(setattr_func):
-        def _version_set_declared_attr(self, name, value):
-            if not type(self).versioning_on:
-                return setattr_func(self, name, value)
-            if not self.versioned:
-                return setattr_func(self, name, value)
-            elif (type(self).version_count > self._from) and (self._to is None):
-                # dup becomes the "old" object and self the "new":
-                dup = self.dup()
-                dup._to = type(self).version_count
-                dup._from = self._from
-                self._from = type(self).version_count
-                if self._prev:
-                    dup._prev = self._prev
-                    self._prev._next = dup
-                dup._next = self
-                self._prev = dup
-                self.neoid = None
-                # make the owners own dup, rather than self - this is under the radar of
-                # version_me
-                for okey in dup.belongs:
-                    owner = dup.belongs[okey]
-                    (oid, *att) = okey
-                    if len(att) == 2:
-                        getattr(owner, att[0]).data[att[1]] = dup
-                    else:
-                        owner.__dict__[att[0]] = dup
-                setattr_func(self, name, value)  #
-                # this is on version_me's radar- dups the owning entity if nec
-                for okey in self.belongs:
-                    owner = self.belongs[okey]
-                    (oid, *att) = okey
-                    if len(att) == 2:
-                        getattr(owner, att[0])[att[1]] = self
-                    else:
-                        # if att[0]=='category':
-                        #   set_trace()
-                        setattr(owner, att[0], self)
-                    if owner._prev:
-                        # dup (old entity) needs to belong to the prev version of owner
-                        del dup.belongs[(id(owner), *att)]
-                        dup.belongs[(id(owner._prev), *att)] = owner._prev
-            else:
-                return setattr_func(self, name, value)
-
-        return _version_set_declared_attr
-
-    @version_me
     def _set_declared_attr(self, name, value):
         atts = type(self).attspec[name]
         if atts == "simple":
@@ -349,9 +267,6 @@ class Entity:
                 if oldval == value:
                     # a wash
                     return
-                if not self.versioned:
-                    del oldval.belongs[(id(self), name)]
-                    self.removed_entities.append((name, oldval))
             if isinstance(value, Entity):
                 value.belongs[(id(self), name)] = self
         elif atts == "collection":
@@ -414,25 +329,15 @@ class Entity:
     def delete(self):
         """
         Delete self from the database.
-
-        If versioning is active, this will 'deprecate' the entity, but not actually remove it from the db
         """
-        if self.versioning_on and self.versioned:
-            if type(self).version_count > self._from:
-                self._to = type(self).version_count
-            else:
-                warn(
-                    f"delete - current version count {type(self).version_count} is <= entity's _to attribute",
-                )
-        else:
             # unlink from other entities
-            for okey in self.belongs:
-                owner = self.belongs[okey]
-                (oid, *att) = okey
-                if len(att) == 2:
-                    del getattr(owner, att[0])[att[1]]
-                else:
-                    setattr(owner, att[0], None)
+        for okey in self.belongs:
+            owner = self.belongs[okey]
+            (oid, *att) = okey
+            if len(att) == 2:
+                del getattr(owner, att[0])[att[1]]
+            else:
+                setattr(owner, att[0], None)
 
     def dget(self, refresh=False):
         """
@@ -559,51 +464,6 @@ class CollValue(UserDict):
         """The attribute name of this collection on the `owner`."""
         return self.__dict__["__owner_key"]
 
-    def version_me(setitem_func):
-        def _version_set_collvalue_item(self, name, value):
-            if not self.owner.versioning_on:
-                return setitem_func(self, name, value)
-            if not self.owner.versioned:
-                return setitem_func(self, name, value)
-            elif (Entity.version_count > self.owner._from) and (self.owner._to is None):
-                # dup becomes the "old" object and self the "new":
-                dup = self.owner.dup()
-                dup._to = Entity.version_count
-                self.owner._from = Entity.version_count
-                if self.owner._prev:
-                    dup._prev = self.owner._prev
-                    self.owner._prev._next = dup
-                dup._next = self.owner
-                self.owner._prev = dup
-                self.owner.neoid = None
-                # make the owners own dup, rather than self.owner
-                for okey in dup.belongs:
-                    owner = dup.belongs[okey]
-                    (oid, *att) = okey
-                    if len(att) == 2:
-                        getattr(owner, att[0]).data[att[1]] = dup
-                    else:
-                        owner.__dict__[att[0]] = dup
-                setitem_func(self, name, value)
-                for okey in self.owner.belongs:
-                    owner = self.owner.belongs[okey]
-                    (oid, *att) = okey
-                    if len(att) == 2:
-                        getattr(owner, att[0])[att[1]] = (
-                            self.owner
-                        )  # this dups the owning entity if nec
-                    else:
-                        setattr(owner, att[0], self.owner)
-                    if owner._prev:
-                        # dup (old entity) needs to belong to the prev version of owner
-                        del dup.belongs[(id(owner), *att)]
-                        dup.belongs[(id(owner._prev), *att)] = owner._prev
-            else:
-                return setitem_func(self, name, value)
-
-        return _version_set_collvalue_item
-
-    @version_me
     def __setitem__(self, name, value):
         if not isinstance(value, Entity):
             raise ArgError(
@@ -615,9 +475,6 @@ class CollValue(UserDict):
                 if oldval == value:
                     # a wash
                     return
-                if not self.owner.versioned:
-                    del oldval.belongs[(id(self.owner), self.owner_key, name)]
-                    self.owner.removed_entities.append((self.owner_key, oldval))
         value.belongs[(id(self.owner), self.owner_key, name)] = self.owner
         # smudge the owner
         self.owner.dirty = 1

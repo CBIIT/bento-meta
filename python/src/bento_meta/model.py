@@ -58,31 +58,6 @@ class Model:
         if mdb:
             self.mdb = mdb
 
-    @classmethod
-    def versioning(cls, on=None):
-        """
-        Get or set versioning state.
-
-        :param boolean on: True, apply versioning. False, do not.
-
-        Note: this delegates to :meth:`Entity.versioning`.
-        """
-        if on is None:
-            return Entity.versioning_on
-        Entity.versioning_on = on
-        return Entity.versioning_on
-
-    @classmethod
-    def set_version_count(cls, ct):
-        """
-        Set the integer version counter.
-
-        :param int ct: Set version counter to this value.
-
-        Note: this delegates to :meth:`Entity.set_version_count`.
-        """
-        Entity.set_version_count(ct)
-
     @property
     def drv(self):
         """Neo4j database driver from MDB object"""
@@ -258,9 +233,6 @@ class Model:
 
         Note: A node can't be removed if it is participating in an edge (i.e.,
         if the node is some edge's src or dst attribute)
-
-        *Clarify what happens in the Model object, in the database when versioning
-        is off, in the database when versioning is on*
         """
         if not isinstance(node, Node):
             raise ArgError("arg must be a Node object")
@@ -288,8 +260,6 @@ class Model:
 
         :param Edge edge: Edge to be removed
 
-        *Clarify what happens in the Model object, in the database when versioning
-        is off, in the database when versioning is on*
         """
         if not isinstance(edge, Edge):
             raise ArgError("arg must be an Edge object")
@@ -317,8 +287,6 @@ class Model:
 
         :param Property prop: Property to be removed
 
-        *Clarify what happens in the Model object, in the database when versioning
-        is off, in the database when versioning is on*
         """
         if not isinstance(prop, Property):
             raise ArgError("arg must be a Property object")
