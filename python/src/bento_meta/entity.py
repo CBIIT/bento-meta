@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from collections import UserDict
 from typing import TYPE_CHECKING, Any
-from warnings import warn
 
 if TYPE_CHECKING:
     import neo4j
@@ -29,8 +28,7 @@ class Entity:
     Entity contains all the magic for metamodel objects such as
     `bento_meta.objects.Node` and 'bento_meta.object.Edge`. It will rarely
     be used directly. Entity redefines `__setattr__` and `__getattr__` to
-    enable necessary bookkeeping for model versioning and graph database
-    object mapping under the hood.
+    enable graph database object mapping under the hood.
 
     The Entity class also defines private and declared attributes that are
     common to all metamodel objects. It provides the machinery to manage
@@ -215,8 +213,6 @@ class Entity:
             raise ArgError(msg)
         for k in type(self).attspec:
             atts = type(self).attspec[k]
-            if k == "_next" or k == "_prev":
-                break
             if atts == "simple" or atts == "object":
                 setattr(self, k, getattr(ent, k))
             elif atts == "collection":
@@ -259,11 +255,7 @@ class Entity:
             self.__dict__["pvt"][name] = value
         elif name in type(self).attspec:
             self._check_value(name, value)
-            if name in ["_prev", "_next", "_from", "_to"]:
-                self.dirty = 1
-                self.__dict__[name] = value
-            else:
-                self._set_declared_attr(name, value)
+            self._set_declared_attr(name, value)
         else:
             msg = (
                 f"get: attribute '{name}' neither private nor declared "
@@ -334,18 +326,11 @@ class Entity:
             raise
 
     def dup(self):
-        """
-        Duplicate the object, but not too deeply.
-
-        Mainly for use of the versioning machinery.
-        """
+        """Duplicate the object, but not too deeply."""
         return type(self)(self)
 
     def delete(self) -> None:
-        """
-        Delete self from the database.
-        """
-
+        """Delete self from the database."""
         # unlink from other entities
         for okey in self.belongs:
             owner = self.belongs[okey]
@@ -451,8 +436,7 @@ class CollValue(UserDict):
     owns the value that is being set. The value is marked as belonging
     to the *containing object*, not this collection object.
     It also protects against adding arbitrarily typed elements to the
-    collection; it throws unless a value to set is an `Entity`. `__setitem__`
-    is instrumented for managing versioning.
+    collection; it throws unless a value to set is an `Entity`. `__setitem__`.
 
     :param owner: `Entity` object of which this collection is an attribute
     :param owner_key: the attribute name of this collection on the owner
