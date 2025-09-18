@@ -627,7 +627,7 @@ class ToolsMDB(WriteableMDB):
         """Returns list of all terms in an MDB."""
         term = N(label="term")
 
-        stmt = Statement(Match(term), Return(term.var))
+        stmt = Statement(Match(term), Return(term._var))
 
         qry = str(stmt)
         params = {}
