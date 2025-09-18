@@ -130,7 +130,6 @@ class Property(Entity):
         "concept": "object",
         "value_set": "object",
         "_parent_handle": "simple",
-        "version": "simple",
     }
     mapspec_ = {
         "label": "property",
@@ -210,7 +209,6 @@ class Edge(Entity):
         "dst": "object",
         "concept": "object",
         "props": "collection",
-        "version": "simple",
     }
     mapspec_ = {
         "label": "relationship",

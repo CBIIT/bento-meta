@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from collections import UserDict
 from typing import TYPE_CHECKING, Any
-from warnings import warn
 
 if TYPE_CHECKING:
     import neo4j
@@ -29,8 +28,7 @@ class Entity:
     Entity contains all the magic for metamodel objects such as
     `bento_meta.objects.Node` and 'bento_meta.object.Edge`. It will rarely
     be used directly. Entity redefines `__setattr__` and `__getattr__` to
-    enable necessary bookkeeping for model versioning and graph database
-    object mapping under the hood.
+    enable graph database object mapping under the hood.
 
     The Entity class also defines private and declared attributes that are
     common to all metamodel objects. It provides the machinery to manage
@@ -79,8 +77,6 @@ class Entity:
         },
     }
     object_map = None
-    version_count = None
-    versioning_on = False
 
     def __init__(self, init: dict | neo4j.graph.Node | Entity | None = None) -> None:
         """
@@ -124,8 +120,6 @@ class Entity:
                     setattr(self, att, CollValue({}, owner=self, owner_key=att))
                 else:
                     setattr(self, att, None)
-        if type(self).versioning_on:
-            self._from = type(self).version_count
 
     @classmethod
     def mapspec(cls) -> dict[str, str | dict[str, str]]:
@@ -139,34 +133,8 @@ class Entity:
         return cls._mapspec
 
     @classmethod
-    def versioning(cls, on: bool | None = None) -> bool:
-        """
-        Get or set whether versioning is applied to object manipulations.
-
-            :param boolean on: True, apply versioning. False, do not.
-        """
-        if on is None:
-            return cls.versioning_on
-        cls.versioning_on = on
-        return cls.versioning_on
-
-    @classmethod
-    def set_version_count(cls, ct: int) -> None:
-        """
-        Set the integer version counter.
-
-        This will usually be accessed via a `bento_meta.Model` instance.
-
-            :param int ct: Set version counter to this value
-        """
-        if not isinstance(ct, int) or ct < 0:
-            msg = "arg must be a positive integer"
-            raise ArgError(msg)
-        cls.version_count = ct
-
-    @classmethod
-    def default(cls, propname: str):
-        """Return a default value for the property named, or None if no default defined."""
+    def default(cls, propname):
+        """Returns a default value for the property named, or None if no default defined."""
         if cls.defaults.get(propname):
             return cls.defaults[propname]
         return None
@@ -198,11 +166,6 @@ class Entity:
     @dirty.setter
     def dirty(self, value):
         self.pvt["dirty"] = value
-
-    @property
-    def versioned(self):
-        """Is this instance versioned?"""
-        return self._from
 
     @property
     def removed_entities(self):
@@ -250,8 +213,6 @@ class Entity:
             raise ArgError(msg)
         for k in type(self).attspec:
             atts = type(self).attspec[k]
-            if k == "_next" or k == "_prev":
-                break
             if atts == "simple" or atts == "object":
                 setattr(self, k, getattr(ent, k))
             elif atts == "collection":
@@ -294,11 +255,7 @@ class Entity:
             self.__dict__["pvt"][name] = value
         elif name in type(self).attspec:
             self._check_value(name, value)
-            if name in ["_prev", "_next", "_from", "_to"]:
-                self.dirty = 1
-                self.__dict__[name] = value
-            else:
-                self._set_declared_attr(name, value)
+            self._set_declared_attr(name, value)
         else:
             msg = (
                 f"get: attribute '{name}' neither private nor declared "
@@ -306,55 +263,7 @@ class Entity:
             )
             raise AttributeError(msg)
 
-    def version_me(setattr_func):
-        def _version_set_declared_attr(self, name, value):
-            if not type(self).versioning_on:
-                return setattr_func(self, name, value)
-            if not self.versioned:
-                return setattr_func(self, name, value)
-            if (type(self).version_count > self._from) and (self._to is None):
-                # dup becomes the "old" object and self the "new":
-                dup = self.dup()
-                dup._to = type(self).version_count
-                dup._from = self._from
-                self._from = type(self).version_count
-                if self._prev:
-                    dup._prev = self._prev
-                    self._prev._next = dup
-                dup._next = self
-                self._prev = dup
-                self.neoid = None
-                # make the owners own dup, rather than self - this is under the radar of
-                # version_me
-                for okey in dup.belongs:
-                    owner = dup.belongs[okey]
-                    (oid, *att) = okey
-                    if len(att) == 2:
-                        getattr(owner, att[0]).data[att[1]] = dup
-                    else:
-                        owner.__dict__[att[0]] = dup
-                setattr_func(self, name, value)
-                # this is on version_me's radar- dups the owning entity if nec
-                for okey in self.belongs:
-                    owner = self.belongs[okey]
-                    (oid, *att) = okey
-                    if len(att) == 2:
-                        getattr(owner, att[0])[att[1]] = self
-                    else:
-                        # if att[0]=='category':
-                        #   set_trace()
-                        setattr(owner, att[0], self)
-                    if owner._prev:
-                        # dup (old entity) needs to belong to the prev version of owner
-                        del dup.belongs[(id(owner), *att)]
-                        dup.belongs[(id(owner._prev), *att)] = owner._prev
-            else:
-                return setattr_func(self, name, value)
-
-        return _version_set_declared_attr
-
-    @version_me
-    def _set_declared_attr(self, name: str, value: Any) -> None:  # noqa: ANN401
+    def _set_declared_attr(self, name, value):
         atts = type(self).attspec[name]
         if atts == "simple":
             pass
@@ -364,9 +273,6 @@ class Entity:
                 if oldval == value:
                     # a wash
                     return
-                if not self.versioned:
-                    del oldval.belongs[(id(self), name)]
-                    self.removed_entities.append((name, oldval))
             if isinstance(value, Entity):
                 value.belongs[(id(self), name)] = self
         elif atts == "collection":
@@ -420,38 +326,19 @@ class Entity:
             raise
 
     def dup(self):
-        """
-        Duplicate the object, but not too deeply.
-
-        Mainly for use of the versioning machinery.
-        """
+        """Duplicate the object, but not too deeply."""
         return type(self)(self)
 
     def delete(self) -> None:
-        """
-        Delete self from the database.
-
-        If versioning is active, this will 'deprecate' the entity, but not actually
-            remove it from the db.
-        """
-        if self.versioning_on and self.versioned:
-            if type(self).version_count > self._from:
-                self._to = type(self).version_count
+        """Delete self from the database."""
+        # unlink from other entities
+        for okey in self.belongs:
+            owner = self.belongs[okey]
+            (oid, *att) = okey
+            if len(att) == 2:
+                del getattr(owner, att[0])[att[1]]
             else:
-                msg = (
-                    f"delete - current version count {type(self).version_count} "
-                    f"is <= entity's _to attribute"
-                )
-                warn(msg, stacklevel=2)
-        else:
-            # unlink from other entities
-            for okey in self.belongs:
-                owner = self.belongs[okey]
-                (oid, *att) = okey
-                if len(att) == 2:
-                    del getattr(owner, att[0])[att[1]]
-                else:
-                    setattr(owner, att[0], None)
+                setattr(owner, att[0], None)
 
     def dget(self, *, refresh: bool = False):
         """
@@ -549,8 +436,7 @@ class CollValue(UserDict):
     owns the value that is being set. The value is marked as belonging
     to the *containing object*, not this collection object.
     It also protects against adding arbitrarily typed elements to the
-    collection; it throws unless a value to set is an `Entity`. `__setitem__`
-    is instrumented for managing versioning.
+    collection; it throws unless a value to set is an `Entity`. `__setitem__`.
 
     :param owner: `Entity` object of which this collection is an attribute
     :param owner_key: the attribute name of this collection on the owner
@@ -571,51 +457,6 @@ class CollValue(UserDict):
         """The attribute name of this collection on the `owner`."""
         return self.__dict__["__owner_key"]
 
-    def version_me(setitem_func):
-        def _version_set_collvalue_item(self, name, value):
-            if not self.owner.versioning_on:
-                return setitem_func(self, name, value)
-            if not self.owner.versioned:
-                return setitem_func(self, name, value)
-            if (Entity.version_count > self.owner._from) and (self.owner._to is None):
-                # dup becomes the "old" object and self the "new":
-                dup = self.owner.dup()
-                dup._to = Entity.version_count
-                self.owner._from = Entity.version_count
-                if self.owner._prev:
-                    dup._prev = self.owner._prev
-                    self.owner._prev._next = dup
-                dup._next = self.owner
-                self.owner._prev = dup
-                self.owner.neoid = None
-                # make the owners own dup, rather than self.owner
-                for okey in dup.belongs:
-                    owner = dup.belongs[okey]
-                    (oid, *att) = okey
-                    if len(att) == 2:
-                        getattr(owner, att[0]).data[att[1]] = dup
-                    else:
-                        owner.__dict__[att[0]] = dup
-                setitem_func(self, name, value)
-                for okey in self.owner.belongs:
-                    owner = self.owner.belongs[okey]
-                    (oid, *att) = okey
-                    if len(att) == 2:
-                        getattr(owner, att[0])[att[1]] = (
-                            self.owner
-                        )  # this dups the owning entity if nec
-                    else:
-                        setattr(owner, att[0], self.owner)
-                    if owner._prev:
-                        # dup (old entity) needs to belong to the prev version of owner
-                        del dup.belongs[(id(owner), *att)]
-                        dup.belongs[(id(owner._prev), *att)] = owner._prev
-            else:
-                return setitem_func(self, name, value)
-
-        return _version_set_collvalue_item
-
-    @version_me
     def __setitem__(self, name, value):
         if not isinstance(value, Entity):
             raise ArgError(
@@ -627,9 +468,6 @@ class CollValue(UserDict):
                 if oldval == value:
                     # a wash
                     return
-                if not self.owner.versioned:
-                    del oldval.belongs[(id(self.owner), self.owner_key, name)]
-                    self.owner.removed_entities.append((self.owner_key, oldval))
         value.belongs[(id(self.owner), self.owner_key, name)] = self.owner
         # smudge the owner
         self.owner.dirty = 1

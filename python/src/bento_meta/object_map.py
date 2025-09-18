@@ -10,11 +10,11 @@ in Neo4j. Mostly not for human consumption. The ObjectMap:
   specification (mapspec) associated with :class:`Entity` subclasses
 * provides the :meth:`get` and :meth:`put` methods to subclasses, that
   enable them to get and put themselves to the database
-* generates appropriate `Cypher <https://neo4j.com/docs/cypher-manual/current/>`_ queries to do gets and puts
-
-One ObjectMap instance should be generated for each Entity subclass (see, e.g.,
-:class:`bento_meta.model.Model`)
-
+* generates appropriate
+ `Cypher <https://neo4j.com/docs/cypher-manual/current/>`
+ queries to do gets and puts
+ One ObjectMap instance should be generated for each Entity subclass (see, e.g.,
+ :class:`bento_meta.model.Model`)
 """
 
 import re
