@@ -48,7 +48,7 @@ liquichange = "^0.2.1"
 tornado = "^6.5.1"
 cryptography = "^45.0.3"
 certifi = "^2025.4.26"
-
+minicypher = { git = "https://github.com/CBIIT/minicypher.git", branch = "main" }
 [tool.poetry.extras]
 Tools = ["click", "numpy", "pandas", "spacy", "liquichange"]
 
