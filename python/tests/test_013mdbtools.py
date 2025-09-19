@@ -164,6 +164,45 @@ class TestToolsMDB:
         )
         assert len(concept_nanos) == 1
 
+    def test_get_relationship_between_entities(self, tools_mdb) -> None:
+        """
+        Test the get_relationship_between_entities method of ToolsMDB.
+        Should return the correct relationship type between two entities.
+        """
+        rel_type = "relatedTo"
+
+        tools_mdb.add_relationship_to_mdb(
+            relationship_type=rel_type,
+            src_entity=self.node_1,
+            dst_entity=self.node_2,
+        )
+
+        relationship_type = tools_mdb.get_relationship_between_entities(self.node_1, self.node_2)
+
+        assert relationship_type[0] == rel_type
+
+        pattern_count = tools_mdb._get_pattern_count(
+            T(
+                N(label=self.node_1.get_label(), props=self.node_1.get_attr_dict()),
+                R(Type=rel_type),
+                N(label=self.node_2.get_label(), props=self.node_2.get_attr_dict()),
+            )
+        )
+        assert pattern_count[0] == 1
+
+    def test_remove_entity_from_mdb(self, monkeypatch, tools_mdb):
+        """
+        Test the remove_entity_from_mdb method of ToolsMDB.
+        Should generate a query to remove the given entity.
+        """
+        original_func = ToolsMDB.remove_entity_from_mdb.__wrapped__
+        monkeypatch.setattr(ToolsMDB, "remove_entity_from_mdb", original_func)
+        pry, params = tools_mdb.remove_entity_from_mdb(self.node_1)
+
+        assert "DETACH DELETE" in pry
+        assert "MATCH" in pry
+        assert set(params.values()) == {"node_1", "test_model", "nnano1"}
+
 
 def test_node_validation_success():
     """Test the validation of a Node entity with all required attributes present."""

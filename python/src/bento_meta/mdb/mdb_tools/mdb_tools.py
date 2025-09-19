@@ -190,7 +190,7 @@ class ToolsMDB(WriteableMDB):
 
         ent = N(label=ent_label, props=ent_attrs)
 
-        stmt = Statement(Match(ent), DetachDelete(ent.var), use_params=True)
+        stmt = Statement(Match(ent), DetachDelete(ent._var), use_params=True)
 
         qry = str(stmt)
         params = stmt.params
@@ -525,7 +525,7 @@ class ToolsMDB(WriteableMDB):
 
         stmt = Statement(
             Match(trip),
-            Return(f"TYPE({trip._edge.var})"),
+            Return(f"TYPE({trip._edge._var})"),
             As("relationship_type"),
             use_params=True,
         )
