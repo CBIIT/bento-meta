@@ -92,9 +92,9 @@ class ToolsMDB(WriteableMDB):
         )
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
-        return (qry, params, "entity_count")
+        return (qry, parms, "entity_count")
 
     @read_txn_value
     def _get_pattern_count(self, pattern: Union[T, G]):
@@ -114,9 +114,9 @@ class ToolsMDB(WriteableMDB):
         )
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
-        return qry, params, "pattern_count"
+        return (qry, parms, "pattern_count")
 
     def validate_entity_unique(self, entity: Entity) -> None:
         """
@@ -193,10 +193,10 @@ class ToolsMDB(WriteableMDB):
         stmt = Statement(Match(ent), DetachDelete(ent._var), use_params=True)
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
         logging.info(f"Removing {ent_label} entity with with properties: {ent_attrs}")
-        return (qry, params)
+        return (qry, parms)
 
     @write_txn
     def add_entity_to_mdb(
@@ -235,13 +235,13 @@ class ToolsMDB(WriteableMDB):
             stmt = Statement(Merge(ent), use_params=True)
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
         logging.info(
             f"Merging new {ent_label} node with properties: {ent_attrs} into the MDB",
         )
 
-        return (qry, params)
+        return (qry, parms)
 
     @read_txn_value
     def get_concept_nanoids_linked_to_entity(
@@ -282,10 +282,10 @@ class ToolsMDB(WriteableMDB):
         )
 
         qry = str(stmt)
-        params = stmt.params
-        logging.debug(f"{qry=}; {params=}")
+        parms = stmt.params
+        logging.debug(f"{qry=}; {parms=}")
 
-        return (qry, params, "concept_nanoids")
+        return (qry, parms, "concept_nanoids")
 
     @write_txn
     def add_relationship_to_mdb(
@@ -318,7 +318,7 @@ class ToolsMDB(WriteableMDB):
         stmt = Statement(Match(src, dst), Merge(plain_trip), use_params=True)
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
         print(stmt)
 
@@ -327,7 +327,7 @@ class ToolsMDB(WriteableMDB):
             f"properties: {src_entity.get_attr_dict()} to dst {dst.label} "
             f"with properties: {dst_entity.get_attr_dict()}",
         )
-        return (qry, params)
+        return (qry, parms)
 
     def link_synonyms(
         self,
@@ -435,9 +435,9 @@ class ToolsMDB(WriteableMDB):
         )
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
-        return (qry, params, "entity_nanoid")
+        return (qry, parms, "entity_nanoid")
 
     def get_or_make_entity_nanoid(self, entity: Entity) -> str:
         """Obtains existing entity's nanoid or creates one for new entity."""
@@ -477,9 +477,9 @@ class ToolsMDB(WriteableMDB):
         )
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
-        return (qry, params, "term_nanoids")
+        return (qry, parms, "term_nanoids")
 
     @read_txn_value
     def get_predicate_nanoids(self, concept: Concept, mapping_source: str = ""):
@@ -508,9 +508,9 @@ class ToolsMDB(WriteableMDB):
         )
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
-        return (qry, params, "predicate_nanoids")
+        return (qry, parms, "predicate_nanoids")
 
     @read_txn_value
     def get_relationship_between_entities(self, src_entity: Entity, dst_entity: Entity):
@@ -531,9 +531,9 @@ class ToolsMDB(WriteableMDB):
         )
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
-        return (qry, params, "relationship_type")
+        return (qry, parms, "relationship_type")
 
     def link_concepts_via_predicate(
         self,
@@ -630,11 +630,11 @@ class ToolsMDB(WriteableMDB):
         stmt = Statement(Match(term), Return(term._var))
 
         qry = str(stmt)
-        params = {}
+        parms = {}
 
         print(qry)
 
-        return (qry, params)
+        return (qry, parms)
 
     def get_potential_term_synonyms(
         self,
@@ -737,9 +737,9 @@ class ToolsMDB(WriteableMDB):
         )
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
-        return (qry, params)
+        return (qry, parms)
 
     def _get_property_synonyms_direct_as_list(self, entity: Property) -> List[Property]:
         """
@@ -800,9 +800,9 @@ class ToolsMDB(WriteableMDB):
         )
 
         qry = str(stmt)
-        params = stmt.params
+        parms = stmt.params
 
-        return (qry, params)
+        return (qry, parms)
 
     def get_property_parents(self, entity: Property) -> List[Union[Node, Edge]]:
         """
