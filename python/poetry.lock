@@ -1532,6 +1532,17 @@ files = [
 ]
 
 [[package]]
+name = "minicypher"
+version = "0.1.3"
+description = "Programmatically manipulate Neo4j Cypher language constructs"
+optional = false
+python-versions = "<4.0,>=3.10"
+files = [
+    {file = "minicypher-0.1.3-py3-none-any.whl", hash = "sha256:f2327719348b4baef31da991996124c6ccadbf207f90398a15d7142407082ebf"},
+    {file = "minicypher-0.1.3.tar.gz", hash = "sha256:1c8f6e6767914483971173a6207a6e479aa3ae69fe90fad6610fa2788b16b25c"},
+]
+
+[[package]]
 name = "more-itertools"
 version = "10.8.0"
 description = "More routines for operating on iterables, beyond itertools"
@@ -3823,4 +3834,4 @@ tools = ["click", "liquichange", "numpy", "pandas", "spacy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "02e9617e5761e18e648074673f3caad9f0c03f7e645399d0775ac7178dd24d40"
+content-hash = "a8e95bc504f8219970f1f4d302bec1e9683d87d243ecd446585ab385ac1ac9f3"
