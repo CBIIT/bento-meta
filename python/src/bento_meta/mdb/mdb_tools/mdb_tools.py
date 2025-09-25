@@ -26,19 +26,21 @@ from bento_meta.objects import (
     Term,
     ValueSet,
 )
-from bento_meta.util.cypher.clauses import (
+
+from minicypher.statement import Statement
+from minicypher.clauses import (
     As,
     Collect,
-    DetachDelete,
     Match,
     Merge,
+    DetachDelete,
     OptionalMatch,
     Return,
-    Statement,
     With,
 )
-from bento_meta.util.cypher.entities import N0, R0, G, N, P, R, T, _plain_var
-from bento_meta.util.cypher.functions import count
+
+from minicypher.entities import N0, R0, G, N, P, R, T, _plain_var
+from minicypher.functions import count
 
 # logging stuff
 log_ini_path = Path(__file__).parents[2].joinpath("logs/log.ini")
@@ -84,7 +86,7 @@ class ToolsMDB(WriteableMDB):
 
         stmt = Statement(
             Match(ent),
-            Return(count(ent.var)),
+            Return(count(ent)),
             As("entity_count"),
             use_params=True,
         )
@@ -188,7 +190,7 @@ class ToolsMDB(WriteableMDB):
 
         ent = N(label=ent_label, props=ent_attrs)
 
-        stmt = Statement(Match(ent), DetachDelete(ent.var), use_params=True)
+        stmt = Statement(Match(ent), DetachDelete(ent._var), use_params=True)
 
         qry = str(stmt)
         parms = stmt.params
@@ -274,7 +276,7 @@ class ToolsMDB(WriteableMDB):
 
         stmt = Statement(
             Match(path),
-            Return(f"{concept.var}.nanoid"),
+            Return(f"{concept._var}.nanoid"),
             As("concept_nanoids"),
             use_params=True,
         )
@@ -427,7 +429,7 @@ class ToolsMDB(WriteableMDB):
 
         stmt = Statement(
             match_clause,
-            Return(f"{ent.var}.nanoid"),
+            Return(f"{ent._var}.nanoid"),
             As("entity_nanoid"),
             use_params=True,
         )
@@ -469,7 +471,7 @@ class ToolsMDB(WriteableMDB):
 
         stmt = Statement(
             Match(path),
-            Return(f"{term.var}.nanoid"),
+            Return(f"{term._var}.nanoid"),
             As("term_nanoids"),
             use_params=True,
         )
@@ -500,7 +502,7 @@ class ToolsMDB(WriteableMDB):
 
         stmt = Statement(
             Match(path),
-            Return(f"{predicate.var}.nanoid"),
+            Return(f"{predicate._var}.nanoid"),
             As("predicate_nanoids"),
             use_params=True,
         )
@@ -523,7 +525,7 @@ class ToolsMDB(WriteableMDB):
 
         stmt = Statement(
             Match(trip),
-            Return(f"TYPE({trip._edge.var})"),
+            Return(f"TYPE({trip._edge._var})"),
             As("relationship_type"),
             use_params=True,
         )
@@ -625,7 +627,7 @@ class ToolsMDB(WriteableMDB):
         """Returns list of all terms in an MDB."""
         term = N(label="term")
 
-        stmt = Statement(Match(term), Return(term.var))
+        stmt = Statement(Match(term), Return(term._var))
 
         qry = str(stmt)
         parms = {}

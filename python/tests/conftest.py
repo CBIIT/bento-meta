@@ -45,7 +45,7 @@ def mdb(docker_services, docker_ip):
     )
     return (bolt_url, http_url)
 
-  
+
 @pytest.fixture(scope="session")
 def mdb_versioned(docker_services, docker_ip):
     bolt_port = docker_services.port_for("mdb-versioned", 7687)
@@ -81,7 +81,7 @@ def test_paths(model="ICDC", handle="diagnosis", phandle="disease_term", key="Cl
         "/term/$value",
         "/term/$value/count",
         "/id/$nanoid"
-        ]
+    ]
     return [string.Template(x).
             safe_substitute(model=model, handle=handle, phandle=phandle,
                             key=key, value=value, nanoid=nanoid) for x in tpl]

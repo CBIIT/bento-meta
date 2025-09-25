@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.18] - 2025-09-25
+
+### Added
+- Add minicypher dependency
+
+### Changed
+- Replace mdb_tools util.cypher imports with minicypher
+
+---
+
 ## [0.2.17] - 2025-09-18
 
 ### Removed
@@ -20,11 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - Updated requests from 2.32.3 to 2.32.4 to address security vulnerabilities
 - Updated urllib3 from 2.4.0 to 2.5.0 to address security vulnerabilities
-
----
-
-## [Unreleased]
-*Future changes will be documented here*
 
 ---
 
