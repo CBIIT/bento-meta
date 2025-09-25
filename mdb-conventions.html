@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MDB Conventions and Patterns &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The Object Model" href="the_object_model.html" />
+    <link rel="prev" title="Metamodel Database (MDB) Principles" href="mdb-principles.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MDB Conventions and Patterns</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mdb-entity-properties-required-for-consistency">MDB entity properties required for consistency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mdb-indexes-needed-for-additional-functionality">MDB indexes needed for additional functionality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conventions-for-consistent-and-idempotent-updates">Conventions for consistent and idempotent updates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uniqueness-and-existence-of-entities">Uniqueness and Existence of Entities</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#graph-patterns-for-representation">Graph Patterns for Representation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reuse-of-semantic-roles-in-mdb">“Reuse” of Semantic Roles in MDB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#encoding-mappings">Encoding “Mappings”</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#models">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#terms">Terms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">MDB Conventions and Patterns</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mdb-conventions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mdb-conventions-and-patterns">
+<h1>MDB Conventions and Patterns<a class="headerlink" href="#mdb-conventions-and-patterns" title="Link to this heading"></a></h1>
+<p>Conventions and software tools based on the following principles and
+guidelines are necessary to enable maintenance of an MDB. The
+organization of data of the MDB instance needs to be stable and
+predictable so that data does not get lost, incorrectly duplicated,
+or mutated.</p>
+<p>As the data grows, and especially as the interconnections
+between different models and mappings into common vocabularies
+increase, the database will become less and less amenable to manual
+updates via Cypher statements or one-off scripts. At the same time, as the
+complexity grows, so does the utility and value of the MDB, as long as
+it remains consistent – so that queries always return what the schema
+says they will return.</p>
+<p>To maintain this kind of consistency, but also treat the MDB as a
+dynamic store of information that is amenable to frequent change,
+robust software tools for updating the database are necessary. These
+tools alleviate the need for SMEs and engineers to remember the schema
+and prevent shortcuts that would affect the outcome of standard
+queries that are based on the expectations set by the schema.</p>
+<p>This principle does <em>not</em> say that <em>additional</em> nodes, properties, or
+relationships cannot ever be added to an MDB. Reasons of performance
+tuning, tagging, indexing, setting “placeholders” or “cursors”, are
+all valid enhancements or temporary modifications. If such
+enhancements make sense to add to the general MDB schema, then they
+should be so added. The key question to ask before making permanent
+enhancements should be: <em>Will they break existing queries?</em> If so,
+then discussion, deprecation and update planning is necessary.</p>
+<p>Temporary structural additions to the database to facilitate
+maintenance or fixes may be appropriate. It is critical to plan ahead,
+so that the database admin can back completely out of such modifications after
+they have performed their function.</p>
+<section id="mdb-entity-properties-required-for-consistency">
+<h2>MDB entity properties required for consistency<a class="headerlink" href="#mdb-entity-properties-required-for-consistency" title="Link to this heading"></a></h2>
+<p>The MDB schema is flexible, but the following properties and entities
+are critical for its functionality.</p>
+<p>All entities need to posses a non-null <em>nanoid</em>. This is a six
+character, alphanumeric random identifier, which can be generated with
+the <code class="docutils literal notranslate"><span class="pre">nanoid</span></code> package in various languages (e.g., <a class="reference external" href="https://github.com/puyuan/py-nanoid">for python</a>). Once set for an entity in an MDB
+instance, it should not be changed, even when other properties are
+updated, added, or removed. The nanoid (plus a version string,
+possibly) should uniquely identify all single Neo4j nodes in the
+database instance.</p>
+<p>An important reason for maintaining the nanoid on an entity through
+changes (and also to retire a nanoid if an entity is removed) is that
+it serves as a handle or short-cut for the Simple Terminology
+Service (<a class="reference external" href="https://github.com/CBIIT/bento-sts">STS</a>. Appending a nanoid to the STS /id endpoint must always return that
+entity as a JSON document. Versions of an entity are allowed, but a
+version string should qualify the original nanoid for retrieval; new
+versions of an existing entity should not receive a new nanoid.</p>
+<p>Node, Relationship, and Property entities must all possess a non-null <code class="docutils literal notranslate"><span class="pre">model</span></code>
+property, set to the model the entity is describing. For each unique
+value of the <code class="docutils literal notranslate"><span class="pre">model</span></code> property, a corresponding Model entity (Neo4j
+node) should exist, that describes the model further. A Neo4j
+relationship between model entities and the corresponding Model node
+are not necessary or expected under the schema.</p>
+<p>Value Set and Term entities are intentionally _not_ associated
+directly with any model - this enables the idea of reuse of the same
+terms across different models. However, every Term must have an
+_origin_ property that indicates an authoritative source for the term
+and its meaning.</p>
+<p>Value Sets may have an origin property, if the set itself is a product
+of an external authority. An example would be the value domain for
+ethnicity according to the caDSR, with public id 2016566, consisting
+of five terms.</p>
+</section>
+<section id="mdb-indexes-needed-for-additional-functionality">
+<h2>MDB indexes needed for additional functionality<a class="headerlink" href="#mdb-indexes-needed-for-additional-functionality" title="Link to this heading"></a></h2>
+<p>For integration with the STS, and for performance, the Neo4j instance
+of an MDB requires certain indexes to be established. These are
+specified in <a class="reference external" href="https://github.com/CBIIT/bento-mdb/blob/main/changelogs/mdb_setup_changelog.xml">these Cypher statements</a>. The primary
+requirement is that fulltext, Lucene-based indexes should be created
+on entity <code class="docutils literal notranslate"><span class="pre">description</span></code> and Term <code class="docutils literal notranslate"><span class="pre">origin_definition</span></code> properties to
+enable “search box” like queries over the the entire graph. Regular
+btree indexes on entity <code class="docutils literal notranslate"><span class="pre">handle</span></code> and Term <code class="docutils literal notranslate"><span class="pre">value</span></code> properties are also
+highly recommended for fast query responses.</p>
+</section>
+<section id="conventions-for-consistent-and-idempotent-updates">
+<h2>Conventions for consistent and idempotent updates<a class="headerlink" href="#conventions-for-consistent-and-idempotent-updates" title="Link to this heading"></a></h2>
+<section id="uniqueness-and-existence-of-entities">
+<h3>Uniqueness and Existence of Entities<a class="headerlink" href="#uniqueness-and-existence-of-entities" title="Link to this heading"></a></h3>
+<p>In an unversioned MDB, the following combinations of properties point
+to unique graph nodes which must exist. (The notation below is based
+on <a class="reference external" href="https://neo4j.com/docs/cypher-manual/current/">Cypher</a>.)</p>
+<ul class="simple">
+<li><p><em>Node</em>: For <cite>(n:node)</cite>, the combination <cite>[n.model, n.handle]</cite> is unique.
+* That is, one and only one graph node exists with these values of <cite>n.model</cite> and <cite>n.handle</cite>.</p></li>
+<li><p><em>Property (uniqueness)</em>: For <cite>(p:property)</cite> with <cite>(e)-[:has_property]-&gt;(p)</cite>, the combination
+<cite>[p.model, p.handle, e.handle]</cite> is unique.</p>
+<ul>
+<li><p>One and only one graph node <cite>p</cite> exists satisfying this condition. <cite>e</cite> is a node or relationship, and <cite>e.model == p.model</cite> must hold.</p></li>
+</ul>
+</li>
+<li><p><em>Property (distinctness)</em>: For <cite>(p:property)</cite> with <cite>(e)-[:has_property]-&gt;(p)</cite> and <cite>(q:property)</cite> with <cite>(f)-[:has_property]-&gt;(q)</cite>, if <cite>e != f</cite>, then <cite>p != q</cite>.</p>
+<ul>
+<li><p>In other words, properties associated with different entities are always distinct; properties with the same handle must not be “reused” among different nodes or relationships, even in the same model. An implication of this requirement is that nodes or relationships form a namespace that distinguish their properties from others.</p></li>
+</ul>
+</li>
+<li><p><em>Relationship</em>: For <cite>(r:relationship)</cite> with <cite>(s:node)&lt;-[:has_src]-(r)-[:has_dst]-&gt;(d:node)</cite>, the combination <cite>[r.model, r.handle, s.handle, d.handle]</cite> is unique.</p>
+<ul>
+<li><p>One and only one graph node <cite>r</cite> exists satisfying this condition, and <cite>r.model == s.model == d.model</cite> must hold.</p></li>
+</ul>
+</li>
+<li><p><em>Value Set</em>: For <cite>(p:property)</cite> with <cite>p.value_domain == “value_set”</cite>, then one and only one value_set <cite>v</cite> with <cite>(p)-[:has_value_set]-&gt;(v:value_set)</cite> must exist.</p></li>
+<li><p><em>Term</em>: For a term <cite>(t:term)</cite>, only one graph node with <cite>[t.origin_name, t.origin_id, t.origin_version]</cite> may exist, <em>even in a versioned MDB</em>.</p></li>
+<li><p><em>Concept</em>: For any <cite>(c:concept)</cite> and <cite>(k:concept)</cite> where <cite>(n)–(c)</cite> and <cite>(n)–(k)</cite> return exactly the same graph nodes <cite>[n1, n2, …]</cite>, one of <cite>c</cite> or <cite>k</cite> should be removed from the database.</p></li>
+<li><p><em>Tag</em>: Any node should have <em>at most one</em> Tag node with a given pair of values for <cite>key</cite> and <cite>value</cite> properties. Tags should attach to at most one node; that is, the <cite>()-[:has_tag]-&gt;(:tag)</cite> relationship is one-to-many, not many-to-many. Practically, this means that to use Tags to group a set of different nodes with a key-value pair, a separate Tag with that key-value pair should be created and linked to each nodes.</p></li>
+<li><p><em>Nanoid</em>: Each unique unversioned graph node as defined above must have a unique nanoid.</p>
+<ul>
+<li><p>The nanoid <em>shall not change</em> when a graph node is updated, provided above conditions remain satisfied upon update.</p></li>
+<li><p>If an existing MDB graph node is changed such that that node <em>no longer satisfies</em> its defining condition as above, it <em>must receive a new nanoid</em>. The old nanoid is retired and should not be used again.</p></li>
+<li><p>In a versioned MDB, then the uniqueness conditions above are relaxed modulo the entity properties <cite>_to</cite> and <cite>_from</cite>. The nanoid <em>must be the same</em> among graph nodes that represent different versions of unique unversioned graph nodes as defined above.</p></li>
+</ul>
+</li>
+</ul>
+<p>Some implications of these formal rules:</p>
+<ul class="simple">
+<li><p>Handles are not unique identifiers; there can be many entities with the same handle for nodes, relationships, and properties.</p></li>
+</ul>
+<p>Handles in combination with other properties can be unique. The model and handles can be considered to define namespaces in which qualified names point to unique MDB graph nodes. Example: <cite>ICDC.demographic.breed</cite> can represent the property “breed” of the node “demographic” in the ICDC data model. This would correspond to a property node with a persistent nanoid in the MDB.</p>
+<ul class="simple">
+<li><p>Graph nodes which meet the conditions above can be thought of as playing a given semantic role in a specific context. They represent an interaction between a concept and a model.</p></li>
+</ul>
+</section>
+</section>
+<section id="graph-patterns-for-representation">
+<h2>Graph Patterns for Representation<a class="headerlink" href="#graph-patterns-for-representation" title="Link to this heading"></a></h2>
+<section id="reuse-of-semantic-roles-in-mdb">
+<h3>“Reuse” of Semantic Roles in MDB<a class="headerlink" href="#reuse-of-semantic-roles-in-mdb" title="Link to this heading"></a></h3>
+<p>When creating a data model for a specific purpose, it is often desirable to make use of semantic concepts that have already been defined elsewhere. This is the case when the model needs to comply with a external standard, or when the system being modeled must interoperate with peers or within a larger system. Including an externally defined semantic element in a new data model is sometimes called <em>reuse</em>.</p>
+<p>In an MDB, the reuse of semantic concepts <em>among different models</em> is expressed by linking all graph nodes playing the same semantic role to a common <a class="reference internal" href="mdb-principles.html#concepts"><span class="std std-ref">Concept node</span></a>. Rather than creating a universal “demographic” node and connecting every model needing that concept to that node, each model that needs one gets its own “demographic” node. The Concept node only acts as a “hub”. A Term node can be used to annotate a Concept node with the details that point to an external standard (the origin or authority, the definition, and identifier).</p>
+<p>This figure exemplifies the MDB pattern for representing reuse of an external semantic concept.</p>
+<img alt="Concept reuse in an MDB" class="align-center" src="_images/mdb-patterns.png" />
+<p>Note that a Term node that annotates a Concept node is linked by a <cite>:represents</cite> relationship.</p>
+<p>Terms themselves can also be components of Value Sets. Terms and Value Sets are explicitly intended to be reused among models within an MDB. A Term can represent an acceptable value, and Value Sets are hubs that aggregate Terms into an acceptable value list. The following figure indicates the graph patterns for reuse of both Terms and Value Sets in an MDB.</p>
+<img alt="Term and Value Set reuse in an MDB" class="align-center" id="term-valueset-pattern" src="_images/mdb-patterns-2.png" />
+<p>Here, the two Properties <cite>primary_site</cite> and <cite>anatomic_location</cite> share a Value Set, while the Value Set for Property <cite>sample_type</cite> borrows the Term <cite>blood</cite>.</p>
+</section>
+<section id="encoding-mappings">
+<h3>Encoding “Mappings”<a class="headerlink" href="#encoding-mappings" title="Link to this heading"></a></h3>
+<p>An MDB is intended to store both models and inter-model relationships. An important example of such a relationship can be called <em>synonymy</em> - an assertion that two or more entities are semantically equivalent. In the context of data transformation, data values (Terms) valid under one model can be mapped to synonymous values in a different model. An MDB can store such mappings, and calls to an MDB can provide the backend to tools that perform transformations.</p>
+<p>Assertions that terms are synonymous are made by experts or groups, who can differ in opinion. An MDB can also tag mappings according to the source or authority. This capability can, for example, drive a tool that performs transformation according to a specific authority’s mappings.</p>
+<p>The MDB pattern for asserting synonymy according to specific expert source is exemplified in this figure.</p>
+<img alt="Synonym mappings represented in an MDB" class="align-center" src="_images/mdb-patterns-3.png" />
+</section>
+<section id="models">
+<h3>Models<a class="headerlink" href="#models" title="Link to this heading"></a></h3>
+<p>Data models under our management are generally maintained as <a class="reference external" href="https://github.com/CBIIT/bento-mdf">MDF</a> files
+in open GitHub repositories. Data SMEs are able to make changes and
+updates to models as necessary, and GitHub tracks and remembers all
+changes. Branches created for development are extremely useful and
+enable SMEs to work productively with engineers on upcoming features
+while the latest production model remains accessible for users and the
+production data system.</p>
+<p>Tapping into this existing work process is a natural place to
+incorporate systematic updates to the MDB. Once model changes are
+approved for production, the MDF can be made part of a GitHub
+release. CI/CD processes (e.g., GitHub Actions or Jenkins) can
+automatically pull new MDF releases and update the MDB with changes.</p>
+<p>For this process to be deterministic, conventions must be established
+that unambiguously define when differences between the MDF model and the
+corresponding MDB model represents intended updates, and when they
+indicate an error in the MDF. To do this, the intention of the SME
+must be made clear in the data (i.e., the model description file)
+itself. There also should be a way to back out of at least one update
+if necessary.</p>
+<p>In our system, we use the <a class="reference external" href="https://www.liquibase.com/">Liquibase</a> platform, along with the Neo4j <a class="reference external" href="https://neo4j.com/labs/liquibase/docs">Liquibase plugin</a>, to maintain auditability and reversibility of changes. This is facilitated by the Python package <a class="reference external" href="https://github.com/nelsonwmoore/liquichange">liquichange</a>. More details can be found at the <a class="reference external" href="https://github.com/CBIIT/bento-mdb">bento-mdb</a> repository.</p>
+</section>
+<section id="terms">
+<h3>Terms<a class="headerlink" href="#terms" title="Link to this heading"></a></h3>
+<p><em>WIP</em></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mdb-principles.html" class="btn btn-neutral float-left" title="Metamodel Database (MDB) Principles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="the_object_model.html" class="btn btn-neutral float-right" title="The Object Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

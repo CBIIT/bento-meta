@@ -1,0 +1,633 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.util.cypher.clauses &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link rel="next" title="bento_meta.util.cypher.entities" href="../entities/index.html" />
+    <link rel="prev" title="bento_meta.util.cypher" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../../index.html">bento_meta</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../../entity/index.html">bento_meta.entity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../mdb/index.html">bento_meta.mdb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../model/index.html">bento_meta.model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../object_map/index.html">bento_meta.object_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../objects/index.html">bento_meta.objects</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../../index.html">bento_meta.util</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">bento_meta</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">bento_meta.util</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">bento_meta.util.cypher</a></li>
+      <li class="breadcrumb-item active">bento_meta.util.cypher.clauses</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/autoapi/bento_meta/util/cypher/clauses/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bento_meta.util.cypher.clauses">
+<span id="bento-meta-util-cypher-clauses"></span><h1>bento_meta.util.cypher.clauses<a class="headerlink" href="#module-bento_meta.util.cypher.clauses" title="Link to this heading"></a></h1>
+<p>bento_meta.util.cypher.clauses</p>
+<p>Representations of Cypher statement clauses, statements,
+and statement parameters.</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p></td>
+<td><p>Represents a generic Cypher clause.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Match" title="bento_meta.util.cypher.clauses.Match"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Match</span></code></a></p></td>
+<td><p>Create a MATCH clause with the arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Where" title="bento_meta.util.cypher.clauses.Where"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Where</span></code></a></p></td>
+<td><p>Create a WHERE clause with the arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.With" title="bento_meta.util.cypher.clauses.With"><code class="xref py py-obj docutils literal notranslate"><span class="pre">With</span></code></a></p></td>
+<td><p>Create a WITH clause with the arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Create" title="bento_meta.util.cypher.clauses.Create"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Create</span></code></a></p></td>
+<td><p>Create a CREATE clause with the arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Merge" title="bento_meta.util.cypher.clauses.Merge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Merge</span></code></a></p></td>
+<td><p>Create a MERGE clause with the arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Remove" title="bento_meta.util.cypher.clauses.Remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Remove</span></code></a></p></td>
+<td><p>Create a REMOVE clause with the arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Set" title="bento_meta.util.cypher.clauses.Set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Set</span></code></a></p></td>
+<td><p>Create a SET clause with the arguments. (Only property arguments matter.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.OnCreateSet" title="bento_meta.util.cypher.clauses.OnCreateSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OnCreateSet</span></code></a></p></td>
+<td><p>Create an ON CREATE SET clause for a MERGE with the arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.OnMatchSet" title="bento_meta.util.cypher.clauses.OnMatchSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OnMatchSet</span></code></a></p></td>
+<td><p>Create an ON CREATE SET clause for a MERGE with the arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Return" title="bento_meta.util.cypher.clauses.Return"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Return</span></code></a></p></td>
+<td><p>Create a RETURN clause with the arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.OptionalMatch" title="bento_meta.util.cypher.clauses.OptionalMatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OptionalMatch</span></code></a></p></td>
+<td><p>Create an OPTIONAL MATCH clause with the arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Collect" title="bento_meta.util.cypher.clauses.Collect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Collect</span></code></a></p></td>
+<td><p>Create a COLLECT clause with the arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Unwind" title="bento_meta.util.cypher.clauses.Unwind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Unwind</span></code></a></p></td>
+<td><p>Create an UNWIND clause with the arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.As" title="bento_meta.util.cypher.clauses.As"><code class="xref py py-obj docutils literal notranslate"><span class="pre">As</span></code></a></p></td>
+<td><p>Create an AS clause with the arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Delete" title="bento_meta.util.cypher.clauses.Delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Delete</span></code></a></p></td>
+<td><p>Create a DELETE clause with the arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.DetachDelete" title="bento_meta.util.cypher.clauses.DetachDelete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DetachDelete</span></code></a></p></td>
+<td><p>Create a DETACH DELETE clause with the arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Case" title="bento_meta.util.cypher.clauses.Case"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Case</span></code></a></p></td>
+<td><p>Create a CASE clause with the arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.When" title="bento_meta.util.cypher.clauses.When"><code class="xref py py-obj docutils literal notranslate"><span class="pre">When</span></code></a></p></td>
+<td><p>Create a WHEN clause with the arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Then" title="bento_meta.util.cypher.clauses.Then"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Then</span></code></a></p></td>
+<td><p>Create a THEN clause with the arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Else" title="bento_meta.util.cypher.clauses.Else"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Else</span></code></a></p></td>
+<td><p>Create an ELSE clause with the arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.End" title="bento_meta.util.cypher.clauses.End"><code class="xref py py-obj docutils literal notranslate"><span class="pre">End</span></code></a></p></td>
+<td><p>Create an END clause with the arguments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.ForEach" title="bento_meta.util.cypher.clauses.ForEach"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ForEach</span></code></a></p></td>
+<td><p>Create an FOREACH clause with the arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bento_meta.util.cypher.clauses.Statement" title="bento_meta.util.cypher.clauses.Statement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Statement</span></code></a></p></td>
+<td><p>Create a Neo4j statement comprised of clauses (and strings) in order.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Clause">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Clause</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Clause"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Clause" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a generic Cypher clause.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Clause.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Clause.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Clause.joiner">
+<span class="sig-name descname"><span class="pre">joiner</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">',</span> <span class="pre">'</span></em><a class="headerlink" href="#bento_meta.util.cypher.clauses.Clause.joiner" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Clause.context">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Clause.context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Clause.context" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Clause.args">
+<span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#bento_meta.util.cypher.clauses.Clause.args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Clause.kwargs">
+<span class="sig-name descname"><span class="pre">kwargs</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Clause.kwargs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Clause.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Clause.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Clause.__str__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Match">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Match" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a MATCH clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Match.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Match.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Match.context">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Match.context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Match.context" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Where">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Where</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AND'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Where"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Where" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a WHERE clause with the arguments
+(joining conditions with ‘op’).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Where.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Where.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Where.joiner">
+<span class="sig-name descname"><span class="pre">joiner</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'</span> <span class="pre">{}</span> <span class="pre">'</span></em><a class="headerlink" href="#bento_meta.util.cypher.clauses.Where.joiner" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Where.context">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Where.context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Where.context" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Where.op">
+<span class="sig-name descname"><span class="pre">op</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AND'</span></em><a class="headerlink" href="#bento_meta.util.cypher.clauses.Where.op" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Where.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Where.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Where.__str__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.With">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">With</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#With"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.With" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a WITH clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.With.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.With.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Create">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Create" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a CREATE clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Create.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Create.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Create.context">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Create.context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Create.context" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Merge">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Merge" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a MERGE clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Merge.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Merge.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Merge.context">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Merge.context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Merge.context" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Remove">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Remove" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a REMOVE clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Remove.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Remove.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Remove.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Remove.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Remove.__str__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Set">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Set" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a SET clause with the arguments. (Only property arguments matter.)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Set.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Set.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Set.context">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Set.context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Set.context" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Set.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Set.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Set.__str__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.OnCreateSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">OnCreateSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#OnCreateSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.OnCreateSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Set" title="bento_meta.util.cypher.clauses.Set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Set</span></code></a></p>
+<p>Create an ON CREATE SET clause for a MERGE with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.OnCreateSet.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.OnCreateSet.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.OnMatchSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">OnMatchSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#OnMatchSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.OnMatchSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Set" title="bento_meta.util.cypher.clauses.Set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Set</span></code></a></p>
+<p>Create an ON CREATE SET clause for a MERGE with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.OnMatchSet.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.OnMatchSet.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Return">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Return"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Return" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a RETURN clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Return.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Return.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.OptionalMatch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">OptionalMatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#OptionalMatch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.OptionalMatch" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create an OPTIONAL MATCH clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.OptionalMatch.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.OptionalMatch.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.OptionalMatch.context">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#OptionalMatch.context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.OptionalMatch.context" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Collect">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Collect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Collect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Collect" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a COLLECT clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Collect.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Collect.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Unwind">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Unwind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Unwind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Unwind" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create an UNWIND clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Unwind.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Unwind.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.As">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">As</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#As"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.As" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create an AS clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.As.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.As.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Delete">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Delete" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a DELETE clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Delete.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Delete.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.DetachDelete">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">DetachDelete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#DetachDelete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.DetachDelete" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a DETACH DELETE clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.DetachDelete.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.DetachDelete.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Case">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Case"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Case" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a CASE clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Case.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Case.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.When">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">When</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AND'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#When"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.When" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a WHEN clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.When.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.When.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.When.joiner">
+<span class="sig-name descname"><span class="pre">joiner</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'</span> <span class="pre">{}</span> <span class="pre">'</span></em><a class="headerlink" href="#bento_meta.util.cypher.clauses.When.joiner" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.When.context">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#When.context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.When.context" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.When.op">
+<span class="sig-name descname"><span class="pre">op</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AND'</span></em><a class="headerlink" href="#bento_meta.util.cypher.clauses.When.op" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.When.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#When.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.When.__str__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Then">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Then</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Then"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Then" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create a THEN clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Then.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Then.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Else">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Else</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Else"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Else" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create an ELSE clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Else.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Else.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.End">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">End</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#End"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.End" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create an END clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.End.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.End.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.ForEach">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">ForEach</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#ForEach"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.ForEach" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bento_meta.util.cypher.clauses.Clause" title="bento_meta.util.cypher.clauses.Clause"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clause</span></code></a></p>
+<p>Create an FOREACH clause with the arguments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.ForEach.template">
+<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.ForEach.template" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Statement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.util.cypher.clauses.</span></span><span class="sig-name descname"><span class="pre">Statement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Statement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Statement" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Create a Neo4j statement comprised of clauses (and strings) in order.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Statement.clauses">
+<span class="sig-name descname"><span class="pre">clauses</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#bento_meta.util.cypher.clauses.Statement.clauses" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Statement.terminate">
+<span class="sig-name descname"><span class="pre">terminate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#bento_meta.util.cypher.clauses.Statement.terminate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Statement.use_params">
+<span class="sig-name descname"><span class="pre">use_params</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#bento_meta.util.cypher.clauses.Statement.use_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Statement._params">
+<span class="sig-name descname"><span class="pre">_params</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bento_meta.util.cypher.clauses.Statement._params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Statement.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/bento_meta/util/cypher/clauses.html#Statement.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.util.cypher.clauses.Statement.__str__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bento_meta.util.cypher.clauses.Statement.params">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#bento_meta.util.cypher.clauses.Statement.params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="bento_meta.util.cypher" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../entities/index.html" class="btn btn-neutral float-right" title="bento_meta.util.cypher.entities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

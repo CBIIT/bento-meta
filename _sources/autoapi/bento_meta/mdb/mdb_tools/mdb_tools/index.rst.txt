@@ -1,0 +1,373 @@
+bento_meta.mdb.mdb_tools.mdb_tools
+==================================
+
+.. py:module:: bento_meta.mdb.mdb_tools.mdb_tools
+
+.. autoapi-nested-parse::
+
+   ToolsMDB: subclass of 'WriteableMDB' to support interactions with the MDB.
+
+   EntityValidator: validates that entities have required attributes.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb_tools.mdb_tools.log_ini_path
+   bento_meta.mdb.mdb_tools.mdb_tools.log_file_path
+   bento_meta.mdb.mdb_tools.mdb_tools.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb_tools.mdb_tools.ToolsMDB
+   bento_meta.mdb.mdb_tools.mdb_tools.EntityValidator
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb_tools.mdb_tools._get_nlp_model
+
+
+Module Contents
+---------------
+
+.. py:data:: log_ini_path
+
+.. py:data:: log_file_path
+
+.. py:data:: logger
+
+.. py:class:: ToolsMDB(uri, user, password)
+
+   Bases: :py:obj:`bento_meta.mdb.writeable.WriteableMDB`
+
+
+   Adds mdb-tools to WriteableMDB
+
+
+   .. py:exception:: EntityNotUniqueError
+
+      Bases: :py:obj:`Exception`
+
+
+      Raised when an entity's attributes identify more than 1 property graph node in an MDB
+
+
+
+   .. py:exception:: EntityNotFoundError
+
+      Bases: :py:obj:`Exception`
+
+
+      Raised when an entity's attributes fail to identify a property graph node in an MDB
+
+
+
+   .. py:exception:: PatternNotUniqueError
+
+      Bases: :py:obj:`Exception`
+
+
+      Raised when a match pattern's attributes identify more than 1
+      property graph triple or set of overlapping triples in an MDB
+
+
+
+   .. py:exception:: PatternNotFoundError
+
+      Bases: :py:obj:`Exception`
+
+
+      Raised when a match pattern's attributes fail to identify
+      a property graph triple or set of overlapping triples in an MDB
+
+
+
+   .. py:method:: _get_entity_count(entity: bento_meta.entity.Entity)
+
+      Returns count of given entity found in an MDB.
+
+      If count = 0, entity with given attributes not found in MDB.
+      If count = 1, entity with given attributes is unique in MDB
+      If count > 1, more attributes needed to uniquely id entity in MDB.
+
+
+
+   .. py:method:: _get_pattern_count(pattern: Union[minicypher.entities.T, minicypher.entities.G])
+
+      Returns count of given match pattern, which could be a triple like:
+      (n)-[r]->(m), or a set of overlapping triples (Path) found in MDB.
+
+      If count = 0, pattern with given attributes not found in MDB.
+      If count = 1, pattern with given attributes is unique in MDB
+      If count > 1, more attributes needed to uniquely id pattern in MDB.
+
+
+
+   .. py:method:: validate_entity_unique(entity: bento_meta.entity.Entity) -> None
+
+      Validates that the given entity occurs once (& only once) in an MDB
+
+      Raises EntityNotUniqueError if entity attributes match multiple property
+          graph nodes in the MDB.
+
+      Raises EntityNotFoundError if entity attributes don't match any in the MDB.
+
+      Note: doesn't validate the entity itself because not all entity attibutes
+          necessarily required to locate an entity in the MDB.
+          (e.g. handle and model OR nanoid alone can identify a node)
+
+
+
+   .. py:method:: validate_entities_unique(entities: Iterable[bento_meta.entity.Entity]) -> None
+
+      Runs self.validate_entity_unique() over multiple entities
+
+
+
+   .. py:method:: validate_pattern_unique(pattern: Union[minicypher.entities.T, minicypher.entities.G]) -> None
+
+      Validates that the given match pattern occurs once (& only once) in an MDB
+
+      Raises PatternNotUniqueError if entity attributes match multiple property
+      graph nodes in the MDB.
+
+      Raises PatternNotFoundError if entity attributes don't match any in the MDB.
+
+
+
+   .. py:method:: remove_entity_from_mdb(entity: bento_meta.entity.Entity)
+
+      Remove given Entity node from the database.
+
+      Accepts the following bento-meta Entities:
+          Concept, Node, Predicate, Property, Edge, Term
+
+
+
+   .. py:method:: add_entity_to_mdb(entity: bento_meta.entity.Entity, _commit=None)
+
+      Adds given Entity node to MDB instance
+
+
+
+   .. py:method:: get_concept_nanoids_linked_to_entity(entity: bento_meta.entity.Entity, mapping_source: Optional[str] = None)
+
+      Returns list of concept nanoids linked to given entity by
+      "represents" or "has_concept" relationships tagged with
+      the given mapping source.
+
+
+
+   .. py:method:: add_relationship_to_mdb(relationship_type: str, src_entity: bento_meta.entity.Entity, dst_entity: bento_meta.entity.Entity, _commit: str = '')
+
+      Adds relationship between given entities in MDB.
+
+
+
+   .. py:method:: link_synonyms(entity_1: bento_meta.entity.Entity, entity_2: bento_meta.entity.Entity, mapping_source: str, _commit: str = '') -> None
+
+      Link two synonymous entities in the MDB via a Concept node.
+
+      This function takes two synonymous Entities (as determined by user/SME) as
+      bento-meta objects connects them to a Concept node via a 'represents' relationship.
+
+      Entities must both exist in the MDB instance and given entity attributes must
+      uniquely identify property graph nodes in the MDB.
+
+      If _commit is set (to a string), the _commit property of any node created is set to
+      this value.
+
+
+
+   .. py:method:: get_entity_nanoid(entity: bento_meta.entity.Entity)
+
+      Takes a unique entity in the MDB and returns its nanoid.
+
+
+
+   .. py:method:: get_or_make_entity_nanoid(entity: bento_meta.entity.Entity) -> str
+
+      Obtains existing entity's nanoid or creates one for new entity.
+
+
+
+   .. py:method:: get_term_nanoids(concept: bento_meta.objects.Concept, mapping_source: str = '')
+
+      Returns list of term nanoids representing given concept
+
+
+
+   .. py:method:: get_predicate_nanoids(concept: bento_meta.objects.Concept, mapping_source: str = '')
+
+      Returns list of predicate nanoids with relationship to given concept
+
+
+
+   .. py:method:: get_relationship_between_entities(src_entity: bento_meta.entity.Entity, dst_entity: bento_meta.entity.Entity)
+
+      Returns relationship type between given entities with (src)-[:rel_type]->(dst)
+
+
+
+   .. py:method:: link_concepts_via_predicate(subject_concept: bento_meta.objects.Concept, object_concept: bento_meta.objects.Concept, predicate: bento_meta.objects.Predicate, _commit='') -> None
+
+      Links two synonymous Concepts via a Predicate
+
+      This function takes two synonymous Concepts as objects and links
+      them via a Predicate node and has_subject and has_object relationships.
+
+
+
+   .. py:method:: merge_two_concepts(concept_1: bento_meta.objects.Concept, concept_2: bento_meta.objects.Concept, mapping_source: str = '', _commit='') -> None
+
+      Combine two synonymous Concepts into a single Concept.
+
+      This function takes two synonymous Concept as bento-meta objects and
+      merges them into a single Concept along with any connected Terms and Predicates.
+
+
+
+   .. py:method:: _get_all_terms()
+
+      Returns list of all terms in an MDB.
+
+
+
+   .. py:method:: get_potential_term_synonyms(term: bento_meta.objects.Term, threshhold: float = 0.8) -> List[dict]
+
+      Returns list of dicts representing potential Term nodes synonymous to given Term
+      in an MDB
+
+
+
+   .. py:method:: potential_synonyms_to_csv(input_data: List[dict], output_path: str) -> None
+
+      Given a list of synonymous Terms as dicts, outputs to CSV file at given output path
+
+
+
+   .. py:method:: link_term_synonyms_csv(term: bento_meta.objects.Term, csv_path: str, mapping_source: str, _commit: str = '') -> None
+
+      Given a CSV of syonymous Terms, links each via a Concept node to given Term
+
+
+
+   .. py:method:: get_property_synonyms_direct(entity: bento_meta.objects.Property, mapping_source: str = '')
+
+      Returns list of properties linked by concept to given property
+
+
+
+   .. py:method:: _get_property_synonyms_direct_as_list(entity: bento_meta.objects.Property) -> List[bento_meta.objects.Property]
+
+      Converts results of read_txn_data-wrapped function
+      with one item to a simple list of bento_meta.objects.Property entities
+
+
+
+   .. py:method:: get_property_synonyms_all(entity: bento_meta.objects.Property) -> List[bento_meta.objects.Property]
+
+      Returns list of properties linked by concept to given property
+      or to synonym of given property (and so on)
+
+
+
+   .. py:method:: _get_property_parents_data(entity: bento_meta.objects.Property)
+
+      Get list of nodes/edges connected to given property
+      via the "has_property" relationship
+
+
+
+   .. py:method:: get_property_parents(entity: bento_meta.objects.Property) -> List[Union[bento_meta.objects.Node, bento_meta.objects.Edge]]
+
+      Returns results of _get_property_parents_data as a list of
+      bento_meta Nodes or Edges
+
+
+
+   .. py:method:: add_tag_to_mdb_entity(tag: bento_meta.objects.Tag, entity: bento_meta.entity.Entity) -> None
+
+      Adds a tag to an existing entity in an MDB.
+
+
+
+.. py:class:: EntityValidator
+
+   Entity validator that validate entities have all required attributes
+
+
+   .. py:attribute:: required_attrs_by_entity_type
+      :type:  Dict[Type[bento_meta.entity.Entity], List[str]]
+
+
+   .. py:attribute:: valid_attrs
+      :type:  Dict[Tuple[Type[bento_meta.entity.Entity], str], Set[str]]
+
+
+   .. py:exception:: MissingAttributeError
+
+      Bases: :py:obj:`Exception`
+
+
+      Raised when an entity doesn't have the attributes required for unique identification
+
+
+
+   .. py:exception:: InvalidAttributeError
+
+      Bases: :py:obj:`Exception`
+
+
+      Raised when an entity attribute is invalid
+
+
+
+   .. py:method:: validate_entity_has_attribute(entity: bento_meta.entity.Entity, attr_name: str) -> None
+      :staticmethod:
+
+
+      Validates the presence of an entity's attribute
+
+
+
+   .. py:method:: _validate_entity_attribute(entity_type: Type[bento_meta.entity.Entity], attr_name: str) -> None
+      :staticmethod:
+
+
+      Checks that an entity attribute is in a set of valid attributes
+
+
+
+   .. py:method:: validate_entity(entity: bento_meta.entity.Entity) -> None
+      :staticmethod:
+
+
+      Checks if entity has all attributes required by MDB for its type, and
+      that all of those attributes are valid themselves if they are entities or
+      if they have a fixed set of possible values.
+
+      Verifies that bento-meta entity has all necesssary attributes before
+      it is added to an MDB instance.
+
+      If looking for a unique identifier for the entity (i.e. nanoid), ensures
+      entity has all the required attributes for unique identification.
+
+
+
+.. py:function:: _get_nlp_model()
+
+   Installs and imports spacy & scispacy nlp model if any not already installed
+
+

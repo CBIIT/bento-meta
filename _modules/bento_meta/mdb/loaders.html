@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.mdb.loaders &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bento_meta.mdb.loaders</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bento_meta.mdb.loaders</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">mdb.loaders: load models into an MDB instance consistently</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.mdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">WriteableMDB</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.entities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">N</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">_plain_var</span>
+    <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.clauses</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Match</span><span class="p">,</span> <span class="n">Create</span><span class="p">,</span> <span class="n">Merge</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">OnMatchSet</span><span class="p">,</span> <span class="n">OnCreateSet</span><span class="p">,</span>
+    <span class="n">Remove</span><span class="p">,</span> <span class="n">Statement</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_mdf">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb.load_mdf">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_mdf</span><span class="p">(</span><span class="n">mdf</span><span class="p">,</span> <span class="n">mdb</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an MDF object into an MDB instance&quot;&quot;&quot;</span>
+    <span class="n">load_model</span><span class="p">(</span><span class="n">mdf</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">mdb</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_model">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb.load_model">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">mdb</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a model object into an MDB instance.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mdb</span><span class="p">,</span> <span class="n">WriteableMDB</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;mdb object must be a WriteableMDB&quot;</span><span class="p">)</span>
+    <span class="n">cstmts</span> <span class="o">=</span> <span class="n">load_model_statements</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">cstmts</span><span class="p">):</span>
+        <span class="n">mdb</span><span class="o">.</span><span class="n">put_with_statement</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">),</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_model_statements">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb.load_model_statements">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_model_statements</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create Cypher statements from a model to load it de novo into an</span>
+<span class="sd">    MDB instance.</span>
+
+<span class="sd">    :param :class:`mdb.Model` model: Model instance for loading</span>
+<span class="sd">    :param str _commit: &#39;Commit string&#39; for marking entities in DB. If set, this will override</span>
+<span class="sd">    _commit attributes already existing on Model entities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cStatements</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cNodes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">nd</span><span class="p">]</span>
+        <span class="n">cNode</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+        <span class="n">cStatements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">cNode</span><span class="p">),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">cNodes</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">handle</span><span class="p">]</span> <span class="o">=</span> <span class="n">cNode</span>
+        <span class="n">cProps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
+            <span class="n">cStatements</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">_tag_statements</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">cNode</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">props</span><span class="p">:</span>
+            <span class="n">cStatements</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">_prop_statements</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">cNode</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">concept</span><span class="p">:</span>
+            <span class="n">cStatements</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">_annotate_statements</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">cNode</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+            <span class="p">)</span>
+    <span class="c1"># node nodes and node-property nodes now exist</span>
+    <span class="c1"># nodes are linked to properties</span>
+    <span class="k">for</span> <span class="n">rl</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+        <span class="n">edge</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">rl</span><span class="p">]</span>
+        <span class="n">cEdge</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+        <span class="n">cSrc</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+        <span class="n">cDst</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">dst</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">:</span>
+            <span class="n">cEdge</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;multiplicity&quot;</span><span class="p">:</span> <span class="n">edge</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">is_required</span><span class="p">:</span>
+            <span class="n">cEdge</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;is_required&quot;</span><span class="p">:</span> <span class="n">edge</span><span class="o">.</span><span class="n">is_required</span><span class="p">})</span>
+        <span class="c1"># ensure uniqueness for merge</span>
+        <span class="n">cEdge</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;__u&quot;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">rl</span><span class="p">)})</span>
+        <span class="n">cStatements</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Create</span><span class="p">(</span><span class="n">cEdge</span><span class="p">),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">),</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Match</span><span class="p">(</span><span class="n">cEdge</span><span class="p">,</span> <span class="n">cSrc</span><span class="p">,</span> <span class="n">cDst</span><span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span>
+                    <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_src&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">cEdge</span><span class="p">),</span> <span class="n">_plain_var</span><span class="p">(</span><span class="n">cSrc</span><span class="p">))</span>
+                    <span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span>
+                      <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_dst&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">cEdge</span><span class="p">),</span> <span class="n">_plain_var</span><span class="p">(</span><span class="n">cDst</span><span class="p">))</span>
+                <span class="p">),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)])</span>
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
+            <span class="n">cStatements</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">_tag_statements</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">cEdge</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">props</span><span class="p">:</span>
+            <span class="n">cStatements</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">_prop_statements</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">cEdge</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">concept</span><span class="p">:</span>
+            <span class="n">cStatements</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">_annotate_statements</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">cEdge</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="n">cStatements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Match</span><span class="p">(</span><span class="n">cEdge</span><span class="p">),</span>
+                <span class="n">Remove</span><span class="p">(</span><span class="n">cEdge</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="s2">&quot;__u&quot;</span><span class="p">),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="c1"># edge node and edge-property nodes now exist</span>
+
+    <span class="c1"># now go through all properties that the model object knows about</span>
+    <span class="c1"># - these should already have been created or merged, but</span>
+    <span class="c1"># - if the property list on the model is missing any properties</span>
+    <span class="c1"># - that nodes or edges have on themselves, then this indicates</span>
+    <span class="c1"># - a bug/inconsistency  - and the property won&#39;t receive its</span>
+    <span class="c1"># - value_set/term list in the DB in the following code.</span>
+
+    <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+               <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">value_domain</span> <span class="o">==</span> <span class="s1">&#39;value_set&#39;</span><span class="p">]:</span>
+        <span class="n">cValueSet</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">pr</span><span class="o">.</span><span class="n">value_set</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+        <span class="n">cProp</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+        <span class="n">cStatements</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">cValueSet</span><span class="p">),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">),</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Match</span><span class="p">(</span><span class="n">cProp</span><span class="p">,</span> <span class="n">cValueSet</span><span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_value_set&quot;</span><span class="p">)</span><span class="o">.</span>
+                      <span class="n">relate</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">cProp</span><span class="p">),</span>
+                             <span class="n">_plain_var</span><span class="p">(</span><span class="n">cValueSet</span><span class="p">))),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="p">])</span>
+        <span class="k">if</span> <span class="n">pr</span><span class="o">.</span><span class="n">concept</span><span class="p">:</span>
+            <span class="n">cStatements</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">_annotate_statements</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span> <span class="n">cProp</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">for</span> <span class="n">tm</span> <span class="ow">in</span> <span class="n">pr</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">cTerm</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">tm</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+            <span class="n">cStatements</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+                <span class="n">Statement</span><span class="p">(</span>
+                    <span class="n">Merge</span><span class="p">(</span><span class="n">cTerm</span><span class="p">),</span>
+                    <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">),</span>
+                <span class="n">Statement</span><span class="p">(</span>
+                    <span class="n">Match</span><span class="p">(</span><span class="n">cValueSet</span><span class="p">,</span> <span class="n">cTerm</span><span class="p">),</span>
+                    <span class="n">Merge</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_term&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">cValueSet</span><span class="p">),</span>
+                                                    <span class="n">_plain_var</span><span class="p">(</span><span class="n">cTerm</span><span class="p">))),</span>
+                    <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                <span class="p">])</span>
+    <span class="k">return</span> <span class="n">cStatements</span></div>
+
+
+
+<div class="viewcode-block" id="_cEntity">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._cEntity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_cEntity</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">cEnt</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># translate labels</span>
+    <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;edge&#39;</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;relationship&#39;</span>
+    <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;valueset&#39;</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;value_set&#39;</span>
+
+    <span class="c1"># special handling</span>
+    <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;term&#39;</span><span class="p">:</span>
+        <span class="n">cEnt</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                 <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">value</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">origin_name</span><span class="p">:</span>
+            <span class="n">cEnt</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;origin_name&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">origin_name</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">origin_id</span><span class="p">:</span>
+            <span class="n">cEnt</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;origin_id&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">origin_id</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">origin_version</span><span class="p">:</span>
+            <span class="n">cEnt</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;origin_version&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">origin_version</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">origin_definition</span><span class="p">:</span>
+            <span class="n">cEnt</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;origin_defintion&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">origin_definition</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">handle</span><span class="p">:</span>
+            <span class="n">cEnt</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">handle</span><span class="p">})</span>
+    <span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;value_set&#39;</span><span class="p">:</span>
+        <span class="n">cEnt</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;value_set&#39;</span><span class="p">,</span>
+                 <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">handle</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">url</span><span class="p">:</span>
+            <span class="n">cEnt</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">url</span><span class="p">})</span>
+    <span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;concept&#39;</span><span class="p">:</span>
+        <span class="n">cEnt</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;concept&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;tag&#39;</span><span class="p">:</span>
+        <span class="n">cEnt</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span>
+                 <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">key</span><span class="p">,</span>
+                        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">value</span><span class="p">})</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cEnt</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                 <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;handle&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span>
+                        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">handle</span><span class="p">})</span>
+    <span class="c1"># all ents</span>
+    <span class="k">if</span> <span class="n">_commit</span><span class="p">:</span>
+        <span class="n">cEnt</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;_commit&quot;</span><span class="p">:</span> <span class="n">_commit</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">_commit</span><span class="p">:</span>
+            <span class="n">cEnt</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;_commit&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">_commit</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">nanoid</span><span class="p">:</span>
+        <span class="n">cEnt</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">nanoid</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">desc</span><span class="p">:</span>
+        <span class="n">cEnt</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;desc&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="o">.</span><span class="n">desc</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">cEnt</span></div>
+
+
+
+<div class="viewcode-block" id="_tag_statements">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._tag_statements">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_tag_statements</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">cEnt</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
+    <span class="n">stmts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cTags</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">cTag</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+            <span class="n">cTags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cTag</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ct</span> <span class="ow">in</span> <span class="n">cTags</span><span class="p">:</span>
+        <span class="n">stmts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Match</span><span class="p">(</span><span class="n">cEnt</span><span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_tag&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">cEnt</span><span class="p">),</span> <span class="n">ct</span><span class="p">)),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">stmts</span></div>
+
+
+
+<div class="viewcode-block" id="_prop_statements">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._prop_statements">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prop_statements</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">cEnt</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
+    <span class="n">stmts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">cProp</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+        <span class="n">cProp</span><span class="o">.</span><span class="n">_add_props</span><span class="p">({</span><span class="s2">&quot;value_domain&quot;</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">value_domain</span><span class="p">})</span>
+        <span class="n">stmts</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">cProp</span><span class="p">),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">),</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Match</span><span class="p">(</span><span class="n">cEnt</span><span class="p">,</span> <span class="n">cProp</span><span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_property&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span>
+                    <span class="n">_plain_var</span><span class="p">(</span><span class="n">cEnt</span><span class="p">),</span> <span class="n">_plain_var</span><span class="p">(</span><span class="n">cProp</span><span class="p">))),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">),</span>
+            <span class="p">])</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
+            <span class="n">stmts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">_tag_statements</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">cProp</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">stmts</span></div>
+
+
+
+<div class="viewcode-block" id="_annotate_statements">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/loaders/index.html#bento_meta.mdb._annotate_statements">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_annotate_statements</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">cEnt</span><span class="p">,</span> <span class="n">_commit</span><span class="p">):</span>
+    <span class="n">stmts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ent</span><span class="o">.</span><span class="n">concept</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">cConcept</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">ent</span><span class="o">.</span><span class="n">concept</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+    <span class="n">stmts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">tm</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">concept</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">cTerm</span> <span class="o">=</span> <span class="n">_cEntity</span><span class="p">(</span><span class="n">tm</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_commit</span><span class="p">)</span>
+        <span class="n">stmts</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">cTerm</span><span class="p">),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">),</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Match</span><span class="p">(</span><span class="n">cEnt</span><span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_concept&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span>
+                    <span class="n">_plain_var</span><span class="p">(</span><span class="n">cEnt</span><span class="p">),</span> <span class="n">cConcept</span><span class="p">)),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">),</span>
+            <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Match</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_concept&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span>
+                    <span class="n">cEnt</span><span class="p">,</span> <span class="n">cConcept</span><span class="p">),</span> <span class="n">cTerm</span><span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;represents&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span>
+                    <span class="n">_plain_var</span><span class="p">(</span><span class="n">cTerm</span><span class="p">),</span> <span class="n">_plain_var</span><span class="p">(</span><span class="n">cConcept</span><span class="p">))),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">),</span>
+        <span class="p">])</span>
+    <span class="k">return</span> <span class="n">stmts</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

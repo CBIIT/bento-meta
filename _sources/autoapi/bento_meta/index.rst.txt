@@ -1,0 +1,25 @@
+bento_meta
+==========
+
+.. py:module:: bento_meta
+
+.. autoapi-nested-parse::
+
+   bento-meta
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/bento_meta/entity/index
+   /autoapi/bento_meta/mdb/index
+   /autoapi/bento_meta/model/index
+   /autoapi/bento_meta/object_map/index
+   /autoapi/bento_meta/objects/index
+   /autoapi/bento_meta/util/index
+
+

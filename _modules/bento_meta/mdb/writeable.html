@@ -1,0 +1,183 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.mdb.writeable &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bento_meta.mdb.writeable</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bento_meta.mdb.writeable</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">mdb.writeable: subclass of `class:bento_meta.MDB` to support writing to an MDB</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.mdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_nanoid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.mdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">MDB</span>
+
+<div class="viewcode-block" id="write_txn">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/writeable/index.html#bento_meta.mdb.write_txn">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_txn</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorates a query function to run a write transaction based</span>
+<span class="sd">    on its query.</span>
+<span class="sd">    Query function should return a tuple (qry_string, param_dict).&quot;&quot;&quot;</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">txn_q</span><span class="p">(</span><span class="n">tx</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">qry</span><span class="p">,</span><span class="n">parms</span><span class="p">)</span><span class="o">=</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">qry</span><span class="p">,</span><span class="n">parameters</span><span class="o">=</span><span class="n">parms</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">rec</span> <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">write_transaction</span><span class="p">(</span><span class="n">txn_q</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">wr</span></div>
+
+
+<div class="viewcode-block" id="WriteableMDB">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/writeable/index.html#bento_meta.mdb.WriteableMDB">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WriteableMDB</span><span class="p">(</span><span class="n">MDB</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WriteableMDB.put_with_statement">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/writeable/index.html#bento_meta.mdb.WriteableMDB.put_with_statement">[docs]</a>
+    <span class="nd">@write_txn</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">put_with_statement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run an arbitrary write statement.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qry= must be a string&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parms</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;parms= must be a dict&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="WriteableMDB.put_term_with_origin">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/writeable/index.html#bento_meta.mdb.WriteableMDB.put_term_with_origin">[docs]</a>
+    <span class="nd">@write_txn</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">put_term_with_origin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">commit</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">_from</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge a bento-meta Term object, that has an Origin object set,</span>
+<span class="sd">        into an MDB. If a new term is created, assign a random 6-char nanoid </span>
+<span class="sd">        to it. The Origin must already be represented in the database.</span>
+<span class="sd">        :param Term term: Term object</span>
+<span class="sd">        :param str commit: GitHub commit SHA1 associated with the term (if any)&quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (o:origin {name:$o_name, nanoid:$o_id}) &quot;</span>
+            <span class="s2">&quot;where not exists(o._to) &quot;</span>
+            <span class="s2">&quot;merge (t:term {&quot;</span>
+            <span class="s2">&quot;  value:$t_value,&quot;</span>
+            <span class="s2">&quot;  origin_id:$t_oid,&quot;</span>
+            <span class="s2">&quot;  origin_version:$t_oversion,&quot;</span>
+            <span class="s2">&quot;  origin_definition:$t_odefn,&quot;</span>
+            <span class="s2">&quot;  _from:$from, _commit:$commit}) &quot;</span>
+            <span class="s2">&quot;merge (o)&lt;-[:has_origin]-(t) &quot;</span>
+            <span class="s2">&quot;on create set t.nanoid = $t_id &quot;</span>
+            <span class="s2">&quot;return t.nanoid&quot;</span>
+            <span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;o_name&quot;</span><span class="p">:</span> <span class="n">term</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;o_id&quot;</span><span class="p">:</span> <span class="n">term</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">nanoid</span><span class="p">,</span>
+                 <span class="s2">&quot;t_value&quot;</span><span class="p">:</span> <span class="n">term</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;t_oid&quot;</span><span class="p">:</span> <span class="n">term</span><span class="o">.</span><span class="n">origin_id</span><span class="p">,</span>
+                 <span class="s2">&quot;t_oversion&quot;</span><span class="p">:</span> <span class="n">term</span><span class="o">.</span><span class="n">origin_version</span><span class="p">,</span>
+                 <span class="s2">&quot;t_odefn&quot;</span><span class="p">:</span> <span class="n">term</span><span class="o">.</span><span class="n">origin_definition</span><span class="p">,</span>
+                 <span class="s2">&quot;t_id&quot;</span><span class="p">:</span> <span class="n">make_nanoid</span><span class="p">(),</span> <span class="s2">&quot;commit&quot;</span><span class="p">:</span> <span class="n">commit</span><span class="p">,</span>
+                 <span class="s2">&quot;from&quot;</span><span class="p">:</span><span class="n">_from</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

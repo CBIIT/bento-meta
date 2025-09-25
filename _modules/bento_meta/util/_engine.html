@@ -1,0 +1,529 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.util._engine &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bento_meta.util._engine</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bento_meta.util._engine</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.entities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa E402</span>
+    <span class="n">N</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">N0</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span>
+    <span class="n">_as</span><span class="p">,</span> <span class="n">_var</span><span class="p">,</span> <span class="n">_plain</span><span class="p">,</span> <span class="n">_anon</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.functions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">count</span><span class="p">,</span> <span class="n">exists</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">Not</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.util.cypher.clauses</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Match</span><span class="p">,</span> <span class="n">Where</span><span class="p">,</span> <span class="n">With</span><span class="p">,</span> <span class="n">Return</span><span class="p">,</span>
+    <span class="n">Statement</span>
+    <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_trace</span>  <span class="c1"># noqa E402</span>
+
+<span class="n">avail_funcs</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">exists</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">And</span><span class="p">,</span> <span class="n">Or</span><span class="p">,</span> <span class="n">Not</span><span class="p">)}</span>
+
+
+<div class="viewcode-block" id="_engine">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_engine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_params</span> <span class="o">=</span> <span class="n">use_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statement</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="_engine.set_paths">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine.set_paths">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_paths</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">paths</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="n">paths</span></div>
+
+
+<div class="viewcode-block" id="_engine.parse">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine.parse">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toks</span><span class="p">):</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">toks</span>
+        <span class="n">pth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walk</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">toks</span><span class="p">,</span> <span class="n">pth</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_engine._process_node">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_node">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">block</span> <span class="o">==</span> <span class="s1">&#39;_var&#39;</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">N</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">block</span><span class="p">[</span><span class="s1">&#39;_label&#39;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;_node block requires _label key&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;block&quot;</span><span class="p">:</span> <span class="n">block</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">block</span><span class="p">[</span><span class="s1">&#39;_label&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_prop&#39;</span><span class="p">):</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">_add_props</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_process_prop</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="s1">&#39;_prop&#39;</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_edge&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_node&#39;</span><span class="p">):</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_node</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="s1">&#39;_node&#39;</span><span class="p">])</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_edge</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">])</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">G</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Can&#39;t process _node block&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;block&quot;</span><span class="p">:</span> <span class="n">block</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="_engine._process_prop">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_prop">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_prop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">block</span><span class="p">,</span>
+                    <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span>
+              <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_handle&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_value&#39;</span><span class="p">)):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">block</span><span class="p">[</span><span class="s1">&#39;_handle&#39;</span><span class="p">],</span>
+                    <span class="n">value</span><span class="o">=</span><span class="n">block</span><span class="p">[</span><span class="s1">&#39;_value&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Can&#39;t process _prop block&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;block&quot;</span><span class="p">:</span> <span class="n">block</span>
+                <span class="p">}</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="_engine._process_edge">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_edge">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="n">block</span><span class="p">[</span><span class="s1">&#39;_type&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_dir&#39;</span><span class="p">):</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">_dir</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_dir&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_join&#39;</span><span class="p">):</span>
+                <span class="c1"># when an edge connects two complex paths</span>
+                <span class="c1"># define the nodes on the incoming path and new path</span>
+                <span class="c1"># to link with this edge</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">_join</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="s1">&#39;_join&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Can&#39;t process _edge block&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;block&quot;</span><span class="p">:</span> <span class="n">block</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="_engine._process_func">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._process_func">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">as_</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="n">block</span><span class="p">)</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;_func&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">as_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">as_</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">as_</span> <span class="o">=</span> <span class="n">as_</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">as_</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;_func&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">avail_funcs</span><span class="p">:</span>
+                <span class="c1"># the Func subclass:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;_func&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avail_funcs</span><span class="p">[</span><span class="n">ret</span><span class="p">[</span><span class="s1">&#39;_func&#39;</span><span class="p">]]</span>
+                <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;_func_as&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">as_</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Sorry, no cypher function &#39;</span><span class="si">{}</span><span class="s2">&#39; is currently defined&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="s1">&#39;_func&#39;</span><span class="p">]),</span>
+                    <span class="s2">&quot;block&quot;</span><span class="p">:</span> <span class="n">block</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># ERR no such function available</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Block type other than simple string not yet handled for _func&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;block&quot;</span><span class="p">:</span> <span class="n">block</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+                
+<div class="viewcode-block" id="_engine._create_statement">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._create_statement">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_statement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">,</span> <span class="n">pad</span><span class="p">):</span>
+        <span class="n">match_clause</span> <span class="o">=</span> <span class="n">Match</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+        <span class="n">ret_clause</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_return&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_return&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_items&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">R</span><span class="p">)):</span>
+                    <span class="n">ret_clause</span> <span class="o">=</span> <span class="n">Return</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ret_clause</span> <span class="o">=</span> <span class="n">Return</span><span class="p">(</span><span class="o">*</span><span class="n">ent</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ent</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_return&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">ent</span><span class="o">.</span><span class="n">var</span><span class="p">:</span>
+                    <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ent</span><span class="o">.</span><span class="n">Type</span> <span class="o">==</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_return&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">ent</span><span class="o">.</span><span class="n">var</span><span class="p">:</span>
+                    <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">a</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span>
+                              <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_return&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">var</span><span class="p">])</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;No named node to return with label &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_return&#39;</span><span class="p">]),</span>
+                        <span class="s2">&quot;ent&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="p">,</span>
+                        <span class="s2">&quot;pad&quot;</span><span class="p">:</span> <span class="n">pad</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ret_clause</span> <span class="o">=</span> <span class="n">Return</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_return&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">retblock</span> <span class="o">=</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_return&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">retblock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_path_id&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">path_id</span> <span class="o">=</span> <span class="n">retblock</span><span class="p">[</span><span class="s1">&#39;_path_id&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">retblock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_nodes&#39;</span><span class="p">):</span>
+                <span class="c1"># assume is list-valued</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">retblock</span><span class="p">[</span><span class="s1">&#39;_nodes&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s1">&#39;_nodes key must point to a list&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;ent&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="p">,</span>
+                        <span class="s2">&quot;pad&quot;</span><span class="p">:</span> <span class="n">pad</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="o">+</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">retblock</span><span class="p">[</span><span class="s1">&#39;_nodes&#39;</span><span class="p">]]}</span>
+                <span class="k">if</span> <span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                    <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ent</span><span class="o">.</span><span class="n">var</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">ent</span><span class="o">.</span><span class="n">label</span><span class="p">]:</span>
+                            <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_as</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="n">ent</span><span class="o">.</span><span class="n">label</span><span class="p">]))</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s1">&#39;_var&#39;</span> <span class="ow">in</span> <span class="n">labels</span> <span class="ow">and</span> <span class="n">ent</span> <span class="o">==</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]:</span>
+                            <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_as</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]))</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span> <span class="ow">and</span> <span class="n">n</span><span class="o">.</span><span class="n">var</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="p">]:</span>
+                                <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_as</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="p">]))</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="s1">&#39;_var&#39;</span> <span class="ow">in</span> <span class="n">labels</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">==</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]:</span>
+                                <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_as</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]))</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                                        
+            <span class="k">if</span> <span class="n">retblock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_edges&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">retblock</span><span class="p">[</span><span class="s1">&#39;_edges&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s1">&#39;_edges key must point to a list&#39;</span><span class="p">,</span>
+                        <span class="s2">&quot;ent&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="p">,</span>
+                        <span class="s2">&quot;pad&quot;</span><span class="p">:</span> <span class="n">pad</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="n">types</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="o">+</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">retblock</span><span class="p">[</span><span class="s1">&#39;_edges&#39;</span><span class="p">]]}</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ent</span><span class="o">.</span><span class="n">var</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">Type</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="n">ent</span><span class="o">.</span><span class="n">Type</span><span class="p">]:</span>
+                            <span class="n">_as</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">types</span><span class="p">[</span><span class="n">ent</span><span class="o">.</span><span class="n">Type</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s1">&#39;_var&#39;</span> <span class="ow">in</span> <span class="n">types</span> <span class="ow">and</span> <span class="n">ent</span> <span class="o">==</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]:</span>
+                            <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_as</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">types</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]))</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">Type</span> <span class="ow">in</span> <span class="n">types</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">var</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">Type</span><span class="p">]:</span>
+                                <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_as</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">types</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">Type</span><span class="p">]))</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;No named nodes or edges matching the path _return spec&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ent&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="p">,</span>
+                    <span class="s2">&quot;pad&quot;</span><span class="p">:</span> <span class="n">pad</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">retblock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_func&#39;</span><span class="p">):</span>
+                    <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_func</span><span class="p">(</span><span class="n">retblock</span><span class="p">[</span><span class="s1">&#39;_func&#39;</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># bad _func spec</span>
+                    <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;_func&#39;</span><span class="p">](</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_func_as&#39;</span><span class="p">):</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">_as</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;_func_as&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span>
+                <span class="n">ret_clause</span> <span class="o">=</span> <span class="n">Return</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;_return specification not str or dict&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ent&quot;</span><span class="p">:</span> <span class="n">ent</span><span class="p">,</span>
+                <span class="s2">&quot;pad&quot;</span><span class="p">:</span> <span class="n">pad</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statement</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span><span class="n">match_clause</span><span class="p">,</span> <span class="n">ret_clause</span><span class="p">,</span>
+                                   <span class="n">use_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statement</span><span class="o">.</span><span class="n">params</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="_engine._walk">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/util/_engine/index.html#bento_meta.util._engine._engine._walk">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_walk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">,</span> <span class="n">toks</span><span class="p">,</span> <span class="n">pth</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">toks</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">pth</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;_walk: Either toks or pth is empty&quot;</span>
+                <span class="p">}</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">tok</span> <span class="o">=</span> <span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pad</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">parm</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">pth</span><span class="p">:</span>
+            <span class="c1"># plain token - shouldn&#39;t start with _</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">tok</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="k">else</span> <span class="n">tok</span>
+            <span class="n">pth</span> <span class="o">=</span> <span class="n">pth</span><span class="p">[</span><span class="n">tok</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">any</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;$&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pth</span><span class="p">]):</span>
+            <span class="c1"># parameter</span>
+            <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pth</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;$&#39;</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pth</span> <span class="o">=</span> <span class="n">pth</span><span class="p">[</span><span class="n">parm</span><span class="p">]</span>
+            <span class="c1"># load pad</span>
+            <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_prop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="n">parm</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">value</span><span class="o">=</span><span class="n">tok</span><span class="p">)</span>
+            <span class="c1"># note that the cache key will be interpreted as a regexp</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;([a-zA-Z0-9_]+)&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="k">else</span> <span class="s2">&quot;([a-zA-Z0-9_]+)&quot;</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Token &#39;</span><span class="si">{}</span><span class="s2">&#39; not on valid path&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tok</span><span class="p">),</span>
+                <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">tok</span>
+                <span class="p">}</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># collect/create items req by block in the pad, and then</span>
+        <span class="c1"># execute operations on these items in standard order below.</span>
+        <span class="k">for</span> <span class="n">opn</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pth</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)]:</span>
+            <span class="c1"># operations in block</span>
+            <span class="k">if</span> <span class="n">opn</span> <span class="o">==</span> <span class="s2">&quot;_node&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">parm</span><span class="p">:</span>  <span class="c1"># processing a parameter</span>
+                    <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_node&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pth</span><span class="p">[</span><span class="s1">&#39;_node&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_node&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_node</span><span class="p">(</span><span class="n">pth</span><span class="p">[</span><span class="s1">&#39;_node&#39;</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">pth</span><span class="p">[</span><span class="s1">&#39;_node&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_var&#39;</span><span class="p">:</span>
+                        <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_node&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">opn</span> <span class="o">==</span> <span class="s2">&quot;_edge&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">parm</span><span class="p">:</span>  <span class="c1"># processing a parameter</span>
+                    <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pth</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_edge</span><span class="p">(</span><span class="n">pth</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">pth</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_var&#39;</span><span class="p">:</span>
+                        <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_var&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">opn</span> <span class="o">==</span> <span class="s2">&quot;_prop&quot;</span><span class="p">:</span>
+                <span class="c1"># WARN or ERR if pad.get(&#39;_prop&#39;) is True</span>
+                <span class="c1"># - a parm was already handled in that case</span>
+                <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_prop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_prop</span><span class="p">(</span><span class="n">pth</span><span class="p">[</span><span class="s1">&#39;_prop&#39;</span><span class="p">],</span> <span class="n">value</span><span class="o">=</span><span class="n">tok</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">opn</span> <span class="o">==</span> <span class="s2">&quot;_return&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># we&#39;re on the last token</span>
+                    <span class="c1"># pad[&#39;_return&#39;] not empty means we&#39;re finished</span>
+                    <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_return&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pth</span><span class="p">[</span><span class="s1">&#39;_return&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># more toks to go...</span>
+                    <span class="k">pass</span>  <span class="c1"># so ignore it</span>
+                <span class="k">pass</span>
+            <span class="k">elif</span> <span class="n">opn</span> <span class="o">==</span> <span class="s2">&quot;_func&quot;</span><span class="p">:</span>
+                <span class="n">_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_func</span><span class="p">(</span><span class="n">pth</span><span class="p">[</span><span class="s1">&#39;_func&#39;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_func</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span> <span class="c1"># bad _func spec</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_func</span><span class="p">:</span>
+                    <span class="n">pad</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">_func</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># pad ready for operations</span>
+        <span class="n">new_ent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">pad</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_prop&#39;</span><span class="p">)):</span>  <span class="c1"># add props to incoming entity</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">R</span><span class="p">)):</span>
+                <span class="n">ent</span><span class="o">.</span><span class="n">_add_props</span><span class="p">(</span><span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_prop&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">pad</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_node&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pad</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_edge&#39;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Both _edge and _node must be defined here&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">tok</span>
+                        <span class="p">}</span>
+                    <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># ERR, if incoming is path, need to specify the node which gets the property (by label)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">pad</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_node&#39;</span><span class="p">):</span>
+                        <span class="n">n</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span>
+                             <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_node&#39;</span><span class="p">]]</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Node specified by _node is not present&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">tok</span>
+                                <span class="p">}</span>
+                            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># specified node can&#39;t be found in ent</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_add_props</span><span class="p">(</span><span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_prop&#39;</span><span class="p">])</span>
+                            <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_node&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_prop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">if</span> <span class="n">pad</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_edge&#39;</span><span class="p">):</span>
+                        <span class="n">e</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ent</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span>
+                             <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">Type</span> <span class="o">==</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">]]</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Edge specified by _edge is not present&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">tok</span>
+                                <span class="p">}</span>
+                            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># specified edge not found in ent</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_add_props</span><span class="p">(</span><span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_prop&#39;</span><span class="p">])</span>
+                            <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_prop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">pad</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_node&#39;</span><span class="p">)):</span>  <span class="c1"># new entity</span>
+            <span class="n">new_ent</span> <span class="o">=</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_node&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">pad</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_edge&#39;</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ent</span><span class="p">:</span>  <span class="c1"># no input entity</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;No incoming entity to apply _edge to here&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">tok</span>
+                    <span class="p">}</span>
+                <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># ERR</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">new_ent</span><span class="p">:</span>  <span class="c1"># no new entity</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;No new entity to link to&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">tok</span>
+                    <span class="p">}</span>
+                <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># different ERR</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_ent</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+                <span class="c1"># simple relationship</span>
+                <span class="n">new_ent</span> <span class="o">=</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">new_ent</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_ent</span> <span class="o">=</span> <span class="n">G</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">pad</span><span class="p">[</span><span class="s1">&#39;_edge&#39;</span><span class="p">],</span> <span class="n">new_ent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pad</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_return&#39;</span><span class="p">):</span>  <span class="c1"># we made it</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_statement</span><span class="p">(</span><span class="n">new_ent</span> <span class="ow">or</span> <span class="n">ent</span><span class="p">,</span> <span class="n">pad</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Reached end of path, but found no _return spec&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">tok</span>
+                    <span class="p">}</span>
+                <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># ERR reached end of toks, no _return found</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walk</span><span class="p">(</span><span class="n">new_ent</span> <span class="ow">or</span> <span class="n">ent</span><span class="p">,</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">pth</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

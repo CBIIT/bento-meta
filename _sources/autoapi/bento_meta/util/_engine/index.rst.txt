@@ -1,0 +1,93 @@
+bento_meta.util._engine
+=======================
+
+.. py:module:: bento_meta.util._engine
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   bento_meta.util._engine.avail_funcs
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.util._engine._engine
+
+
+Module Contents
+---------------
+
+.. py:data:: avail_funcs
+
+.. py:class:: _engine(use_params=True)
+
+   Bases: :py:obj:`object`
+
+
+   .. py:attribute:: paths
+      :value: None
+
+
+
+   .. py:attribute:: use_params
+      :value: True
+
+
+
+   .. py:attribute:: error
+      :value: None
+
+
+
+   .. py:attribute:: statement
+      :value: None
+
+
+
+   .. py:attribute:: params
+      :value: None
+
+
+
+   .. py:attribute:: key
+      :value: ''
+
+
+
+   .. py:attribute:: path_id
+      :value: None
+
+
+
+   .. py:method:: set_paths(paths)
+      :classmethod:
+
+
+
+   .. py:method:: parse(toks)
+
+
+   .. py:method:: _process_node(block)
+
+
+   .. py:method:: _process_prop(block, value=None)
+
+
+   .. py:method:: _process_edge(block)
+
+
+   .. py:method:: _process_func(block)
+
+
+   .. py:method:: _create_statement(ent, pad)
+
+
+   .. py:method:: _walk(ent, toks, pth)
+
+

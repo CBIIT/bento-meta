@@ -1,0 +1,190 @@
+bento_meta.util.cypher.functions
+================================
+
+.. py:module:: bento_meta.util.cypher.functions
+
+.. autoapi-nested-parse::
+
+   bento_meta.util.cypher.functions
+
+   Representations of Cypher functions
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.util.cypher.functions.Func
+   bento_meta.util.cypher.functions.count
+   bento_meta.util.cypher.functions.exists
+   bento_meta.util.cypher.functions.labels
+   bento_meta.util.cypher.functions.Not
+   bento_meta.util.cypher.functions.And
+   bento_meta.util.cypher.functions.Or
+   bento_meta.util.cypher.functions.group
+   bento_meta.util.cypher.functions.is_null
+   bento_meta.util.cypher.functions.is_not_null
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   bento_meta.util.cypher.functions._pattern
+   bento_meta.util.cypher.functions._condition
+   bento_meta.util.cypher.functions._return
+
+
+Module Contents
+---------------
+
+.. py:class:: Func(arg)
+
+   Bases: :py:obj:`object`
+
+
+   .. py:attribute:: template
+
+
+   .. py:attribute:: joiner
+      :value: ','
+
+
+
+   .. py:attribute:: As
+      :value: ''
+
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+   .. py:attribute:: arg
+
+
+   .. py:method:: __str__()
+
+
+.. py:class:: count(arg)
+
+   Bases: :py:obj:`Func`
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: exists(arg)
+
+   Bases: :py:obj:`Func`
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: labels(arg)
+
+   Bases: :py:obj:`Func`
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: Not(arg)
+
+   Bases: :py:obj:`Func`
+
+
+   .. py:attribute:: template
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+.. py:class:: And(*args)
+
+   Bases: :py:obj:`Func`
+
+
+   .. py:attribute:: template
+
+
+   .. py:attribute:: joiner
+      :value: ' AND '
+
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+   .. py:attribute:: arg
+      :value: []
+
+
+
+.. py:class:: Or(*args)
+
+   Bases: :py:obj:`Func`
+
+
+   .. py:attribute:: template
+
+
+   .. py:attribute:: joiner
+      :value: ' OR '
+
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+   .. py:attribute:: arg
+      :value: []
+
+
+
+.. py:class:: group(arg)
+
+   Bases: :py:obj:`Func`
+
+
+   .. py:attribute:: template
+
+
+   .. py:attribute:: joiner
+      :value: ' '
+
+
+
+.. py:class:: is_null(arg)
+
+   Bases: :py:obj:`Func`
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: is_not_null(arg)
+
+   Bases: :py:obj:`Func`
+
+
+   .. py:attribute:: template
+
+
+.. py:function:: _pattern(ent)
+
+.. py:function:: _condition(ent)
+
+.. py:function:: _return(ent)
+

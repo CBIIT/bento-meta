@@ -1,0 +1,424 @@
+bento_meta.util.cypher.clauses
+==============================
+
+.. py:module:: bento_meta.util.cypher.clauses
+
+.. autoapi-nested-parse::
+
+   bento_meta.util.cypher.clauses
+
+   Representations of Cypher statement clauses, statements,
+   and statement parameters.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.util.cypher.clauses.Clause
+   bento_meta.util.cypher.clauses.Match
+   bento_meta.util.cypher.clauses.Where
+   bento_meta.util.cypher.clauses.With
+   bento_meta.util.cypher.clauses.Create
+   bento_meta.util.cypher.clauses.Merge
+   bento_meta.util.cypher.clauses.Remove
+   bento_meta.util.cypher.clauses.Set
+   bento_meta.util.cypher.clauses.OnCreateSet
+   bento_meta.util.cypher.clauses.OnMatchSet
+   bento_meta.util.cypher.clauses.Return
+   bento_meta.util.cypher.clauses.OptionalMatch
+   bento_meta.util.cypher.clauses.Collect
+   bento_meta.util.cypher.clauses.Unwind
+   bento_meta.util.cypher.clauses.As
+   bento_meta.util.cypher.clauses.Delete
+   bento_meta.util.cypher.clauses.DetachDelete
+   bento_meta.util.cypher.clauses.Case
+   bento_meta.util.cypher.clauses.When
+   bento_meta.util.cypher.clauses.Then
+   bento_meta.util.cypher.clauses.Else
+   bento_meta.util.cypher.clauses.End
+   bento_meta.util.cypher.clauses.ForEach
+   bento_meta.util.cypher.clauses.Statement
+
+
+Module Contents
+---------------
+
+.. py:class:: Clause(*args, **kwargs)
+
+   Bases: :py:obj:`object`
+
+
+   Represents a generic Cypher clause.
+
+
+   .. py:attribute:: template
+
+
+   .. py:attribute:: joiner
+      :value: ', '
+
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+   .. py:attribute:: args
+      :value: []
+
+
+
+   .. py:attribute:: kwargs
+
+
+   .. py:method:: __str__()
+
+
+.. py:class:: Match(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a MATCH clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+.. py:class:: Where(*args, op='AND')
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a WHERE clause with the arguments
+   (joining conditions with 'op').
+
+
+   .. py:attribute:: template
+
+
+   .. py:attribute:: joiner
+      :value: ' {} '
+
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+   .. py:attribute:: op
+      :value: 'AND'
+
+
+
+   .. py:method:: __str__()
+
+
+.. py:class:: With(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a WITH clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: Create(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a CREATE clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+.. py:class:: Merge(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a MERGE clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+.. py:class:: Remove(*args, **kwargs)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a REMOVE clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+   .. py:method:: __str__()
+
+
+.. py:class:: Set(*args, **kwargs)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a SET clause with the arguments. (Only property arguments matter.)
+
+
+   .. py:attribute:: template
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+   .. py:method:: __str__()
+
+
+.. py:class:: OnCreateSet(*args)
+
+   Bases: :py:obj:`Set`
+
+
+   Create an ON CREATE SET clause for a MERGE with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: OnMatchSet(*args)
+
+   Bases: :py:obj:`Set`
+
+
+   Create an ON CREATE SET clause for a MERGE with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: Return(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a RETURN clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: OptionalMatch(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create an OPTIONAL MATCH clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+.. py:class:: Collect(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a COLLECT clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: Unwind(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create an UNWIND clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: As(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create an AS clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: Delete(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a DELETE clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: DetachDelete(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a DETACH DELETE clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: Case(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a CASE clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: When(*args, op='AND')
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a WHEN clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+   .. py:attribute:: joiner
+      :value: ' {} '
+
+
+
+   .. py:method:: context(arg)
+      :staticmethod:
+
+
+
+   .. py:attribute:: op
+      :value: 'AND'
+
+
+
+   .. py:method:: __str__()
+
+
+.. py:class:: Then(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create a THEN clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: Else(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create an ELSE clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: End(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create an END clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: ForEach(*args)
+
+   Bases: :py:obj:`Clause`
+
+
+   Create an FOREACH clause with the arguments.
+
+
+   .. py:attribute:: template
+
+
+.. py:class:: Statement(*args, terminate=False, use_params=False)
+
+   Bases: :py:obj:`object`
+
+
+   Create a Neo4j statement comprised of clauses (and strings) in order.
+
+
+   .. py:attribute:: clauses
+      :value: ()
+
+
+
+   .. py:attribute:: terminate
+      :value: False
+
+
+
+   .. py:attribute:: use_params
+      :value: False
+
+
+
+   .. py:attribute:: _params
+      :value: None
+
+
+
+   .. py:method:: __str__()
+
+
+   .. py:property:: params
+
+

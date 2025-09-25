@@ -1,0 +1,259 @@
+bento_meta.objects
+==================
+
+.. py:module:: bento_meta.objects
+
+.. autoapi-nested-parse::
+
+   bento_meta.objects
+   ==================
+
+   This module contains the subclasses of :class:`Entity` which are used
+   in representing the models contained in the `MDB <https://github.com/CBIIT/bento-mdf>`_.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.objects.Node
+   bento_meta.objects.Property
+   bento_meta.objects.Edge
+   bento_meta.objects.Term
+   bento_meta.objects.ValueSet
+   bento_meta.objects.Concept
+   bento_meta.objects.Predicate
+   bento_meta.objects.Origin
+   bento_meta.objects.Tag
+   bento_meta.objects.Model
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   bento_meta.objects.mergespec
+
+
+Module Contents
+---------------
+
+.. py:function:: mergespec(clsname: str, attspec: dict[str, str], mapspec: dict[str, str | dict[str, str]]) -> tuple[dict[str, str], dict[str, str | dict[str, str]]]
+
+   Merge subclass attribute and mapping specification dicts with the base class's.
+
+   Not for human consumption.
+
+
+.. py:class:: Node(init: dict | neo4j.graph.Node | Node | None = None)
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+
+   Subclass that models a data node.
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: mapspec_
+
+
+   .. py:property:: annotations
+
+      If the `Node` is annotated by `Term`s via a `Concept`,
+      return the `Term`s
+
+
+   .. py:method:: get_key_prop() -> Property | list[Property] | None
+
+      Return the `Property` entity with `is_key=True` for this `Node` if it exists.
+
+      If multiple key props exist, return a list of them; if none exist, return None.
+
+
+
+.. py:class:: Property(init: dict | neo4j.graph.Node | Property | None = None)
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+
+   Subclass that models a property of a node or relationship (edge).
+
+
+   .. py:attribute:: pvt_attr
+      :value: ['pvt', 'neoid', 'dirty', 'removed_entities', 'attspec', 'mapspec', 'belongs', 'value_types']
+
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: mapspec_
+
+
+   .. py:attribute:: defaults
+
+
+   .. py:attribute:: value_types
+      :value: []
+
+
+
+   .. py:property:: annotations
+
+      If the `Property` is annotated by `Term`s via a `Concept`, return the `Term`s.
+
+
+   .. py:property:: terms
+
+      If the `Property` has a ``value_set`` domain, return the `Term` objects
+      of its `ValueSet`
+
+
+   .. py:property:: values
+
+      If the `Property` as a ``value_set`` domain, return its term values as a list of str.
+      :return: list of term values
+      :rtype: list
+
+
+.. py:class:: Edge(init: dict | neo4j.graph.Node | Edge | None = None)
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+
+   Subclass that models a relationship between model nodes.
+
+
+   .. py:attribute:: defaults
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: mapspec_
+
+
+   .. py:property:: annotations
+
+      If the `Edge` is annotated by `Term`s via a `Concept`,
+      return the `Term`s
+
+
+   .. py:property:: triplet
+
+      ``(edge.handle, src.handle, dst.handle)``
+      ``src`` and ``dst`` attributes must be set.
+
+      :type: A 3-tuple that fully qualifies the edge
+
+
+.. py:class:: Term(init: dict | neo4j.graph.Node | Term | None = None)
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+
+   Subclass that models a term from a terminology.
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: mapspec_
+
+
+.. py:class:: ValueSet(init: dict | neo4j.graph.Node | ValueSet | None = None)
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+
+   Subclass that models an enumerated set of :class:`Property` values.
+   Essentially a container for :class:`Term` instances.
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: mapspec_
+
+
+   .. py:method:: __setattr__(name, value)
+
+
+.. py:class:: Concept(init: dict | neo4j.graph.Node | Concept | None = None)
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+
+   Subclass that models a semantic concept.
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: mapspec_
+
+
+.. py:class:: Predicate(init: dict | neo4j.graph.Node | Predicate | None = None)
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+
+   Subclass that models a semantic link between concepts.
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: mapspec_
+
+
+.. py:class:: Origin(init: dict | neo4j.graph.Node | Origin | None = None)
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+
+   Subclass that models a :class:`Term` 's authoritative source.
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: mapspec_
+
+
+.. py:class:: Tag(init: dict | neo4j.graph.Node | Tag | None = None)
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+
+   Subclass that allows simple key-value tagging of a model at arbitrary points.
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: mapspec_
+
+
+.. py:class:: Model(init: dict | neo4j.graph.Node | Model | None = None)
+
+   Bases: :py:obj:`bento_meta.entity.Entity`
+
+
+   Subclass with information regarding data model.
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: mapspec_
+
+
+   .. py:attribute:: defaults
+
+

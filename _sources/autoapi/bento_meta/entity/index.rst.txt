@@ -1,0 +1,264 @@
+bento_meta.entity
+=================
+
+.. py:module:: bento_meta.entity
+
+.. autoapi-nested-parse::
+
+   bento_meta.entity
+   =================
+
+   This module contains
+   * `Entity`, the base class for metamodel objects,
+   * the `CollValue` class to manage collection-valued attributes, and
+   * the `ArgError` exception.
+
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   bento_meta.entity.ArgError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.entity.Entity
+   bento_meta.entity.CollValue
+
+
+Module Contents
+---------------
+
+.. py:exception:: ArgError
+
+   Bases: :py:obj:`Exception`
+
+
+   Exception for method argument errors.
+
+
+.. py:class:: Entity(init: dict | neo4j.graph.Node | Entity | None = None)
+
+   Base class for all metamodel objects.
+
+   Entity contains all the magic for metamodel objects such as
+   `bento_meta.objects.Node` and 'bento_meta.object.Edge`. It will rarely
+   be used directly. Entity redefines `__setattr__` and `__getattr__` to
+   enable graph database object mapping under the hood.
+
+   The Entity class also defines private and declared attributes that are
+   common to all metamodel objects. It provides the machinery to manage
+   private attributes separately from declared attributes, and to raise
+   exceptions when attempts are made to access attributes that are not
+   declared.
+
+
+   .. py:attribute:: pvt_attr
+      :value: ['pvt', 'neoid', 'dirty', 'removed_entities', 'attspec', 'mapspec', 'belongs']
+
+
+
+   .. py:attribute:: defaults
+
+
+   .. py:attribute:: attspec_
+
+
+   .. py:attribute:: attspec
+
+
+   .. py:attribute:: mapspec_
+
+
+   .. py:property:: object_map
+
+
+   .. py:attribute:: pvt
+
+
+   .. py:attribute:: neoid
+      :value: None
+
+
+
+   .. py:property:: dirty
+
+      Flag whether this instance has been changed since retrieval from the database.
+
+      Set to -1, ensure that the next time an attribute is accessed, the instance
+      will retrieve itself from the database.
+
+
+   .. py:property:: removed_entities
+
+
+   .. py:property:: belongs
+
+      Dict that stores information on the owners (referents) of this instance
+      in the model
+
+
+   .. py:method:: mapspec() -> dict[str, str | dict[str, str]]
+      :classmethod:
+
+
+      The object to database mapping specification.
+
+      Is a class method, not a property.
+
+
+
+   .. py:method:: default(propname)
+      :classmethod:
+
+
+      Returns a default value for the property named, or None if no default defined.
+
+
+
+   .. py:method:: get_by_id(id: str)
+
+      Get an object from the db with the id attribute (not the Neo4j id).
+
+      Returns a new object.
+      :param string id: value of id for desired object
+
+
+
+   .. py:method:: clear_removed_entities()
+
+
+   .. py:method:: set_with_dict(init: dict) -> None
+
+
+   .. py:method:: set_with_node(init)
+
+
+   .. py:method:: set_with_entity(ent)
+
+
+   .. py:method:: __getattribute__(name: str) -> Any
+
+
+   .. py:method:: __getattr__(name: str) -> Any
+
+
+   .. py:method:: __setattr__(name: str, value: Any) -> None
+
+
+   .. py:method:: _set_declared_attr(name, value)
+
+
+   .. py:method:: __delattr__(name: str) -> None
+
+
+   .. py:method:: _check_init(init) -> None
+
+
+   .. py:method:: _check_value(att, value)
+
+
+   .. py:method:: dup()
+
+      Duplicate the object, but not too deeply.
+
+
+
+   .. py:method:: delete() -> None
+
+      Delete self from the database.
+
+
+
+   .. py:method:: dget(*, refresh: bool = False)
+
+      Update self from the database.
+
+      :param boolean refresh: if True, force a retrieval from db;
+      if False, retrieve from cache;
+      don't disrupt changes already made
+
+
+
+   .. py:method:: dput()
+
+      Put self to the database.
+
+      This will set the `neoid` property if not yet set.
+
+
+
+   .. py:method:: rm(force)
+
+      Delete self from the database. The object instance survives.
+
+
+
+   .. py:method:: attr_doc()
+      :classmethod:
+
+
+      Create a docstring for declared attributes on class as configured.
+
+
+
+   .. py:method:: get_label() -> str
+
+      Return type of entity as label.
+
+
+
+   .. py:method:: get_attr_dict() -> dict[str, str]
+
+      Return simple attributes set for Entity as a dict.
+
+      Attr values are converted to strings. Doesn't include attrs with None values.
+
+
+
+.. py:class:: CollValue(init=None, *, owner: Entity, owner_key: str)
+
+   Bases: :py:obj:`collections.UserDict`
+
+
+   A UserDict for housing Entity collection attributes.
+
+   This class contains a hook for recording the Entity that
+   owns the value that is being set. The value is marked as belonging
+   to the *containing object*, not this collection object.
+   It also protects against adding arbitrarily typed elements to the
+   collection; it throws unless a value to set is an `Entity`. `__setitem__`.
+
+   :param owner: `Entity` object of which this collection is an attribute
+   :param owner_key: the attribute name of this collection on the owner
+
+
+   .. py:property:: owner
+      :type: Entity
+
+
+      The entity instance of which this collection is an attribute.
+
+
+   .. py:property:: owner_key
+      :type: str
+
+
+      The attribute name of this collection on the `owner`.
+
+
+   .. py:method:: __setitem__(name, value)
+
+
+   .. py:method:: __getitem__(name: str) -> Any
+
+
+   .. py:method:: __delitem__(name: str) -> None
+
+

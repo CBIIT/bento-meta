@@ -1,0 +1,1156 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.mdb.mdb_tools.mdb_tools &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bento_meta.mdb.mdb_tools.mdb_tools</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bento_meta.mdb.mdb_tools.mdb_tools</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ToolsMDB: subclass of &#39;WriteableMDB&#39; to support interactions with the MDB.</span>
+
+<span class="sd">EntityValidator: validates that entities have required attributes.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_spec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">logging.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">fileConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">subprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span> <span class="n">executable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.entity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.mdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_nanoid</span><span class="p">,</span> <span class="n">read_txn_data</span><span class="p">,</span> <span class="n">read_txn_value</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.mdb.writeable</span><span class="w"> </span><span class="kn">import</span> <span class="n">WriteableMDB</span><span class="p">,</span> <span class="n">write_txn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.objects</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Concept</span><span class="p">,</span>
+    <span class="n">Edge</span><span class="p">,</span>
+    <span class="n">Node</span><span class="p">,</span>
+    <span class="n">Predicate</span><span class="p">,</span>
+    <span class="n">Property</span><span class="p">,</span>
+    <span class="n">Tag</span><span class="p">,</span>
+    <span class="n">Term</span><span class="p">,</span>
+    <span class="n">ValueSet</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">minicypher.statement</span><span class="w"> </span><span class="kn">import</span> <span class="n">Statement</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">minicypher.clauses</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">As</span><span class="p">,</span>
+    <span class="n">Collect</span><span class="p">,</span>
+    <span class="n">Match</span><span class="p">,</span>
+    <span class="n">Merge</span><span class="p">,</span>
+    <span class="n">DetachDelete</span><span class="p">,</span>
+    <span class="n">OptionalMatch</span><span class="p">,</span>
+    <span class="n">Return</span><span class="p">,</span>
+    <span class="n">With</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">minicypher.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">N0</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">_plain_var</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">minicypher.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">count</span>
+
+<span class="c1"># logging stuff</span>
+<span class="n">log_ini_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;logs/log.ini&quot;</span><span class="p">)</span>
+<span class="n">log_file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;logs/</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span>
+<span class="n">fileConfig</span><span class="p">(</span><span class="n">log_ini_path</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;logfilename&quot;</span><span class="p">:</span> <span class="n">log_file_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()})</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ToolsMDB">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ToolsMDB</span><span class="p">(</span><span class="n">WriteableMDB</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds mdb-tools to WriteableMDB&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+        <span class="n">WriteableMDB</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ToolsMDB.EntityNotUniqueError">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.EntityNotUniqueError">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">EntityNotUniqueError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raised when an entity&#39;s attributes identify more than 1 property graph node in an MDB&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.EntityNotFoundError">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.EntityNotFoundError">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">EntityNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raised when an entity&#39;s attributes fail to identify a property graph node in an MDB&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.PatternNotUniqueError">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.PatternNotUniqueError">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">PatternNotUniqueError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raised when a match pattern&#39;s attributes identify more than 1</span>
+<span class="sd">        property graph triple or set of overlapping triples in an MDB</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.PatternNotFoundError">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.PatternNotFoundError">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">PatternNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raised when a match pattern&#39;s attributes fail to identify</span>
+<span class="sd">        a property graph triple or set of overlapping triples in an MDB</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB._get_entity_count">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB._get_entity_count">[docs]</a>
+    <span class="nd">@read_txn_value</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_entity_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns count of given entity found in an MDB.</span>
+
+<span class="sd">        If count = 0, entity with given attributes not found in MDB.</span>
+<span class="sd">        If count = 1, entity with given attributes is unique in MDB</span>
+<span class="sd">        If count &gt; 1, more attributes needed to uniquely id entity in MDB.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ent</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">get_label</span><span class="p">(),</span> <span class="n">props</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span>
+            <span class="n">Match</span><span class="p">(</span><span class="n">ent</span><span class="p">),</span>
+            <span class="n">Return</span><span class="p">(</span><span class="n">count</span><span class="p">(</span><span class="n">ent</span><span class="p">)),</span>
+            <span class="n">As</span><span class="p">(</span><span class="s2">&quot;entity_count&quot;</span><span class="p">),</span>
+            <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">,</span> <span class="s2">&quot;entity_count&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB._get_pattern_count">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB._get_pattern_count">[docs]</a>
+    <span class="nd">@read_txn_value</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_pattern_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">G</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns count of given match pattern, which could be a triple like:</span>
+<span class="sd">        (n)-[r]-&gt;(m), or a set of overlapping triples (Path) found in MDB.</span>
+
+<span class="sd">        If count = 0, pattern with given attributes not found in MDB.</span>
+<span class="sd">        If count = 1, pattern with given attributes is unique in MDB</span>
+<span class="sd">        If count &gt; 1, more attributes needed to uniquely id pattern in MDB.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span>
+            <span class="n">Match</span><span class="p">(</span><span class="n">pattern</span><span class="p">),</span>
+            <span class="n">Return</span><span class="p">(</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)),</span>
+            <span class="n">As</span><span class="p">(</span><span class="s2">&quot;pattern_count&quot;</span><span class="p">),</span>
+            <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">,</span> <span class="s2">&quot;pattern_count&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.validate_entity_unique">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.validate_entity_unique">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_entity_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates that the given entity occurs once (&amp; only once) in an MDB</span>
+
+<span class="sd">        Raises EntityNotUniqueError if entity attributes match multiple property</span>
+<span class="sd">            graph nodes in the MDB.</span>
+
+<span class="sd">        Raises EntityNotFoundError if entity attributes don&#39;t match any in the MDB.</span>
+
+<span class="sd">        Note: doesn&#39;t validate the entity itself because not all entity attibutes</span>
+<span class="sd">            necessarily required to locate an entity in the MDB.</span>
+<span class="sd">            (e.g. handle and model OR nanoid alone can identify a node)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ent_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_entity_count</span><span class="p">(</span><span class="n">entity</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">ent_count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">EntityNotUniqueError</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">EntityNotUniqueError</span>
+        <span class="k">if</span> <span class="n">ent_count</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">EntityNotFoundError</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">EntityNotFoundError</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.validate_entities_unique">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.validate_entities_unique">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_entities_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entities</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Entity</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs self.validate_entity_unique() over multiple entities&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">entities</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.validate_pattern_unique">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.validate_pattern_unique">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_pattern_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">G</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates that the given match pattern occurs once (&amp; only once) in an MDB</span>
+
+<span class="sd">        Raises PatternNotUniqueError if entity attributes match multiple property</span>
+<span class="sd">        graph nodes in the MDB.</span>
+
+<span class="sd">        Raises PatternNotFoundError if entity attributes don&#39;t match any in the MDB.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pattern_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_pattern_count</span><span class="p">(</span><span class="n">pattern</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">pattern_count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">PatternNotUniqueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Pattern: </span><span class="si">{</span><span class="n">pattern</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span><span class="si">}</span><span class="s2"> not unique.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">PatternNotUniqueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Pattern: </span><span class="si">{</span><span class="n">pattern</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span><span class="si">}</span><span class="s2"> not unique.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">pattern_count</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">PatternNotFoundError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Pattern: </span><span class="si">{</span><span class="n">pattern</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">PatternNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pattern: </span><span class="si">{</span><span class="n">pattern</span><span class="o">.</span><span class="n">pattern</span><span class="p">()</span><span class="si">}</span><span class="s2"> not found.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.remove_entity_from_mdb">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.remove_entity_from_mdb">[docs]</a>
+    <span class="nd">@write_txn</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_entity_from_mdb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove given Entity node from the database.</span>
+
+<span class="sd">        Accepts the following bento-meta Entities:</span>
+<span class="sd">            Concept, Node, Predicate, Property, Edge, Term</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+
+        <span class="n">ent_label</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span>
+        <span class="n">ent_attrs</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">()</span>
+
+        <span class="n">ent</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">ent_label</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">ent_attrs</span><span class="p">)</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span><span class="n">Match</span><span class="p">(</span><span class="n">ent</span><span class="p">),</span> <span class="n">DetachDelete</span><span class="p">(</span><span class="n">ent</span><span class="o">.</span><span class="n">_var</span><span class="p">),</span> <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing </span><span class="si">{</span><span class="n">ent_label</span><span class="si">}</span><span class="s2"> entity with with properties: </span><span class="si">{</span><span class="n">ent_attrs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.add_entity_to_mdb">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.add_entity_to_mdb">[docs]</a>
+    <span class="nd">@write_txn</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_entity_to_mdb</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span>
+        <span class="n">_commit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds given Entity node to MDB instance&quot;&quot;&quot;</span>
+        <span class="n">EntityValidator</span><span class="o">.</span><span class="n">validate_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="n">EntityValidator</span><span class="o">.</span><span class="n">validate_entity_has_attribute</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="s2">&quot;nanoid&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">_commit</span><span class="p">:</span>
+            <span class="n">entity</span><span class="o">.</span><span class="n">_commit</span> <span class="o">=</span> <span class="n">_commit</span>
+
+        <span class="n">ent_label</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span>
+        <span class="n">ent_attrs</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">()</span>
+
+        <span class="n">ent</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">ent_label</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">ent_attrs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+            <span class="n">dst</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+            <span class="n">src_rel</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_src&quot;</span><span class="p">)</span>
+            <span class="n">dst_rel</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_dst&quot;</span><span class="p">)</span>
+            <span class="n">src_trip</span> <span class="o">=</span> <span class="n">src_rel</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">ent</span><span class="p">),</span> <span class="n">_plain_var</span><span class="p">(</span><span class="n">src</span><span class="p">))</span>
+            <span class="n">dst_trip</span> <span class="o">=</span> <span class="n">dst_rel</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">ent</span><span class="p">),</span> <span class="n">_plain_var</span><span class="p">(</span><span class="n">dst</span><span class="p">))</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">ent</span><span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">src</span><span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">dst</span><span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">src_trip</span><span class="p">),</span>
+                <span class="n">Merge</span><span class="p">(</span><span class="n">dst_trip</span><span class="p">),</span>
+                <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span><span class="n">Merge</span><span class="p">(</span><span class="n">ent</span><span class="p">),</span> <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Merging new </span><span class="si">{</span><span class="n">ent_label</span><span class="si">}</span><span class="s2"> node with properties: </span><span class="si">{</span><span class="n">ent_attrs</span><span class="si">}</span><span class="s2"> into the MDB&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.get_concept_nanoids_linked_to_entity">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.get_concept_nanoids_linked_to_entity">[docs]</a>
+    <span class="nd">@read_txn_value</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_concept_nanoids_linked_to_entity</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span>
+        <span class="n">mapping_source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of concept nanoids linked to given entity by</span>
+<span class="sd">        &quot;represents&quot; or &quot;has_concept&quot; relationships tagged with</span>
+<span class="sd">        the given mapping source.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+
+        <span class="n">ent</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">get_label</span><span class="p">(),</span> <span class="n">props</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+        <span class="n">concept</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;concept&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Term</span><span class="p">):</span>
+            <span class="n">rel</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;represents&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rel</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_concept&quot;</span><span class="p">)</span>
+        <span class="n">ent_trip</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">concept</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mapping_source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span>
+                <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;mapping_source&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">mapping_source</span><span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">tag_trip</span> <span class="o">=</span> <span class="n">T</span><span class="p">(</span><span class="n">concept</span><span class="p">,</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_tag&quot;</span><span class="p">),</span> <span class="n">tag</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">G</span><span class="p">(</span><span class="n">ent_trip</span><span class="p">,</span> <span class="n">tag_trip</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">ent_trip</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span>
+            <span class="n">Match</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+            <span class="n">Return</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">concept</span><span class="o">.</span><span class="n">_var</span><span class="si">}</span><span class="s2">.nanoid&quot;</span><span class="p">),</span>
+            <span class="n">As</span><span class="p">(</span><span class="s2">&quot;concept_nanoids&quot;</span><span class="p">),</span>
+            <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">qry</span><span class="si">=}</span><span class="s2">; </span><span class="si">{</span><span class="n">parms</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">,</span> <span class="s2">&quot;concept_nanoids&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.add_relationship_to_mdb">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.add_relationship_to_mdb">[docs]</a>
+    <span class="nd">@write_txn</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_relationship_to_mdb</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">relationship_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">src_entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span>
+        <span class="n">dst_entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span>
+        <span class="n">_commit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds relationship between given entities in MDB.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entities_unique</span><span class="p">([</span><span class="n">src_entity</span><span class="p">,</span> <span class="n">dst_entity</span><span class="p">])</span>
+
+        <span class="n">rel</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="n">relationship_type</span><span class="p">)</span>
+
+        <span class="n">src</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">src_entity</span><span class="o">.</span><span class="n">get_label</span><span class="p">(),</span> <span class="n">props</span><span class="o">=</span><span class="n">src_entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">dst_entity</span><span class="o">.</span><span class="n">get_label</span><span class="p">(),</span> <span class="n">props</span><span class="o">=</span><span class="n">dst_entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+        <span class="n">trip</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+        <span class="n">plain_trip</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">src</span><span class="p">),</span> <span class="n">_plain_var</span><span class="p">(</span><span class="n">dst</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># check for existance shouldn&#39;t include _commit?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_pattern_unique</span><span class="p">(</span><span class="n">trip</span><span class="p">)</span>
+        <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">PatternNotFoundError</span><span class="p">:</span>
+            <span class="c1"># if triple doesn&#39;t already exist, add _commit? this means that</span>
+            <span class="c1"># if triple exists w/ different _commit, merge shouldn&#39;t add anything?</span>
+            <span class="n">rel</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;_commit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">(</span><span class="n">handle</span><span class="o">=</span><span class="s2">&quot;_commit&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">_commit</span><span class="p">)</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span><span class="n">Match</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">),</span> <span class="n">Merge</span><span class="p">(</span><span class="n">plain_trip</span><span class="p">),</span> <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Adding </span><span class="si">{</span><span class="n">relationship_type</span><span class="si">}</span><span class="s2"> relationship between src </span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s2"> with &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;properties: </span><span class="si">{</span><span class="n">src_entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">()</span><span class="si">}</span><span class="s2"> to dst </span><span class="si">{</span><span class="n">dst</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;with properties: </span><span class="si">{</span><span class="n">dst_entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.link_synonyms">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.link_synonyms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">link_synonyms</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">entity_1</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span>
+        <span class="n">entity_2</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span>
+        <span class="n">mapping_source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">_commit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Link two synonymous entities in the MDB via a Concept node.</span>
+
+<span class="sd">        This function takes two synonymous Entities (as determined by user/SME) as</span>
+<span class="sd">        bento-meta objects connects them to a Concept node via a &#39;represents&#39; relationship.</span>
+
+<span class="sd">        Entities must both exist in the MDB instance and given entity attributes must</span>
+<span class="sd">        uniquely identify property graph nodes in the MDB.</span>
+
+<span class="sd">        If _commit is set (to a string), the _commit property of any node created is set to</span>
+<span class="sd">        this value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entities_unique</span><span class="p">([</span><span class="n">entity_1</span><span class="p">,</span> <span class="n">entity_2</span><span class="p">])</span>
+
+        <span class="n">ent_1_concepts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_concept_nanoids_linked_to_entity</span><span class="p">(</span>
+            <span class="n">entity</span><span class="o">=</span><span class="n">entity_1</span><span class="p">,</span>
+            <span class="n">mapping_source</span><span class="o">=</span><span class="n">mapping_source</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ent_2_concepts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_concept_nanoids_linked_to_entity</span><span class="p">(</span>
+            <span class="n">entity</span><span class="o">=</span><span class="n">entity_2</span><span class="p">,</span>
+            <span class="n">mapping_source</span><span class="o">=</span><span class="n">mapping_source</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">shared_concepts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ent_1_concepts</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">ent_2_concepts</span><span class="p">))</span>
+
+        <span class="c1"># has concept been tagged by this mapping src before</span>
+        <span class="k">if</span> <span class="n">shared_concepts</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;This mapping has already been added by this source via &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Concept with nanoid: </span><span class="si">{</span><span class="n">shared_concepts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># one of the entities has a concept created by the given mapping source</span>
+        <span class="k">if</span> <span class="n">ent_1_concepts</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using existing concept with nanoid </span><span class="si">{</span><span class="n">ent_1_concepts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">concept</span> <span class="o">=</span> <span class="n">Concept</span><span class="p">({</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">ent_1_concepts</span><span class="p">[</span><span class="mi">0</span><span class="p">]})</span>
+        <span class="k">elif</span> <span class="n">ent_2_concepts</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using existing concept with nanoid </span><span class="si">{</span><span class="n">ent_2_concepts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">concept</span> <span class="o">=</span> <span class="n">Concept</span><span class="p">({</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">ent_2_concepts</span><span class="p">[</span><span class="mi">0</span><span class="p">]})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">concept</span> <span class="o">=</span> <span class="n">Concept</span><span class="p">({</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">make_nanoid</span><span class="p">()})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_entity_to_mdb</span><span class="p">(</span><span class="n">concept</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="n">_commit</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_tag_to_mdb_entity</span><span class="p">(</span>
+                <span class="n">tag</span><span class="o">=</span><span class="n">Tag</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;mapping_source&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">mapping_source</span><span class="p">,</span>
+                        <span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">make_nanoid</span><span class="p">(),</span>
+                    <span class="p">},</span>
+                <span class="p">),</span>
+                <span class="n">entity</span><span class="o">=</span><span class="n">concept</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># create specified relationship between each entity and a concept</span>
+        <span class="n">rel_type_1</span> <span class="o">=</span> <span class="s2">&quot;represents&quot;</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity_1</span><span class="p">,</span> <span class="n">Term</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;has_concept&quot;</span>
+        <span class="n">rel_type_2</span> <span class="o">=</span> <span class="s2">&quot;represents&quot;</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity_2</span><span class="p">,</span> <span class="n">Term</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;has_concept&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_relationship_to_mdb</span><span class="p">(</span>
+            <span class="n">relationship_type</span><span class="o">=</span><span class="n">rel_type_1</span><span class="p">,</span>
+            <span class="n">src_entity</span><span class="o">=</span><span class="n">entity_1</span><span class="p">,</span>
+            <span class="n">dst_entity</span><span class="o">=</span><span class="n">concept</span><span class="p">,</span>
+            <span class="n">_commit</span><span class="o">=</span><span class="n">_commit</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_relationship_to_mdb</span><span class="p">(</span>
+            <span class="n">relationship_type</span><span class="o">=</span><span class="n">rel_type_2</span><span class="p">,</span>
+            <span class="n">src_entity</span><span class="o">=</span><span class="n">entity_2</span><span class="p">,</span>
+            <span class="n">dst_entity</span><span class="o">=</span><span class="n">concept</span><span class="p">,</span>
+            <span class="n">_commit</span><span class="o">=</span><span class="n">_commit</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.get_entity_nanoid">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.get_entity_nanoid">[docs]</a>
+    <span class="nd">@read_txn_value</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_entity_nanoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a unique entity in the MDB and returns its nanoid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+
+        <span class="n">ent</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">get_label</span><span class="p">(),</span> <span class="n">props</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+            <span class="n">dst</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+            <span class="n">src_rel</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_src&quot;</span><span class="p">)</span>
+            <span class="n">dst_rel</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_dst&quot;</span><span class="p">)</span>
+            <span class="n">src_trip</span> <span class="o">=</span> <span class="n">src_rel</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+            <span class="n">dst_trip</span> <span class="o">=</span> <span class="n">dst_rel</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">G</span><span class="p">(</span><span class="n">src_trip</span><span class="p">,</span> <span class="n">dst_trip</span><span class="p">)</span>
+            <span class="n">match_clause</span> <span class="o">=</span> <span class="n">Match</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">match_clause</span> <span class="o">=</span> <span class="n">Match</span><span class="p">(</span><span class="n">ent</span><span class="p">)</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span>
+            <span class="n">match_clause</span><span class="p">,</span>
+            <span class="n">Return</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ent</span><span class="o">.</span><span class="n">_var</span><span class="si">}</span><span class="s2">.nanoid&quot;</span><span class="p">),</span>
+            <span class="n">As</span><span class="p">(</span><span class="s2">&quot;entity_nanoid&quot;</span><span class="p">),</span>
+            <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">,</span> <span class="s2">&quot;entity_nanoid&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.get_or_make_entity_nanoid">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.get_or_make_entity_nanoid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_or_make_entity_nanoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Obtains existing entity&#39;s nanoid or creates one for new entity.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_entity_nanoid</span><span class="p">(</span><span class="n">entity</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">EntityNotFoundError</span><span class="p">:</span>
+            <span class="n">nanoid</span> <span class="o">=</span> <span class="n">make_nanoid</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">nanoid</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.get_term_nanoids">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.get_term_nanoids">[docs]</a>
+    <span class="nd">@read_txn_value</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_term_nanoids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">concept</span><span class="p">:</span> <span class="n">Concept</span><span class="p">,</span> <span class="n">mapping_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of term nanoids representing given concept&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">concept</span><span class="p">)</span>
+
+        <span class="n">ent</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;concept&quot;</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">concept</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+        <span class="n">term</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;term&quot;</span><span class="p">)</span>
+        <span class="n">ent_trip</span> <span class="o">=</span> <span class="n">T</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;represents&quot;</span><span class="p">),</span> <span class="n">ent</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mapping_source</span><span class="p">:</span>
+            <span class="n">tag_trip</span> <span class="o">=</span> <span class="n">T</span><span class="p">(</span>
+                <span class="n">concept</span><span class="p">,</span>
+                <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_tag&quot;</span><span class="p">),</span>
+                <span class="n">N</span><span class="p">(</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span>
+                    <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;mapping_source&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">mapping_source</span><span class="p">},</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">G</span><span class="p">(</span><span class="n">ent_trip</span><span class="p">,</span> <span class="n">tag_trip</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">ent_trip</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span>
+            <span class="n">Match</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+            <span class="n">Return</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">term</span><span class="o">.</span><span class="n">_var</span><span class="si">}</span><span class="s2">.nanoid&quot;</span><span class="p">),</span>
+            <span class="n">As</span><span class="p">(</span><span class="s2">&quot;term_nanoids&quot;</span><span class="p">),</span>
+            <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">,</span> <span class="s2">&quot;term_nanoids&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.get_predicate_nanoids">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.get_predicate_nanoids">[docs]</a>
+    <span class="nd">@read_txn_value</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_predicate_nanoids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">concept</span><span class="p">:</span> <span class="n">Concept</span><span class="p">,</span> <span class="n">mapping_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of predicate nanoids with relationship to given concept&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">concept</span><span class="p">)</span>
+
+        <span class="n">ent</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;concept&quot;</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">concept</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+        <span class="n">predicate</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;predicate&quot;</span><span class="p">)</span>
+        <span class="n">ent_trip</span> <span class="o">=</span> <span class="n">T</span><span class="p">(</span><span class="n">predicate</span><span class="p">,</span> <span class="n">R0</span><span class="p">(),</span> <span class="n">ent</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mapping_source</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span>
+                <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;mapping_source&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">mapping_source</span><span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">tag_trip</span> <span class="o">=</span> <span class="n">T</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_tag&quot;</span><span class="p">),</span> <span class="n">tag</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">G</span><span class="p">(</span><span class="n">ent_trip</span><span class="p">,</span> <span class="n">tag_trip</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">ent_trip</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span>
+            <span class="n">Match</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+            <span class="n">Return</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">predicate</span><span class="o">.</span><span class="n">_var</span><span class="si">}</span><span class="s2">.nanoid&quot;</span><span class="p">),</span>
+            <span class="n">As</span><span class="p">(</span><span class="s2">&quot;predicate_nanoids&quot;</span><span class="p">),</span>
+            <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">,</span> <span class="s2">&quot;predicate_nanoids&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.get_relationship_between_entities">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.get_relationship_between_entities">[docs]</a>
+    <span class="nd">@read_txn_value</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_relationship_between_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">dst_entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns relationship type between given entities with (src)-[:rel_type]-&gt;(dst)&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entities_unique</span><span class="p">([</span><span class="n">src_entity</span><span class="p">,</span> <span class="n">dst_entity</span><span class="p">])</span>
+
+        <span class="n">trip</span> <span class="o">=</span> <span class="n">T</span><span class="p">(</span>
+            <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">src_entity</span><span class="o">.</span><span class="n">get_label</span><span class="p">(),</span> <span class="n">props</span><span class="o">=</span><span class="n">src_entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">()),</span>
+            <span class="n">R</span><span class="p">(),</span>
+            <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">dst_entity</span><span class="o">.</span><span class="n">get_label</span><span class="p">(),</span> <span class="n">props</span><span class="o">=</span><span class="n">dst_entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">()),</span>
+        <span class="p">)</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span>
+            <span class="n">Match</span><span class="p">(</span><span class="n">trip</span><span class="p">),</span>
+            <span class="n">Return</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TYPE(</span><span class="si">{</span><span class="n">trip</span><span class="o">.</span><span class="n">_edge</span><span class="o">.</span><span class="n">_var</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">),</span>
+            <span class="n">As</span><span class="p">(</span><span class="s2">&quot;relationship_type&quot;</span><span class="p">),</span>
+            <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">,</span> <span class="s2">&quot;relationship_type&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.link_concepts_via_predicate">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.link_concepts_via_predicate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">link_concepts_via_predicate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">subject_concept</span><span class="p">:</span> <span class="n">Concept</span><span class="p">,</span>
+        <span class="n">object_concept</span><span class="p">:</span> <span class="n">Concept</span><span class="p">,</span>
+        <span class="n">predicate</span><span class="p">:</span> <span class="n">Predicate</span><span class="p">,</span>
+        <span class="n">_commit</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Links two synonymous Concepts via a Predicate</span>
+
+<span class="sd">        This function takes two synonymous Concepts as objects and links</span>
+<span class="sd">        them via a Predicate node and has_subject and has_object relationships.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entities_unique</span><span class="p">([</span><span class="n">subject_concept</span><span class="p">,</span> <span class="n">object_concept</span><span class="p">])</span>
+
+        <span class="n">predicate</span><span class="o">.</span><span class="n">subject</span> <span class="o">=</span> <span class="n">subject_concept</span>
+        <span class="n">predicate</span><span class="o">.</span><span class="n">object</span> <span class="o">=</span> <span class="n">object_concept</span>
+
+        <span class="n">predicate</span><span class="o">.</span><span class="n">nanoid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_or_make_entity_nanoid</span><span class="p">(</span><span class="n">predicate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_entity_to_mdb</span><span class="p">(</span><span class="n">predicate</span><span class="p">,</span> <span class="n">_commit</span><span class="o">=</span><span class="n">_commit</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_relationship_to_mdb</span><span class="p">(</span>
+            <span class="n">relationship_type</span><span class="o">=</span><span class="s2">&quot;has_subject&quot;</span><span class="p">,</span>
+            <span class="n">src_entity</span><span class="o">=</span><span class="n">predicate</span><span class="p">,</span>
+            <span class="n">dst_entity</span><span class="o">=</span><span class="n">predicate</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span>
+            <span class="n">_commit</span><span class="o">=</span><span class="n">_commit</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_relationship_to_mdb</span><span class="p">(</span>
+            <span class="n">relationship_type</span><span class="o">=</span><span class="s2">&quot;has_object&quot;</span><span class="p">,</span>
+            <span class="n">src_entity</span><span class="o">=</span><span class="n">predicate</span><span class="p">,</span>
+            <span class="n">dst_entity</span><span class="o">=</span><span class="n">predicate</span><span class="o">.</span><span class="n">object</span><span class="p">,</span>
+            <span class="n">_commit</span><span class="o">=</span><span class="n">_commit</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.merge_two_concepts">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.merge_two_concepts">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge_two_concepts</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">concept_1</span><span class="p">:</span> <span class="n">Concept</span><span class="p">,</span>
+        <span class="n">concept_2</span><span class="p">:</span> <span class="n">Concept</span><span class="p">,</span>
+        <span class="n">mapping_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">_commit</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Combine two synonymous Concepts into a single Concept.</span>
+
+<span class="sd">        This function takes two synonymous Concept as bento-meta objects and</span>
+<span class="sd">        merges them into a single Concept along with any connected Terms and Predicates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entities_unique</span><span class="p">([</span><span class="n">concept_1</span><span class="p">,</span> <span class="n">concept_2</span><span class="p">])</span>
+
+        <span class="c1"># get list of terms connected to concept 2</span>
+        <span class="n">c2_term_nanoids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_term_nanoids</span><span class="p">(</span><span class="n">concept_2</span><span class="p">,</span> <span class="n">mapping_source</span><span class="p">)</span>
+        <span class="n">c2_terms</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Term</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">nanoid</span> <span class="ow">in</span> <span class="n">c2_term_nanoids</span><span class="p">:</span>
+            <span class="n">c2_terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Term</span><span class="p">({</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">nanoid</span><span class="p">}))</span>
+
+        <span class="c1"># get list of predicates connected to concept 2</span>
+        <span class="n">c2_predicate_nanoids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_predicate_nanoids</span><span class="p">(</span><span class="n">concept_2</span><span class="p">,</span> <span class="n">mapping_source</span><span class="p">)</span>
+        <span class="n">c2_predicates_with_rel</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">nanoid</span> <span class="ow">in</span> <span class="n">c2_predicate_nanoids</span><span class="p">:</span>
+            <span class="n">predicate</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">({</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">nanoid</span><span class="p">})</span>
+            <span class="n">predicate_rel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_relationship_between_entities</span><span class="p">(</span>
+                <span class="n">src_entity</span><span class="o">=</span><span class="n">predicate</span><span class="p">,</span>
+                <span class="n">dst_entity</span><span class="o">=</span><span class="n">concept_2</span><span class="p">,</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">c2_predicates_with_rel</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">predicate</span><span class="p">,</span> <span class="n">predicate_rel</span><span class="p">))</span>
+
+        <span class="c1"># delete concept 2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_entity_from_mdb</span><span class="p">(</span><span class="n">concept_2</span><span class="p">)</span>
+
+        <span class="c1"># connect terms from deleted (c2) to remaining concept (c1)</span>
+        <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">c2_terms</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_relationship_to_mdb</span><span class="p">(</span>
+                <span class="n">relationship_type</span><span class="o">=</span><span class="s2">&quot;represents&quot;</span><span class="p">,</span>
+                <span class="n">src_entity</span><span class="o">=</span><span class="n">term</span><span class="p">,</span>
+                <span class="n">dst_entity</span><span class="o">=</span><span class="n">concept_1</span><span class="p">,</span>
+                <span class="n">_commit</span><span class="o">=</span><span class="n">_commit</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># connect predicates from deleted (c2) to remaining concept (c1)</span>
+        <span class="k">for</span> <span class="n">predicate</span><span class="p">,</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">c2_predicates_with_rel</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_relationship_to_mdb</span><span class="p">(</span>
+                <span class="n">relationship_type</span><span class="o">=</span><span class="n">rel</span><span class="p">,</span>
+                <span class="n">src_entity</span><span class="o">=</span><span class="n">predicate</span><span class="p">,</span>
+                <span class="n">dst_entity</span><span class="o">=</span><span class="n">concept_1</span><span class="p">,</span>
+                <span class="n">_commit</span><span class="o">=</span><span class="n">_commit</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB._get_all_terms">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB._get_all_terms">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_all_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of all terms in an MDB.&quot;&quot;&quot;</span>
+        <span class="n">term</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;term&quot;</span><span class="p">)</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span><span class="n">Match</span><span class="p">(</span><span class="n">term</span><span class="p">),</span> <span class="n">Return</span><span class="p">(</span><span class="n">term</span><span class="o">.</span><span class="n">_var</span><span class="p">))</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">qry</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.get_potential_term_synonyms">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.get_potential_term_synonyms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_potential_term_synonyms</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">term</span><span class="p">:</span> <span class="n">Term</span><span class="p">,</span>
+        <span class="n">threshhold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of dicts representing potential Term nodes synonymous to given Term</span>
+<span class="sd">        in an MDB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+
+        <span class="n">nlp</span> <span class="o">=</span> <span class="n">_get_nlp_model</span><span class="p">()</span>
+
+        <span class="n">all_terms_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_all_terms</span><span class="p">()</span>
+        <span class="n">all_terms</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">all_terms_result</span><span class="p">]</span>
+
+        <span class="c1"># get likely synonyms</span>
+        <span class="n">synonyms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">term_attr_dict</span> <span class="ow">in</span> <span class="n">all_terms</span><span class="p">:</span>
+            <span class="c1"># calculate similarity between each Term and input Term</span>
+            <span class="n">term_1</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">term</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">term_2</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">term_attr_dict</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
+            <span class="n">similarity_score</span> <span class="o">=</span> <span class="n">term_1</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">term_2</span><span class="p">)</span>
+            <span class="c1"># if similarity threshold met, add to list of potential synonyms</span>
+            <span class="k">if</span> <span class="n">similarity_score</span> <span class="o">&gt;=</span> <span class="n">threshhold</span><span class="p">:</span>
+                <span class="n">synonym</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">term_attr_dict</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;origin_name&quot;</span><span class="p">:</span> <span class="n">term_attr_dict</span><span class="p">[</span><span class="s2">&quot;origin_name&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">term_attr_dict</span><span class="p">[</span><span class="s2">&quot;nanoid&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;similarity&quot;</span><span class="p">:</span> <span class="n">similarity_score</span><span class="p">,</span>
+                    <span class="s2">&quot;valid_synonym&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># mark 1 if synonym when uploading later</span>
+                <span class="p">}</span>
+                <span class="n">synonyms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">synonym</span><span class="p">)</span>
+        <span class="n">synonyms_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">synonyms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;similarity&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">synonyms_sorted</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.potential_synonyms_to_csv">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.potential_synonyms_to_csv">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">potential_synonyms_to_csv</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
+        <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given a list of synonymous Terms as dicts, outputs to CSV file at given output path&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output_file</span><span class="p">:</span>
+            <span class="n">dict_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">input_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">dict_writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+            <span class="n">dict_writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.link_term_synonyms_csv">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.link_term_synonyms_csv">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">link_term_synonyms_csv</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">term</span><span class="p">:</span> <span class="n">Term</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">mapping_source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">_commit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given a CSV of syonymous Terms, links each via a Concept node to given Term&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">synonym_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">synonym_reader</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+                    <span class="n">synonym</span> <span class="o">=</span> <span class="n">Term</span><span class="p">()</span>
+                    <span class="n">synonym</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">synonym</span><span class="o">.</span><span class="n">origin_name</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">link_synonyms</span><span class="p">(</span>
+                        <span class="n">entity_1</span><span class="o">=</span><span class="n">term</span><span class="p">,</span>
+                        <span class="n">entity_2</span><span class="o">=</span><span class="n">synonym</span><span class="p">,</span>
+                        <span class="n">mapping_source</span><span class="o">=</span><span class="n">mapping_source</span><span class="p">,</span>
+                        <span class="n">_commit</span><span class="o">=</span><span class="n">_commit</span><span class="p">,</span>
+                    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.get_property_synonyms_direct">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.get_property_synonyms_direct">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_property_synonyms_direct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Property</span><span class="p">,</span> <span class="n">mapping_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of properties linked by concept to given property</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+
+        <span class="n">ent</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;property&quot;</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">())</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;property&quot;</span><span class="p">)</span>
+        <span class="n">concept</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;concept&quot;</span><span class="p">)</span>
+        <span class="n">ent_trip_1</span> <span class="o">=</span> <span class="n">T</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_concept&quot;</span><span class="p">),</span> <span class="n">concept</span><span class="p">)</span>
+        <span class="n">ent_trip_2</span> <span class="o">=</span> <span class="n">T</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_concept&quot;</span><span class="p">),</span> <span class="n">concept</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mapping_source</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;tag&quot;</span><span class="p">,</span>
+                <span class="n">props</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;mapping_source&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">mapping_source</span><span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">tag_trip</span> <span class="o">=</span> <span class="n">T</span><span class="p">(</span><span class="n">concept</span><span class="p">,</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_tag&quot;</span><span class="p">),</span> <span class="n">tag</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">G</span><span class="p">(</span><span class="n">ent_trip_1</span><span class="p">,</span> <span class="n">ent_trip_2</span><span class="p">,</span> <span class="n">tag_trip</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">G</span><span class="p">(</span><span class="n">ent_trip_1</span><span class="p">,</span> <span class="n">ent_trip_2</span><span class="p">)</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span>
+            <span class="n">Match</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+            <span class="n">With</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Collect</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span><span class="o">.</span><span class="n">pattern</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">As</span><span class="p">(</span><span class="s2">&quot;synonyms&quot;</span><span class="p">),</span>
+            <span class="n">Return</span><span class="p">(</span><span class="s2">&quot;synonyms&quot;</span><span class="p">),</span>
+            <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB._get_property_synonyms_direct_as_list">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB._get_property_synonyms_direct_as_list">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_property_synonyms_direct_as_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Property</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Property</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts results of read_txn_data-wrapped function</span>
+<span class="sd">        with one item to a simple list of bento_meta.objects.Property entities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property_synonyms_direct</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Property</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;synonyms&quot;</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.get_property_synonyms_all">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.get_property_synonyms_all">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_property_synonyms_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Property</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Property</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of properties linked by concept to given property</span>
+<span class="sd">        or to synonym of given property (and so on)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="n">all_synonyms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">queue</span> <span class="o">=</span> <span class="p">[</span><span class="n">entity</span><span class="p">]</span>
+        <span class="n">visited</span> <span class="o">=</span> <span class="p">{</span><span class="n">entity</span><span class="o">.</span><span class="n">nanoid</span><span class="p">}</span>
+
+        <span class="k">while</span> <span class="n">queue</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">direct_synonyms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_property_synonyms_direct_as_list</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">synonym</span> <span class="ow">in</span> <span class="n">direct_synonyms</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">synonym</span><span class="o">.</span><span class="n">nanoid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+                    <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">synonym</span><span class="o">.</span><span class="n">nanoid</span><span class="p">)</span>
+                    <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">synonym</span><span class="p">)</span>
+                    <span class="n">all_synonyms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">synonym</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">all_synonyms</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB._get_property_parents_data">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB._get_property_parents_data">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_property_parents_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Property</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get list of nodes/edges connected to given property</span>
+<span class="sd">        via the &quot;has_property&quot; relationship</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="n">p_attrs</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">get_attr_dict</span><span class="p">()</span>
+        <span class="n">child_prop</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;property&quot;</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="n">p_attrs</span><span class="p">)</span>
+        <span class="n">parent_node</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;node&quot;</span><span class="p">)</span>
+        <span class="n">parent_edge</span> <span class="o">=</span> <span class="n">N</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;relationship&quot;</span><span class="p">)</span>
+        <span class="n">rel</span> <span class="o">=</span> <span class="n">R</span><span class="p">(</span><span class="n">Type</span><span class="o">=</span><span class="s2">&quot;has_property&quot;</span><span class="p">,</span> <span class="n">_dir</span><span class="o">=</span><span class="s2">&quot;_left&quot;</span><span class="p">)</span>
+        <span class="n">trip1</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">child_prop</span><span class="p">,</span> <span class="n">N0</span><span class="p">())</span>
+        <span class="n">trip2</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">child_prop</span><span class="p">),</span> <span class="n">parent_node</span><span class="p">)</span>
+        <span class="n">trip3</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">child_prop</span><span class="p">),</span> <span class="n">parent_edge</span><span class="p">)</span>
+
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">Statement</span><span class="p">(</span>
+            <span class="n">Match</span><span class="p">(</span><span class="n">trip1</span><span class="p">),</span>
+            <span class="n">OptionalMatch</span><span class="p">(</span><span class="n">trip2</span><span class="p">),</span>
+            <span class="n">OptionalMatch</span><span class="p">(</span><span class="n">trip3</span><span class="p">),</span>
+            <span class="n">With</span><span class="p">(),</span>
+            <span class="n">Collect</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">parent_node</span><span class="p">)</span><span class="o">.</span><span class="n">pattern</span><span class="p">()),</span>
+            <span class="n">As</span><span class="p">(</span><span class="s2">&quot;nodes,&quot;</span><span class="p">),</span>
+            <span class="n">Collect</span><span class="p">(</span><span class="n">_plain_var</span><span class="p">(</span><span class="n">parent_edge</span><span class="p">)</span><span class="o">.</span><span class="n">pattern</span><span class="p">()),</span>
+            <span class="n">As</span><span class="p">(</span><span class="s2">&quot;edges&quot;</span><span class="p">),</span>
+            <span class="n">Return</span><span class="p">(</span><span class="s2">&quot;nodes, edges&quot;</span><span class="p">),</span>
+            <span class="n">use_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">qry</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">params</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.get_property_parents">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.get_property_parents">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_property_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Property</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Edge</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns results of _get_property_parents_data as a list of</span>
+<span class="sd">        bento_meta Nodes or Edges</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_property_parents_data</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="n">node_parents</span> <span class="o">=</span> <span class="p">[</span><span class="n">Node</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;nodes&quot;</span><span class="p">]]</span>
+        <span class="n">edge_parents</span> <span class="o">=</span> <span class="p">[</span><span class="n">Edge</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;edges&quot;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">node_parents</span> <span class="o">+</span> <span class="n">edge_parents</span></div>
+
+
+<div class="viewcode-block" id="ToolsMDB.add_tag_to_mdb_entity">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.ToolsMDB.add_tag_to_mdb_entity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_tag_to_mdb_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">Tag</span><span class="p">,</span> <span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds a tag to an existing entity in an MDB.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_entity_unique</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_entity_to_mdb</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_relationship_to_mdb</span><span class="p">(</span>
+            <span class="n">relationship_type</span><span class="o">=</span><span class="s2">&quot;has_tag&quot;</span><span class="p">,</span>
+            <span class="n">src_entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span>
+            <span class="n">dst_entity</span><span class="o">=</span><span class="n">tag</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EntityValidator">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.EntityValidator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EntityValidator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entity validator that validate entities have all required attributes&quot;&quot;&quot;</span>
+
+    <span class="n">required_attrs_by_entity_type</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Entity</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">Node</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;handle&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">],</span>
+        <span class="n">Edge</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;handle&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="s2">&quot;dst&quot;</span><span class="p">],</span>
+        <span class="n">Property</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;handle&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">],</span>
+        <span class="n">Term</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;origin_name&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">],</span>  <span class="c1"># add? &quot;origin_id&quot;, &quot;origin_version&quot;</span>
+        <span class="n">Concept</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;nanoid&quot;</span><span class="p">],</span>
+        <span class="n">Predicate</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;handle&quot;</span><span class="p">,</span> <span class="s2">&quot;subject&quot;</span><span class="p">,</span> <span class="s2">&quot;object&quot;</span><span class="p">],</span>
+        <span class="n">Tag</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">],</span>
+        <span class="n">ValueSet</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;handle&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+
+    <span class="n">valid_attrs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">Entity</span><span class="p">],</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="n">Predicate</span><span class="p">,</span> <span class="s2">&quot;handle&quot;</span><span class="p">):</span> <span class="p">{</span>
+            <span class="s2">&quot;exactMatch&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;closeMatch&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;broader&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;narrower&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;related&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="EntityValidator.MissingAttributeError">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.EntityValidator.MissingAttributeError">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">MissingAttributeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raised when an entity doesn&#39;t have the attributes required for unique identification&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="EntityValidator.InvalidAttributeError">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.EntityValidator.InvalidAttributeError">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">InvalidAttributeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raised when an entity attribute is invalid&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="EntityValidator.validate_entity_has_attribute">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.EntityValidator.validate_entity_has_attribute">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_entity_has_attribute</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validates the presence of an entity&#39;s attribute&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">EntityValidator</span><span class="o">.</span><span class="n">MissingAttributeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> needs a </span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2"> attribute&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EntityValidator._validate_entity_attribute">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.EntityValidator._validate_entity_attribute">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_entity_attribute</span><span class="p">(</span><span class="n">entity_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Entity</span><span class="p">],</span> <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks that an entity attribute is in a set of valid attributes&quot;&quot;&quot;</span>
+        <span class="n">valid_attrs</span> <span class="o">=</span> <span class="n">EntityValidator</span><span class="o">.</span><span class="n">valid_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">entity_type</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">valid_attrs</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">entity_type</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_attrs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EntityValidator</span><span class="o">.</span><span class="n">InvalidAttributeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entity_type</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2"> must be one of: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">valid_attrs</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EntityValidator.validate_entity">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools.EntityValidator.validate_entity">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if entity has all attributes required by MDB for its type, and</span>
+<span class="sd">        that all of those attributes are valid themselves if they are entities or</span>
+<span class="sd">        if they have a fixed set of possible values.</span>
+
+<span class="sd">        Verifies that bento-meta entity has all necesssary attributes before</span>
+<span class="sd">        it is added to an MDB instance.</span>
+
+<span class="sd">        If looking for a unique identifier for the entity (i.e. nanoid), ensures</span>
+<span class="sd">        entity has all the required attributes for unique identification.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">entity_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="n">required_attrs</span> <span class="o">=</span> <span class="n">EntityValidator</span><span class="o">.</span><span class="n">required_attrs_by_entity_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entity_type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">required_attrs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entity type </span><span class="si">{</span><span class="n">entity_type</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> not supported&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="n">required_attrs</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># validate attr that is an entity (e.g. Edge.src)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">),</span> <span class="n">Entity</span><span class="p">):</span>
+                    <span class="n">EntityValidator</span><span class="o">.</span><span class="n">validate_entity</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">))</span>
+                <span class="c1"># check entity has attr if required</span>
+                <span class="n">EntityValidator</span><span class="o">.</span><span class="n">validate_entity_has_attribute</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span>
+                <span class="c1"># check attr with fixed set of possible values is valid</span>
+                <span class="n">EntityValidator</span><span class="o">.</span><span class="n">_validate_entity_attribute</span><span class="p">(</span><span class="n">entity_type</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span>
+                <span class="n">EntityValidator</span><span class="o">.</span><span class="n">MissingAttributeError</span><span class="p">,</span>
+                <span class="n">EntityValidator</span><span class="o">.</span><span class="n">InvalidAttributeError</span><span class="p">,</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+                <span class="k">raise</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_get_nlp_model">
+<a class="viewcode-back" href="../../../../autoapi/bento_meta/mdb/mdb_tools/mdb_tools/index.html#bento_meta.mdb.mdb_tools._get_nlp_model">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_nlp_model</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Installs and imports spacy &amp; scispacy nlp model if any not already installed&quot;&quot;&quot;</span>
+    <span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;en_ner_bionlp13cg_md&quot;</span>
+    <span class="n">model_url</span> <span class="o">=</span> <span class="s2">&quot;https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_ner_bionlp13cg_md-0.5.1.tar.gz&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">find_spec</span><span class="p">(</span><span class="s2">&quot;spacy&quot;</span><span class="p">):</span>  <span class="c1"># ensure spacy is installed</span>
+            <span class="n">check_call</span><span class="p">([</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;pip&quot;</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="s2">&quot;spacy&quot;</span><span class="p">])</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">spacy</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">find_spec</span><span class="p">(</span><span class="n">model_name</span><span class="p">):</span>  <span class="c1"># ensure model is installed</span>
+            <span class="n">check_call</span><span class="p">([</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;pip&quot;</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="n">model_url</span><span class="p">])</span>
+        <span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nlp</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+        <span class="k">raise</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

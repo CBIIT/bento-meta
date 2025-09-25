@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.object_map &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="bento_meta.objects" href="../objects/index.html" />
+    <link rel="prev" title="bento_meta.model" href="../model/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">bento_meta</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../entity/index.html">bento_meta.entity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../mdb/index.html">bento_meta.mdb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../model/index.html">bento_meta.model</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">bento_meta.object_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../objects/index.html">bento_meta.objects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util/index.html">bento_meta.util</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">bento_meta</a></li>
+      <li class="breadcrumb-item active">bento_meta.object_map</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/bento_meta/object_map/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bento_meta.object_map">
+<span id="bento-meta-object-map"></span><h1>bento_meta.object_map<a class="headerlink" href="#module-bento_meta.object_map" title="Link to this heading"></a></h1>
+<p>This module contains <a class="reference internal" href="#bento_meta.object_map.ObjectMap" title="bento_meta.object_map.ObjectMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectMap</span></code></a>, a class which provides the
+machinery for mapping bento_meta objects to a Bento Metamodel Database
+in Neo4j. Mostly not for human consumption. The ObjectMap:</p>
+<ul class="simple">
+<li><p>interprets the attribute specification (attspec) and map
+specification (mapspec) associated with <a class="reference internal" href="../../../the_object_model.html#Entity" title="Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a> subclasses</p></li>
+<li><p>provides the <code class="xref py py-meth docutils literal notranslate"><span class="pre">get()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">put()</span></code> methods to subclasses, that
+enable them to get and put themselves to the database</p></li>
+<li><p>generates appropriate</p></li>
+</ul>
+<blockquote>
+<div><p><cite>Cypher &lt;https://neo4j.com/docs/cypher-manual/current/&gt;</cite>
+queries to do gets and puts
+One ObjectMap instance should be generated for each Entity subclass (see, e.g.,
+<a class="reference internal" href="../model/index.html#bento_meta.model.Model" title="bento_meta.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta.model.Model</span></code></a>)</p>
+</div></blockquote>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bento_meta.object_map.ObjectMap" title="bento_meta.object_map.ObjectMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectMap</span></code></a></p></td>
+<td><p>This module contains <a class="reference internal" href="#bento_meta.object_map.ObjectMap" title="bento_meta.object_map.ObjectMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectMap</span></code></a>, a class which provides the</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bento_meta.object_map.</span></span><span class="sig-name descname"><span class="pre">ObjectMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap" title="Link to this definition"></a></dt>
+<dd><p>This module contains <a class="reference internal" href="#bento_meta.object_map.ObjectMap" title="bento_meta.object_map.ObjectMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectMap</span></code></a>, a class which provides the
+machinery for mapping bento_meta objects to a Bento Metamodel Database
+in Neo4j. Mostly not for human consumption.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.cache">
+<span class="sig-name descname"><span class="pre">cache</span></span><a class="headerlink" href="#bento_meta.object_map.ObjectMap.cache" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.cls">
+<span class="sig-name descname"><span class="pre">cls</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bento_meta.object_map.ObjectMap.cls" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.maps">
+<span class="sig-name descname"><span class="pre">maps</span></span><a class="headerlink" href="#bento_meta.object_map.ObjectMap.maps" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.clear_cache">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">clear_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.clear_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.clear_cache" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.cls_by_label">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cls_by_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lbl</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.cls_by_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.cls_by_label" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.keys_by_cls_and_reln">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">keys_by_cls_and_reln</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qcls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reln</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.keys_by_cls_and_reln"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.keys_by_cls_and_reln" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap._quote_val">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_quote_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap._quote_val"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap._quote_val" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.get_by_id">
+<span class="sig-name descname"><span class="pre">get_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.get_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get_by_id" title="Link to this definition"></a></dt>
+<dd><p>Get an entity given an id attribute value (not the Neo4j id)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.get_by_node_nanoid">
+<span class="sig-name descname"><span class="pre">get_by_node_nanoid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nanoid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.get_by_node_nanoid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get_by_node_nanoid" title="Link to this definition"></a></dt>
+<dd><p>PROTOTYPE
+Get an entity given an id attribute value (not the Neo4j id)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get" title="Link to this definition"></a></dt>
+<dd><p>Get the data for an object instance from the db and load the instance with it</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.put" title="Link to this definition"></a></dt>
+<dd><p>Put the object instance’s attributes to the mapped data node in the database</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.rm">
+<span class="sig-name descname"><span class="pre">rm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.rm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.rm" title="Link to this definition"></a></dt>
+<dd><p>‘Delete’ the object’s mapped node from the database</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tgt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.add" title="Link to this definition"></a></dt>
+<dd><p>Create a link between an object instance and a target object in the database.
+This represents adding an object-valued attribute to the object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.drop">
+<span class="sig-name descname"><span class="pre">drop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tgt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.drop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.drop" title="Link to this definition"></a></dt>
+<dd><p>Remove an existing link between an object instance and a target object in the database.
+This represents dropping an object-valued attribute from the object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.get_owners">
+<span class="sig-name descname"><span class="pre">get_owners</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.get_owners"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get_owners" title="Link to this definition"></a></dt>
+<dd><p>Get the nodes which are linked to the object instance (the owners of the object)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.get_q">
+<span class="sig-name descname"><span class="pre">get_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.get_q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get_q" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.get_by_id_q">
+<span class="sig-name descname"><span class="pre">get_by_id_q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.get_by_id_q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get_by_id_q" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.get_by_node_nanoid_q">
+<span class="sig-name descname"><span class="pre">get_by_node_nanoid_q</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.get_by_node_nanoid_q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get_by_node_nanoid_q" title="Link to this definition"></a></dt>
+<dd><p>PROTOTYPE</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.get_attr_q">
+<span class="sig-name descname"><span class="pre">get_attr_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.get_attr_q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get_attr_q" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.get_owners_q">
+<span class="sig-name descname"><span class="pre">get_owners_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.get_owners_q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.get_owners_q" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.put_q">
+<span class="sig-name descname"><span class="pre">put_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.put_q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.put_q" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.put_attr_q">
+<span class="sig-name descname"><span class="pre">put_attr_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.put_attr_q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.put_attr_q" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.rm_q">
+<span class="sig-name descname"><span class="pre">rm_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detach</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.rm_q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.rm_q" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap.rm_attr_q">
+<span class="sig-name descname"><span class="pre">rm_attr_q</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap.rm_attr_q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap.rm_attr_q" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bento_meta.object_map.ObjectMap._check_values_list">
+<span class="sig-name descname"><span class="pre">_check_values_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/bento_meta/object_map.html#ObjectMap._check_values_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bento_meta.object_map.ObjectMap._check_values_list" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../model/index.html" class="btn btn-neutral float-left" title="bento_meta.model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../objects/index.html" class="btn btn-neutral float-right" title="bento_meta.objects" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

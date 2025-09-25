@@ -1,0 +1,723 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.mdb.mdb &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bento_meta.mdb.mdb</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bento_meta.mdb.mdb</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">bento_meta.mdb</span>
+<span class="sd">==============</span>
+
+<span class="sd">This module contains :class:`MDB`, with machinery for efficiently</span>
+<span class="sd">querying a Neo4j instance of a Metamodel Database.</span>
+
+<span class="sd">The constructor queries the database for registered models.</span>
+<span class="sd">The attribute models : Dict contains model handles (names) as keys,</span>
+<span class="sd">and a list of version strings as values.</span>
+<span class="sd">The attribute latest_version : Dict contains model handles as keys</span>
+<span class="sd">and the version string tagged &quot;is_latest&quot; as values.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">nanoid</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate</span> <span class="k">as</span> <span class="n">nanoid_generate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">neo4j</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphDatabase</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_trace</span>
+
+<span class="c1"># Decorator functions to produce executed transactions based on an</span>
+<span class="c1"># underlying query/param function:</span>
+
+
+<div class="viewcode-block" id="read_txn">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.read_txn">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_txn</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorates a query function to run a read transaction based on</span>
+<span class="sd">    its query.</span>
+<span class="sd">    Query function should return a tuple (qry_string, param_dict).</span>
+<span class="sd">    Returns list of driver Records.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">txn_q</span><span class="p">(</span><span class="n">tx</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">parms</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">rec</span> <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">read_transaction</span><span class="p">(</span><span class="n">txn_q</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">rd</span></div>
+
+
+
+<div class="viewcode-block" id="read_txn_value">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.read_txn_value">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_txn_value</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorates a query function to run a read transaction based on</span>
+<span class="sd">    its query.</span>
+<span class="sd">    Query function should return a tuple (qry_string, param_dict, values_key).</span>
+<span class="sd">    Returns list of values for key specified by query function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">txn_q</span><span class="p">(</span><span class="n">tx</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">,</span> <span class="n">values_key</span><span class="p">)</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">parms</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">values_key</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">read_transaction</span><span class="p">(</span><span class="n">txn_q</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">rd</span></div>
+
+
+
+<div class="viewcode-block" id="read_txn_data">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.read_txn_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_txn_data</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorates a query function to run a read transaction based on</span>
+<span class="sd">    its query.</span>
+<span class="sd">    Query function should return a tuple (qry_string, param_dict).</span>
+<span class="sd">    Returns records as a list of simple dicts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">txn_q</span><span class="p">(</span><span class="n">tx</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">parms</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">read_transaction</span><span class="p">(</span><span class="n">txn_q</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">result</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">rd</span></div>
+
+
+
+<div class="viewcode-block" id="MDB">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MDB</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">uri</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NEO4J_MDB_URI&quot;</span><span class="p">),</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NEO4J_MDB_USER&quot;</span><span class="p">),</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NEO4J_MDB_PASS&quot;</span><span class="p">),</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an :class:`MDB` object, with a connection to a Neo4j instance of a metamodel database.</span>
+<span class="sd">        :param bolt_url uri: The Bolt protocol endpoint to the Neo4j instance (default, use the</span>
+<span class="sd">        ``NEO4J_MDB_URI`` env variable)</span>
+<span class="sd">        :param str user: Username for Neo4j access (default, use the ``NEO4J_MDB_USER`` env variable)</span>
+<span class="sd">        :param str password: Password for user (default, use the ``NEO4J_MDB_PASS`` env variable)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">password</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">driver</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latest_version</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">driver</span> <span class="o">=</span> <span class="n">GraphDatabase</span><span class="o">.</span><span class="n">driver</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span>
+                <span class="n">auth</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MDB not connected: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># query DB and cache the models and their versions in the MDB object</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model_info</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">info</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">info</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No Model nodes found&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;handle&#39;</span><span class="p">]):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;handle&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;handle&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="s1">&#39;is_latest&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest_version</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;handle&#39;</span><span class="p">]):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">latest_version</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;handle&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">hdl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest_version</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">hdl</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">hdl</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># only one version</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">latest_version</span><span class="p">[</span><span class="n">hdl</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">hdl</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;unversioned&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">latest_version</span><span class="p">[</span><span class="n">hdl</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># raise RuntimeError</span>
+            <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Database doesn&#39;t look like an MDB: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_txfns</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="MDB.close">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MDB.register_txfn">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.register_txfn">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_txfn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Register a transaction function</span>
+<span class="sd">        (see https://neo4j.com/docs/api/python-driver/current/api.html#managed-transactions-transaction-functions)</span>
+<span class="sd">        with the class for later use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_txfns</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">fn</span></div>
+
+
+    <span class="c1"># def run_txfn(self, name, *args, **kwargs):</span>
+
+<div class="viewcode-block" id="MDB.get_model_info">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_model_info">[docs]</a>
+    <span class="nd">@read_txn_value</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_model_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get models, versions, and latest versions from MDB Model nodes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;match (m:model) return m&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="MDB.get_model_handles">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_model_handles">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_model_handles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a simple list of model handles available.</span>
+<span class="sd">        Queries Model nodes (not model properties in Entity nodes)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_model_versions">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_model_versions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_model_versions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get list of version strings present in database for a given model.</span>
+<span class="sd">        Returns [ &lt;string&gt; ].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">model</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span></div>
+
+    
+<div class="viewcode-block" id="MDB.get_latest_version">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_latest_version">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_latest_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the version string from Model node marked is_latest:True for a given</span>
+<span class="sd">        model handle.</span>
+<span class="sd">        Returns &lt;string&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest_version</span><span class="p">[</span><span class="n">model</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_model_nodes">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_model_nodes">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_model_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of dicts representing Model nodes.</span>
+<span class="sd">        Returns all versions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;match (m:model) </span><span class="si">{}</span><span class="s2"> return m&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="s2">&quot;where m.handle = $model&quot;</span> <span class="k">if</span> <span class="n">model</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">}</span> <span class="k">if</span> <span class="n">model</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_nodes_by_model">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_nodes_by_model">[docs]</a>
+    <span class="nd">@read_txn_value</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nodes_by_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all nodes for a given model.</span>
+<span class="sd">        If :param:model is set but :param:version is None, get nodes from model version</span>
+<span class="sd">        marked is_latest:true</span>
+<span class="sd">        If :param:model is set and :param:version is &#39;*&#39;, get nodes from all model versions.</span>
+<span class="sd">        If :param:model is None, get all nodes in database.</span>
+<span class="sd">        Returns [ &lt;node&gt; ].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;where n.model = $model and n.version = $version&quot;</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
+            <span class="n">latest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_latest_version</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">latest</span> <span class="o">!=</span> <span class="s2">&quot;unversioned&quot;</span><span class="p">:</span>
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+                         <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">latest</span><span class="p">}</span>
+            <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span> <span class="ow">or</span> <span class="n">latest</span> <span class="o">==</span> <span class="s2">&quot;unversioned&quot;</span><span class="p">:</span>
+                <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;where n.model = $model&quot;</span> 
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">version</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="n">qry</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;match (n:node) </span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2"> return n&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_model_nodes_edges">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_model_nodes_edges">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_model_nodes_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all node-relationship-node paths for a given model and version.</span>
+<span class="sd">        If :param:version is None, use version marked is_latest:true for</span>
+<span class="sd">        :param:model.</span>
+<span class="sd">        If :param:version is &#39;*&#39;, retrieve from all versions.</span>
+<span class="sd">        Returns [ path ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;where s.model = $model and s.version = $version and &quot;</span>
+                <span class="s2">&quot;r.model = $model and r.version = $version and &quot;</span>
+                <span class="s2">&quot;d.model = $model and d.version = $version &quot;</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">latest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_latest_version</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">latest</span> <span class="o">!=</span> <span class="s2">&quot;unversioned&quot;</span><span class="p">:</span>
+            <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+                     <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">latest</span><span class="p">}</span>
+        <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span> <span class="ow">or</span> <span class="n">latest</span> <span class="o">==</span> <span class="s2">&quot;unversioned&quot;</span><span class="p">:</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;where s.model = $model and &quot;</span>
+                    <span class="s2">&quot;r.model = $model and &quot;</span>
+                    <span class="s2">&quot;d.model = $model &quot;</span><span class="p">)</span>
+            <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">version</span><span class="p">}</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match p = (s:node)&lt;-[:has_src]-(r:relationship)-[:has_dst]-&gt;(d:node)&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;return p as path&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_node_edges_by_node_id">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_node_edges_by_node_id">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_edges_by_node_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nanoid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get incoming and outgoing relationship information for a node,</span>
+<span class="sd">        given its nanoid.</span>
+<span class="sd">        Returns [ {id, handle, model, version, near_type, far_type, rln, far_node} ].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (n:node {nanoid:$nanoid}) &quot;</span>
+            <span class="s2">&quot;with n &quot;</span>
+            <span class="s2">&quot;optional match (n)&lt;-[e1]-(r:relationship)-[e2]-&gt;(m:node) &quot;</span>
+            <span class="s2">&quot;return n.nanoid as id, n.handle as handle, n.model as model, &quot;</span>
+            <span class="s2">&quot;       n.version as version, &quot;</span>
+            <span class="s2">&quot;       type(e1) as near_type, type(e2) as far_type, r as rln, m as far_node&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">nanoid</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_node_and_props_by_node_id">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_node_and_props_by_node_id">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_and_props_by_node_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nanoid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a node and its properties, given the node nanoid.</span>
+<span class="sd">        Returns [ {id, handle, model, version, node, props[]} ].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (n:node {nanoid:$nanoid}) &quot;</span>
+            <span class="s2">&quot;with n &quot;</span>
+            <span class="s2">&quot;optional match (n)-[:has_property]-&gt;(p) &quot;</span>
+            <span class="s2">&quot;return n.nanoid as id, n.handle as handle, n.model as model, &quot;</span>
+            <span class="s2">&quot;       n.version as version, n as node, &quot;</span>
+            <span class="s2">&quot;       collect(p) as props&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">nanoid</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_nodes_and_props_by_model">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_nodes_and_props_by_model">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nodes_and_props_by_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all nodes with associated properties given a model handle.</span>
+<span class="sd">        If model is None, get all nodes with their properties.</span>
+<span class="sd">        If :param:model is set but :param:version is None, get nodes and props</span>
+<span class="sd">        from model version marked is_latest:true</span>
+<span class="sd">        If :param:model is set and :param:version is &#39;*&#39;, get nodes and props</span>
+<span class="sd">        from all model versions.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns [ {id, handle, model, version, props[]} ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;where n.model = $model and n.version = $version and &quot;</span>
+                <span class="s2">&quot;p.model = $model and p.version = $version &quot;</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
+            <span class="n">latest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_latest_version</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">latest</span> <span class="o">!=</span> <span class="s2">&quot;unversioned&quot;</span><span class="p">:</span>
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+                         <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">latest</span><span class="p">}</span>
+            <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span> <span class="ow">or</span> <span class="n">latest</span> <span class="o">==</span> <span class="s2">&quot;unversioned&quot;</span><span class="p">:</span>
+                <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;where n.model = $model and p.model = $model &quot;</span> 
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">version</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (n:node)-[:has_property]-&gt;(p:property) &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;return n.nanoid as id, n.handle as handle, n.model as model, &quot;</span>
+            <span class="s2">&quot;n.version as version, collect(p) as props&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_prop_node_and_domain_by_prop_id">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_prop_node_and_domain_by_prop_id">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_prop_node_and_domain_by_prop_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nanoid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a property, its node, and its value domain or value set</span>
+<span class="sd">        of terms, given the property nanoid.</span>
+<span class="sd">        Returns [ { id, handle, model, version, value_domain, prop, node, value_set, terms[] } ].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (p:property {nanoid:$nanoid})&lt;-[:has_property]-(n:node) &quot;</span>
+            <span class="s2">&quot;with p,n &quot;</span>
+            <span class="s2">&quot;optional match (p)-[:has_value_set]-&gt;(vs:value_set)-[:has_term]-&gt;(t:term) &quot;</span>
+            <span class="s2">&quot;return p.nanoid as id, p.handle as handle, p.model as model, &quot;</span>
+            <span class="s2">&quot;p.version as version, &quot;</span>
+            <span class="s2">&quot;p.value_domain as value_domain, p as prop, n as node, &quot;</span>
+            <span class="s2">&quot;  vs as value_set, collect(t) as terms&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">nanoid</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_valueset_by_id">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_valueset_by_id">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_valueset_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nanoid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a valueset with the properties that use it and the terms</span>
+<span class="sd">        that constitute it.</span>
+<span class="sd">        Returns [ {id, handle, url, terms[], props[]} ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (vs:value_set {nanoid:$nanoid})-[:has_term]-&gt;(t) &quot;</span>
+            <span class="s2">&quot;with vs, collect(t) as terms &quot;</span>
+            <span class="s2">&quot;match (vs)&lt;-[:has_value_set]-(p:property) &quot;</span>
+            <span class="s2">&quot;return vs.nanoid as id, vs.handle as handle, vs.url as url, &quot;</span>
+            <span class="s2">&quot;       terms, collect(p) as props&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">nanoid</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_valuesets_by_model">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_valuesets_by_model">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_valuesets_by_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all valuesets that are used by properties in the given</span>
+<span class="sd">        model and version (or all valuesets if model is None).</span>
+<span class="sd">        Also return list of properties using each valueset.</span>
+<span class="sd">        If version is None, get value sets associated with latest model version.</span>
+<span class="sd">        If version is &#39;*&#39;, get those associated with all versions of given model.</span>
+<span class="sd">        Returns [ {value_set, props[]} ].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;where p.model = $model and p.version = $version&quot;</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
+            <span class="n">latest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_latest_version</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">latest</span> <span class="o">!=</span> <span class="s2">&quot;unversioned&quot;</span><span class="p">:</span>
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+                         <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">latest</span><span class="p">}</span>
+            <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span> <span class="ow">or</span> <span class="n">latest</span> <span class="o">==</span> <span class="s2">&quot;unversioned&quot;</span><span class="p">:</span>
+                <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;where p.model = $model&quot;</span> 
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">version</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (vs:value_set)&lt;-[:has_value_set]-(p:property) &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;return vs as value_set, collect(p) as props&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_term_by_id">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_term_by_id">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_term_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nanoid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a term having the given nanoid, with its origin.</span>
+<span class="sd">        Returns {term, origin}.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (t:term {nanoid:$nanoid}) &quot;</span>
+            <span class="s2">&quot;with t, t.origin_name as origin_name &quot;</span>
+            <span class="s2">&quot;optional match (o:origin {name: origin_name}) &quot;</span>
+            <span class="s2">&quot;return t as term, o as origin &quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">nanoid</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_props_and_terms_by_model">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_props_and_terms_by_model">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_props_and_terms_by_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get terms from valuesets associated with properties in a given model</span>
+<span class="sd">        and version (or all such terms if model is None).</span>
+<span class="sd">        If version is None, get props and terms from the latest model version.</span>
+<span class="sd">        If version is set to &#39;*&#39;, get those from all versions of the given model.</span>
+<span class="sd">        Returns [ {prop, terms[]} ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;where p.model = $model and p.version = $version&quot;</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
+            <span class="n">latest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_latest_version</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">latest</span> <span class="o">!=</span> <span class="s2">&quot;unversioned&quot;</span><span class="p">:</span> 
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+                         <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">latest</span><span class="p">}</span>
+            <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span> <span class="ow">or</span> <span class="n">latest</span> <span class="o">==</span> <span class="s2">&quot;unversioned&quot;</span><span class="p">:</span>
+                <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;where p.model = $model&quot;</span> 
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">version</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (p:property)-[:has_value_set]-&gt;(v:value_set)&quot;</span>
+            <span class="s2">&quot;-[:has_term]-&gt;(t:term) &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;return p as prop, collect(t) as terms&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_origins">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_origins">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_origins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all origins.</span>
+<span class="sd">        Returns [ &lt;origin&gt; ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="s2">&quot;match (o:origin) return o&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_origin_by_id">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_origin_by_id">[docs]</a>
+    <span class="nd">@read_txn_value</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_origin_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an origin by nanoid.&quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="s2">&quot;match (o:origin {nanoid:$oid}) where not exists (o._to) return o &quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;oid&quot;</span><span class="p">:</span> <span class="n">oid</span><span class="p">},</span> <span class="s2">&quot;o&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_tags_for_entity_by_id">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_tags_for_entity_by_id">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tags_for_entity_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nanoid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all tags attached to an entity, given the entity&#39;s nanoid.</span>
+<span class="sd">        Returns [ {model(str), tags[]} ].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (a {nanoid:$nanoid})-[:has_tag]-&gt;(g:tag) &quot;</span>
+            <span class="s2">&quot;with a, g &quot;</span>
+            <span class="s2">&quot;return a.nanoid as id, head(labels(a)) as label, a.handle as handle, &quot;</span>
+            <span class="s2">&quot;a.model as model, collect(g) as tags&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;nanoid&quot;</span><span class="p">:</span> <span class="n">nanoid</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_tags_and_values">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_tags_and_values">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tags_and_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all tag key/value pairs that are present in database.</span>
+<span class="sd">        Returns [ { key(str) : values[] } ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;where t.key = $key &quot;</span>
+            <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span><span class="n">key</span><span class="p">}</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (t:tag) &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;return t.key as key, collect(distinct t.value) as values &quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_entities_by_tag">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_entities_by_tag">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_entities_by_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all entities, tagged with a given key or key:value pair.</span>
+<span class="sd">        Returns [ {tag_key(str), tag_value(str), entity(str - label), entities[]} ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;where t.key = $key &quot;</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span><span class="n">key</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="s2">&quot;where t.key = $key and t.value = $value &quot;</span>
+            <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;match (t:tag) &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;with t &quot;</span>
+            <span class="s2">&quot;match (e)-[:has_tag]-&gt;(t) &quot;</span>
+            <span class="s2">&quot;return t.key as tag_key, t.value as tag_value, collect(e) as entities&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MDB.get_with_statement">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.MDB.get_with_statement">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_with_statement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run an arbitrary read statement and return data.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qry= must be a string&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;.*return.*&quot;</span><span class="p">,</span> <span class="n">qry</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Read statement needs a RETURN clause.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parms</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;parms= must be a dict&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="make_nanoid">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/mdb/index.html#bento_meta.mdb.make_nanoid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_nanoid</span><span class="p">(</span>
+    <span class="n">alphabet</span><span class="o">=</span><span class="s2">&quot;abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789&quot;</span><span class="p">,</span>
+    <span class="n">size</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a random nanoid and return it as a string.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">nanoid_generate</span><span class="p">(</span><span class="n">alphabet</span><span class="o">=</span><span class="n">alphabet</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

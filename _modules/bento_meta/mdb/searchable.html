@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta.mdb.searchable &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bento_meta.mdb.searchable</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bento_meta.mdb.searchable</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">mdb.searchable</span>
+<span class="sd">Subclass of `class:bento_meta.mdb.MDB` to support searching fulltext indices on an MDB</span>
+<span class="sd">Note: certain fulltext indexes on certain MDB nodes and properties must be present in </span>
+<span class="sd">the Neo4j instance: </span>
+<span class="sd">- nodeHandle</span>
+<span class="sd">- propHandle</span>
+<span class="sd">- termValue</span>
+<span class="sd">- termDefn</span>
+<span class="sd">- termValueDefn</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.mdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_txn</span><span class="p">,</span> <span class="n">read_txn_data</span><span class="p">,</span> <span class="n">read_txn_value</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bento_meta.mdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">MDB</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_trace</span>
+<div class="viewcode-block" id="SearchableMDB">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SearchableMDB</span><span class="p">(</span><span class="n">MDB</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ftindexes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;call db.indexes&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">rec</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;FULLTEXT&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ftindexes</span><span class="p">[</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;entityType&#39;</span><span class="p">],</span>
+                        <span class="s2">&quot;entities&quot;</span><span class="p">:</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;labelsOrTypes&#39;</span><span class="p">],</span>
+                        <span class="s2">&quot;properties&quot;</span><span class="p">:</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">],</span>
+                    <span class="p">}</span>
+
+<div class="viewcode-block" id="SearchableMDB.available_indexes">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.available_indexes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">available_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fulltext indexes present in database. </span>
+<span class="sd">        Returns { &lt;index_name&gt; : { entity_type:&lt;NODE|RELATIONSHIP&gt;, entities:[&lt;labels&gt;], </span>
+<span class="sd">        properties:[ [&lt;props&gt;] ] } } &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftindexes</span></div>
+
+
+<div class="viewcode-block" id="SearchableMDB.query_index">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.query_index">[docs]</a>
+    <span class="nd">@read_txn_data</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">query_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">qstring</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Query a named fulltext index of nodes or relationships.</span>
+<span class="sd">        Returns [ {ent:{}, label:&lt;label&gt;, score:&lt;lucene score&gt;} ].&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftindexes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Index with name &#39;</span><span class="si">{}</span><span class="s2">&#39; not found&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+        <span class="n">tipe</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftindexes</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;entity_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;NODE&quot;</span><span class="p">:</span>
+            <span class="n">tipe</span> <span class="o">=</span> <span class="s2">&quot;queryNodes&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftindexes</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;entity_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RELATIONSHIP&quot;</span><span class="p">:</span>
+            <span class="n">tipe</span> <span class="o">=</span> <span class="s2">&quot;queryRelationships&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Wha?&quot;</span><span class="p">)</span>
+        <span class="n">thing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftindexes</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;entity_type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">qry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;call db.index.fulltext.</span><span class="si">{tipe}</span><span class="s2">($name, $query) &quot;</span>
+            <span class="s2">&quot;yield </span><span class="si">{thing}</span><span class="s2">, score &quot;</span>
+            <span class="s2">&quot;return </span><span class="si">{thing}</span><span class="s2"> as ent, head(labels(</span><span class="si">{thing}</span><span class="s2">)) as label, score &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{skip}</span><span class="s2"> </span><span class="si">{limit}</span><span class="s2"> &quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tipe</span><span class="o">=</span><span class="n">tipe</span><span class="p">,</span> <span class="n">thing</span><span class="o">=</span><span class="n">thing</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="s2">&quot;SKIP $skip&quot;</span> <span class="k">if</span> <span class="n">skip</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                     <span class="n">limit</span><span class="o">=</span><span class="s2">&quot;LIMIT $limit&quot;</span> <span class="k">if</span> <span class="n">limit</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">parms</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">index</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">qstring</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
+            <span class="n">parms</span><span class="p">[</span><span class="s1">&#39;skip&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">skip</span>
+        <span class="k">if</span> <span class="n">limit</span><span class="p">:</span>
+            <span class="n">parms</span><span class="p">[</span><span class="s1">&#39;limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">limit</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">qry</span><span class="p">,</span> <span class="n">parms</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SearchableMDB.search_entity_handles">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.search_entity_handles">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_entity_handles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qstring</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fulltext search of qstring over node, relationship, and property handles.</span>
+<span class="sd">        Returns { node:[ {ent:&lt;entity dict&gt;,score:&lt;lucene score&gt;},... ],</span>
+<span class="sd">        relationship:[ &lt;...&gt; ], property:[ &lt;...&gt; ] }&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_index</span><span class="p">(</span><span class="s1">&#39;entityHandle&#39;</span><span class="p">,</span> <span class="n">qstring</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">plural</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;node&quot;</span><span class="p">:</span><span class="s2">&quot;nodes&quot;</span><span class="p">,</span> <span class="s2">&quot;relationship&quot;</span><span class="p">:</span><span class="s2">&quot;relationships&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;property&quot;</span><span class="p">:</span><span class="s2">&quot;properties&quot;</span><span class="p">}</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;relationships&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="n">plural</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]]]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;ent&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;ent&#39;</span><span class="p">],</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">]})</span> 
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="SearchableMDB.search_terms">
+<a class="viewcode-back" href="../../../autoapi/bento_meta/mdb/searchable/index.html#bento_meta.mdb.SearchableMDB.search_terms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qstring</span><span class="p">,</span> <span class="n">search_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">search_definitions</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fulltext for qstring over terms, by value, definition, or both (default).</span>
+<span class="sd">        Returns [ { ent:&lt;term dict&gt;, score:&lt;lucene score&gt; } ]}&quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;termValueDefn&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s1">&#39;termDefn&#39;</span><span class="p">},</span>
+                 <span class="kc">False</span><span class="p">:</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;termValue&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="kc">None</span><span class="p">}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_index</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="n">search_definitions</span><span class="p">][</span><span class="n">search_values</span><span class="p">],</span>
+                                  <span class="n">qstring</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

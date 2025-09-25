@@ -1,0 +1,276 @@
+bento_meta.mdb.mdb
+==================
+
+.. py:module:: bento_meta.mdb.mdb
+
+.. autoapi-nested-parse::
+
+   bento_meta.mdb
+   ==============
+
+   This module contains :class:`MDB`, with machinery for efficiently
+   querying a Neo4j instance of a Metamodel Database.
+
+   The constructor queries the database for registered models.
+   The attribute models : Dict contains model handles (names) as keys,
+   and a list of version strings as values.
+   The attribute latest_version : Dict contains model handles as keys
+   and the version string tagged "is_latest" as values.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb.MDB
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb.read_txn
+   bento_meta.mdb.mdb.read_txn_value
+   bento_meta.mdb.mdb.read_txn_data
+   bento_meta.mdb.mdb.make_nanoid
+
+
+Module Contents
+---------------
+
+.. py:function:: read_txn(func)
+
+   Decorates a query function to run a read transaction based on
+   its query.
+   Query function should return a tuple (qry_string, param_dict).
+   Returns list of driver Records.
+
+
+.. py:function:: read_txn_value(func)
+
+   Decorates a query function to run a read transaction based on
+   its query.
+   Query function should return a tuple (qry_string, param_dict, values_key).
+   Returns list of values for key specified by query function.
+
+
+.. py:function:: read_txn_data(func)
+
+   Decorates a query function to run a read transaction based on
+   its query.
+   Query function should return a tuple (qry_string, param_dict).
+   Returns records as a list of simple dicts.
+
+
+.. py:class:: MDB(uri=os.environ.get('NEO4J_MDB_URI'), user=os.environ.get('NEO4J_MDB_USER'), password=os.environ.get('NEO4J_MDB_PASS'))
+
+   .. py:attribute:: uri
+
+
+   .. py:attribute:: user
+
+
+   .. py:attribute:: password
+
+
+   .. py:attribute:: driver
+      :value: None
+
+
+
+   .. py:attribute:: models
+
+
+   .. py:attribute:: latest_version
+
+
+   .. py:attribute:: _txfns
+
+
+   .. py:method:: close()
+
+
+   .. py:method:: register_txfn(name, fn)
+
+      Register a transaction function
+      (see https://neo4j.com/docs/api/python-driver/current/api.html#managed-transactions-transaction-functions)
+      with the class for later use.
+
+
+
+   .. py:method:: get_model_info()
+
+      Get models, versions, and latest versions from MDB Model nodes
+
+
+
+   .. py:method:: get_model_handles()
+
+      Return a simple list of model handles available.
+      Queries Model nodes (not model properties in Entity nodes)
+
+
+
+   .. py:method:: get_model_versions(model)
+
+      Get list of version strings present in database for a given model.
+      Returns [ <string> ].
+
+
+
+   .. py:method:: get_latest_version(model)
+
+      Get the version string from Model node marked is_latest:True for a given
+      model handle.
+      Returns <string>
+
+
+
+   .. py:method:: get_model_nodes(model=None)
+
+      Return a list of dicts representing Model nodes.
+      Returns all versions.
+
+
+
+   .. py:method:: get_nodes_by_model(model=None, version=None)
+
+      Get all nodes for a given model.
+      If :param:model is set but :param:version is None, get nodes from model version
+      marked is_latest:true
+      If :param:model is set and :param:version is '*', get nodes from all model versions.
+      If :param:model is None, get all nodes in database.
+      Returns [ <node> ].
+
+
+
+   .. py:method:: get_model_nodes_edges(model, version=None)
+
+      Get all node-relationship-node paths for a given model and version.
+      If :param:version is None, use version marked is_latest:true for
+      :param:model.
+      If :param:version is '*', retrieve from all versions.
+      Returns [ path ]
+
+
+
+   .. py:method:: get_node_edges_by_node_id(nanoid)
+
+      Get incoming and outgoing relationship information for a node,
+      given its nanoid.
+      Returns [ {id, handle, model, version, near_type, far_type, rln, far_node} ].
+
+
+
+   .. py:method:: get_node_and_props_by_node_id(nanoid)
+
+      Get a node and its properties, given the node nanoid.
+      Returns [ {id, handle, model, version, node, props[]} ].
+
+
+
+   .. py:method:: get_nodes_and_props_by_model(model=None, version=None)
+
+      Get all nodes with associated properties given a model handle.
+      If model is None, get all nodes with their properties.
+      If :param:model is set but :param:version is None, get nodes and props
+      from model version marked is_latest:true
+      If :param:model is set and :param:version is '*', get nodes and props
+      from all model versions.
+
+      Returns [ {id, handle, model, version, props[]} ]
+
+
+
+   .. py:method:: get_prop_node_and_domain_by_prop_id(nanoid)
+
+      Get a property, its node, and its value domain or value set
+      of terms, given the property nanoid.
+      Returns [ { id, handle, model, version, value_domain, prop, node, value_set, terms[] } ].
+
+
+
+   .. py:method:: get_valueset_by_id(nanoid)
+
+      Get a valueset with the properties that use it and the terms
+      that constitute it.
+      Returns [ {id, handle, url, terms[], props[]} ]
+
+
+
+   .. py:method:: get_valuesets_by_model(model=None, version=None)
+
+      Get all valuesets that are used by properties in the given
+      model and version (or all valuesets if model is None).
+      Also return list of properties using each valueset.
+      If version is None, get value sets associated with latest model version.
+      If version is '*', get those associated with all versions of given model.
+      Returns [ {value_set, props[]} ].
+
+
+
+   .. py:method:: get_term_by_id(nanoid)
+
+      Get a term having the given nanoid, with its origin.
+      Returns {term, origin}.
+
+
+
+   .. py:method:: get_props_and_terms_by_model(model=None, version=None)
+
+      Get terms from valuesets associated with properties in a given model
+      and version (or all such terms if model is None).
+      If version is None, get props and terms from the latest model version.
+      If version is set to '*', get those from all versions of the given model.
+      Returns [ {prop, terms[]} ]
+
+
+
+   .. py:method:: get_origins()
+
+      Get all origins.
+      Returns [ <origin> ]
+
+
+
+   .. py:method:: get_origin_by_id(oid)
+
+      Get an origin by nanoid.
+
+
+
+   .. py:method:: get_tags_for_entity_by_id(nanoid)
+
+      Get all tags attached to an entity, given the entity's nanoid.
+      Returns [ {model(str), tags[]} ].
+
+
+
+   .. py:method:: get_tags_and_values(key=None)
+
+      Get all tag key/value pairs that are present in database.
+      Returns [ { key(str) : values[] } ]
+
+
+
+   .. py:method:: get_entities_by_tag(key, value=None)
+
+      Get all entities, tagged with a given key or key:value pair.
+      Returns [ {tag_key(str), tag_value(str), entity(str - label), entities[]} ]
+
+
+
+   .. py:method:: get_with_statement(qry, parms={})
+
+      Run an arbitrary read statement and return data.
+
+
+
+.. py:function:: make_nanoid(alphabet='abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ0123456789', size=6)
+
+   Create a random nanoid and return it as a string.
+
+

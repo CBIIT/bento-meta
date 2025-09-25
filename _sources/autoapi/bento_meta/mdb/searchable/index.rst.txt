@@ -1,0 +1,68 @@
+bento_meta.mdb.searchable
+=========================
+
+.. py:module:: bento_meta.mdb.searchable
+
+.. autoapi-nested-parse::
+
+   mdb.searchable
+   Subclass of `class:bento_meta.mdb.MDB` to support searching fulltext indices on an MDB
+   Note: certain fulltext indexes on certain MDB nodes and properties must be present in
+   the Neo4j instance:
+   - nodeHandle
+   - propHandle
+   - termValue
+   - termDefn
+   - termValueDefn
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.mdb.searchable.SearchableMDB
+
+
+Module Contents
+---------------
+
+.. py:class:: SearchableMDB(*args, **kwargs)
+
+   Bases: :py:obj:`bento_meta.mdb.MDB`
+
+
+   .. py:attribute:: ftindexes
+
+
+   .. py:method:: available_indexes()
+
+      Fulltext indexes present in database.
+      Returns { <index_name> : { entity_type:<NODE|RELATIONSHIP>, entities:[<labels>],
+      properties:[ [<props>] ] } }
+
+
+
+   .. py:method:: query_index(index, qstring, skip=None, limit=None)
+
+      Query a named fulltext index of nodes or relationships.
+      Returns [ {ent:{}, label:<label>, score:<lucene score>} ].
+
+
+
+   .. py:method:: search_entity_handles(qstring)
+
+      Fulltext search of qstring over node, relationship, and property handles.
+      Returns { node:[ {ent:<entity dict>,score:<lucene score>},... ],
+      relationship:[ <...> ], property:[ <...> ] }
+
+
+
+   .. py:method:: search_terms(qstring, search_values=True, search_definitions=True)
+
+      Fulltext for qstring over terms, by value, definition, or both (default).
+      Returns [ { ent:<term dict>, score:<lucene score> } ]}
+
+
+
