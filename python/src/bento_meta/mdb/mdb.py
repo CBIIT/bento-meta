@@ -20,8 +20,6 @@ from warnings import warn
 from nanoid import generate as nanoid_generate
 from neo4j import GraphDatabase
 
-from pdb import set_trace
-
 # Decorator functions to produce executed transactions based on an
 # underlying query/param function:
 
@@ -90,8 +88,7 @@ def read_txn_data(func):
             result = session.read_transaction(txn_q)
             if len(result):
                 return result
-            else:
-                return None
+            return None
 
     return rd
 
@@ -129,12 +126,12 @@ class MDB:
             if not info or len(info) == 0:
                 raise RuntimeError("No Model nodes found")
             for m in info:
-                if self.models.get(m['handle']):
-                    self.models[m['handle']].append(m['version'])
+                if self.models.get(m["handle"]):
+                    self.models[m["handle"]].append(m["version"])
                 else:
-                    self.models[m['handle']] = [m['version']]
-                if m['is_latest'] and not self.latest_version.get(m['handle']):
-                    self.latest_version[m['handle']] = m['version']
+                    self.models[m["handle"]] = [m["version"]]
+                if m["is_latest"] and not self.latest_version.get(m["handle"]):
+                    self.latest_version[m["handle"]] = m["version"]
             for hdl in self.models:
                 if not self.latest_version.get(hdl):
                     if len(self.models[hdl]) == 1:  # only one version
@@ -165,7 +162,7 @@ class MDB:
         Get models, versions, and latest versions from MDB Model nodes
         """
         return ("match (m:model) return m", None, "m")
-    
+
     def get_model_handles(self):
         """
         Return a simple list of model handles available.
@@ -180,9 +177,8 @@ class MDB:
         """
         if self.models.get(model):
             return self.models[model]
-        else:
-            return
-    
+        return None
+
     def get_latest_version(self, model):
         """
         Get the version string from Model node marked is_latest:True for a given
@@ -191,8 +187,7 @@ class MDB:
         """
         if self.models.get(model):
             return self.latest_version[model]
-        else:
-            return
+        return None
 
     @read_txn_data
     def get_model_nodes(self, model=None):
@@ -201,7 +196,7 @@ class MDB:
         Returns all versions.
         """
         qry = ("match (m:model) {} return m").format(
-            "where m.handle = $model" if model else ""
+            "where m.handle = $model" if model else "",
         )
         return (qry, {"model": model} if model else None)
 
@@ -220,16 +215,15 @@ class MDB:
         if model:
             latest = self.get_latest_version(model)
             if version is None and latest != "unversioned":
-                parms = {"model": model,
-                         "version": latest}
+                parms = {"model": model, "version": latest}
             elif version == "*" or latest == "unversioned":
-                cond = "where n.model = $model" 
+                cond = "where n.model = $model"
                 parms = {"model": model}
             else:
                 parms = {"model": model, "version": version}
         else:
             cond = ""
-        
+
         qry = f"match (n:node) {cond} return n"
 
         return (qry, parms, "n")
@@ -243,18 +237,17 @@ class MDB:
         If :param:version is '*', retrieve from all versions.
         Returns [ path ]
         """
-        cond = ("where s.model = $model and s.version = $version and "
-                "r.model = $model and r.version = $version and "
-                "d.model = $model and d.version = $version ")
+        cond = (
+            "where s.model = $model and s.version = $version and "
+            "r.model = $model and r.version = $version and "
+            "d.model = $model and d.version = $version "
+        )
         parms = {}
         latest = self.get_latest_version(model)
         if version is None and latest != "unversioned":
-            parms = {"model": model,
-                     "version": latest}
+            parms = {"model": model, "version": latest}
         elif version == "*" or latest == "unversioned":
-            cond = ("where s.model = $model and "
-                    "r.model = $model and "
-                    "d.model = $model ")
+            cond = "where s.model = $model and r.model = $model and d.model = $model "
             parms = {"model": model}
         else:
             parms = {"model": model, "version": version}
@@ -262,7 +255,7 @@ class MDB:
             "match p = (s:node)<-[:has_src]-(r:relationship)-[:has_dst]->(d:node)"
             f"{cond} "
             "return p as path"
-            )
+        )
         return (qry, parms)
 
     @read_txn_data
@@ -307,19 +300,20 @@ class MDB:
         from model version marked is_latest:true
         If :param:model is set and :param:version is '*', get nodes and props
         from all model versions.
-        
+
         Returns [ {id, handle, model, version, props[]} ]
         """
-        cond = ("where n.model = $model and n.version = $version and "
-                "p.model = $model and p.version = $version ")
+        cond = (
+            "where n.model = $model and n.version = $version and "
+            "p.model = $model and p.version = $version "
+        )
         parms = {}
         if model:
             latest = self.get_latest_version(model)
             if version is None and latest != "unversioned":
-                parms = {"model": model,
-                         "version": latest}
+                parms = {"model": model, "version": latest}
             elif version == "*" or latest == "unversioned":
-                cond = "where n.model = $model and p.model = $model " 
+                cond = "where n.model = $model and p.model = $model "
                 parms = {"model": model}
             else:
                 parms = {"model": model, "version": version}
@@ -382,16 +376,15 @@ class MDB:
         if model:
             latest = self.get_latest_version(model)
             if version is None and latest != "unversioned":
-                parms = {"model": model,
-                         "version": latest}
+                parms = {"model": model, "version": latest}
             elif version == "*" or latest == "unversioned":
-                cond = "where p.model = $model" 
+                cond = "where p.model = $model"
                 parms = {"model": model}
             else:
                 parms = {"model": model, "version": version}
         else:
             cond = ""
-        
+
         qry = (
             "match (vs:value_set)<-[:has_value_set]-(p:property) "
             f"{cond} "
@@ -426,11 +419,10 @@ class MDB:
         parms = {}
         if model:
             latest = self.get_latest_version(model)
-            if version is None and latest != "unversioned": 
-                parms = {"model": model,
-                         "version": latest}
+            if version is None and latest != "unversioned":
+                parms = {"model": model, "version": latest}
             elif version == "*" or latest == "unversioned":
-                cond = "where p.model = $model" 
+                cond = "where p.model = $model"
                 parms = {"model": model}
             else:
                 parms = {"model": model, "version": version}
@@ -483,12 +475,12 @@ class MDB:
         parms = {}
         if key is not None:
             cond = "where t.key = $key "
-            parms = {"key":key}
+            parms = {"key": key}
         qry = (
             "match (t:tag) "
             f"{cond} "
             "return t.key as key, collect(distinct t.value) as values "
-            )
+        )
         return (qry, parms)
 
     @read_txn_data
@@ -498,10 +490,10 @@ class MDB:
         Returns [ {tag_key(str), tag_value(str), entity(str - label), entities[]} ]
         """
         cond = "where t.key = $key "
-        parms = {"key":key}
+        parms = {"key": key}
         if value is not None:
             cond = "where t.key = $key and t.value = $value "
-            parms = {"key":key, "value": value}
+            parms = {"key": key, "value": value}
         qry = (
             "match (t:tag) "
             f"{cond} "
@@ -516,7 +508,7 @@ class MDB:
         """Run an arbitrary read statement and return data."""
         if not isinstance(qry, str):
             raise RuntimeError("qry= must be a string")
-        if not re.match(".*return.*", qry, flags=re.I):
+        if not re.match(".*return.*", qry, flags=re.IGNORECASE):
             raise RuntimeError("Read statement needs a RETURN clause.")
         if not isinstance(parms, dict):
             raise RuntimeError("parms= must be a dict")

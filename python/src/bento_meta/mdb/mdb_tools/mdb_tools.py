@@ -6,12 +6,26 @@ EntityValidator: validates that entities have required attributes.
 
 import csv
 import logging
+from collections.abc import Iterable
 from importlib.util import find_spec
 from logging.config import fileConfig
 from pathlib import Path
 from subprocess import check_call
 from sys import executable
-from typing import Dict, Iterable, List, Optional, Set, Tuple, Type, Union
+
+from minicypher.clauses import (
+    As,
+    Collect,
+    DetachDelete,
+    Match,
+    Merge,
+    OptionalMatch,
+    Return,
+    With,
+)
+from minicypher.entities import N0, R0, G, N, P, R, T, _plain_var
+from minicypher.functions import count
+from minicypher.statement import Statement
 
 from bento_meta.entity import Entity
 from bento_meta.mdb import make_nanoid, read_txn_data, read_txn_value
@@ -26,21 +40,6 @@ from bento_meta.objects import (
     Term,
     ValueSet,
 )
-
-from minicypher.statement import Statement
-from minicypher.clauses import (
-    As,
-    Collect,
-    Match,
-    Merge,
-    DetachDelete,
-    OptionalMatch,
-    Return,
-    With,
-)
-
-from minicypher.entities import N0, R0, G, N, P, R, T, _plain_var
-from minicypher.functions import count
 
 # logging stuff
 log_ini_path = Path(__file__).parents[2].joinpath("logs/log.ini")
@@ -97,7 +96,7 @@ class ToolsMDB(WriteableMDB):
         return (qry, parms, "entity_count")
 
     @read_txn_value
-    def _get_pattern_count(self, pattern: Union[T, G]):
+    def _get_pattern_count(self, pattern: T | G):
         """
         Returns count of given match pattern, which could be a triple like:
         (n)-[r]->(m), or a set of overlapping triples (Path) found in MDB.
@@ -144,7 +143,7 @@ class ToolsMDB(WriteableMDB):
         for entity in entities:
             self.validate_entity_unique(entity)
 
-    def validate_pattern_unique(self, pattern: Union[T, G]) -> None:
+    def validate_pattern_unique(self, pattern: T | G) -> None:
         """
         Validates that the given match pattern occurs once (& only once) in an MDB
 
@@ -247,7 +246,7 @@ class ToolsMDB(WriteableMDB):
     def get_concept_nanoids_linked_to_entity(
         self,
         entity: Entity,
-        mapping_source: Optional[str] = None,
+        mapping_source: str | None = None,
     ):
         """
         Returns list of concept nanoids linked to given entity by
@@ -586,7 +585,7 @@ class ToolsMDB(WriteableMDB):
 
         # get list of terms connected to concept 2
         c2_term_nanoids = self.get_term_nanoids(concept_2, mapping_source)
-        c2_terms: List[Term] = []
+        c2_terms: list[Term] = []
         for nanoid in c2_term_nanoids:
             c2_terms.append(Term({"nanoid": nanoid}))
 
@@ -640,7 +639,7 @@ class ToolsMDB(WriteableMDB):
         self,
         term: Term,
         threshhold: float = 0.8,
-    ) -> List[dict]:
+    ) -> list[dict]:
         """
         Returns list of dicts representing potential Term nodes synonymous to given Term
         in an MDB
@@ -674,7 +673,7 @@ class ToolsMDB(WriteableMDB):
 
     def potential_synonyms_to_csv(
         self,
-        input_data: List[dict],
+        input_data: list[dict],
         output_path: str,
     ) -> None:
         """Given a list of synonymous Terms as dicts, outputs to CSV file at given output path"""
@@ -741,7 +740,7 @@ class ToolsMDB(WriteableMDB):
 
         return (qry, parms)
 
-    def _get_property_synonyms_direct_as_list(self, entity: Property) -> List[Property]:
+    def _get_property_synonyms_direct_as_list(self, entity: Property) -> list[Property]:
         """
         Converts results of read_txn_data-wrapped function
         with one item to a simple list of bento_meta.objects.Property entities
@@ -749,7 +748,7 @@ class ToolsMDB(WriteableMDB):
         data = self.get_property_synonyms_direct(entity)
         return [Property(s) for s in data[0]["synonyms"]]
 
-    def get_property_synonyms_all(self, entity: Property) -> List[Property]:
+    def get_property_synonyms_all(self, entity: Property) -> list[Property]:
         """
         Returns list of properties linked by concept to given property
         or to synonym of given property (and so on)
@@ -804,7 +803,7 @@ class ToolsMDB(WriteableMDB):
 
         return (qry, parms)
 
-    def get_property_parents(self, entity: Property) -> List[Union[Node, Edge]]:
+    def get_property_parents(self, entity: Property) -> list[Node | Edge]:
         """
         Returns results of _get_property_parents_data as a list of
         bento_meta Nodes or Edges
@@ -830,7 +829,7 @@ class ToolsMDB(WriteableMDB):
 class EntityValidator:
     """Entity validator that validate entities have all required attributes"""
 
-    required_attrs_by_entity_type: Dict[Type[Entity], List[str]] = {
+    required_attrs_by_entity_type: dict[type[Entity], list[str]] = {
         Node: ["handle", "model"],
         Edge: ["handle", "model", "src", "dst"],
         Property: ["handle", "model"],
@@ -841,7 +840,7 @@ class EntityValidator:
         ValueSet: ["handle"],
     }
 
-    valid_attrs: Dict[Tuple[Type[Entity], str], Set[str]] = {
+    valid_attrs: dict[tuple[type[Entity], str], set[str]] = {
         (Predicate, "handle"): {
             "exactMatch",
             "closeMatch",
@@ -866,7 +865,7 @@ class EntityValidator:
             )
 
     @staticmethod
-    def _validate_entity_attribute(entity_type: Type[Entity], attr_name: str) -> None:
+    def _validate_entity_attribute(entity_type: type[Entity], attr_name: str) -> None:
         """Checks that an entity attribute is in a set of valid attributes"""
         valid_attrs = EntityValidator.valid_attrs.get((entity_type, attr_name))
 

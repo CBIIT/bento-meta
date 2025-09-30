@@ -104,10 +104,9 @@ class ObjectMap:
             return None
         if isinstance(value, (int, float)):
             return value  # no quote
-        elif single:
+        if single:
             return f"'{value}'"  # quote
-        else:
-            return f'"{value}"'  # quote
+        return f'"{value}"'  # quote
 
     def get_by_id(self, obj, id, refresh=False):
         """Get an entity given an id attribute value (not the Neo4j id)"""
@@ -128,8 +127,7 @@ class ObjectMap:
         if neoid is not None:
             obj.neoid = neoid
             return self.get(obj, refresh=True)
-        else:
-            return None
+        return None
 
     def get_by_node_nanoid(self, obj, nanoid, refresh=False):
         """
@@ -152,8 +150,7 @@ class ObjectMap:
         if neo4jid is None:
             obj.neoid = neo4jid
             return self.get(obj, refresh=True)
-        else:
-            return None
+        return None
 
     def get(self, obj, refresh=False):
         """Get the data for an object instance from the db and load the instance with it"""
@@ -387,7 +384,7 @@ class ObjectMap:
         if att in self.cls.mapspec()["property"]:
             pr = self.cls.mapspec()["property"][att]
             return f"MATCH (n:{label}) WHERE id(n)={obj.neoid} RETURN n.{pr}"
-        elif att in self.cls.mapspec()["relationship"]:
+        if att in self.cls.mapspec()["relationship"]:
             spec = self.cls.mapspec()["relationship"][att]
             end_cls = spec["end_cls"]
             if isinstance(end_cls, str):
@@ -399,16 +396,15 @@ class ObjectMap:
                 if self.cls.attspec[att] == "object":
                     qry += " LIMIT 1"
                 return qry
-            else:  # multiple end classes possible
-                cond = []
-                for l in end_lbls:
-                    cond.append(f"'{l}' IN labels(a)")
-                cond = " OR ".join(cond)
-                return f"MATCH (n:{label}){rel}(a) WHERE id(n)={obj.neoid} AND ({cond}) RETURN a"
-        else:
-            raise ArgError(
-                f"'{att}' is not a registered attribute for class '{self.cls.__name__}'",
-            )
+            # multiple end classes possible
+            cond = []
+            for l in end_lbls:
+                cond.append(f"'{l}' IN labels(a)")
+            cond = " OR ".join(cond)
+            return f"MATCH (n:{label}){rel}(a) WHERE id(n)={obj.neoid} AND ({cond}) RETURN a"
+        raise ArgError(
+            f"'{att}' is not a registered attribute for class '{self.cls.__name__}'",
+        )
 
     def get_owners_q(self, obj):
         if not isinstance(obj, self.cls):
@@ -456,17 +452,15 @@ class ObjectMap:
                     ),
                 )
             return stmts
-        else:
-            spec = []
-            for pr in props:
-                spec.append(
-                    f"{pr}:{ObjectMap._quote_val(props[pr])}",
-                )
-            spec = ",".join(spec)
-            return [
-                "CREATE (n:%s {%s}) RETURN n,id(n)"
-                % (self.cls.mapspec()["label"], spec),
-            ]
+        spec = []
+        for pr in props:
+            spec.append(
+                f"{pr}:{ObjectMap._quote_val(props[pr])}",
+            )
+        spec = ",".join(spec)
+        return [
+            "CREATE (n:%s {%s}) RETURN n,id(n)" % (self.cls.mapspec()["label"], spec),
+        ]
 
     def put_attr_q(self, obj, att, values):
         if not isinstance(obj, self.cls):
@@ -490,7 +484,7 @@ class ObjectMap:
                 pr=self.cls.mapspec()["property"][att],
                 val=ObjectMap._quote_val(values[0]),
             )
-        elif att in self.cls.mapspec()["relationship"]:
+        if att in self.cls.mapspec()["relationship"]:
             if not self._check_values_list(att, values):
                 raise ArgError(
                     "'values' must be a list of mapped Entity objects of "
@@ -532,10 +526,9 @@ class ObjectMap:
                     )
             return stmts
 
-        else:
-            raise ArgError(
-                f"'{att}' is not a registered attribute for class '{self.cls.__name__}'",
-            )
+        raise ArgError(
+            f"'{att}' is not a registered attribute for class '{self.cls.__name__}'",
+        )
 
     def rm_q(self, obj, detach=False):
         if not isinstance(obj, self.cls):
@@ -566,7 +559,7 @@ class ObjectMap:
                 neoid=obj.neoid,
                 att=att,
             )
-        elif att in self.cls.mapspec()["relationship"]:
+        if att in self.cls.mapspec()["relationship"]:
             many = self.cls.attspec[att] == "collection"
             spec = self.cls.mapspec()["relationship"][att]
             end_cls = spec["end_cls"]
@@ -586,51 +579,48 @@ class ObjectMap:
                         rel=rel,
                         neoid=obj.neoid,
                     )
-                else:
-                    return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND ({cond}) DELETE r RETURN id(n)".format(
-                        lbl=self.cls.mapspec()["label"],
-                        cond=cond,
-                        neoid=obj.neoid,
-                        rel=rel,
-                    )
-            else:
-                stmts = []
+                return "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND ({cond}) DELETE r RETURN id(n)".format(
+                    lbl=self.cls.mapspec()["label"],
+                    cond=cond,
+                    neoid=obj.neoid,
+                    rel=rel,
+                )
+            stmts = []
 
-                if not self._check_values_list(att, values):
-                    raise ArgError(
-                        "'values' must be a list of mapped Entity objects of the "
-                        f"appropriate subclass for attribute '{att}'",
+            if not self._check_values_list(att, values):
+                raise ArgError(
+                    "'values' must be a list of mapped Entity objects of the "
+                    f"appropriate subclass for attribute '{att}'",
+                )
+            for val in values:
+                qry = ""
+                if len(end_lbls) == 1:
+                    qry = (
+                        "MATCH (n:{lbl}){rel}(a:{albl}) WHERE id(n)={neoid} AND id(a)={aneoid} "
+                        "DELETE r RETURN id(n),id(a)".format(
+                            lbl=self.cls.mapspec()["label"],
+                            albl=end_lbls[0],
+                            neoid=obj.neoid,
+                            aneoid=val.neoid,
+                            rel=rel,
+                        )
                     )
-                for val in values:
-                    qry = ""
-                    if len(end_lbls) == 1:
-                        qry = (
-                            "MATCH (n:{lbl}){rel}(a:{albl}) WHERE id(n)={neoid} AND id(a)={aneoid} "
-                            "DELETE r RETURN id(n),id(a)".format(
-                                lbl=self.cls.mapspec()["label"],
-                                albl=end_lbls[0],
-                                neoid=obj.neoid,
-                                aneoid=val.neoid,
-                                rel=rel,
-                            )
+                else:
+                    qry = (
+                        "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) "
+                        "DELETE r RETURN id(n),id(a)".format(
+                            lbl=self.cls.mapspec()["label"],
+                            neoid=obj.neoid,
+                            aneoid=val.neoid,
+                            cond=cond,
+                            rel=rel,
                         )
-                    else:
-                        qry = (
-                            "MATCH (n:{lbl}){rel}(a) WHERE id(n)={neoid} AND id(a)={aneoid} AND ({cond}) "
-                            "DELETE r RETURN id(n),id(a)".format(
-                                lbl=self.cls.mapspec()["label"],
-                                neoid=obj.neoid,
-                                aneoid=val.neoid,
-                                cond=cond,
-                                rel=rel,
-                            )
-                        )
-                    stmts.append(qry)
-                return stmts
-        else:
-            raise ArgError(
-                f"'{att}' is not a registered attribute for class '{self.cls.__name__}'",
-            )
+                    )
+                stmts.append(qry)
+            return stmts
+        raise ArgError(
+            f"'{att}' is not a registered attribute for class '{self.cls.__name__}'",
+        )
 
     def _check_values_list(self, att, values):
         v = values

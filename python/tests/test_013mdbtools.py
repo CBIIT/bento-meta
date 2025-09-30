@@ -6,11 +6,14 @@ and relationships, and linking synonyms. It also tests the validation of various
 entity types using EntityValidator. The tests cover both success cases and failure cases
 for validation.
 """
+
 import pytest
 from bento_meta.mdb.mdb_tools import EntityValidator, ToolsMDB
 from bento_meta.objects import Concept, Edge, Entity, Node, Property, Term, ValueSet
 from minicypher.entities import G, N, R, T
 
+
+@pytest.mark.docker
 @pytest.mark.slow
 class TestToolsMDB:
     """
@@ -34,7 +37,7 @@ class TestToolsMDB:
             "nanoid": "enano1",
             "src": node_1,
             "dst": node_2,
-        }
+        },
     )
     pg_edge_1 = N(label=edge_1.get_label(), props=edge_1.get_attr_dict())
     prop_1 = Property({"handle": "prop_1", "model": MODEL, "nanoid": "pnano1"})
@@ -46,15 +49,15 @@ class TestToolsMDB:
     valset_2 = ValueSet({"handle": "valset_2", "nanoid": "vnano2"})
     pg_valset_2 = N(label=valset_2.get_label(), props=valset_2.get_attr_dict())
     term_1 = Term(
-        {"value": "term_1", "origin_name": "origin_name_1", "nanoid": "tnano1"}
+        {"value": "term_1", "origin_name": "origin_name_1", "nanoid": "tnano1"},
     )
     pg_term_1 = N(label=term_1.get_label(), props=term_1.get_attr_dict())
     term_2 = Term(
-        {"value": "term_2", "origin_name": "origin_name_2", "nanoid": "tnano2"}
+        {"value": "term_2", "origin_name": "origin_name_2", "nanoid": "tnano2"},
     )
     pg_term_2 = N(label=term_2.get_label(), props=term_2.get_attr_dict())
     term_3 = Term(
-        {"value": "term_3", "origin_name": "origin_name_3", "nanoid": "tnano3"}
+        {"value": "term_3", "origin_name": "origin_name_3", "nanoid": "tnano3"},
     )
     pg_term_3 = N(label=term_3.get_label(), props=term_3.get_attr_dict())
     add_ents = [
@@ -118,19 +121,25 @@ class TestToolsMDB:
         terms, nodes, and concepts, and asserting the pattern count.
         """
         tools_mdb.link_synonyms(
-            self.term_1, self.term_2, mapping_source=self.MAPPING_SOURCE_1
+            self.term_1,
+            self.term_2,
+            mapping_source=self.MAPPING_SOURCE_1,
         )
         tools_mdb.link_synonyms(
-            self.node_1, self.term_1, mapping_source=self.MAPPING_SOURCE_1
+            self.node_1,
+            self.term_1,
+            mapping_source=self.MAPPING_SOURCE_1,
         )
         concept_nanos = tools_mdb.get_concept_nanoids_linked_to_entity(
-            entity=self.term_1, mapping_source=self.MAPPING_SOURCE_1
+            entity=self.term_1,
+            mapping_source=self.MAPPING_SOURCE_1,
         )
         # should reuse concept created in first link_synonyms() here
         assert len(concept_nanos) == 1
         pg_concept = N(label="concept", props={"nanoid": concept_nanos[0]})
         pg_tag = N(
-            label="tag", props={"key": "mapping_source", "value": self.MAPPING_SOURCE_1}
+            label="tag",
+            props={"key": "mapping_source", "value": self.MAPPING_SOURCE_1},
         )
         synonym_path = G(
             T(self.pg_term_1, R(Type="represents"), pg_concept),
@@ -148,19 +157,23 @@ class TestToolsMDB:
         """
         # should add a new concept
         tools_mdb.link_synonyms(
-            self.term_2, self.term_3, mapping_source=self.MAPPING_SOURCE_2
+            self.term_2,
+            self.term_3,
+            mapping_source=self.MAPPING_SOURCE_2,
         )
         # any mapping source
         concept_nanos = tools_mdb.get_concept_nanoids_linked_to_entity(self.term_2)
         assert len(concept_nanos) == 2
         # source 1
         concept_nanos = tools_mdb.get_concept_nanoids_linked_to_entity(
-            self.term_2, self.MAPPING_SOURCE_1
+            self.term_2,
+            self.MAPPING_SOURCE_1,
         )
         assert len(concept_nanos) == 1
         # source 2
         concept_nanos = tools_mdb.get_concept_nanoids_linked_to_entity(
-            self.term_2, self.MAPPING_SOURCE_2
+            self.term_2,
+            self.MAPPING_SOURCE_2,
         )
         assert len(concept_nanos) == 1
 
@@ -177,7 +190,10 @@ class TestToolsMDB:
             dst_entity=self.node_2,
         )
 
-        relationship_type = tools_mdb.get_relationship_between_entities(self.node_1, self.node_2)
+        relationship_type = tools_mdb.get_relationship_between_entities(
+            self.node_1,
+            self.node_2,
+        )
 
         assert relationship_type[0] == rel_type
 
@@ -186,7 +202,7 @@ class TestToolsMDB:
                 N(label=self.node_1.get_label(), props=self.node_1.get_attr_dict()),
                 R(Type=rel_type),
                 N(label=self.node_2.get_label(), props=self.node_2.get_attr_dict()),
-            )
+            ),
         )
         assert pattern_count[0] == 1
 
@@ -218,7 +234,7 @@ def test_edge_validation_success():
             "model": "test_model",
             "src": Node({"handle": "source", "model": "test_model"}),
             "dst": Node({"handle": "destination", "model": "test_model"}),
-        }
+        },
     )
     EntityValidator.validate_entity(edge)
 
@@ -237,7 +253,7 @@ def test_term_validation_success():
             "origin_id": "test_id",
             "origin_version": "test_version",
             "value": "test_value",
-        }
+        },
     )
     EntityValidator.validate_entity(term)
 
@@ -266,7 +282,7 @@ def test_validation_failure_edge_src_dst_attr_missing():
             "model": "test_model",
             "src": Node({"model": "test_model"}),
             "dst": Node({"handle": "destination"}),
-        }
+        },
     )
     with pytest.raises(EntityValidator.MissingAttributeError):
         EntityValidator.validate_entity(edge)

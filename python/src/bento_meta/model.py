@@ -160,7 +160,7 @@ class Model:
             prop = Property(prop)
         if not prop.model:
             prop.model = self.handle
-        if prop.value_domain == 'value_set' and not prop.value_set:
+        if prop.value_domain == "value_set" and not prop.value_set:
             warn("(add_prop) Creating ValueSet object for Property " + prop.handle)
             prop.value_set = ValueSet({"prop": prop, "_id": str(uuid4())})
             prop.value_set.handle = self.handle + prop.value_set._id[0:8]
@@ -382,8 +382,7 @@ class Model:
         if isinstance(item, Node):
             idx = 1 if key == "src" else 2
             return [self.edges[x] for x in self.edges if x[idx] == item.handle]
-        else:
-            return [self.edges[x] for x in self.edges if x[0] == item]
+        return [self.edges[x] for x in self.edges if x[0] == item]
 
     def edges_by_src(self, node):
         """
