@@ -4,7 +4,7 @@ mdb.loaders: load models into an MDB instance consistently
 
 from tqdm import tqdm
 
-from bento_meta.mdb import WriteableMDB
+from bento_meta.mdb.writeable import WriteableMDB
 from bento_meta.util.cypher.clauses import (
     Create,
     Match,

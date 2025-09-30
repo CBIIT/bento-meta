@@ -4,7 +4,7 @@ mdb.writeable: subclass of `class:bento_meta.MDB` to support writing to an MDB
 
 from functools import wraps
 
-from bento_meta.mdb import MDB, make_nanoid
+from bento_meta.mdb.mdb import MDB, make_nanoid
 
 
 def write_txn(func):
