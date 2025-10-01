@@ -1,20 +1,14 @@
 import re
-from pdb import set_trace  # noqa E402
 
-from bento_meta.util.cypher.clauses import Match, Return, Statement
-from bento_meta.util.cypher.entities import (  # noqa E402
-    N0,
-    R0,
+from minicypher.clauses import Match, Return
+from minicypher.entities import (
     G,
     N,
     P,
     R,
-    _anon,
-    _as,
-    _plain,
-    _var,
+    _As,
 )
-from bento_meta.util.cypher.functions import (
+from minicypher.functions import (
     And,
     Not,
     Or,
@@ -23,6 +17,7 @@ from bento_meta.util.cypher.functions import (
     group,
     labels,
 )
+from minicypher.statement import Statement
 
 avail_funcs = {x.__name__: x for x in (count, exists, labels, group, And, Or, Not)}
 
@@ -191,24 +186,24 @@ class _engine:
                 elif isinstance(ent, N) and ent.var:
                     if ent.label in labels:
                         if labels[ent.label]:
-                            a.append(_as(ent, labels[ent.label]))
+                            a.append(_As(ent, labels[ent.label]))
                         else:
                             a.append(ent)
                     if "_var" in labels and ent == pad["_var"]:
                         if labels["_var"]:
-                            a.append(_as(ent, labels["_var"]))
+                            a.append(_As(ent, labels["_var"]))
                         else:
                             a.append(ent)
                 else:
                     for n in ent.nodes():
                         if n.label in labels and n.var:
                             if labels[n.label]:
-                                a.append(_as(n, labels[n.label]))
+                                a.append(_As(n, labels[n.label]))
                             else:
                                 a.append(n)
                         if "_var" in labels and n == pad["_var"]:
                             if labels["_var"]:
-                                a.append(_as(n, labels["_var"]))
+                                a.append(_As(n, labels["_var"]))
                             else:
                                 a.append(n)
 
@@ -227,19 +222,19 @@ class _engine:
                 if isinstance(ent, R) and ent.var:
                     if ent.Type in types:
                         if types[ent.Type]:
-                            _as(ent, types[ent.Type])
+                            _As(ent, types[ent.Type])
                         else:
                             a.append(ent)
                     if "_var" in types and ent == pad["_var"]:
                         if types["_var"]:
-                            a.append(_as(ent, types["_var"]))
+                            a.append(_As(ent, types["_var"]))
                         else:
                             a.append(ent)
                 else:
                     for e in ent.edges():
                         if e.Type in types and e.var:
                             if types[e.Type]:
-                                a.append(_as(e, types[e.Type]))
+                                a.append(_As(e, types[e.Type]))
                             else:
                                 a.append(e)
             if not a:
@@ -255,7 +250,7 @@ class _engine:
                     return False  # bad _func spec
                 a = [f["_func"](x) for x in a]
                 if f.get("_func_as"):
-                    a = [_as(x, f["_func_as"]) for x in a]
+                    a = [_As(x, f["_func_as"]) for x in a]
             ret_clause = Return(*a)
         else:
             self.error = {

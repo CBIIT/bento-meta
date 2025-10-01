@@ -5,21 +5,7 @@ makeq - make a Neo4j query from an endpoint path.
 import re
 
 import yaml
-
-from bento_meta.util._engine import _engine
-from bento_meta.util.cypher.entities import (  # noqa E402
-    N0,
-    R0,
-    G,
-    N,
-    P,
-    R,
-    _anon,
-    _as,
-    _plain,
-    _var,
-)
-from bento_meta.util.cypher.functions import (
+from minicypher.functions import (
     And,
     Not,
     Or,
@@ -28,6 +14,8 @@ from bento_meta.util.cypher.functions import (
     group,
     labels,
 )
+
+from bento_meta.util._engine import _engine
 
 avail_funcs = {x.__name__: x for x in (count, exists, labels, group, And, Or, Not)}
 
