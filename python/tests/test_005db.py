@@ -11,7 +11,7 @@ from neo4j import GraphDatabase
 from neo4j.exceptions import Neo4jError
 
 
-@pytest.mark.docker()
+@pytest.mark.docker
 def test_get(bento_neo4j):
     (b, h) = bento_neo4j
     drv = GraphDatabase.driver(b)
@@ -45,7 +45,7 @@ def test_get(bento_neo4j):
     assert cncpt.terms[0] == concept.terms[0]
 
 
-@pytest.mark.docker()
+@pytest.mark.docker
 def test_put_rm(bento_neo4j):
     (b, h) = bento_neo4j
     drv = GraphDatabase.driver(b)

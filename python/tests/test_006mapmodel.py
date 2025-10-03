@@ -3,15 +3,15 @@ import sys
 sys.path.insert(0, ".")
 sys.path.insert(0, "..")
 
+
 import pytest
 from bento_meta.mdb import MDB
 from bento_meta.model import Model
 from bento_meta.object_map import ObjectMap
 from bento_meta.objects import Term
 
-from pdb import set_trace
 
-@pytest.mark.docker()
+@pytest.mark.docker
 def test_get_model(bento_neo4j):
     (b, h) = bento_neo4j
     the_mdb = MDB(uri=b)
@@ -65,7 +65,7 @@ def test_get_model(bento_neo4j):
     print(f"{m.nodes=}")
 
 
-@pytest.mark.docker()
+@pytest.mark.docker
 def test_put_model(bento_neo4j):
     (b, h) = bento_neo4j
     the_mdb = MDB(uri=b)
