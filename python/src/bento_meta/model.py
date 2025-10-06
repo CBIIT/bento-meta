@@ -9,10 +9,14 @@ without a Neo4j database connection.
 
 """
 
+from __future__ import annotations
+
 import re
 import sys
 
 sys.path.append("..")
+import builtins
+import contextlib
 from uuid import uuid4
 from warnings import warn
 
@@ -35,40 +39,62 @@ from bento_meta.objects import (
 
 
 class Model:
-    def __init__(self, handle=None, version=None, uri=None, mdb=None):
+    """Model class for managing data models housed in the Bento Metamodel Database."""
+
+    def __init__(
+        self,
+        handle: str | None = None,
+        version: str | None = None,
+        uri: str | None = None,
+        mdb: MDB | None = None,
+    ) -> None:
         """
         Model constructor.
 
-        :param str handle: A string name for the model. Corresponds to the model property in MDB database nodes.
-        :param bento_meta.mdb.MDB mdb: An MDB object containing the db connection (see :class:`bento_meta.mdb.MDB`)
+        :param str handle: A string name for the model.
+            Corresponds to the model property in MDB database nodes.
+        :param bento_meta.mdb.MDB mdb: An MDB object containing the db connection
+            (see :class:`bento_meta.mdb.MDB`)
         """
         if not handle:
-            raise ArgError("model requires arg 'handle' set")
+            msg = "model requires arg 'handle' set"
+            raise ArgError(msg)
         self.handle = handle
         self.version = version
         self.uri = uri
         self.repository = None
-        self._mdb = None
-        self.nodes = {}
-        self.edges = {}  # keys are (edge.handle, src.handle, dst.handle) tuples
-        self.props = {}  # keys are ({edge|node}.handle, prop.handle) tuples
-        self.terms = {}  # keys are (term.handle, term.origin) tuples
-        self.removed_entities = []
+        self._mdb: MDB | None = None
+        self.nodes: dict[str, Node] = {}
+        self.edges: dict[
+            tuple[str, str, str],
+            Edge,
+        ] = {}  # keys are (edge.handle, src.handle, dst.handle) tuples
+        self.props: dict[
+            tuple[str, str],
+            Property,
+        ] = {}  # keys are ({edge|node}.handle, prop.handle) tuples
+        self.terms: dict[
+            tuple[str, str],
+            Term,
+        ] = {}  # keys are (term.handle, term.origin) tuples
+        self.removed_entities: list[Entity] = []
 
         if mdb:
             self.mdb = mdb
 
     @property
-    def drv(self):
-        """Neo4j database driver from MDB object"""
+    def drv(self) -> neo4j.Driver | None:
+        """Neo4j database driver from MDB object."""
         return self._mdb.driver if self._mdb else None
 
     @property
-    def mdb(self):
+    def mdb(self) -> MDB | None:
+        """MDB object containing the db connection."""
         return self._mdb
 
     @mdb.setter
-    def mdb(self, value):
+    def mdb(self, value: MDB | None) -> None:
+        """Set the MDB object containing the db connection."""
         if isinstance(value, MDB):
             self._mdb = value
             for cls in (
@@ -88,11 +114,10 @@ class Model:
             for cls in (Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag):
                 cls.object_map = None
         else:
-            raise ArgError(
-                "mdb= arg must be a bento_meta.mdb.MDB object",
-            )
+            msg = "mdb= arg must be a bento_meta.mdb.MDB object"
+            raise ArgError(msg)
 
-    def add_node(self, node=None):
+    def add_node(self, node: Node | dict | neo4j.graph.Node | None = None) -> Node:
         """
         Add a :class:`Node` to the model.
 
@@ -101,7 +126,8 @@ class Model:
         The model attribute of ``node`` is set to `Model.handle`
         """
         if not node:
-            raise ArgError("arg must be Node, dict, or graph.Node")
+            msg = "arg must be Node, dict, or graph.Node"
+            raise ArgError(msg)
         if isinstance(node, (dict, neo4j.graph.Node)):
             node = Node(node)
         if not node.model:
@@ -111,40 +137,49 @@ class Model:
         self.nodes[node.handle] = node
         return node
 
-    def add_edge(self, edge=None):
+    def add_edge(self, edge: Edge | dict | neo4j.graph.Node | None = None) -> Edge:
         """
         Add an :class:`Edge` to the model.
 
-        :param Edge edge: A :class:`Edge` instance, a :class:`neo4j.graph.Node`, or a dict
+        :param edge: A :class:`Edge` instance, a :class:`neo4j.graph.Node`, or a dict
 
         The model attribute of ``edge`` is set to `Model.handle`
         """
         if not edge:
-            raise ArgError("arg must be Edge, dict, or graph.Node")
+            msg = "arg must be Edge, dict, or graph.Node"
+            raise ArgError(msg)
         if isinstance(edge, (dict, neo4j.graph.Node)):
             edge = Edge(edge)
         if not edge.src or not edge.dst:
-            raise ArgError("edge must have both src and dst set")
+            msg = "edge must have both src and dst set"
+            raise ArgError(msg)
         if not edge.model:
             edge.model = self.handle
         if not self.contains(edge.src):
-            warn("Edge source node not yet in model; adding it")
+            warn("Edge source node not yet in model; adding it", stacklevel=2)
             self.add_node(edge.src)
         if not self.contains(edge.dst):
-            warn("Edge destination node not yet in model; adding it")
+            warn("Edge destination node not yet in model; adding it", stacklevel=2)
             self.add_node(edge.dst)
         for p in edge.props.values():
             self.add_prop(edge, p)
         self.edges[edge.triplet] = edge
         return edge
 
-    def add_prop(self, ent, prop=None):
+    def add_prop(
+        self,
+        ent: Node | Edge,
+        prop: Property | dict | neo4j.graph.Node | None = None,
+        *,
+        reuse: bool = False,
+    ) -> Property:
         """
         Add a :class:`Property` to the model.
 
         :param Node|Edge ent: Attach ``prop`` to this entity
-        :param Property prop: A :class:`Property` instance, a :class: `neo4j.graph.Node`, or a dict
-        :param boolean reuse: If True, reuse existing property with same handle
+        :param Property prop: A :class:`Property` instance,
+            a :class: `neo4j.graph.Node`, or a dict
+        :param bool reuse: If True, reuse existing property with same handle
 
         The model attribute of ``prop`` is set to `Model.handle`. Within a model,
         :class:`Property` entities are unique with respect to their
@@ -153,17 +188,22 @@ class Model:
         Model.props pointing to it if found.
         """
         if not isinstance(ent, (Node, Edge)):
-            raise ArgError("arg 1 must be Node or Edge")
+            msg = "arg 1 must be Node or Edge"
+            raise ArgError(msg)
         if not prop:
-            raise ArgError("arg 2 must be Property, dict, or graph.Node")
+            msg = "arg 2 must be Property, dict, or graph.Node"
+            raise ArgError(msg)
         if isinstance(prop, (dict, neo4j.graph.Node)):
             prop = Property(prop)
         if not prop.model:
             prop.model = self.handle
         if prop.value_domain == "value_set" and not prop.value_set:
-            warn("(add_prop) Creating ValueSet object for Property " + prop.handle)
+            warn(
+                "(add_prop) Creating ValueSet object for Property " + prop.handle,
+                stacklevel=2,
+            )
             prop.value_set = ValueSet({"prop": prop, "_id": str(uuid4())})
-            prop.value_set.handle = self.handle + prop.value_set._id[0:8]
+            prop.value_set.handle = self.handle + prop.value_set._id[0:8]  # noqa: SLF001
         key = [ent.handle] if isinstance(ent, Node) else list(ent.triplet)
         key.append(prop.handle)
         ent.props[getattr(prop, type(prop).mapspec()["key"])] = prop
@@ -171,32 +211,39 @@ class Model:
             self.props[tuple(key)] = prop
         return prop
 
-    def annotate(self, ent, term):
+    def annotate(self, ent: Entity, term: Term) -> None:
         """
-        Associate a single :class:`Term` with an :class:`Entity`. This creates a Concept entity
-        if needed and links both the Entity and the Term to the concept, in keeping with the MDB
-        spec. It supports the Term key in MDF.
+        Associate a single :class:`Term` with an :class:`Entity`.
+
+        This creates a Concept entity if needed and links both the Entity and the Term
+        to the concept, in keeping with the MDB spec. It supports the Term key in MDF.
+
         :param Entity ent: :class:`Entity` object to annotate
         :param Term term: :class:`Term` object to describe the Entity
         """
         if not isinstance(ent, Entity):
-            raise ArgError("arg1 must be Entity")
+            msg = "arg1 must be Entity"
+            raise ArgError(msg)
         if not isinstance(term, Term):
-            raise ArgError("arg2 must be Term")
+            msg = "arg2 must be Term"
+            raise ArgError(msg)
         if not ent.concept:
             ent.concept = Concept({"nanoid": make_nanoid()})
         term_key = term.handle if term.handle else term.value
         if (term_key, term.origin_name) in ent.concept.terms:
-            raise ValueError(
-                f"Concept already represented by a Term with handle or value '{term_key}'"
-                f"and origin_name '{term.origin_name}'",
+            msg = (
+                "Concept already represented by a Term with handle or value "
+                f"'{term_key}' and origin_name '{term.origin_name}'"
             )
+            raise ValueError(msg)
         ent.concept.terms[(term_key, term.origin_name)] = term
         self.terms[(term_key, term.origin_name)] = term
 
-    def add_terms(self, prop, *terms):
+    def add_terms(self, prop: Property, *terms: list[Term | str]) -> None:
         """
-        Add a list of :class:`Term` and/or strings to a :class:`Property` with a value domain of ``value_set``
+        Add a list of :class:`Term` and/or strings to a :class:`Property`.
+
+        Property must have a value domain of ``value_set`` or ``enum``.
 
         :param Property prop: :class:`Property` to modify
         :param list terms: A list of :class:`Term` instances and/or str
@@ -205,27 +252,33 @@ class Model:
         `Term.value` and `Term.handle` is set to the string.
         """
         if not isinstance(prop, Property):
-            raise ArgError("arg1 must be Property")
+            msg = "arg1 must be Property"
+            raise ArgError(msg)
         if not re.match("value_set|enum", prop.value_domain):
-            raise AttributeError(
-                "Property value domain is not value_set or enum, can't add terms",
-            )
+            msg = "Property value domain is not value_set or enum, can't add terms"
+            raise AttributeError(msg)
         if not prop.value_set:
-            warn("(add_terms) Creating ValueSet object for Property " + prop.handle)
+            warn(
+                "(add_terms) Creating ValueSet object for Property " + prop.handle,
+                stacklevel=2,
+            )
             prop.value_set = ValueSet({"prop": prop, "_id": str(uuid4())})
-            prop.value_set.handle = self.handle + prop.value_set._id[0:8]
+            prop.value_set.handle = self.handle + prop.value_set._id[0:8]  # noqa: SLF001
 
-        for t in terms:
-            if isinstance(t, str):
-                warn(f"Creating Term object for string '{t}'")
-                t = Term({"handle": t, "value": t})
-            elif not isinstance(t, Term):
-                raise ArgError("encountered arg that was not a str or Term object")
-            tm_key = t.handle if t.handle else t.value
-            prop.value_set.terms[tm_key] = t
-            self.terms[(tm_key, t.origin_name)] = t
+        for item in terms:
+            if isinstance(item, str):
+                warn(f"Creating Term object for string '{item}'", stacklevel=2)
+                term = Term({"handle": item, "value": item})
+            elif isinstance(item, Term):
+                term = item
+            else:
+                msg = "encountered arg that was not a str or Term object"
+                raise ArgError(msg)
+            tm_key = term.handle if term.handle else term.value
+            prop.value_set.terms[tm_key] = term
+            self.terms[(tm_key, term.origin_name)] = term
 
-    def rm_node(self, node):
+    def rm_node(self, node: Node) -> Node | None:
         """
         Remove a :class:`Node` from the Model instance.
 
@@ -235,53 +288,51 @@ class Model:
         if the node is some edge's src or dst attribute)
         """
         if not isinstance(node, Node):
-            raise ArgError("arg must be a Node object")
+            msg = "arg must be a Node object"
+            raise ArgError(msg)
         if not self.contains(node):
             warn(
                 f"node '{node.handle}' not contained in model '{self.handle}'",
+                stacklevel=2,
             )
             return None
         if self.edges_by_src(node) or self.edges_by_dst(node):
-            raise ValueError(
-                f"can't remove node '{node.handle}', it is participating in edges",
-            )
+            msg = f"can't remove node '{node.handle}', it is participating in edges"
+            raise ValueError(msg)
         for p in node.props:
-            try:
+            with contextlib.suppress(builtins.BaseException):
                 del self.props[(node.handle, p.handle)]
-            except:
-                pass
         del self.nodes[node.handle]
         self.removed_entities.append(node)
         return node
 
-    def rm_edge(self, edge):
+    def rm_edge(self, edge: Edge) -> Edge | None:
         """
         Remove an :class:`Edge` instance from the Model instance.
 
         :param Edge edge: Edge to be removed
-
         """
         if not isinstance(edge, Edge):
-            raise ArgError("arg must be an Edge object")
+            msg = "arg must be an Edge object"
+            raise ArgError(msg)
         if not self.contains(edge):
             warn(
                 f"edge '{edge.triplet}' not contained in model '{self.handle}'",
+                stacklevel=2,
             )
             return None
         for p in edge.props:
-            try:
+            with contextlib.suppress(builtins.BaseException):
                 k = list(edge.triplet)
                 k.append(p.handle)
                 del self.props[tuple(k)]
-            except:
-                pass
         del self.edges[edge.triplet]
         edge.src = None
         edge.dst = None
         self.removed_entities.append(edge)
         return edge
 
-    def rm_prop(self, prop):
+    def rm_prop(self, prop: Property) -> Property | None:
         """
         Remove a :class:`Property` instance from the Model instance.
 
@@ -289,27 +340,35 @@ class Model:
 
         """
         if not isinstance(prop, Property):
-            raise ArgError("arg must be a Property object")
+            msg = "arg must be a Property object"
+            raise ArgError(msg)
         if not self.contains(prop):
             warn(
                 f"prop '{prop.handle}' not contained in model '{self.handle}'",
+                stacklevel=2,
             )
             return
         for okey in prop.belongs:
             owner = prop.belongs[okey]
             (i, att, key) = okey
-            getattr(owner, att)[key] == None
+            getattr(owner, att)[key] = None
             k = [owner.handle] if isinstance(owner, Node) else list(owner.triplet)
             k.append(key)
             del self.props[tuple(k)]
         self.removed_entities.append(prop)
 
-    def rm_term(self, term):
+    def rm_term(self, term: Term) -> None:
         """Not implemented."""
         if not isinstance(term, Term):
-            raise ArgError("arg must be a Term object")
+            msg = "arg must be a Term object"
+            raise ArgError(msg)
 
-    def assign_edge_end(self, edge=None, end=None, node=None):
+    def assign_edge_end(
+        self,
+        edge: Edge | None = None,
+        end: str | None = None,
+        node: Node | None = None,
+    ) -> Edge | None:
         """
         Move the src or dst of an :class:`Edge` to a different :class:`Node`.
 
@@ -321,20 +380,23 @@ class Model:
         (via :meth:`add_node` and :meth:`add_edge`)
         """
         if not isinstance(edge, Edge):
-            raise ArgError("edge= must an Edge object")
+            msg = "edge= must an Edge object"
+            raise ArgError(msg)
         if not isinstance(node, Node):
-            raise ArgError("node= must a Node object")
+            msg = "node= must a Node object"
+            raise ArgError(msg)
         if end not in ["src", "dst"]:
-            raise ArgError("end= must be one of 'src' or 'dst'")
+            msg = "end= must be one of 'src' or 'dst'"
+            raise ArgError(msg)
         if not self.contains(edge) or not self.contains(node):
-            warn("model must contain both edge and node")
+            warn("model must contain both edge and node", stacklevel=2)
             return None
         del self.edges[edge.triplet]
         setattr(edge, end, node)
         self.edges[edge.triplet] = edge
         return edge
 
-    def contains(self, ent):
+    def contains(self, ent: Entity) -> bool | None:
         """
         Ask whether an entity is present in the Model instance.
 
@@ -343,7 +405,7 @@ class Model:
         Note: Only works on Nodes, Edges, and Properties
         """
         if not isinstance(ent, Entity):
-            warn("argument is not an Entity subclass")
+            warn("argument is not an Entity subclass", stacklevel=2)
             return None
         if isinstance(ent, Node):
             return ent in set(self.nodes.values())
@@ -353,73 +415,85 @@ class Model:
             return ent in set(self.props.values())
         if isinstance(ent, Term):
             return ent in set(self.terms.values())
+        return None
 
-    def edges_in(self, node):
+    def edges_in(self, node: Node) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given :class:`Node` as their dst attribute
+        Get all :class:`Edge` that have a given :class:`Node` as their dst attribute.
 
         :param Node node: The node
         :return: list of :class:`Edge`
         """
         if not isinstance(node, Node):
-            raise ArgError("arg must be Node")
+            msg = "arg must be Node"
+            raise ArgError(msg)
         return [self.edges[i] for i in self.edges if i[2] == node.handle]
 
-    def edges_out(self, node):
+    def edges_out(self, node: Node) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given :class:`Node` as their src attribute
+        Get all :class:`Edge` that have a given :class:`Node` as their src attribute.
 
         :param Node node: The node
         :return: list of :class:`Edge`
         """
         if not isinstance(node, Node):
-            raise ArgError("arg must be Node")
+            msg = "arg must be Node"
+            raise ArgError(msg)
         return [self.edges[i] for i in self.edges if i[1] == node.handle]
 
-    def edges_by(self, key, item):
+    def edges_by(self, key: str, item: Node | str) -> list[Edge]:
+        """
+        Get all :class:`Edge` that have a given :class:`Node` as their src or dst or :class:`Edge` handle as their type attribute.
+
+        :param str key: The attribute to search on
+        :param Node|Edge item: The node or edge handle to search for
+        :return: list of :class:`Edge`
+        """
         if key not in ["src", "dst", "type"]:
-            raise ArgError("arg 'key' must be one of src|dst|type")
+            msg = "arg 'key' must be one of src|dst|type"
+            raise ArgError(msg)
         if isinstance(item, Node):
             idx = 1 if key == "src" else 2
             return [self.edges[x] for x in self.edges if x[idx] == item.handle]
         return [self.edges[x] for x in self.edges if x[0] == item]
 
-    def edges_by_src(self, node):
+    def edges_by_src(self, node: Node) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given :class:`Node` as their src attribute
+        Get all :class:`Edge` that have a given :class:`Node` as their src attribute.
 
         :param Node node: The node
         :return: list of :class:`Edge`
         """
         return self.edges_by("src", node)
 
-    def edges_by_dst(self, node):
+    def edges_by_dst(self, node: Node) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given :class:`Node` as their dst attribute
+        Get all :class:`Edge` that have a given :class:`Node` as their dst attribute.
 
         :param Node node: The node
         :return: list of :class:`Edge`
         """
         return self.edges_by("dst", node)
 
-    def edges_by_type(self, edge_handle):
+    def edges_by_type(self, edge_handle: str) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given edge type (i.e., handle)
+        Get all :class:`Edge` that have a given edge type (i.e., handle).
 
         :param str edge_handle: The edge type
         :return: list of :class:`Edge`
         """
         if not isinstance(edge_handle, str):
-            raise ArgError("arg must be str")
+            msg = "arg must be str"
+            raise ArgError(msg)
         return self.edges_by("type", edge_handle)
 
-    def dget(self, refresh=False):
+    def dget(self, *, refresh: bool = False) -> Model | None:
         """
-        Pull model from MDB into this Model instance, based on its handle
+        Pull model from MDB into this Model instance, based on its handle.
 
         Note: is a noop if `Model.mdb` is unset.
         """
-        if not self.mdb:
+        if not self.mdb or self.drv is None:
             return None
         if refresh:
             ObjectMap.clear_cache()
@@ -445,7 +519,10 @@ class Model:
 
         with self.drv.session() as session:
             result = session.run(
-                "match (n:node)-[:has_property]->(p:property) where n.model=$hndl and p.model=$hndl return id(n), p",
+                (
+                    "match (n:node)-[:has_property]->(p:property) where n.model=$hndl "
+                    "and p.model=$hndl return id(n), p"
+                ),
                 {"hndl": self.handle},
             )
             for rec in result:
@@ -453,6 +530,7 @@ class Model:
                 if n is None:
                     warn(
                         "node with id {nid} not yet retrieved".format(nid=rec["id(n)"]),
+                        stacklevel=2,
                     )
                     continue
                 p = Property(rec["p"])
@@ -473,6 +551,7 @@ class Model:
                         "relationship with id {rid} not yet retrieved".format(
                             rid=rec["id(r)"],
                         ),
+                        stacklevel=2,
                     )
                     continue
                 p = Property(rec["p"])
@@ -484,17 +563,17 @@ class Model:
                 p.dirty = -1
         return self
 
-    def dput(self):
+    def dput(self) -> None:
         """
         Push this Model's objects to MDB.
 
         Note: is a noop if `Model.mdb` is unset.
         """
-        if not self.mdb:
+        if not self.mdb or self.drv is None:
             return
         seen = {}
 
-        def do_(obj):
+        def do_(obj: Entity) -> None:
             if id(obj) in seen:
                 return
             seen[id(obj)] = 1
@@ -517,12 +596,10 @@ class Model:
         for e in self.removed_entities:
             # detach
             with self.drv.session() as session:
-                result = session.run(
+                session.run(
                     "match (e)-[r]-() where id(e)=$eid delete r return id(e)",
                     {"eid": e.neoid},
-                )
-                for rec in result:
-                    pass
+                ).consume()
         for e in self.nodes.values():
             do_(e)
         for e in self.edges.values():

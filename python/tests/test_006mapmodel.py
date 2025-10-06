@@ -19,7 +19,7 @@ def test_get_model(bento_neo4j):
     ObjectMap.clear_cache()
     m = Model(handle="ICDC", mdb=the_mdb)
     print(f"{m.nodes=}")
-    m.dget()
+    m.dget(refresh=False)
 
     with m.drv.session() as session:
         result = session.run('match (n:node) where n.model="ICDC" return count(n)')
@@ -72,7 +72,7 @@ def test_put_model(bento_neo4j):
     assert the_mdb
     ObjectMap.clear_cache()
     m = Model(handle="ICDC", mdb=the_mdb)
-    m.dget()
+    m.dget(refresh=False)
     prop = m.props[("sample", "sample_type")]
     sample = m.nodes["sample"]
     edge = m.edges[("on_visit", "sample", "visit")]

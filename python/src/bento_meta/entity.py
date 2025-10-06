@@ -11,10 +11,12 @@ This module contains
 from __future__ import annotations
 
 from collections import UserDict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 if TYPE_CHECKING:
     import neo4j
+
+    from bento_meta.object_map import ObjectMap
 
 
 class ArgError(Exception):
@@ -37,7 +39,7 @@ class Entity:
     declared.
     """
 
-    pvt_attr = [
+    pvt_attr: ClassVar[list[str]] = [
         "pvt",
         "neoid",
         "dirty",
@@ -47,7 +49,7 @@ class Entity:
         "belongs",
     ]
     defaults = ({},)
-    attspec_ = {
+    attspec_: ClassVar[dict[str, str]] = {
         "_id": "simple",
         "nanoid": "simple",
         "desc": "simple",
@@ -59,7 +61,9 @@ class Entity:
         "tags": "collection",
     }
     attspec = attspec_
-    mapspec_ = {
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": None,
         "key": "_id",
         "property": {
@@ -76,7 +80,7 @@ class Entity:
             "tags": {"rel": ":has_tag", "end_cls": {"Tag"}},
         },
     }
-    object_map = None
+    object_map: ClassVar[ObjectMap | None] = None
 
     def __init__(self, init: dict | neo4j.graph.Node | Entity | None = None) -> None:
         """
@@ -124,7 +128,7 @@ class Entity:
     @classmethod
     def mapspec(cls) -> dict[str, str | dict[str, str]]:
         """
-        The object to database mapping specification.
+        Get object to database mapping specification.
 
         Is a class method, not a property.
         """
@@ -133,18 +137,22 @@ class Entity:
         return cls._mapspec
 
     @classmethod
-    def default(cls, propname):
-        """Returns a default value for the property named, or None if no default defined."""
+    def default(cls, propname: str) -> Any:
+        """
+        Return a default value for the property named.
+
+        :returns: None if no default defined.
+        """
         if cls.defaults.get(propname):
             return cls.defaults[propname]
         return None
 
     # @classmethod
-    def get_by_id(self, id: str):
+    def get_by_id(self, id: str) -> Entity:
         """
         Get an object from the db with the id attribute (not the Neo4j id).
 
-        Returns a new object.
+        :returns: a new object.
         :param string id: value of id for desired object
         """
         if self.object_map:
@@ -154,7 +162,7 @@ class Entity:
         print("    _NO_ cls.object_map detected")
 
     @property
-    def dirty(self):
+    def dirty(self) -> int:
         """
         Flag whether this instance has been changed since retrieval from the database.
 
@@ -164,29 +172,31 @@ class Entity:
         return self.pvt["dirty"]
 
     @dirty.setter
-    def dirty(self, value):
+    def dirty(self, value: int) -> None:
+        """Set dirty flag."""
         self.pvt["dirty"] = value
 
     @property
-    def removed_entities(self):
+    def removed_entities(self) -> list[Any]:
+        """Return list of removed entities."""
         return self.pvt["removed_entities"]
 
     @property
-    def object_map(self):
+    def object_map(self) -> ObjectMap | None:
+        """Return object map."""
         return self.pvt["object_map"]
 
     @property
-    def belongs(self):
-        """
-        Dict that stores information on the owners (referents) of this instance
-        in the model
-        """
+    def belongs(self) -> dict[tuple[int, str, str] | tuple[int, str], Entity]:
+        """Return dict that stores information on the owners (referents) of this instance in the model."""
         return self.pvt["belongs"]
 
-    def clear_removed_entities(self):
+    def clear_removed_entities(self) -> None:
+        """Clear the list of removed entities."""
         self.pvt["removed_entities"] = []
 
     def set_with_dict(self, init: dict) -> None:
+        """Set the entity with a dict."""
         for att in type(self).attspec:
             if att in init:
                 if type(self).attspec[att] == "collection":
@@ -194,7 +204,8 @@ class Entity:
                 else:
                     setattr(self, att, init[att])
 
-    def set_with_node(self, init):
+    def set_with_node(self, init: neo4j.graph.Node) -> None:
+        """Set the entity with a Neo4j node."""
         # this unsets any attribute that is not present in the Node's properties
         for att in [a for a in type(self).attspec if type(self).attspec[a] == "simple"]:
             patt = type(self).mapspec()["property"][att]
@@ -204,7 +215,8 @@ class Entity:
                 setattr(self, att, None)
         self.neoid = init.id
 
-    def set_with_entity(self, ent):
+    def set_with_entity(self, ent: Entity) -> Entity:
+        """Set the entity with another entity."""
         if not isinstance(self, type(ent)):
             msg = (
                 f"class mismatch: I am a {type(self).__name__}, "
@@ -213,7 +225,7 @@ class Entity:
             raise ArgError(msg)
         for k in type(self).attspec:
             atts = type(self).attspec[k]
-            if atts == "simple" or atts == "object":
+            if atts in {"simple", "object"}:
                 setattr(self, k, getattr(ent, k))
             elif atts == "collection":
                 setattr(self, k, CollValue(getattr(ent, k), owner=self, owner_key=k))
@@ -227,12 +239,14 @@ class Entity:
         return self
 
     def __getattribute__(self, name: str) -> Any:  # noqa: ANN401
+        """Get the attribute of the entity."""
         if name in type(self).attspec:
             # declared attr, send to __getattr__ for magic
             return self.__getattr__(name)
         return object.__getattribute__(self, name)
 
     def __getattr__(self, name: str) -> Any:  # noqa: ANN401
+        """Get the attribute of the entity."""
         if name in type(self).pvt_attr:
             return self.__dict__["pvt"].get(name)
         if name in type(self).attspec:
@@ -249,6 +263,7 @@ class Entity:
         raise AttributeError(msg)
 
     def __setattr__(self, name: str, value: Any) -> None:  # noqa: ANN401
+        """Set the attribute of the entity."""
         if name == "pvt":
             self.__dict__["pvt"] = value
         elif name in type(self).pvt_attr:
@@ -263,16 +278,15 @@ class Entity:
             )
             raise AttributeError(msg)
 
-    def _set_declared_attr(self, name, value):
+    def _set_declared_attr(self, name: str, value: Any) -> None:
+        """Set the declared attribute of the entity."""
         atts = type(self).attspec[name]
         if atts == "simple":
             pass
         elif atts == "object":
             oldval = self.__dict__.get(name)
-            if oldval:
-                if oldval == value:
-                    # a wash
-                    return
+            if oldval and oldval == value:
+                return  # a wash
             if isinstance(value, Entity):
                 value.belongs[(id(self), name)] = self
         elif atts == "collection":
@@ -290,42 +304,35 @@ class Entity:
         self.__dict__[name] = value
 
     def __delattr__(self, name: str) -> None:
+        """Delete the attribute of the entity."""
         del self.__dict__[name]
 
-    def _check_init(self, init) -> None:
+    def _check_init(self, init: dict) -> None:
+        """Check the initial value of the entity."""
         for att in type(self).attspec:
             if init[att]:
                 self._check_value(att, init[att])
 
-    def _check_value(self, att, value):
+    def _check_value(self, att: str, value: Any) -> None:
+        """Check the value of the attribute."""
         spec = type(self).attspec[att]
-        try:
-            if spec == "simple":
-                if (
-                    not (isinstance(value, (bool, float, int, str)))
-                    and value is not None
-                ):
-                    raise ArgError(
-                        f"value for key '{att}' is not a simple scalar",
-                    )
-            elif spec == "object":
-                if not (isinstance(value, Entity) or value is None):
-                    raise ArgError(
-                        f"value for key '{att}' is not an Entity subclass",
-                    )
-            elif spec == "collection":
-                if not (isinstance(value, (dict, list, CollValue))):
-                    raise AttributeError(
-                        f"value for key '{att}' is not a dict,list, or CollValue",
-                    )
-            else:
-                raise ArgError(
-                    f"unknown attribute type '{spec}' for attribute '{att}' in attspec",
-                )
-        except Exception:
-            raise
+        if spec == "simple":
+            if not (isinstance(value, (bool, float, int, str))) and value is not None:
+                msg = f"value for key '{att}' is not a simple scalar"
+                raise ArgError(msg)
+        elif spec == "object":
+            if not (isinstance(value, Entity) or value is None):
+                msg = f"value for key '{att}' is not an Entity subclass"
+                raise ArgError(msg)
+        elif spec == "collection":
+            if not (isinstance(value, (dict, list, CollValue))):
+                msg = f"value for key '{att}' is not a dict,list, or CollValue"
+                raise AttributeError(msg)
+        else:
+            msg = f"unknown attribute type '{spec}' for attribute '{att}' in attspec"
+            raise ArgError(msg)
 
-    def dup(self):
+    def dup(self) -> Entity:
         """Duplicate the object, but not too deeply."""
         return type(self)(self)
 
@@ -340,18 +347,19 @@ class Entity:
             else:
                 setattr(owner, att[0], None)
 
-    def dget(self, *, refresh: bool = False):
+    def dget(self, *, refresh: bool = False) -> Entity | None:
         """
         Update self from the database.
 
-        :param boolean refresh: if True, force a retrieval from db;
+        :param bool refresh: if True, force a retrieval from db;
         if False, retrieve from cache;
         don't disrupt changes already made
         """
         if type(self).object_map:
-            return type(self).object_map.get(self, refresh)
+            return type(self).object_map.get(self, refresh=refresh)
+        return None
 
-    def dput(self):
+    def dput(self) -> None:
         """
         Put self to the database.
 
@@ -359,17 +367,24 @@ class Entity:
         """
         if type(self).object_map:
             return type(self).object_map.put(self)
+        return None
 
-    def rm(self, force):
-        """Delete self from the database. The object instance survives."""
+    def rm(self, *, force: bool = False) -> None:
+        """
+        Delete self from the database.
+
+        The object instance survives.
+        """
         if type(self).object_map:
-            return type(self).object_map.rm(self, force)
+            return type(self).object_map.rm(self, force=force)
+        return None
 
     @classmethod
-    def attr_doc(cls):
+    def attr_doc(cls) -> str:
         """Create a docstring for declared attributes on class as configured."""
 
-        def str_for_obj(thing):
+        def str_for_obj(thing: set | str) -> str:
+            """Convert a set of classes to a string."""
             if isinstance(thing, set):
                 return "|".join(thing)
             return thing
@@ -411,7 +426,9 @@ class Entity:
         doc += "\n"
         return doc
 
-    def get_label(self) -> str:
+    def get_label(
+        self,
+    ) -> str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None:
         """Return type of entity as label."""
         return self.mapspec_["label"]
 
@@ -442,7 +459,20 @@ class CollValue(UserDict):
     :param owner_key: the attribute name of this collection on the owner
     """
 
-    def __init__(self, init=None, *, owner: Entity, owner_key: str):
+    def __init__(
+        self,
+        init: dict | None = None,
+        *,
+        owner: Entity,
+        owner_key: str,
+    ) -> None:
+        """
+        Initialize the CollValue.
+
+        :param init: The initial value for the collection
+        :param owner: The entity instance of which this collection is an attribute
+        :param owner_key: The attribute name of this collection on the owner
+        """
         self.__dict__["__owner"] = owner
         self.__dict__["__owner_key"] = owner_key
         super().__init__(init)
@@ -457,17 +487,18 @@ class CollValue(UserDict):
         """The attribute name of this collection on the `owner`."""
         return self.__dict__["__owner_key"]
 
-    def __setitem__(self, name, value):
+    def __setitem__(self, name: str, value: Entity) -> None:
+        """Set the value for the collection."""
         if not isinstance(value, Entity):
-            raise ArgError(
-                f"a collection-valued attribute can only accept Entity members, not '{type(value)}'s",
+            msg = (
+                "a collection-valued attribute can only accept Entity members, "
+                "not '{type(value)}'s"
             )
+            raise ArgError(msg)
         if name in self:
             oldval = self.data.get(name)
-            if oldval:
-                if oldval == value:
-                    # a wash
-                    return
+            if oldval and oldval == value:
+                return  # a wash
         value.belongs[(id(self.owner), self.owner_key, name)] = self.owner
         # smudge the owner
         self.owner.dirty = 1
@@ -475,6 +506,7 @@ class CollValue(UserDict):
         return
 
     def __getitem__(self, name: str) -> Any:  # noqa: ANN401
+        """Get the value for the collection."""
         if name not in self.data:
             return None
         if self.data[name].dirty < 0:
@@ -482,5 +514,6 @@ class CollValue(UserDict):
         return self.data[name]
 
     def __delitem__(self, name: str) -> None:
+        """Delete the value for the collection."""
         self[name] == None  # trigger __setitem__
         super().__delitem__(name)
