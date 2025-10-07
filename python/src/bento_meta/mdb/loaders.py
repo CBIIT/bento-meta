@@ -19,6 +19,9 @@ from tqdm import tqdm
 from bento_meta.mdb.writeable import WriteableMDB
 
 if TYPE_CHECKING:
+    from minicypher.entities import Entity as CypherEntity
+
+    from bento_meta.entity import Entity
     from bento_meta.model import Model
 
 
@@ -189,7 +192,7 @@ def load_model_statements(model: Model, _commit: str | None = None) -> list[Stat
     return c_statements
 
 
-def _c_entity(ent: Entity, model: Model, _commit: str | None = None) -> N:
+def _c_entity(ent: Entity, model: Model | None, _commit: str | None = None) -> N:
     label = type(ent).__name__.lower()
     c_ent = None
 
@@ -222,7 +225,8 @@ def _c_entity(ent: Entity, model: Model, _commit: str | None = None) -> N:
         c_ent = N(label="tag", props={"key": ent.key, "value": ent.value})
 
     else:
-        c_ent = N(label=label, props={"handle": ent.handle, "model": model.handle})
+        model_handle = model.handle if model else None
+        c_ent = N(label=label, props={"handle": ent.handle, "model": model_handle})
     # all ents
     if _commit:
         c_ent._add_props({"_commit": _commit})
@@ -235,25 +239,31 @@ def _c_entity(ent: Entity, model: Model, _commit: str | None = None) -> N:
     return c_ent
 
 
-def _tag_statements(ent, c_ent, _commit):
-    stmts = []
-    c_tags = []
-    if ent.tags:
-        for t in ent.tags.values():
-            c_tag = _c_entity(t, None, _commit)
-            c_tags.append(c_tag)
-    for ct in c_tags:
-        stmts.append(
-            Statement(
-                Match(c_ent),
-                Merge(R(Type="has_tag").relate(_plain_var(c_ent), ct)),
-                use_params=True,
-            ),
+def _tag_statements(
+    ent: Entity,
+    c_ent: CypherEntity,
+    _commit: str | None = None,
+) -> list[Statement]:
+    if not ent.tags:
+        return []
+
+    c_tags = [_c_entity(t, None, _commit) for t in ent.tags.values()]
+    return [
+        Statement(
+            Match(c_ent),
+            Merge(R(Type="has_tag").relate(_plain_var(c_ent), ct)),
+            use_params=True,
         )
-    return stmts
+        for ct in c_tags
+    ]
 
 
-def _prop_statements(ent, cEnt, model, _commit):
+def _prop_statements(
+    ent: Entity,
+    c_ent: CypherEntity,
+    model: Model | None,
+    _commit: str | None = None,
+) -> list[Statement]:
     stmts = []
     for p in ent.props.values():
         c_prop = _c_entity(p, model, _commit)
@@ -265,10 +275,10 @@ def _prop_statements(ent, cEnt, model, _commit):
                     use_params=True,
                 ),
                 Statement(
-                    Match(cEnt, c_prop),
+                    Match(c_ent, c_prop),
                     Merge(
                         R(Type="has_property").relate(
-                            _plain_var(cEnt),
+                            _plain_var(c_ent),
                             _plain_var(c_prop),
                         ),
                     ),
@@ -283,7 +293,11 @@ def _prop_statements(ent, cEnt, model, _commit):
     return stmts
 
 
-def _annotate_statements(ent, c_ent, _commit):
+def _annotate_statements(
+    ent: Entity,
+    c_ent: CypherEntity,
+    _commit: str | None = None,
+) -> list[Statement]:
     stmts = []
     if not ent.concept:
         return []
