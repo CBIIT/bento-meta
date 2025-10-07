@@ -5,7 +5,9 @@ mdb.writeable: subclass of `class:bento_meta.MDB` to support writing to an MDB
 from __future__ import annotations
 
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Concatenate, LiteralString, ParamSpec, cast
+from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, cast
+
+from typing_extensions import LiteralString
 
 from bento_meta.mdb.mdb import MDB, make_nanoid
 

@@ -23,10 +23,11 @@ import re
 import sys
 
 sys.path.append("..")
-from typing import Any, ClassVar, LiteralString, cast
+from typing import Any, ClassVar, cast
 from warnings import warn
 
 from neo4j import BoltDriver, Driver, Neo4jDriver, Transaction
+from typing_extensions import LiteralString
 
 from bento_meta.entity import ArgError, CollValue, Entity
 from bento_meta.objects import (
