@@ -97,9 +97,13 @@ class Node(Entity):
 
     def get_key_prop(self) -> Property | list[Property] | None:
         """
-        Return the `Property` entity with `is_key=True` for this `Node` if it exists.
+        Return the Property entity with is_key=True for this Node if it exists.
 
         If multiple key props exist, return a list of them; if none exist, return None.
+
+        Returns:
+            Single Property if one key property exists, list of Properties if multiple
+            exist, None if no key properties found.
         """
         if not self.props.values():
             warn("No properties found for Node - returning None", stacklevel=2)
@@ -188,10 +192,10 @@ class Property(Entity):
     @property
     def values(self) -> list[str] | None:
         """
-        Return `Property`'s term values as a list of str if it has a `value_set` domain.
+        Return Property's term values as a list of str if it has a value_set domain.
 
-        :returns: list of term values
-        :rtype: list
+        Returns:
+            List of term values, or None if no value_set.
         """
         if self.value_set:
             return [self.terms[x].value for x in self.terms]
@@ -255,9 +259,12 @@ class Edge(Entity):
         """
         Return a 3-tuple that fully qualifies the edge.
 
-        Returns ``(edge.handle, src.handle, dst.handle)``.
+        Returns (edge.handle, src.handle, dst.handle).
 
-        ``src`` and ``dst`` attributes must be set. If not, return None.
+        src and dst attributes must be set. If not, return None.
+
+        Returns:
+            Tuple of (edge.handle, src.handle, dst.handle) or None.
         """
         if self.handle and self.src and self.dst:
             return (self.handle, self.src.handle, self.dst.handle)
@@ -314,9 +321,9 @@ class Term(Entity):
 # here (__setattr__ override), not in Entity
 class ValueSet(Entity):
     """
-    Subclass that models an enumerated set of :class:`Property` values.
+    Subclass that models an enumerated set of Property values.
 
-    Essentially a container for :class:`Term` instances.
+    Essentially a container for Term instances.
     """
 
     attspec_: ClassVar[dict[str, str]] = {

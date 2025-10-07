@@ -51,10 +51,12 @@ class Model:
         """
         Model constructor.
 
-        :param str handle: A string name for the model.
-            Corresponds to the model property in MDB database nodes.
-        :param bento_meta.mdb.MDB mdb: An MDB object containing the db connection
-            (see :class:`bento_meta.mdb.MDB`)
+        Args:
+            handle: A string name for the model. Corresponds to the model property
+                in MDB database nodes.
+            version: Version string for the model.
+            uri: URI for the model.
+            mdb: An MDB object containing the db connection.
         """
         if not handle:
             msg = "model requires arg 'handle' set"
@@ -119,11 +121,15 @@ class Model:
 
     def add_node(self, node: Node | dict | neo4j.graph.Node | None = None) -> Node:
         """
-        Add a :class:`Node` to the model.
+        Add a Node to the model.
 
-        :param Node node: A :class:`Node` instance, a :class:`neo4j.graph.Node`, or a dict
+        The model attribute of node is set to Model.handle.
 
-        The model attribute of ``node`` is set to `Model.handle`
+        Args:
+            node: A Node instance, a neo4j.graph.Node, or a dict.
+
+        Returns:
+            The added Node instance.
         """
         if not node:
             msg = "arg must be Node, dict, or graph.Node"
@@ -139,11 +145,15 @@ class Model:
 
     def add_edge(self, edge: Edge | dict | neo4j.graph.Node | None = None) -> Edge:
         """
-        Add an :class:`Edge` to the model.
+        Add an Edge to the model.
 
-        :param edge: A :class:`Edge` instance, a :class:`neo4j.graph.Node`, or a dict
+        The model attribute of edge is set to Model.handle.
 
-        The model attribute of ``edge`` is set to `Model.handle`
+        Args:
+            edge: An Edge instance, a neo4j.graph.Node, or a dict.
+
+        Returns:
+            The added Edge instance.
         """
         if not edge:
             msg = "arg must be Edge, dict, or graph.Node"
@@ -174,18 +184,20 @@ class Model:
         reuse: bool = False,
     ) -> Property:
         """
-        Add a :class:`Property` to the model.
+        Add a Property to the model.
 
-        :param Node|Edge ent: Attach ``prop`` to this entity
-        :param Property prop: A :class:`Property` instance,
-            a :class: `neo4j.graph.Node`, or a dict
-        :param bool reuse: If True, reuse existing property with same handle
+        The model attribute of prop is set to Model.handle. Within a model,
+        Property entities are unique with respect to their handle (but can be reused).
+        This method will look for an existing property within the model with the given
+        handle, and add an item to Model.props pointing to it if found.
 
-        The model attribute of ``prop`` is set to `Model.handle`. Within a model,
-        :class:`Property` entities are unique with respect to their
-        handle (but can be reused). This method will look for an existing
-        property within the model with the given handle, and add an item to
-        Model.props pointing to it if found.
+        Args:
+            ent: Attach prop to this entity (Node or Edge).
+            prop: A Property instance, a neo4j.graph.Node, or a dict.
+            reuse: If True, reuse existing property with same handle.
+
+        Returns:
+            The added Property instance.
         """
         if not isinstance(ent, (Node, Edge)):
             msg = "arg 1 must be Node or Edge"
@@ -213,13 +225,14 @@ class Model:
 
     def annotate(self, ent: Entity, term: Term) -> None:
         """
-        Associate a single :class:`Term` with an :class:`Entity`.
+        Associate a single Term with an Entity.
 
         This creates a Concept entity if needed and links both the Entity and the Term
         to the concept, in keeping with the MDB spec. It supports the Term key in MDF.
 
-        :param Entity ent: :class:`Entity` object to annotate
-        :param Term term: :class:`Term` object to describe the Entity
+        Args:
+            ent: Entity object to annotate.
+            term: Term object to describe the Entity.
         """
         if not isinstance(ent, Entity):
             msg = "arg1 must be Entity"
@@ -241,15 +254,15 @@ class Model:
 
     def add_terms(self, prop: Property, *terms: list[Term | str]) -> None:
         """
-        Add a list of :class:`Term` and/or strings to a :class:`Property`.
+        Add a list of Term and/or strings to a Property.
 
-        Property must have a value domain of ``value_set`` or ``enum``.
+        Property must have a value domain of value_set or enum.
+        Term instances are created for strings; Term.value and Term.handle
+        is set to the string.
 
-        :param Property prop: :class:`Property` to modify
-        :param list terms: A list of :class:`Term` instances and/or str
-
-        :class:`Term` instances are created for strings;
-        `Term.value` and `Term.handle` is set to the string.
+        Args:
+            prop: Property to modify.
+            terms: A list of Term instances and/or str.
         """
         if not isinstance(prop, Property):
             msg = "arg1 must be Property"
@@ -280,12 +293,16 @@ class Model:
 
     def rm_node(self, node: Node) -> Node | None:
         """
-        Remove a :class:`Node` from the Model instance.
-
-        :param Node node: Node to be removed
+        Remove a Node from the Model instance.
 
         Note: A node can't be removed if it is participating in an edge (i.e.,
-        if the node is some edge's src or dst attribute)
+        if the node is some edge's src or dst attribute).
+
+        Args:
+            node: Node to be removed.
+
+        Returns:
+            The removed Node, or None if not found.
         """
         if not isinstance(node, Node):
             msg = "arg must be a Node object"
@@ -308,9 +325,13 @@ class Model:
 
     def rm_edge(self, edge: Edge) -> Edge | None:
         """
-        Remove an :class:`Edge` instance from the Model instance.
+        Remove an Edge instance from the Model instance.
 
-        :param Edge edge: Edge to be removed
+        Args:
+            edge: Edge to be removed.
+
+        Returns:
+            The removed Edge, or None if not found.
         """
         if not isinstance(edge, Edge):
             msg = "arg must be an Edge object"
@@ -334,10 +355,13 @@ class Model:
 
     def rm_prop(self, prop: Property) -> Property | None:
         """
-        Remove a :class:`Property` instance from the Model instance.
+        Remove a Property instance from the Model instance.
 
-        :param Property prop: Property to be removed
+        Args:
+            prop: Property to be removed.
 
+        Returns:
+            The removed Property, or None if not found.
         """
         if not isinstance(prop, Property):
             msg = "arg must be a Property object"
@@ -370,14 +394,18 @@ class Model:
         node: Node | None = None,
     ) -> Edge | None:
         """
-        Move the src or dst of an :class:`Edge` to a different :class:`Node`.
+        Move the src or dst of an Edge to a different Node.
 
-        :param Edge edge: Edge to manipulate
-        :param str end: Edge end to change (src|dst)
-        :param Node node: Node to be connected
+        Note: Both node and edge must be present in the Model instance
+        (via add_node and add_edge).
 
-        Note: Both ``node`` and ``edge`` must be present in the Model instance
-        (via :meth:`add_node` and :meth:`add_edge`)
+        Args:
+            edge: Edge to manipulate.
+            end: Edge end to change (src|dst).
+            node: Node to be connected.
+
+        Returns:
+            The modified Edge, or None if operation failed.
         """
         if not isinstance(edge, Edge):
             msg = "edge= must an Edge object"
@@ -400,9 +428,13 @@ class Model:
         """
         Ask whether an entity is present in the Model instance.
 
-        :param Entity ent: Entity in question
+        Note: Only works on Nodes, Edges, and Properties.
 
-        Note: Only works on Nodes, Edges, and Properties
+        Args:
+            ent: Entity in question.
+
+        Returns:
+            True if entity is in model, False otherwise, None if entity type not supported.
         """
         if not isinstance(ent, Entity):
             warn("argument is not an Entity subclass", stacklevel=2)
@@ -419,10 +451,13 @@ class Model:
 
     def edges_in(self, node: Node) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given :class:`Node` as their dst attribute.
+        Get all Edge that have a given Node as their dst attribute.
 
-        :param Node node: The node
-        :return: list of :class:`Edge`
+        Args:
+            node: The node.
+
+        Returns:
+            List of Edge instances.
         """
         if not isinstance(node, Node):
             msg = "arg must be Node"
@@ -431,10 +466,13 @@ class Model:
 
     def edges_out(self, node: Node) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given :class:`Node` as their src attribute.
+        Get all Edge that have a given Node as their src attribute.
 
-        :param Node node: The node
-        :return: list of :class:`Edge`
+        Args:
+            node: The node.
+
+        Returns:
+            List of Edge instances.
         """
         if not isinstance(node, Node):
             msg = "arg must be Node"
@@ -443,11 +481,14 @@ class Model:
 
     def edges_by(self, key: str, item: Node | str) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given :class:`Node` as their src or dst or :class:`Edge` handle as their type attribute.
+        Get all Edge that have a given Node as their src or dst or Edge handle as their type attribute.
 
-        :param str key: The attribute to search on
-        :param Node|Edge item: The node or edge handle to search for
-        :return: list of :class:`Edge`
+        Args:
+            key: The attribute to search on.
+            item: The node or edge handle to search for.
+
+        Returns:
+            List of Edge instances.
         """
         if key not in ["src", "dst", "type"]:
             msg = "arg 'key' must be one of src|dst|type"
@@ -459,28 +500,37 @@ class Model:
 
     def edges_by_src(self, node: Node) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given :class:`Node` as their src attribute.
+        Get all Edge that have a given Node as their src attribute.
 
-        :param Node node: The node
-        :return: list of :class:`Edge`
+        Args:
+            node: The node.
+
+        Returns:
+            List of Edge instances.
         """
         return self.edges_by("src", node)
 
     def edges_by_dst(self, node: Node) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given :class:`Node` as their dst attribute.
+        Get all Edge that have a given Node as their dst attribute.
 
-        :param Node node: The node
-        :return: list of :class:`Edge`
+        Args:
+            node: The node.
+
+        Returns:
+            List of Edge instances.
         """
         return self.edges_by("dst", node)
 
     def edges_by_type(self, edge_handle: str) -> list[Edge]:
         """
-        Get all :class:`Edge` that have a given edge type (i.e., handle).
+        Get all Edge that have a given edge type (i.e., handle).
 
-        :param str edge_handle: The edge type
-        :return: list of :class:`Edge`
+        Args:
+            edge_handle: The edge type.
+
+        Returns:
+            List of Edge instances.
         """
         if not isinstance(edge_handle, str):
             msg = "arg must be str"
@@ -491,7 +541,13 @@ class Model:
         """
         Pull model from MDB into this Model instance, based on its handle.
 
-        Note: is a noop if `Model.mdb` is unset.
+        Note: is a noop if Model.mdb is unset.
+
+        Args:
+            refresh: If True, clear cache before retrieving.
+
+        Returns:
+            The Model instance, or None if mdb is not set.
         """
         if not self.mdb or self.drv is None:
             return None
@@ -567,7 +623,7 @@ class Model:
         """
         Push this Model's objects to MDB.
 
-        Note: is a noop if `Model.mdb` is unset.
+        Note: is a noop if Model.mdb is unset.
         """
         if not self.mdb or self.drv is None:
             return

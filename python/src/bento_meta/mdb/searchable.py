@@ -42,8 +42,9 @@ class SearchableMDB(MDB):
         """
         Fulltext indexes present in database.
 
-        Returns { <index_name> : { entity_type:<NODE|RELATIONSHIP>, entities:[<labels>],
-        properties:[ [<props>] ] } }
+        Returns:
+            Dict mapping index_name to dict with entity_type (NODE|RELATIONSHIP),
+            entities ([labels]), properties ([[props]]).
         """
         return self.ftindexes
 
@@ -58,7 +59,14 @@ class SearchableMDB(MDB):
         """
         Query a named fulltext index of nodes or relationships.
 
-        Returns [ {ent:{}, label:<label>, score:<lucene score>} ].
+        Args:
+            index: Name of the fulltext index to query.
+            qstring: Lucene query string.
+            skip: Number of results to skip.
+            limit: Maximum number of results to return.
+
+        Returns:
+            List of dicts with ent (entity dict), label, score (lucene score).
         """
         if index not in self.ftindexes:
             msg = f"Index with name '{index}' not found"
@@ -97,8 +105,12 @@ class SearchableMDB(MDB):
         """
         Fulltext search of qstring over node, relationship, and property handles.
 
-        Returns { node:[ {ent:<entity dict>,score:<lucene score>},... ],
-        relationship:[ <...> ], property:[ <...> ] }
+        Args:
+            qstring: Lucene query string.
+
+        Returns:
+            Dict with nodes, relationships, properties, each containing list of dicts
+            with ent (entity dict) and score (lucene score).
         """
         result = self.query_index("entityHandle", qstring)
         if not result:
@@ -123,9 +135,15 @@ class SearchableMDB(MDB):
         search_definitions: bool = True,
     ) -> list[dict[str, Any]] | None:
         """
-        Fulltext for qstring over terms, by value, definition, or both (default).
+        Fulltext search for qstring over terms, by value, definition, or both (default).
 
-        Returns [ { ent:<term dict>, score:<lucene score> } ]}
+        Args:
+            qstring: Lucene query string.
+            search_values: If True, search term values.
+            search_definitions: If True, search term definitions.
+
+        Returns:
+            List of dicts with ent (term dict) and score (lucene score).
         """
         index = {
             True: {True: "termValueDefn", False: "termDefn"},

@@ -60,8 +60,9 @@ class ObjectMap:
         """
         Initialize the ObjectMap.
 
-        :param cls: The class to map
-        :param drv: The Neo4j driver
+        Args:
+            cls: The class to map.
+            drv: The Neo4j driver.
         """
         if not cls:
             msg = "arg cls= is required"
@@ -344,6 +345,14 @@ class ObjectMap:
         Create a link between an object instance and a target object in the database.
 
         This represents adding an object-valued attribute to the object.
+
+        Args:
+            obj: The object instance to add attribute to.
+            att: The attribute name.
+            tgt: The target entity to link.
+
+        Returns:
+            The Neo4j ID of the target, or None if not found.
         """
         if not self.drv:
             msg = "add() requires Neo4j driver instance"
@@ -367,6 +376,15 @@ class ObjectMap:
         Remove an existing link between an object instance and a target object in the database.
 
         This represents dropping an object-valued attribute from the object.
+
+        Args:
+            obj: The object instance to remove attribute from.
+            att: The attribute name.
+            tgt: The target entity to unlink.
+            tx: Optional transaction to use for the operation.
+
+        Returns:
+            The result value, or None if not found.
         """
         if not self.drv:
             msg = "rm() requires Neo4j driver instance"

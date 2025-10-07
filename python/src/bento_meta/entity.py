@@ -86,13 +86,13 @@ class Entity:
         """
         Entity constructor. Always called by subclasses.
 
-        .. py:function:: Node(init)
-        :param dict init: A dict of attribute names and values. Undeclared attributes
-            are ignored.
-        :param neo4j.graph.Node init: a `neo4j.graph.Node` object to be stored as a
-            model object.
-        :param `bento_meta.Entity` init: an Entity (of matching subclass).
-            Used to duplicate another model object.
+        Args:
+            init: One of the following:
+                - dict: A dict of attribute names and values. Undeclared attributes
+                    are ignored.
+                - neo4j.graph.Node: A Neo4j node object to be stored as a model object.
+                - Entity: An Entity (of matching subclass) used to duplicate another
+                    model object.
         """
         if not set(type(self).attspec.values()) <= {"simple", "object", "collection"}:
             msg = "unknown attribute type in attspec"
@@ -139,7 +139,11 @@ class Entity:
         """
         Return a default value for the property named.
 
-        :returns: None if no default defined.
+        Args:
+            propname: Name of the property to get default for.
+
+        Returns:
+            Default value if defined, None otherwise.
         """
         if cls.defaults.get(propname):
             return cls.defaults[propname]
@@ -150,8 +154,11 @@ class Entity:
         """
         Get an object from the db with the id attribute (not the Neo4j id).
 
-        :returns: a new object.
-        :param string id: value of id for desired object
+        Args:
+            id: Value of id for desired object.
+
+        Returns:
+            A new object if found, None otherwise.
         """
         if self.object_map:
             print(f"  > now in entity.get_by_id where self is {self}")
@@ -368,9 +375,12 @@ class Entity:
         """
         Update self from the database.
 
-        :param bool refresh: if True, force a retrieval from db;
-        if False, retrieve from cache;
-        don't disrupt changes already made
+        Args:
+            refresh: If True, force a retrieval from db. If False, retrieve from cache
+                and don't disrupt changes already made.
+
+        Returns:
+            The entity if found, None otherwise.
         """
         if type(self).object_map:
             return type(self).object_map.get(self, refresh=refresh)
@@ -380,7 +390,7 @@ class Entity:
         """
         Put self to the database.
 
-        This will set the `neoid` property if not yet set.
+        This will set the neoid property if not yet set.
         """
         if type(self).object_map:
             return type(self).object_map.put(self)
@@ -391,6 +401,9 @@ class Entity:
         Delete self from the database.
 
         The object instance survives.
+
+        Args:
+            force: If True, detach and delete the node.
         """
         if type(self).object_map:
             return type(self).object_map.rm(self, force=force)
@@ -454,6 +467,9 @@ class Entity:
         Return simple attributes set for Entity as a dict.
 
         Attr values are converted to strings. Doesn't include attrs with None values.
+
+        Returns:
+            Dictionary of attribute names to string values.
         """
         return {
             k: str(getattr(self, k))
@@ -468,12 +484,13 @@ class CollValue(UserDict):
 
     This class contains a hook for recording the Entity that
     owns the value that is being set. The value is marked as belonging
-    to the *containing object*, not this collection object.
+    to the containing object, not this collection object.
     It also protects against adding arbitrarily typed elements to the
-    collection; it throws unless a value to set is an `Entity`. `__setitem__`.
+    collection; it throws unless a value to set is an Entity.
 
-    :param owner: `Entity` object of which this collection is an attribute
-    :param owner_key: the attribute name of this collection on the owner
+    Attributes:
+        owner: Entity object of which this collection is an attribute.
+        owner_key: The attribute name of this collection on the owner.
     """
 
     def __init__(
@@ -486,9 +503,10 @@ class CollValue(UserDict):
         """
         Initialize the CollValue.
 
-        :param init: The initial value for the collection
-        :param owner: The entity instance of which this collection is an attribute
-        :param owner_key: The attribute name of this collection on the owner
+        Args:
+            init: The initial value for the collection.
+            owner: The entity instance of which this collection is an attribute.
+            owner_key: The attribute name of this collection on the owner.
         """
         self.__dict__["__owner"] = owner
         self.__dict__["__owner_key"] = owner_key

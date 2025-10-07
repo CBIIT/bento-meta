@@ -27,6 +27,12 @@ def write_txn(
     Decorate a query function to run a write transaction based on its query.
 
     Query function should return a tuple (qry_string, param_dict).
+
+    Args:
+        func: The query function to decorate.
+
+    Returns:
+        Decorated function that executes a write transaction.
     """
 
     @wraps(func)
@@ -83,8 +89,14 @@ class WriteableMDB(MDB):
 
         If a new term is created, assign a random 6-char nanoid to it.
         The Origin must already be represented in the database.
-        :param Term term: Term object
-        :param str commit: GitHub commit SHA1 associated with the term (if any)
+
+        Args:
+            term: Term object to merge.
+            commit: GitHub commit SHA1 associated with the term (if any).
+            _from: Source identifier.
+
+        Returns:
+            List of Records from the transaction.
         """
         qry = (
             "match (o:origin {name:$o_name, nanoid:$o_id}) "

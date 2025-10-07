@@ -48,7 +48,12 @@ def read_txn(
     Decorate a query function to run a read transaction based on its query.
 
     Query function should return a tuple (qry_string, param_dict).
-    Returns list of driver Records.
+
+    Args:
+        func: The query function to decorate.
+
+    Returns:
+        Decorated function that returns list of driver Records.
     """
 
     @wraps(func)
@@ -71,7 +76,12 @@ def read_txn_value(
     Decorate a query function to run a read transaction based on its query.
 
     Query function should return a tuple (qry_string, param_dict, values_key).
-    Returns list of values for key specified by query function.
+
+    Args:
+        func: The query function to decorate.
+
+    Returns:
+        Decorated function that returns list of values for key specified by query function.
     """
 
     @wraps(func)
@@ -94,7 +104,12 @@ def read_txn_data(
     Decorate a query function to run a read transaction based on its query.
 
     Query function should return a tuple (qry_string, param_dict).
-    Returns records as a list of simple dicts.
+
+    Args:
+        func: The query function to decorate.
+
+    Returns:
+        Decorated function that returns records as a list of simple dicts.
     """
 
     @wraps(func)
@@ -124,14 +139,15 @@ class MDB:
         password: str | None = None,
     ) -> None:
         """
-        Create an :class:`MDB` object, with a connection to a Neo4j instance of a metamodel database.
+        Create an MDB object, with a connection to a Neo4j instance of a metamodel database.
 
-        :param bolt_url uri: The Bolt protocol endpoint to the Neo4j instance
-            (default, use the ``NEO4J_MDB_URI`` env variable)
-        :param str user: Username for Neo4j access
-            (default, use the ``NEO4J_MDB_USER`` env variable)
-        :param str password: Password for user
-            (default, use the ``NEO4J_MDB_PASS`` env variable)
+        Args:
+            uri: The Bolt protocol endpoint to the Neo4j instance.
+                Defaults to NEO4J_MDB_URI env variable.
+            user: Username for Neo4j access.
+                Defaults to NEO4J_MDB_USER env variable.
+            password: Password for user.
+                Defaults to NEO4J_MDB_PASS env variable.
         """
         self.uri = uri or os.environ.get("NEO4J_MDB_URI")
         self.user = user or os.environ.get("NEO4J_MDB_USER")
@@ -177,10 +193,13 @@ class MDB:
 
     def register_txfn(self, name: str, fn: Callable) -> None:
         """
-        Register a transaction function.
+        Register a transaction function with the class for later use.
 
         See https://neo4j.com/docs/api/python-driver/current/api.html#managed-transactions-transaction-functions
-        with the class for later use.
+
+        Args:
+            name: Name to register the function under.
+            fn: The transaction function to register.
         """
         self._txfns[name] = fn
 
@@ -195,7 +214,10 @@ class MDB:
         """
         Return a simple list of model handles available.
 
-        Queries Model nodes (not model properties in Entity nodes)
+        Queries Model nodes (not model properties in Entity nodes).
+
+        Returns:
+            List of model handle strings.
         """
         return list(self.models.keys())
 
@@ -203,7 +225,11 @@ class MDB:
         """
         Get list of version strings present in database for a given model.
 
-        Returns [ <string> ].
+        Args:
+            model: Model handle to get versions for.
+
+        Returns:
+            List of version strings, or None if model not found.
         """
         if self.models.get(model):
             return self.models[model]
@@ -213,7 +239,11 @@ class MDB:
         """
         Get the version string from Model node marked is_latest:True for a model handle.
 
-        Returns <string>
+        Args:
+            model: Model handle to get latest version for.
+
+        Returns:
+            Version string, or None if model not found.
         """
         if self.models.get(model):
             return self.latest_version[model]
@@ -228,6 +258,12 @@ class MDB:
         Return a list of dicts representing Model nodes.
 
         Returns all versions.
+
+        Args:
+            model: Optional model handle to filter by.
+
+        Returns:
+            List of dicts representing Model nodes, or None if not found.
         """
         qry = ("match (m:model) {} return m").format(
             "where m.handle = $model" if model else "",
@@ -243,12 +279,13 @@ class MDB:
         """
         Get all nodes for a given model.
 
-        If :param:model is set but :param:version is None, get nodes from model version
-        marked is_latest:true
-        If :param:model is set and :param:version is '*',
-            get nodes from all model versions.
-        If :param:model is None, get all nodes in database.
-        Returns [ <node> ].
+        Args:
+            model: Model handle to get nodes for. If None, get all nodes in database.
+            version: Version to filter by. If None, get nodes from model version marked
+                is_latest:true. If '*', get nodes from all model versions.
+
+        Returns:
+            List of node dicts.
         """
         cond = "where n.model = $model and n.version = $version"
         parms = {}
@@ -277,10 +314,13 @@ class MDB:
         """
         Get all node-relationship-node paths for a given model and version.
 
-        If :param:version is None, use version marked is_latest:true for
-        :param:model.
-        If :param:version is '*', retrieve from all versions.
-        Returns [ path ]
+        Args:
+            model: Model handle to get paths for.
+            version: Version to filter by. If None, use version marked is_latest:true
+                for model. If '*', retrieve from all versions.
+
+        Returns:
+            List of path dicts.
         """
         cond = (
             "where s.model = $model and s.version = $version and "
@@ -308,7 +348,11 @@ class MDB:
         """
         Get incoming and outgoing relationship information for a node from its nanoid.
 
-        Returns [ {id, handle, model, version, near_type, far_type, rln, far_node} ].
+        Args:
+            nanoid: The nanoid of the node to get edges for.
+
+        Returns:
+            List of dicts with id, handle, model, version, near_type, far_type, rln, far_node.
         """
         qry = (
             "match (n:node {nanoid:$nanoid}) "
@@ -325,7 +369,11 @@ class MDB:
         """
         Get a node and its properties, given the node nanoid.
 
-        Returns [ {id, handle, model, version, node, props[]} ].
+        Args:
+            nanoid: The nanoid of the node to get.
+
+        Returns:
+            List with dict containing id, handle, model, version, node, props[].
         """
         qry = (
             "match (n:node {nanoid:$nanoid}) "
@@ -346,13 +394,13 @@ class MDB:
         """
         Get all nodes with associated properties given a model handle.
 
-        If model is None, get all nodes with their properties.
-        If :param:model is set but :param:version is None, get nodes and props
-        from model version marked is_latest:true
-        If :param:model is set and :param:version is '*', get nodes and props
-        from all model versions.
+        Args:
+            model: Model handle to get nodes for. If None, get all nodes with their properties.
+            version: Version to filter by. If None, get nodes and props from model version
+                marked is_latest:true. If '*', get nodes and props from all model versions.
 
-        Returns [ {id, handle, model, version, props[]} ]
+        Returns:
+            List of dicts with id, handle, model, version, props[].
         """
         cond = (
             "where n.model = $model and n.version = $version and "
@@ -386,8 +434,12 @@ class MDB:
         """
         Get a property, its node, and its value domain or value set of terms by nanoid.
 
+        Args:
+            nanoid: The nanoid of the property to get.
+
         Returns:
-        [ { id, handle, model, version, value_domain, prop, node, value_set, terms[] } ]
+            List with dict containing id, handle, model, version, value_domain, prop,
+            node, value_set, terms[].
         """
         qry = (
             "match (p:property {nanoid:$nanoid})<-[:has_property]-(n:node) "
@@ -405,7 +457,11 @@ class MDB:
         """
         Get a valueset with the properties that use it and the terms that constitute it.
 
-        Returns [ {id, handle, url, terms[], props[]} ]
+        Args:
+            nanoid: The nanoid of the valueset to get.
+
+        Returns:
+            List with dict containing id, handle, url, terms[], props[].
         """
         qry = (
             "match (vs:value_set {nanoid:$nanoid})-[:has_term]->(t) "
@@ -425,11 +481,15 @@ class MDB:
         """
         Get all valuesets that are used by properties in the given model and version.
 
-        Gets all valuesets if model is None.
-        Also return list of properties using each valueset.
-        If version is None, get value sets associated with latest model version.
-        If version is '*', get those associated with all versions of given model.
-        Returns [ {value_set, props[]} ].
+        Gets all valuesets if model is None. Also returns list of properties using each valueset.
+
+        Args:
+            model: Model handle to get valuesets for. If None, get all valuesets.
+            version: Version to filter by. If None, get value sets associated with
+                latest model version. If '*', get those associated with all versions.
+
+        Returns:
+            List of dicts with value_set, props[].
         """
         cond = "where p.model = $model and p.version = $version"
         parms = {}
@@ -457,7 +517,11 @@ class MDB:
         """
         Get a term having the given nanoid, with its origin.
 
-        Returns {term, origin}.
+        Args:
+            nanoid: The nanoid of the term to get.
+
+        Returns:
+            Dict with term, origin.
         """
         qry = (
             "match (t:term {nanoid:$nanoid}) "
@@ -477,9 +541,14 @@ class MDB:
         Get terms from valuesets associated with properties in a model and version.
 
         Gets all terms if model is None.
-        If version is None, get props and terms from the latest model version.
-        If version is set to '*', get those from all versions of the given model.
-        Returns [ {prop, terms[]} ]
+
+        Args:
+            model: Model handle to get props and terms for. If None, get all terms.
+            version: Version to filter by. If None, get props and terms from the
+                latest model version. If '*', get those from all versions.
+
+        Returns:
+            List of dicts with prop, terms[].
         """
         cond = "where p.model = $model and p.version = $version"
         parms = {}
@@ -507,7 +576,8 @@ class MDB:
         """
         Get all origins.
 
-        Returns [ <origin> ]
+        Returns:
+            List of origin dicts.
         """
         qry = "match (o:origin) return o"
         return (qry, None)  # type: ignore[reportReturnType]
@@ -523,7 +593,11 @@ class MDB:
         """
         Get all tags attached to an entity, given the entity's nanoid.
 
-        Returns [ {model(str), tags[]} ].
+        Args:
+            nanoid: The nanoid of the entity to get tags for.
+
+        Returns:
+            List with dict containing model(str), tags[].
         """
         qry = (
             "match (a {nanoid:$nanoid})-[:has_tag]->(g:tag) "
@@ -541,7 +615,11 @@ class MDB:
         """
         Get all tag key/value pairs that are present in database.
 
-        Returns [ { key(str) : values[] } ]
+        Args:
+            key: Optional key to filter by.
+
+        Returns:
+            List of dicts with key(str) : values[].
         """
         cond = ""
         parms = {}
@@ -564,7 +642,12 @@ class MDB:
         """
         Get all entities, tagged with a given key or key:value pair.
 
-        Returns [ {tag_key(str), tag_value(str), entity(str - label), entities[]} ]
+        Args:
+            key: Tag key to filter by.
+            value: Optional tag value to filter by.
+
+        Returns:
+            List of dicts with tag_key(str), tag_value(str), entity(str - label), entities[].
         """
         cond = "where t.key = $key "
         parms = {"key": key}

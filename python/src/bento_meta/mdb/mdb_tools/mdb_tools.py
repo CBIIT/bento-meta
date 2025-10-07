@@ -78,9 +78,15 @@ class ToolsMDB(WriteableMDB):
         """
         Return count of given entity found in an MDB.
 
-        If count = 0, entity with given attributes not found in MDB.
-        If count = 1, entity with given attributes is unique in MDB
-        If count > 1, more attributes needed to uniquely id entity in MDB.
+        - If count = 0, entity with given attributes not found in MDB.
+        - If count = 1, entity with given attributes is unique in MDB.
+        - If count > 1, more attributes needed to uniquely id entity in MDB.
+
+        Args:
+            entity: The entity to count.
+
+        Returns:
+            List with count value.
         """
         ent = N(label=entity.get_label(), props=entity.get_attr_dict())
 
@@ -104,9 +110,15 @@ class ToolsMDB(WriteableMDB):
         Property graph triple: (n)-[r]->(m)
         Path: set of overlapping triples
 
-        If count = 0, pattern with given attributes not found in MDB.
-        If count = 1, pattern with given attributes is unique in MDB
-        If count > 1, more attributes needed to uniquely id pattern in MDB.
+        - If count = 0, pattern with given attributes not found in MDB.
+        - If count = 1, pattern with given attributes is unique in MDB.
+        - If count > 1, more attributes needed to uniquely id pattern in MDB.
+
+        Args:
+            pattern: The pattern (triple or path) to count.
+
+        Returns:
+            List with count value.
         """
         stmt = Statement(
             Match(pattern),
@@ -124,14 +136,17 @@ class ToolsMDB(WriteableMDB):
         """
         Validate that the given entity occurs once (& only once) in an MDB.
 
-        Raises EntityNotUniqueError if entity attributes match multiple property
-            graph nodes in the MDB.
+        Note: doesn't validate the entity itself because not all entity attributes
+        are necessarily required to locate an entity in the MDB.
+        (e.g. handle and model OR nanoid alone can identify a node)
 
-        Raises EntityNotFoundError if entity attributes don't match any in the MDB.
+        Args:
+            entity: The entity to validate.
 
-        Note: doesn't validate the entity itself because not all entity attibutes
-            necessarily required to locate an entity in the MDB.
-            (e.g. handle and model OR nanoid alone can identify a node)
+        Raises:
+            EntityNotUniqueError: If entity attributes match multiple property
+                graph nodes in the MDB.
+            EntityNotFoundError: If entity attributes don't match any in the MDB.
         """
         ent_count = int(self._get_entity_count(entity)[0])
         if ent_count > 1:
@@ -150,10 +165,13 @@ class ToolsMDB(WriteableMDB):
         """
         Validate that the given match pattern occurs once (& only once) in an MDB.
 
-        Raises PatternNotUniqueError if entity attributes match multiple property
-        graph nodes in the MDB.
+        Args:
+            pattern: The pattern to validate.
 
-        Raises PatternNotFoundError if entity attributes don't match any in the MDB.
+        Raises:
+            PatternNotUniqueError: If pattern attributes match multiple triples
+                in the MDB.
+            PatternNotFoundError: If pattern attributes don't match any in the MDB.
         """
         pattern_count = int(self._get_pattern_count(pattern)[0])
         if pattern_count > 1:
@@ -184,6 +202,12 @@ class ToolsMDB(WriteableMDB):
 
         Accepts the following bento-meta Entities:
             Concept, Node, Predicate, Property, Edge, Term
+
+        Args:
+            entity: The entity to remove.
+
+        Returns:
+            List of Records from the transaction.
         """
         self.validate_entity_unique(entity)
 
@@ -206,7 +230,16 @@ class ToolsMDB(WriteableMDB):
         entity: Entity,
         _commit: str | None = None,
     ) -> list[Record]:
-        """Add given Entity node to MDB instance."""
+        """
+        Add given Entity node to MDB instance.
+
+        Args:
+            entity: The entity to add.
+            _commit: Optional commit string to tag the entity.
+
+        Returns:
+            List of Records from the transaction.
+        """
         EntityValidator.validate_entity(entity)
         EntityValidator.validate_entity_has_attribute(entity, "nanoid")
 
@@ -257,7 +290,14 @@ class ToolsMDB(WriteableMDB):
         Return list of concept nanoids linked to given entity.
 
         The concept(s) have "represents" or "has_concept" relationships tagged with
-            the given mapping source. If no mapping source is provided, return all.
+        the given mapping source. If no mapping source is provided, return all.
+
+        Args:
+            entity: The entity to get concepts for.
+            mapping_source: Optional mapping source to filter by.
+
+        Returns:
+            List of concept nanoids.
         """
         self.validate_entity_unique(entity)
 
@@ -300,7 +340,18 @@ class ToolsMDB(WriteableMDB):
         dst_entity: Entity,
         _commit: str = "",
     ) -> list[Record]:
-        """Add relationship between given entities in MDB."""
+        """
+        Add relationship between given entities in MDB.
+
+        Args:
+            relationship_type: The type of relationship to create.
+            src_entity: Source entity for the relationship.
+            dst_entity: Destination entity for the relationship.
+            _commit: Optional commit string to tag the relationship.
+
+        Returns:
+            List of Records from the transaction.
+        """
         self.validate_entities_unique([src_entity, dst_entity])
 
         rel = R(Type=relationship_type)
@@ -346,14 +397,18 @@ class ToolsMDB(WriteableMDB):
         """
         Link two synonymous entities in the MDB via a Concept node.
 
-        This function takes two synonymous Entities (as determined by user/SME) as
-        bento-meta objects connects them to a Concept node via a 'represents' relationship.
+        Takes two synonymous Entities (as determined by user/SME) as bento-meta
+        objects and connects them to a Concept node via a 'represents' relationship.
 
         Entities must both exist in the MDB instance and given entity attributes must
         uniquely identify property graph nodes in the MDB.
 
-        If _commit is set (to a string), the _commit property of any node created is set to
-        this value.
+        Args:
+            entity_1: First entity to link.
+            entity_2: Second entity to link.
+            mapping_source: Source of the mapping relationship.
+            _commit: Optional commit string. If set, the _commit property of any node
+                created is set to this value.
         """
         self.validate_entities_unique([entity_1, entity_2])
 
@@ -568,6 +623,12 @@ class ToolsMDB(WriteableMDB):
 
         This function takes two synonymous Concepts as bento-meta objects and links
         them via a Predicate node and has_subject and has_object relationships.
+
+        Args:
+            subject_concept: The subject concept.
+            object_concept: The object concept.
+            predicate: The predicate linking them.
+            _commit: Optional commit string to tag created nodes.
         """
         self.validate_entities_unique([subject_concept, object_concept, predicate])
 
@@ -600,8 +661,14 @@ class ToolsMDB(WriteableMDB):
         """
         Combine two synonymous Concepts into a single Concept.
 
-        This function takes two synonymous Concept as bento-meta objects and
+        This function takes two synonymous Concepts as bento-meta objects and
         merges them into a single Concept along with any connected Terms and Predicates.
+
+        Args:
+            concept_1: First concept (will remain after merge).
+            concept_2: Second concept (will be deleted after merge).
+            mapping_source: Source of the mapping relationship.
+            _commit: Optional commit string to tag relationships.
         """
         self.validate_entities_unique([concept_1, concept_2])
 
@@ -660,7 +727,16 @@ class ToolsMDB(WriteableMDB):
         term: Term,
         threshhold: float = 0.8,
     ) -> list[dict]:
-        """Return list of dicts representing potential synonymous Term nodes."""
+        """
+        Return list of dicts representing potential synonymous Term nodes.
+
+        Args:
+            term: The term to find synonyms for.
+            threshhold: Similarity threshold (0-1) for considering terms synonymous.
+
+        Returns:
+            List of dicts with value, origin_name, nanoid, similarity, valid_synonym.
+        """
         self.validate_entity_unique(term)
 
         nlp = _get_nlp_model()
@@ -692,7 +768,13 @@ class ToolsMDB(WriteableMDB):
         input_data: list[dict],
         output_path: str,
     ) -> None:
-        """Write CSV with list of synonymous Terms as dicts to given output path."""
+        """
+        Write CSV with list of synonymous Terms as dicts to given output path.
+
+        Args:
+            input_data: List of dicts representing potential synonyms.
+            output_path: Path to write CSV file to.
+        """
         with Path(output_path).open("w", encoding="utf8", newline="") as output_file:
             dict_writer = csv.DictWriter(output_file, fieldnames=input_data[0].keys())
             dict_writer.writeheader()
@@ -705,7 +787,15 @@ class ToolsMDB(WriteableMDB):
         mapping_source: str,
         _commit: str = "",
     ) -> None:
-        """Link Terms in a CSV of synonymous Terms to given Term via a Concept node."""
+        """
+        Link Terms in a CSV of synonymous Terms to given Term via a Concept node.
+
+        Args:
+            term: The term to link synonyms to.
+            csv_path: Path to CSV file containing potential synonyms.
+            mapping_source: Source of the mapping relationship.
+            _commit: Optional commit string to tag relationships.
+        """
         with Path(csv_path).open(encoding="UTF-8") as csvfile:
             synonym_reader = csv.reader(csvfile)
             for line in synonym_reader:
@@ -724,7 +814,16 @@ class ToolsMDB(WriteableMDB):
         entity: Property,
         mapping_source: str = "",
     ) -> list[Record]:
-        """Return list of properties linked by concept to given property."""
+        """
+        Return list of properties linked by concept to given property.
+
+        Args:
+            entity: The property to get synonyms for.
+            mapping_source: Optional mapping source to filter by.
+
+        Returns:
+            List of Records with property synonyms.
+        """
         self.validate_entity_unique(entity)
 
         ent = N(label="property", props=entity.get_attr_dict())
@@ -760,7 +859,11 @@ class ToolsMDB(WriteableMDB):
         """
         Convert results of read_txn_data-wrapped function with one Property to a list.
 
-        Return list of bento_meta.objects.Property entities.
+        Args:
+            entity: The property to get synonyms for.
+
+        Returns:
+            List of bento_meta.objects.Property entities.
         """
         data = self.get_property_synonyms_direct(entity)
         return [Property(s) for s in data[0]["synonyms"]]
@@ -770,6 +873,12 @@ class ToolsMDB(WriteableMDB):
         Return list of properties linked by concept to given property or its synonyms.
 
         Chains through synonyms of given property (and so on).
+
+        Args:
+            entity: The property to get all synonyms for.
+
+        Returns:
+            List of Property entities that are synonyms.
         """
         self.validate_entity_unique(entity)
         all_synonyms = []
@@ -793,6 +902,12 @@ class ToolsMDB(WriteableMDB):
         Get list of nodes/edges connected to given property.
 
         Parents are Nodes or Edges via the "has_property" relationship.
+
+        Args:
+            entity: The property to get parents for.
+
+        Returns:
+            List of Records with nodes and edges.
         """
         self.validate_entity_unique(entity)
         p_attrs = entity.get_attr_dict()
@@ -823,7 +938,15 @@ class ToolsMDB(WriteableMDB):
         return (qry, parms)  # type: ignore[reportReturnType]
 
     def get_property_parents(self, entity: Property) -> list[Node | Edge]:
-        """Get parents of a property as a list of bento_meta Nodes or Edges."""
+        """
+        Get parents of a property as a list of bento_meta Nodes or Edges.
+
+        Args:
+            entity: The property to get parents for.
+
+        Returns:
+            List of Node or Edge entities.
+        """
         self.validate_entity_unique(entity)
 
         data = self._get_property_parents_data(entity)
@@ -832,7 +955,13 @@ class ToolsMDB(WriteableMDB):
         return node_parents + edge_parents
 
     def add_tag_to_mdb_entity(self, tag: Tag, entity: Entity) -> None:
-        """Add a tag to an existing entity in an MDB."""
+        """
+        Add a tag to an existing entity in an MDB.
+
+        Args:
+            tag: The tag to add.
+            entity: The entity to tag.
+        """
         self.validate_entity_unique(entity)
         self.add_entity_to_mdb(tag)
         self.add_relationship_to_mdb(
@@ -901,6 +1030,14 @@ class EntityValidator:
 
         If looking for a unique identifier for the entity (i.e. nanoid), ensures
         entity has all the required attributes for unique identification.
+
+        Args:
+            entity: The entity to validate.
+
+        Raises:
+            ValueError: If entity type not supported.
+            MissingAttributeError: If required attribute missing.
+            InvalidAttributeError: If attribute value invalid.
         """
         entity_type = type(entity)
         required_attrs = EntityValidator.required_attrs_by_entity_type.get(entity_type)
