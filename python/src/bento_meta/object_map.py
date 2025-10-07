@@ -17,11 +17,13 @@ in Neo4j. Mostly not for human consumption. The ObjectMap:
  :class:`bento_meta.model.Model`)
 """
 
+from __future__ import annotations
+
 import re
 import sys
 
 sys.path.append("..")
-from typing import Any, ClassVar
+from typing import Any, ClassVar, LiteralString, cast
 from warnings import warn
 
 from neo4j import BoltDriver, Driver, Neo4jDriver, Transaction
@@ -151,7 +153,7 @@ class ObjectMap:
             raise ArgError(msg)
 
         with self.drv.session() as session:
-            result = session.run(self.get_by_id_q(), {"id": id})
+            result = session.run(cast("LiteralString", self.get_by_id_q()), {"id": id})
             rec = (
                 result.single()
             )  # should be unique - this call will warn if there are more than one
@@ -179,7 +181,10 @@ class ObjectMap:
             raise ArgError(msg)
 
         with self.drv.session() as session:
-            result = session.run(self.get_by_node_nanoid_q(), {"nanoid": nanoid})
+            result = session.run(
+                cast("LiteralString", self.get_by_node_nanoid_q()),
+                {"nanoid": nanoid},
+            )
             rec = (
                 result.single()
             )  # should be unique - this call will warn if there are more than one
@@ -203,7 +208,7 @@ class ObjectMap:
             return obj
 
         with self.drv.session() as session:
-            result = session.run(self.get_q(obj))
+            result = session.run(cast("LiteralString", self.get_q(obj)))
             rec = result.single()
             if not rec:
                 msg = f"object with id {obj.neoid} not found in db"
@@ -214,7 +219,7 @@ class ObjectMap:
 
         with self.drv.session() as session:
             for att in self.cls.mapspec()["relationship"]:
-                result = session.run(self.get_attr_q(obj, att))
+                result = session.run(cast("LiteralString", self.get_attr_q(obj, att)))
                 values = {}
                 first_val = None
                 for rec in result:
@@ -225,8 +230,8 @@ class ObjectMap:
                         values[getattr(o, type(o).mapspec()["key"])] = o
                     else:
                         c = None
-                        for l in rec["a"].labels:
-                            c = ObjectMap.cls_by_label(l)
+                        for lbl in rec["a"].labels:
+                            c = ObjectMap.cls_by_label(lbl)
                             if c:
                                 break
                         if not c:
@@ -273,7 +278,10 @@ class ObjectMap:
             result = None
             with session.begin_transaction() as tx:
                 for qry in self.put_q(obj):
-                    result = tx.run(qry)
+                    result = tx.run(cast("LiteralString", qry))
+                if result is None:
+                    msg = "no result from put_q"
+                    raise RuntimeError(msg)
                 obj.neoid = result.single().value("id(n)")
                 if obj.neoid is None:
                     msg = (
@@ -294,7 +302,7 @@ class ObjectMap:
                             continue
                         # put val as a node
                         for qry in ObjectMap(cls=type(val), drv=self.drv).put_q(val):
-                            result = tx.run(qry)
+                            result = tx.run(cast("LiteralString", qry))
                         val.neoid = result.single().value("id(n)")
                         if val.neoid is None:
                             msg = (
@@ -305,7 +313,7 @@ class ObjectMap:
                         val.dirty = 1
                         ObjectMap.cache[val.neoid] = val
                     for qry in self.put_attr_q(obj, att, values):
-                        tx.run(qry)
+                        tx.run(cast("LiteralString", qry))
                     # drop removed entities here
                     while obj.removed_entities:
                         ent = obj.removed_entities.pop()
@@ -323,7 +331,7 @@ class ObjectMap:
             msg = "object must be mapped (i.e., obj.neoid must be set)"
             raise ArgError(msg)
         with self.drv.session() as session:
-            result = session.run(self.rm_q(obj, detach=force))
+            result = session.run(cast("LiteralString", self.rm_q(obj, detach=force)))
             s = result.single()
             if s is None:
                 warn("rm() - corresponding db node not found", stacklevel=2)
@@ -342,7 +350,7 @@ class ObjectMap:
             raise ArgError(msg)
         with self.drv.session() as session:
             for qry in self.put_attr_q(obj, att, tgt):
-                result = session.run(qry)
+                result = session.run(cast("LiteralString", qry))
             tgt_id = result.single().value()
             if tgt_id is None:
                 warn("add() - corresponding db node not found", stacklevel=2)
@@ -370,7 +378,7 @@ class ObjectMap:
         if tx:
             result = None
             for qry in self.rm_attr_q(obj, att, tgt):
-                result = tx.run(qry)
+                result = tx.run(cast("LiteralString", qry))
             s = result.single()
             if s is None:
                 warn("drop() - corresponding target db node not found", stacklevel=2)
@@ -380,7 +388,7 @@ class ObjectMap:
             with self.drv.session() as session:
                 result = None
                 for qry in self.rm_attr_q(obj, att, tgt):
-                    result = session.run(qry)
+                    result = session.run(cast("LiteralString", qry))
                 s = result.single()
                 if s is None:
                     warn(
@@ -401,7 +409,7 @@ class ObjectMap:
             raise ArgError(msg)
         ret = []
         with self.drv.session() as session:
-            result = session.run(self.get_owners_q(obj))
+            result = session.run(cast("LiteralString", self.get_owners_q(obj)))
             for rec in result:
                 if rec["reln"][0] == "_":  # skip _prev, _next, and convenience links
                     break
@@ -474,14 +482,15 @@ class ObjectMap:
             f"'{att}' is not a registered attribute for class '{self.cls.__name__}'",
         )
 
-    def get_owners_q(self, obj: type[Entity]) -> str:
+    def get_owners_q(self, obj: Entity) -> str:
         """Get the query for the owners of an object."""
         if not isinstance(obj, self.cls):
-            raise ArgError(
-                f"arg1 must be object of class {self.cls.__name__}",
-            )
+            msg = f"arg1 must be object of class {self.cls.__name__}"
+            raise ArgError(msg)
+
         if obj.neoid is None:
-            raise ArgError("object must be mapped (i.e., obj.neoid must be set)")
+            msg = "object must be mapped (i.e., obj.neoid must be set)"
+            raise ArgError(msg)
         label = self.cls.mapspec()["label"]
         return f"MATCH (n:{label})<-[r]-(a) WHERE id(n)={obj.neoid} RETURN TYPE(r) as reln, a"
 
@@ -539,7 +548,7 @@ class ObjectMap:
             raise ArgError(msg)
         if isinstance(values, CollValue):
             values = values.values()
-        elif isinstance(values, Entity):
+        if isinstance(values, Entity):
             values = [values]
         if att in self.cls.mapspec()["property"]:
             return (

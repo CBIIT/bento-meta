@@ -94,9 +94,7 @@ class Entity:
         :param `bento_meta.Entity` init: an Entity (of matching subclass).
             Used to duplicate another model object.
         """
-        if not set(type(self).attspec.values()) <= set(
-            ["simple", "object", "collection"],
-        ):
+        if not set(type(self).attspec.values()) <= {"simple", "object", "collection"}:
             msg = "unknown attribute type in attspec"
             raise ArgError(msg)
 
@@ -148,7 +146,7 @@ class Entity:
         return None
 
     # @classmethod
-    def get_by_id(self, id: str) -> Entity:
+    def get_by_id(self, id: str) -> Entity | None:
         """
         Get an object from the db with the id attribute (not the Neo4j id).
 
@@ -160,6 +158,7 @@ class Entity:
             print(f"  > and class is {self.__class__}")
             return self.object_map.get_by_id(self, id)
         print("    _NO_ cls.object_map detected")
+        return None
 
     @property
     def dirty(self) -> int:
@@ -181,15 +180,33 @@ class Entity:
         """Return list of removed entities."""
         return self.pvt["removed_entities"]
 
+    @removed_entities.setter
+    def removed_entities(self, value: list[Any]) -> None:
+        """Set list of removed entities."""
+        self.pvt["removed_entities"] = value
+
     @property
     def object_map(self) -> ObjectMap | None:
         """Return object map."""
-        return self.pvt["object_map"]
+        return self.pvt.get("object_map")
+
+    @object_map.setter
+    def object_map(self, value: ObjectMap | None) -> None:
+        """Set object map."""
+        self.pvt["object_map"] = value
 
     @property
     def belongs(self) -> dict[tuple[int, str, str] | tuple[int, str], Entity]:
         """Return dict that stores information on the owners (referents) of this instance in the model."""
         return self.pvt["belongs"]
+
+    @belongs.setter
+    def belongs(
+        self,
+        value: dict[tuple[int, str, str] | tuple[int, str], Entity],
+    ) -> None:
+        """Set belongs dict."""
+        self.pvt["belongs"] = value
 
     def clear_removed_entities(self) -> None:
         """Clear the list of removed entities."""

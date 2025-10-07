@@ -189,7 +189,7 @@ def load_model_statements(model: Model, _commit: str | None = None) -> list[Stat
     return c_statements
 
 
-def _c_entity(ent, model, _commit):
+def _c_entity(ent: Entity, model: Model, _commit: str | None = None) -> N:
     label = type(ent).__name__.lower()
     c_ent = None
 
