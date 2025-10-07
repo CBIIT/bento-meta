@@ -11,12 +11,22 @@ the Neo4j instance:
 
 """
 
+from typing import Any
+
 from bento_meta.mdb import MDB, read_txn_data
 
 
 class SearchableMDB(MDB):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    """:class:`bento_meta.mdb.MDB` subclass for searching fulltext indices on an MDB."""
+
+    def __init__(
+        self,
+        uri: str | None = None,
+        user: str | None = None,
+        password: str | None = None,
+    ) -> None:
+        """Initialize a :class:`SearchableMDB` object."""
+        super().__init__(uri=uri, user=user, password=password)
         self.ftindexes = {}
         with self.driver.session() as s:
             result = s.run("call db.indexes")
@@ -28,29 +38,39 @@ class SearchableMDB(MDB):
                         "properties": rec["properties"],
                     }
 
-    def available_indexes(self):
+    def available_indexes(self) -> dict[str, dict[str, list[str]]]:
         """
         Fulltext indexes present in database.
+
         Returns { <index_name> : { entity_type:<NODE|RELATIONSHIP>, entities:[<labels>],
         properties:[ [<props>] ] } }
         """
         return self.ftindexes
 
-    @read_txn_data
-    def query_index(self, index, qstring, skip=None, limit=None):
+    @read_txn_data  # type: ignore[reportArgumentType]
+    def query_index(
+        self,
+        index: str,
+        qstring: str,
+        skip: str | None = None,
+        limit: str | None = None,
+    ) -> list[dict[str, Any]] | None:
         """
         Query a named fulltext index of nodes or relationships.
+
         Returns [ {ent:{}, label:<label>, score:<lucene score>} ].
         """
         if index not in self.ftindexes:
-            raise RuntimeError(f"Index with name '{index}' not found")
+            msg = f"Index with name '{index}' not found"
+            raise RuntimeError(msg)
         tipe = ""
         if self.ftindexes[index]["entity_type"] == "NODE":
             tipe = "queryNodes"
         elif self.ftindexes[index]["entity_type"] == "RELATIONSHIP":
             tipe = "queryRelationships"
         else:
-            raise RuntimeError("Wha?")
+            msg = "Wha?"
+            raise RuntimeError(msg)
         thing = self.ftindexes[index]["entity_type"].lower()
         qry = (
             "call db.index.fulltext.{tipe}($name, $query) "
@@ -68,11 +88,15 @@ class SearchableMDB(MDB):
             parms["skip"] = skip
         if limit:
             parms["limit"] = limit
-        return (qry, parms)
+        return (qry, parms)  # type: ignore[reportReturnType]
 
-    def search_entity_handles(self, qstring):
+    def search_entity_handles(
+        self,
+        qstring: str,
+    ) -> dict[str, list[dict[str, Any]]] | None:
         """
         Fulltext search of qstring over node, relationship, and property handles.
+
         Returns { node:[ {ent:<entity dict>,score:<lucene score>},... ],
         relationship:[ <...> ], property:[ <...> ] }
         """
@@ -91,14 +115,20 @@ class SearchableMDB(MDB):
             )
         return ret
 
-    def search_terms(self, qstring, search_values=True, search_definitions=True):
+    def search_terms(
+        self,
+        qstring: str,
+        *,
+        search_values: bool = True,
+        search_definitions: bool = True,
+    ) -> list[dict[str, Any]] | None:
         """
         Fulltext for qstring over terms, by value, definition, or both (default).
+
         Returns [ { ent:<term dict>, score:<lucene score> } ]}
         """
         index = {
             True: {True: "termValueDefn", False: "termDefn"},
             False: {True: "termValue", False: None},
         }
-        result = self.query_index(index[search_definitions][search_values], qstring)
-        return result
+        return self.query_index(index[search_definitions][search_values], qstring)

@@ -246,13 +246,17 @@ class Edge(Entity):
         return None
 
     @property
-    def triplet(self):
+    def triplet(self) -> tuple[str, str, str] | None:
         """
-        A 3-tuple that fully qualifies the edge: ``(edge.handle, src.handle, dst.handle)``
-        ``src`` and ``dst`` attributes must be set.
+        Return a 3-tuple that fully qualifies the edge.
+
+        Returns ``(edge.handle, src.handle, dst.handle)``.
+
+        ``src`` and ``dst`` attributes must be set. If not, return None.
         """
         if self.handle and self.src and self.dst:
             return (self.handle, self.src.handle, self.dst.handle)
+        return None
 
 
 class Term(Entity):
