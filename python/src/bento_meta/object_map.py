@@ -471,16 +471,21 @@ class ObjectMap:
             end_lbls = [eval(x).mapspec()["label"] for x in end_cls]
             rel = re.sub("^([^:]?)(:[a-zA-Z0-9_]+)(.*)$", r"\1-[\2]-\3", spec["rel"])
             if len(end_lbls) == 1:
-                qry = f"MATCH (n:{label}){rel}(a:{end_lbls[0]}) WHERE id(n)={obj.neoid} RETURN a"
+                qry = (
+                    f"MATCH (n:{label}){rel}(a:{end_lbls[0]}) "
+                    f"WHERE id(n)={obj.neoid} RETURN a"
+                )
                 if self.cls.attspec[att] == "object":
                     qry += " LIMIT 1"
                 return qry
             # multiple end classes possible
-            cond = " OR ".join([f"'{l}' IN labels(a)" for l in end_lbls])
-            return f"MATCH (n:{label}){rel}(a) WHERE id(n)={obj.neoid} AND ({cond}) RETURN a"
-        raise ArgError(
-            f"'{att}' is not a registered attribute for class '{self.cls.__name__}'",
-        )
+            cond = " OR ".join([f"'{lbl}' IN labels(a)" for lbl in end_lbls])
+            return (
+                f"MATCH (n:{label}){rel}(a) WHERE id(n)={obj.neoid} AND ({cond}) "
+                "RETURN a"
+            )
+        msg = f"'{att}' is not a registered attribute for class '{self.cls.__name__}'"
+        raise ArgError(msg)
 
     def get_owners_q(self, obj: Entity) -> str:
         """Get the query for the owners of an object."""
@@ -492,7 +497,10 @@ class ObjectMap:
             msg = "object must be mapped (i.e., obj.neoid must be set)"
             raise ArgError(msg)
         label = self.cls.mapspec()["label"]
-        return f"MATCH (n:{label})<-[r]-(a) WHERE id(n)={obj.neoid} RETURN TYPE(r) as reln, a"
+        return (
+            f"MATCH (n:{label})<-[r]-(a) WHERE id(n)={obj.neoid} "
+            "RETURN TYPE(r) as reln, a"
+        )
 
     def put_q(self, obj: Entity) -> list[str]:
         """Get the query for putting an object."""
@@ -616,7 +624,10 @@ class ObjectMap:
         if values and not isinstance(values, list):
             values = [values]
         if att in self.cls.mapspec()["property"]:
-            return f"MATCH (n:{self.cls.mapspec()['label']}) WHERE id(n)={obj.neoid} REMOVE n.{att} RETURN id(n)"
+            return (
+                f"MATCH (n:{self.cls.mapspec()['label']}) "
+                f"WHERE id(n)={obj.neoid} REMOVE n.{att} RETURN id(n)"
+            )
         if att in self.cls.mapspec()["relationship"]:
             many = self.cls.attspec[att] == "collection"
             spec = self.cls.mapspec()["relationship"][att]
@@ -624,12 +635,18 @@ class ObjectMap:
             if isinstance(end_cls, str):
                 end_cls = {end_cls}
             end_lbls = [eval(x).mapspec()["label"] for x in end_cls]
-            cond = " OR ".join([f"'{l}' IN labels(a)" for l in end_lbls])
+            cond = " OR ".join([f"'{lbl}' IN labels(a)" for lbl in end_lbls])
             rel = re.sub("^([^:]?)(:[a-zA-Z0-9_]+)(.*)$", r"\1-[r\2]-\3", spec["rel"])
             if values and values[0] == ":all":
                 if len(end_lbls) == 1:
-                    return f"MATCH (n:{self.cls.mapspec()['label']}){rel}(a:{end_lbls[0]}) WHERE id(n)={obj.neoid} DELETE r RETURN id(n),id(a)"
-                return f"MATCH (n:{self.cls.mapspec()['label']}){rel}(a) WHERE id(n)={obj.neoid} AND ({cond}) DELETE r RETURN id(n)"
+                    return (
+                        f"MATCH (n:{self.cls.mapspec()['label']}){rel}(a:{end_lbls[0]})"
+                        f" WHERE id(n)={obj.neoid} DELETE r RETURN id(n),id(a)"
+                    )
+                return (
+                    f"MATCH (n:{self.cls.mapspec()['label']}){rel}(a) "
+                    f"WHERE id(n)={obj.neoid} AND ({cond}) DELETE r RETURN id(n)"
+                )
             stmts = []
 
             if not self._check_values_list(att, values):
@@ -642,8 +659,8 @@ class ObjectMap:
                 qry = ""
                 if len(end_lbls) == 1:
                     qry = (
-                        f"MATCH (n:{self.cls.mapspec()['label']}){rel}(a:{end_lbls[0]}) "
-                        f"WHERE id(n)={obj.neoid} AND id(a)={val.neoid} "
+                        f"MATCH (n:{self.cls.mapspec()['label']}){rel}(a:{end_lbls[0]})"
+                        f" WHERE id(n)={obj.neoid} AND id(a)={val.neoid} "
                         f"DELETE r RETURN id(n),id(a)"
                     )
                 else:
