@@ -21,7 +21,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Concatenate,
-    LiteralString,
     ParamSpec,
     TypeVar,
     cast,
@@ -30,6 +29,7 @@ from warnings import warn
 
 from nanoid import generate as nanoid_generate
 from neo4j import Driver, GraphDatabase, ManagedTransaction, Record
+from typing_extensions import LiteralString
 
 if TYPE_CHECKING:
     from collections.abc import Callable
