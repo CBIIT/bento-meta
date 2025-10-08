@@ -575,7 +575,7 @@ class ObjectMap:
             raise ArgError(msg)
         if isinstance(values, CollValue):
             values = values.values()
-        if isinstance(values, Entity):
+        elif isinstance(values, Entity):
             values = [values]
         if att in self.cls.mapspec()["property"]:
             return (

@@ -375,7 +375,7 @@ class Model:
         for okey in prop.belongs:
             owner = prop.belongs[okey]
             (i, att, key) = okey
-            getattr(owner, att)[key] = None
+            del getattr(owner, att)[key]
             k = [owner.handle] if isinstance(owner, Node) else list(owner.triplet)
             k.append(key)
             del self.props[tuple(k)]

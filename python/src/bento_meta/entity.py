@@ -550,5 +550,10 @@ class CollValue(UserDict):
 
     def __delitem__(self, name: str) -> None:
         """Delete the value for the collection."""
-        self[name] == None  # trigger __setitem__
+        if name in self.data: # cleanup belongs and set owner dirty
+            entity = self.data[name]
+            belongs_key = (id(self.owner), self.owner_key, name)
+            if belongs_key in entity.belongs:
+                del entity.belongs[belongs_key]
+            self.owner.dirty = 1
         super().__delitem__(name)
