@@ -3,15 +3,15 @@ import sys
 sys.path.insert(0, ".")
 sys.path.insert(0, "..")
 
+
 import pytest
 from bento_meta.mdb import MDB
 from bento_meta.model import Model
 from bento_meta.object_map import ObjectMap
 from bento_meta.objects import Term
 
-from pdb import set_trace
 
-@pytest.mark.docker()
+@pytest.mark.docker
 def test_get_model(bento_neo4j):
     (b, h) = bento_neo4j
     the_mdb = MDB(uri=b)
@@ -19,7 +19,7 @@ def test_get_model(bento_neo4j):
     ObjectMap.clear_cache()
     m = Model(handle="ICDC", mdb=the_mdb)
     print(f"{m.nodes=}")
-    m.dget()
+    m.dget(refresh=False)
 
     with m.drv.session() as session:
         result = session.run('match (n:node) where n.model="ICDC" return count(n)')
@@ -65,14 +65,14 @@ def test_get_model(bento_neo4j):
     print(f"{m.nodes=}")
 
 
-@pytest.mark.docker()
+@pytest.mark.docker
 def test_put_model(bento_neo4j):
     (b, h) = bento_neo4j
     the_mdb = MDB(uri=b)
     assert the_mdb
     ObjectMap.clear_cache()
     m = Model(handle="ICDC", mdb=the_mdb)
-    m.dget()
+    m.dget(refresh=False)
     prop = m.props[("sample", "sample_type")]
     sample = m.nodes["sample"]
     edge = m.edges[("on_visit", "sample", "visit")]

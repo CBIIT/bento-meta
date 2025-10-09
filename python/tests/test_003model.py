@@ -19,7 +19,6 @@ def test_init_model():
 def test_create_model():
     model = Model("test")
     case = Node({"handle": "case"})
-    #  set_trace()
     case.props["days_to_enrollment"] = Property({"handle": "days_to_enrollment"})
     model.add_node(case)
     assert isinstance(model.nodes["case"], Node)
@@ -39,7 +38,7 @@ def test_create_model():
     sample = model.nodes["sample"]
     of_case = Edge({"handle": "of_case", "src": sample, "dst": case})
     of_case.props["operator"] = Property(
-        {"handle": "operator", "value_domain": "boolean"},
+        {"handle": "operator", "value_domain": "boolean"}
     )
     model.annotate(
         model.props[("case", "case_id")],

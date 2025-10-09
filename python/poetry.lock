@@ -3850,4 +3850,4 @@ tools = ["click", "liquichange", "numpy", "pandas", "spacy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a8e95bc504f8219970f1f4d302bec1e9683d87d243ecd446585ab385ac1ac9f3"
+content-hash = "dbef2abc8493427d1a397c1c99d242266236ae53fa002f945248aa49bb2a19e6"

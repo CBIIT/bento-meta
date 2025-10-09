@@ -13,7 +13,7 @@ import sys
 
 sys.path.append("..")
 from copy import deepcopy
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, ClassVar
 from warnings import warn
 
 from bento_meta.entity import Entity
@@ -25,8 +25,14 @@ if TYPE_CHECKING:
 def mergespec(
     clsname: str,
     attspec: dict[str, str],
-    mapspec: dict[str, str | dict[str, str]],
-) -> tuple[dict[str, str], dict[str, str | dict[str, str]]]:
+    mapspec: dict[
+        str,
+        str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None,
+    ],
+) -> tuple[
+    dict[str, str],
+    dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None],
+]:
     """
     Merge subclass attribute and mapping specification dicts with the base class's.
 
@@ -51,7 +57,7 @@ def mergespec(
 class Node(Entity):
     """Subclass that models a data node."""
 
-    attspec_ = {
+    attspec_: ClassVar[dict[str, str]] = {
         "handle": "simple",
         "model": "simple",
         "nanoid": "simple",
@@ -59,7 +65,9 @@ class Node(Entity):
         "concept": "object",
         "props": "collection",
     }
-    mapspec_ = {
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": "node",
         "key": "handle",
         "property": {
@@ -81,20 +89,21 @@ class Node(Entity):
         super().__init__(init=init)
 
     @property
-    def annotations(self):
-        """
-        If the `Node` is annotated by `Term`s via a `Concept`,
-        return the `Term`s
-        """
+    def annotations(self) -> list[Term] | None:
+        """Return `Term`s if the `Node` is annotated by `Term`s via a `Concept`."""
         if self.concept:
             return self.concept.terms
         return None
 
     def get_key_prop(self) -> Property | list[Property] | None:
         """
-        Return the `Property` entity with `is_key=True` for this `Node` if it exists.
+        Return the Property entity with is_key=True for this Node if it exists.
 
         If multiple key props exist, return a list of them; if none exist, return None.
+
+        Returns:
+            Single Property if one key property exists, list of Properties if multiple
+            exist, None if no key properties found.
         """
         if not self.props.values():
             warn("No properties found for Node - returning None", stacklevel=2)
@@ -112,8 +121,8 @@ class Node(Entity):
 class Property(Entity):
     """Subclass that models a property of a node or relationship (edge)."""
 
-    pvt_attr = Entity.pvt_attr + ["value_types"]
-    attspec_ = {
+    pvt_attr: ClassVar[list[str]] = [*Entity.pvt_attr, "value_types"]
+    attspec_: ClassVar[dict[str, str]] = {
         "handle": "simple",
         "model": "simple",
         "nanoid": "simple",
@@ -131,7 +140,9 @@ class Property(Entity):
         "value_set": "object",
         "_parent_handle": "simple",
     }
-    mapspec_ = {
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": "property",
         "key": "handle",
         "property": {
@@ -157,7 +168,7 @@ class Property(Entity):
         },
     }
     (attspec, _mapspec) = mergespec("Property", attspec_, mapspec_)
-    defaults = {"value_domain": "TBD"}
+    defaults: ClassVar[dict[str, str]] = {"value_domain": "TBD"}
 
     def __init__(self, init: dict | neo4j.graph.Node | Property | None = None) -> None:
         """Initialize a `Property` instance."""
@@ -165,40 +176,39 @@ class Property(Entity):
         self.value_types = []
 
     @property
-    def annotations(self):
+    def annotations(self) -> list[Term] | None:
         """If the `Property` is annotated by `Term`s via a `Concept`, return the `Term`s."""
         if self.concept:
             return self.concept.terms
         return None
 
     @property
-    def terms(self):
-        """
-        If the `Property` has a ``value_set`` domain, return the `Term` objects
-        of its `ValueSet`
-        """
+    def terms(self) -> list[Term] | None:
+        """Return the `Term` objects of `Property` with a ``value_set`` domain."""
         if self.value_set:
             return self.value_set.terms
         return None
 
     @property
-    def values(self):
+    def values(self) -> list[str] | None:
         """
-        If the `Property` as a ``value_set`` domain, return its term values as a list of str.
-        :return: list of term values
-        :rtype: list
+        Return Property's term values as a list of str if it has a value_set domain.
+
+        Returns:
+            List of term values, or None if no value_set.
         """
         if self.value_set:
             return [self.terms[x].value for x in self.terms]
+        return None
 
 
 class Edge(Entity):
     """Subclass that models a relationship between model nodes."""
 
-    defaults = {
+    defaults: ClassVar[dict[str, str]] = {
         "multiplicity": "many_to_many",
     }
-    attspec_ = {
+    attspec_: ClassVar[dict[str, str]] = {
         "handle": "simple",
         "model": "simple",
         "nanoid": "simple",
@@ -210,7 +220,9 @@ class Edge(Entity):
         "concept": "object",
         "props": "collection",
     }
-    mapspec_ = {
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": "relationship",
         "key": "handle",
         "property": {
@@ -236,29 +248,33 @@ class Edge(Entity):
         super().__init__(init=init)
 
     @property
-    def annotations(self):
-        """
-        If the `Edge` is annotated by `Term`s via a `Concept`,
-        return the `Term`s
-        """
+    def annotations(self) -> list[Term] | None:
+        """Return `Term`s if the `Edge` is annotated by `Term`s via a `Concept`."""
         if self.concept:
             return self.concept.terms
         return None
 
     @property
-    def triplet(self):
+    def triplet(self) -> tuple[str, str, str] | None:
         """
-        A 3-tuple that fully qualifies the edge: ``(edge.handle, src.handle, dst.handle)``
-        ``src`` and ``dst`` attributes must be set.
+        Return a 3-tuple that fully qualifies the edge.
+
+        Returns (edge.handle, src.handle, dst.handle).
+
+        src and dst attributes must be set. If not, return None.
+
+        Returns:
+            Tuple of (edge.handle, src.handle, dst.handle) or None.
         """
         if self.handle and self.src and self.dst:
             return (self.handle, self.src.handle, self.dst.handle)
+        return None
 
 
 class Term(Entity):
     """Subclass that models a term from a terminology."""
 
-    attspec_ = {
+    attspec_: ClassVar[dict[str, str]] = {
         "handle": "simple",
         "value": "simple",
         "nanoid": "simple",
@@ -269,7 +285,9 @@ class Term(Entity):
         "concept": "object",
         "origin": "object",
     }
-    mapspec_ = {
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": "term",
         # note using 'value' as the key in terms collections may break silently
         # if the terms are coming from different origins, but use the same
@@ -303,11 +321,12 @@ class Term(Entity):
 # here (__setattr__ override), not in Entity
 class ValueSet(Entity):
     """
-    Subclass that models an enumerated set of :class:`Property` values.
-    Essentially a container for :class:`Term` instances.
+    Subclass that models an enumerated set of Property values.
+
+    Essentially a container for Term instances.
     """
 
-    attspec_ = {
+    attspec_: ClassVar[dict[str, str]] = {
         "handle": "simple",
         "nanoid": "simple",
         "url": "simple",
@@ -316,7 +335,9 @@ class ValueSet(Entity):
         "origin": "object",
         "terms": "collection",
     }
-    mapspec_ = {
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": "value_set",
         "property": {
             "handle": "handle",
@@ -337,27 +358,19 @@ class ValueSet(Entity):
         """Initialize a `ValueSet` instance."""
         super().__init__(init=init)
 
-    # @property
-    # def dirty(self):
-    #   return self.pvt.dirty
-    # @dirty.setter
-    # def dirty(self, value):
-    #   print("Dirty, dirty value set!")
-    #   self.pvt.dirty = value
-    #   if self.prop and value != 0:
-    #     self.prop.dirty=1
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Any) -> None:
         super().__setattr__(name, value)
-        if name == "dirty":
-            if self.prop and value != 0:
-                self.prop.dirty = 1
+        if name == "dirty" and self.prop and value != 0:
+            self.prop.dirty = 1
 
 
 class Concept(Entity):
     """Subclass that models a semantic concept."""
 
-    attspec_ = {"terms": "collection"}
-    mapspec_ = {
+    attspec_: ClassVar[dict[str, str]] = {"terms": "collection"}
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": "concept",
         "relationship": {
             "terms": {"rel": "<:represents", "end_cls": "Term"},
@@ -374,8 +387,14 @@ class Concept(Entity):
 class Predicate(Entity):
     """Subclass that models a semantic link between concepts."""
 
-    attspec_ = {"handle": "simple", "subject": "object", "object": "object"}
-    mapspec_ = {
+    attspec_: ClassVar[dict[str, str]] = {
+        "handle": "simple",
+        "subject": "object",
+        "object": "object",
+    }
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": "predicate",
         "key": "handle",
         "property": {
@@ -390,19 +409,22 @@ class Predicate(Entity):
     (attspec, _mapspec) = mergespec("Predicate", attspec_, mapspec_)
 
     def __init__(self, init: dict | neo4j.graph.Node | Predicate | None = None) -> None:
+        """Initialize a `Predicate` instance."""
         super().__init__(init=init)
 
 
 class Origin(Entity):
     """Subclass that models a :class:`Term` 's authoritative source."""
 
-    attspec_ = {
+    attspec_: ClassVar[dict[str, str]] = {
         "url": "simple",
         "is_external": "simple",
         "name": "simple",
         "nanoid": "simple",
     }
-    mapspec_ = {
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": "origin",
         "key": "name",
         "property": {
@@ -423,8 +445,14 @@ class Origin(Entity):
 class Tag(Entity):
     """Subclass that allows simple key-value tagging of a model at arbitrary points."""
 
-    attspec_ = {"key": "simple", "value": "simple", "_parent": "object"}
-    mapspec_ = {
+    attspec_: ClassVar[dict[str, str]] = {
+        "key": "simple",
+        "value": "simple",
+        "_parent": "object",
+    }
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": "tag",
         "key": "key",
         "property": {"key": "key", "value": "value"},
@@ -433,13 +461,14 @@ class Tag(Entity):
     (attspec, _mapspec) = mergespec("Tag", attspec_, mapspec_)
 
     def __init__(self, init: dict | neo4j.graph.Node | Tag | None = None) -> None:
+        """Initialize a `Tag` instance."""
         super().__init__(init=init)
 
 
 class Model(Entity):
     """Subclass with information regarding data model."""
 
-    attspec_ = {
+    attspec_: ClassVar[dict[str, str]] = {
         "handle": "simple",
         "name": "simple",
         "repository": "simple",
@@ -447,7 +476,9 @@ class Model(Entity):
         "version": "simple",
         "is_latest_version": "simple",
     }
-    mapspec_ = {
+    mapspec_: ClassVar[
+        dict[str, str | dict[str, str] | dict[str, dict[str, str | set[str]]] | None]
+    ] = {
         "label": "model",
         "key": "handle",
         "property": {
@@ -459,7 +490,7 @@ class Model(Entity):
         },
     }
     (attspec, _mapspec) = mergespec("Model", attspec_, mapspec_)
-    defaults = {"is_latest_version": False}
+    defaults: ClassVar[dict[str, bool]] = {"is_latest_version": False}
 
     def __init__(self, init: dict | neo4j.graph.Node | Model | None = None) -> None:
         """Initialize a `Model` instance."""
