@@ -123,7 +123,7 @@ class SearchableMDB(MDB):
         ret = {"nodes": [], "relationships": [], "properties": []}
         for item in result:
             ret[plural[item["label"]]].append(
-                {"ent": item["ent"], "score": item["score"]},
+                {"ent": item["ent"], "score": item["score"]}
             )
         return ret
 

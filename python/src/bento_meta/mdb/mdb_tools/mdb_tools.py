@@ -447,7 +447,7 @@ class ToolsMDB(WriteableMDB):
                         "key": "mapping_source",
                         "value": mapping_source,
                         "nanoid": make_nanoid(),
-                    },
+                    }
                 ),
                 entity=concept,
             )
@@ -992,7 +992,7 @@ class EntityValidator:
             "broader",
             "narrower",
             "related",
-        },
+        }
     }
 
     class MissingAttributeError(Exception):
