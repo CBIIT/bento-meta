@@ -42,12 +42,12 @@ def test_init_and_link_objects():
     concept = Concept()
     term.concept = concept
     other_concept = Concept()
-    concept.terms["sample"] = term
+    concept.terms[("sample", None, None, None)] = term
     sample.concept = concept
     [o] = [x for x in term.belongs.values()]
     assert o == concept
-    assert of_sample.src.concept.terms["sample"].value == "sample"
-    assert of_sample.src.annotations["sample"].value == "sample"
+    assert of_sample.src.concept.terms[("sample", None, None, None)].value == "sample"
+    assert of_sample.src.annotations[("sample", None, None, None)].value == "sample"
     pred = Predicate({"subject": concept, "object": other_concept, "handle": "isa"})
     assert type(pred.subject) == Concept
     assert type(pred.object) == Concept
@@ -69,7 +69,7 @@ def test_tags_on_objects():
     term = Term({"value": "sample"})
     concept = Concept()
     term.concept = concept
-    concept.terms["sample"] = term
+    concept.terms[("sample", None, None, None)] = term
     sample.concept = concept
     sample.props["this"] = Property({"that": "this"})
 
