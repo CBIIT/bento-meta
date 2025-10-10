@@ -89,7 +89,7 @@ class Node(Entity):
         super().__init__(init=init)
 
     @property
-    def annotations(self) -> list[Term] | None:
+    def annotations(self) -> dict | None:
         """Return `Term`s if the `Node` is annotated by `Term`s via a `Concept`."""
         if self.concept:
             return self.concept.terms
@@ -176,7 +176,7 @@ class Property(Entity):
         self.value_types = []
 
     @property
-    def annotations(self) -> list[Term] | None:
+    def annotations(self) -> dict | None:
         """If the `Property` is annotated by `Term`s via a `Concept`, return the `Term`s."""
         if self.concept:
             return self.concept.terms
@@ -248,7 +248,7 @@ class Edge(Entity):
         super().__init__(init=init)
 
     @property
-    def annotations(self) -> list[Term] | None:
+    def annotations(self) -> dict | None:
         """Return `Term`s if the `Edge` is annotated by `Term`s via a `Concept`."""
         if self.concept:
             return self.concept.terms
