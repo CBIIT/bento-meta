@@ -24,8 +24,8 @@ def test_create_model():
     assert isinstance(model.nodes["case"], Node)
     assert model.props[("case", "days_to_enrollment")]
     model.annotate(case, Term({"value": "case", "origin_name": "CTOS"}))
-    assert model.nodes["case"].concept.terms[("case", "CTOS")]
-    assert model.nodes["case"].annotations[("case", "CTOS")]
+    assert model.nodes["case"].concept.terms[("case", "CTOS", None, None)]
+    assert model.nodes["case"].annotations[("case", "CTOS", None, None)]
     model.add_node({"handle": "sample"})
     assert model.nodes["sample"]
     assert isinstance(model.nodes["sample"], Node)
@@ -44,8 +44,8 @@ def test_create_model():
         model.props[("case", "case_id")],
         Term({"value": "case_id", "origin_name": "CTOS"}),
     )
-    assert case_id.concept.terms[("case_id", "CTOS")]
-    assert case_id.annotations[("case_id", "CTOS")]
+    assert case_id.concept.terms[("case_id", "CTOS", None, None)]
+    assert case_id.annotations[("case_id", "CTOS", None, None)]
     model.add_edge(of_case)
     assert model.edges[("of_case", "sample", "case")]
     assert model.contains(of_case.props["operator"])
@@ -55,8 +55,12 @@ def test_create_model():
         model.props[("of_case", "sample", "case", "operator")].value_domain == "boolean"
     )
     model.annotate(of_case, Term({"value": "of_case", "origin_name": "CTOS"}))
-    assert model.edges[("of_case", "sample", "case")].concept.terms[("of_case", "CTOS")]
-    assert model.edges[("of_case", "sample", "case")].annotations[("of_case", "CTOS")]
+    assert model.edges[("of_case", "sample", "case")].concept.terms[
+        ("of_case", "CTOS", None, None)
+    ]
+    assert model.edges[("of_case", "sample", "case")].annotations[
+        ("of_case", "CTOS", None, None)
+    ]
     dx = Property({"handle": "diagnosis", "value_domain": "value_set"})
     tm = Term({"value": "CRS", "origin_name": "Marilyn"})
     model.add_prop(case, dx)
@@ -67,6 +71,6 @@ def test_create_model():
         "fungusamongus",
     }
     assert len(model.terms) > 0
-    assert ("CRS", "Marilyn") in model.terms
-    assert ("case", "CTOS") in model.terms
+    assert ("CRS", "Marilyn", None, None) in model.terms
+    assert ("case", "CTOS", None, None) in model.terms
     assert dx.value_set in tm.belongs.values()

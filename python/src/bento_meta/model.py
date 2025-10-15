@@ -76,9 +76,9 @@ class Model:
             Property,
         ] = {}  # keys are ({edge|node}.handle, prop.handle) tuples
         self.terms: dict[
-            tuple[str, str],
+            tuple[str, str, str | None, str | None],
             Term,
-        ] = {}  # keys are (term.handle, term.origin) tuples
+        ] = {}  # keys are (term.handle, term.origin_name, term.origin_id, term.origin_version) tuples
         self.removed_entities: list[Entity] = []
 
         if mdb:
@@ -243,14 +243,21 @@ class Model:
         if not ent.concept:
             ent.concept = Concept({"nanoid": make_nanoid()})
         term_key = term.handle if term.handle else term.value
-        if (term_key, term.origin_name) in ent.concept.terms:
+        full_term_key = (
+            term_key,
+            term.origin_name,
+            term.origin_id,
+            term.origin_version,
+        )
+        if full_term_key in ent.concept.terms:
             msg = (
                 "Concept already represented by a Term with handle or value "
-                f"'{term_key}' and origin_name '{term.origin_name}'"
+                f"'{term_key}', origin_name '{term.origin_name}', origin_id '{term.origin_id}', "
+                f"and origin_version '{term.origin_version}'"
             )
             raise ValueError(msg)
-        ent.concept.terms[(term_key, term.origin_name)] = term
-        self.terms[(term_key, term.origin_name)] = term
+        ent.concept.terms[full_term_key] = term
+        self.terms[full_term_key] = term
 
     def add_terms(self, prop: Property, *terms: list[Term | str]) -> None:
         """
@@ -289,7 +296,13 @@ class Model:
                 raise ArgError(msg)
             tm_key = term.handle if term.handle else term.value
             prop.value_set.terms[tm_key] = term
-            self.terms[(tm_key, term.origin_name)] = term
+            full_term_key = (
+                tm_key,
+                term.origin_name,
+                term.origin_id,
+                term.origin_version,
+            )
+            self.terms[full_term_key] = term
 
     def rm_node(self, node: Node) -> Node | None:
         """
