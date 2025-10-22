@@ -1,0 +1,86 @@
+bento_meta.mdb.searchable
+=========================
+
+.. py:module:: bento_meta.mdb.searchable
+
+.. autoapi-nested-parse::
+
+   mdb.searchable
+   Subclass of `class:bento_meta.mdb.MDB` to support searching fulltext indices on an MDB
+   Note: certain fulltext indexes on certain MDB nodes and properties must be present in
+   the Neo4j instance:
+   - nodeHandle
+   - propHandle
+   - termValue
+   - termDefn
+   - termValueDefn
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.mdb.searchable.SearchableMDB
+
+
+Module Contents
+---------------
+
+.. py:class:: SearchableMDB(uri: str | None = None, user: str | None = None, password: str | None = None)
+
+   Bases: :py:obj:`bento_meta.mdb.MDB`
+
+
+   :class:`bento_meta.mdb.MDB` subclass for searching fulltext indices on an MDB.
+
+
+   .. py:attribute:: ftindexes
+
+
+   .. py:method:: available_indexes() -> dict[str, dict[str, list[str]]]
+
+      Fulltext indexes present in database.
+
+      :returns: Dict mapping index_name to dict with entity_type (NODE|RELATIONSHIP),
+                entities ([labels]), properties ([[props]]).
+
+
+
+   .. py:method:: query_index(index: str, qstring: str, skip: str | None = None, limit: str | None = None) -> list[dict[str, Any]] | None
+
+      Query a named fulltext index of nodes or relationships.
+
+      :param index: Name of the fulltext index to query.
+      :param qstring: Lucene query string.
+      :param skip: Number of results to skip.
+      :param limit: Maximum number of results to return.
+
+      :returns: List of dicts with ent (entity dict), label, score (lucene score).
+
+
+
+   .. py:method:: search_entity_handles(qstring: str) -> dict[str, list[dict[str, Any]]] | None
+
+      Fulltext search of qstring over node, relationship, and property handles.
+
+      :param qstring: Lucene query string.
+
+      :returns: Dict with nodes, relationships, properties, each containing list of dicts
+                with ent (entity dict) and score (lucene score).
+
+
+
+   .. py:method:: search_terms(qstring: str, *, search_values: bool = True, search_definitions: bool = True) -> list[dict[str, Any]] | None
+
+      Fulltext search for qstring over terms, by value, definition, or both (default).
+
+      :param qstring: Lucene query string.
+      :param search_values: If True, search term values.
+      :param search_definitions: If True, search term definitions.
+
+      :returns: List of dicts with ent (term dict) and score (lucene score).
+
+
+

@@ -1,0 +1,308 @@
+bento_meta.model
+================
+
+.. py:module:: bento_meta.model
+
+.. autoapi-nested-parse::
+
+   bento_meta.model
+   ================
+
+   This module contains :class:`Model`, a class for managing data models housed
+   in the Bento Metamodel Database. Models are built from `bento_meta.Entity`
+   subclasses (see :mod:`bento_meta.objects`). A Model can be used with or
+   without a Neo4j database connection.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.model.Model
+
+
+Module Contents
+---------------
+
+.. py:class:: Model(handle: str | None = None, version: str | None = None, uri: str | None = None, mdb: bento_meta.mdb.MDB | None = None)
+
+   Model class for managing data models housed in the Bento Metamodel Database.
+
+
+   .. py:attribute:: handle
+      :value: None
+
+
+
+   .. py:attribute:: version
+      :value: None
+
+
+
+   .. py:attribute:: uri
+      :value: None
+
+
+
+   .. py:attribute:: repository
+      :value: None
+
+
+
+   .. py:attribute:: _mdb
+      :type:  bento_meta.mdb.MDB | None
+      :value: None
+
+
+
+   .. py:attribute:: nodes
+      :type:  dict[str, bento_meta.objects.Node]
+
+
+   .. py:attribute:: edges
+      :type:  dict[tuple[str, str, str], bento_meta.objects.Edge]
+
+
+   .. py:attribute:: props
+      :type:  dict[tuple[str, str], bento_meta.objects.Property]
+
+
+   .. py:attribute:: terms
+      :type:  dict[tuple[str, str, str | None, str | None], bento_meta.objects.Term]
+
+
+   .. py:attribute:: removed_entities
+      :type:  list[bento_meta.entity.Entity]
+      :value: []
+
+
+
+   .. py:property:: drv
+      :type: neo4j.Driver | None
+
+
+      Neo4j database driver from MDB object.
+
+
+   .. py:property:: mdb
+      :type: bento_meta.mdb.MDB | None
+
+
+      MDB object containing the db connection.
+
+
+   .. py:method:: add_node(node: bento_meta.objects.Node | dict | neo4j.graph.Node | None = None) -> bento_meta.objects.Node
+
+      Add a Node to the model.
+
+      The model attribute of node is set to Model.handle.
+
+      :param node: A Node instance, a neo4j.graph.Node, or a dict.
+
+      :returns: The added Node instance.
+
+
+
+   .. py:method:: add_edge(edge: bento_meta.objects.Edge | dict | neo4j.graph.Node | None = None) -> bento_meta.objects.Edge
+
+      Add an Edge to the model.
+
+      The model attribute of edge is set to Model.handle.
+
+      :param edge: An Edge instance, a neo4j.graph.Node, or a dict.
+
+      :returns: The added Edge instance.
+
+
+
+   .. py:method:: add_prop(ent: bento_meta.objects.Node | bento_meta.objects.Edge, prop: bento_meta.objects.Property | dict | neo4j.graph.Node | None = None, *, reuse: bool = False) -> bento_meta.objects.Property
+
+      Add a Property to the model.
+
+      The model attribute of prop is set to Model.handle. Within a model,
+      Property entities are unique with respect to their handle (but can be reused).
+      This method will look for an existing property within the model with the given
+      handle, and add an item to Model.props pointing to it if found.
+
+      :param ent: Attach prop to this entity (Node or Edge).
+      :param prop: A Property instance, a neo4j.graph.Node, or a dict.
+      :param reuse: If True, reuse existing property with same handle.
+
+      :returns: The added Property instance.
+
+
+
+   .. py:method:: annotate(ent: bento_meta.entity.Entity, term: bento_meta.objects.Term) -> None
+
+      Associate a single Term with an Entity.
+
+      This creates a Concept entity if needed and links both the Entity and the Term
+      to the concept, in keeping with the MDB spec. It supports the Term key in MDF.
+
+      :param ent: Entity object to annotate.
+      :param term: Term object to describe the Entity.
+
+
+
+   .. py:method:: add_terms(prop: bento_meta.objects.Property, *terms: list[bento_meta.objects.Term | str]) -> None
+
+      Add a list of Term and/or strings to a Property.
+
+      Property must have a value domain of value_set or enum.
+      Term instances are created for strings; Term.value and Term.handle
+      is set to the string.
+
+      :param prop: Property to modify.
+      :param terms: A list of Term instances and/or str.
+
+
+
+   .. py:method:: rm_node(node: bento_meta.objects.Node) -> bento_meta.objects.Node | None
+
+      Remove a Node from the Model instance.
+
+      Note: A node can't be removed if it is participating in an edge (i.e.,
+      if the node is some edge's src or dst attribute).
+
+      :param node: Node to be removed.
+
+      :returns: The removed Node, or None if not found.
+
+
+
+   .. py:method:: rm_edge(edge: bento_meta.objects.Edge) -> bento_meta.objects.Edge | None
+
+      Remove an Edge instance from the Model instance.
+
+      :param edge: Edge to be removed.
+
+      :returns: The removed Edge, or None if not found.
+
+
+
+   .. py:method:: rm_prop(prop: bento_meta.objects.Property) -> bento_meta.objects.Property | None
+
+      Remove a Property instance from the Model instance.
+
+      :param prop: Property to be removed.
+
+      :returns: The removed Property, or None if not found.
+
+
+
+   .. py:method:: rm_term(term: bento_meta.objects.Term) -> None
+
+      Not implemented.
+
+
+
+   .. py:method:: assign_edge_end(edge: bento_meta.objects.Edge | None = None, end: str | None = None, node: bento_meta.objects.Node | None = None) -> bento_meta.objects.Edge | None
+
+      Move the src or dst of an Edge to a different Node.
+
+      Note: Both node and edge must be present in the Model instance
+      (via add_node and add_edge).
+
+      :param edge: Edge to manipulate.
+      :param end: Edge end to change (src|dst).
+      :param node: Node to be connected.
+
+      :returns: The modified Edge, or None if operation failed.
+
+
+
+   .. py:method:: contains(ent: bento_meta.entity.Entity) -> bool | None
+
+      Ask whether an entity is present in the Model instance.
+
+      Note: Only works on Nodes, Edges, and Properties.
+
+      :param ent: Entity in question.
+
+      :returns: True if entity is in model, False otherwise, None if entity type not supported.
+
+
+
+   .. py:method:: edges_in(node: bento_meta.objects.Node) -> list[bento_meta.objects.Edge]
+
+      Get all Edge that have a given Node as their dst attribute.
+
+      :param node: The node.
+
+      :returns: List of Edge instances.
+
+
+
+   .. py:method:: edges_out(node: bento_meta.objects.Node) -> list[bento_meta.objects.Edge]
+
+      Get all Edge that have a given Node as their src attribute.
+
+      :param node: The node.
+
+      :returns: List of Edge instances.
+
+
+
+   .. py:method:: edges_by(key: str, item: bento_meta.objects.Node | str) -> list[bento_meta.objects.Edge]
+
+      Get all Edge that have a given Node as their src or dst or Edge handle as their type attribute.
+
+      :param key: The attribute to search on.
+      :param item: The node or edge handle to search for.
+
+      :returns: List of Edge instances.
+
+
+
+   .. py:method:: edges_by_src(node: bento_meta.objects.Node) -> list[bento_meta.objects.Edge]
+
+      Get all Edge that have a given Node as their src attribute.
+
+      :param node: The node.
+
+      :returns: List of Edge instances.
+
+
+
+   .. py:method:: edges_by_dst(node: bento_meta.objects.Node) -> list[bento_meta.objects.Edge]
+
+      Get all Edge that have a given Node as their dst attribute.
+
+      :param node: The node.
+
+      :returns: List of Edge instances.
+
+
+
+   .. py:method:: edges_by_type(edge_handle: str) -> list[bento_meta.objects.Edge]
+
+      Get all Edge that have a given edge type (i.e., handle).
+
+      :param edge_handle: The edge type.
+
+      :returns: List of Edge instances.
+
+
+
+   .. py:method:: dget(*, refresh: bool = False) -> Model | None
+
+      Pull model from MDB into this Model instance, based on its handle.
+
+      Note: is a noop if Model.mdb is unset.
+
+      :param refresh: If True, clear cache before retrieving.
+
+      :returns: The Model instance, or None if mdb is not set.
+
+
+
+   .. py:method:: dput() -> None
+
+      Push this Model's objects to MDB.
+
+      Note: is a noop if Model.mdb is unset.
+
+
+

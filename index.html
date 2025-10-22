@@ -1,0 +1,235 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bento_meta and Metamodel Database (MDB) &mdash; bento-meta  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Metamodel Database (MDB) Principles" href="mdb-principles.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            bento-meta
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Conventions and Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">bento-meta</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">bento_meta and Metamodel Database (MDB)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <a class="reference external image-reference" href="https://github.com/CBIIT/bento-meta"><img alt="Fork me on GitHub" class="align-right" src="_images/forkme_right_green_007200.svg" style="width: 117.60000000000001px; height: 117.60000000000001px;" />
+</a>
+<section id="bento-meta-and-metamodel-database-mdb">
+<h1>bento_meta and Metamodel Database (MDB)<a class="headerlink" href="#bento-meta-and-metamodel-database-mdb" title="Link to this heading"></a></h1>
+<a class="reference external image-reference" href="https://travis-ci.org/CBIIT/bento-meta"><img alt="Build Status" src="https://travis-ci.org/CBIIT/bento-meta.svg?branch=master" />
+</a>
+<p><strong>bento_meta</strong> provides an object representation of
+<a class="reference external" href="https://en.wikipedia.org/wiki/Graph_database#Labeled-property_graph">property graph</a>
+based data models, as embodied in the structure of the
+<a class="reference external" href="https://github.com/CBIIT/bento-meta">Bento Metamodel Database</a>, or
+MDB. The MDB can store multiple data models in terms of their nodes,
+relationships, and properties. The MDB links these entities according to the structure of
+the individual models:</p>
+<a class="reference external image-reference" href="https://github.com/CBIIT/bento-meta#bento-meta-db"><img alt="https://raw.githubusercontent.com/CBIIT/bento-meta/master/metamodel.svg" class="align-center" src="https://raw.githubusercontent.com/CBIIT/bento-meta/master/metamodel.svg" style="width: 500px; height: 600px;" />
+</a>
+<p>For example, model nodes are represented as metamodel nodes of type
+<code class="docutils literal notranslate"><span class="pre">node</span></code>, model relationships as metamodel nodes of type
+<code class="docutils literal notranslate"><span class="pre">relationship</span></code>, and metamodel <code class="docutils literal notranslate"><span class="pre">relationships</span></code> link to the
+appropriate “source” and “destination” <code class="docutils literal notranslate"><span class="pre">nodes</span></code>. Classes in
+<em>bento_meta</em> can create, read, update, and link these entities
+together according to the MDB structure. bento_meta can push and pull
+them to and from a backing <a class="reference external" href="https://neo4j.com">Neo4j</a> database.</p>
+<p>The MDB also provides entities for defining and maintaining
+terminology associated with the stored models. These include the
+<code class="docutils literal notranslate"><span class="pre">terms</span></code>  themselves, their <code class="docutils literal notranslate"><span class="pre">origin</span></code>, and associated <code class="docutils literal notranslate"><span class="pre">concepts</span></code>
+and <code class="docutils literal notranslate"><span class="pre">predicates</span></code>. Each
+of these entities can be created, read, and updated using <em>bento_meta</em>.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>Run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">bento</span><span class="o">-</span><span class="n">meta</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mdb-principles.html">Metamodel Database (MDB) Principles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mdb-principles.html#mdb-motivation-and-rationale">MDB Motivation and Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-principles.html#mdb-design-decisions">MDB Design Decisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-principles.html#mdb-entities-and-structures">MDB Entities and Structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-principles.html#models-and-meanings">Models and Meanings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mdb-conventions.html">MDB Conventions and Patterns</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mdb-conventions.html#mdb-entity-properties-required-for-consistency">MDB entity properties required for consistency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-conventions.html#mdb-indexes-needed-for-additional-functionality">MDB indexes needed for additional functionality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-conventions.html#conventions-for-consistent-and-idempotent-updates">Conventions for consistent and idempotent updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mdb-conventions.html#graph-patterns-for-representation">Graph Patterns for Representation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="the_object_model.html">The Object Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="the_object_model.html#working-with-models">Working with Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="the_object_model.html#component-objects">Component Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="the_object_model.html#model-as-a-container">Model as a Container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="the_object_model.html#model-as-an-interface">Model as an Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="the_object_model.html#database-interaction">Database Interaction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="the_object_model.html#objects-and-their-attributes">Objects and their Attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="meta_and_mdf.html">bento_meta and MDF</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="meta_and_mdf.html#model-description-files">Model Description Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta_and_mdf.html#slurping-mdf-into-bento-meta">Slurping MDF into bento_meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta_and_mdf.html#squirting-a-model-into-mdf-yaml">Squirting a Model into MDF YAML</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="model_versioning.html">Model Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object_mapping.html">Object Map Specifications</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="object_mapping.html#defining-and-updating-objects">Defining and Updating Objects</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/bento_meta/index.html">bento_meta</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="a-note-on-nodes">
+<h2>A Note on “Nodes”<a class="headerlink" href="#a-note-on-nodes" title="Link to this heading"></a></h2>
+<p>The metamodel is a property graph, designed to store specific property
+graph models, in a database built for property graphs. The word “node”
+is therefore used in different contexts and can be confusing,
+especially since the <a class="reference external" href="https://datascience.cancer.gov/data-commons">Cancer Research Data Commons</a> is also set up in terms
+of “nodes”, which are central repositories of cancer data of
+different kinds. This and related documentation will attempt to
+distinguish these concepts as follows.</p>
+<ul class="simple">
+<li><p>A “graph node” is a instance of the node concept in the
+property graph model, that usually represents a category or item of
+interest in the real world, and has associate properties that
+distinguish it from other instances.</p></li>
+<li><p>A “model node” is a graph node within a specific data model, and
+represents groups of data items (properties) and can be related to
+other model nodes via model relationships.</p></li>
+<li><p>A “metamodel node” is a graph node that represents a model node,
+model relationship, or model property, in the metamodel database.</p></li>
+<li><p>A “Neo4j node” refers generically to the representation of a node in
+the Neo4j database engine.</p></li>
+<li><p>A “CRDC node” refers to a data commons repository that is part of
+the CRDC, such as the <a class="reference external" href="https://caninecommons.cancer.gov">ICDC</a>.</p></li>
+</ul>
+</section>
+<section id="a-note-on-objects-properties-and-attributes">
+<h2>A Note on Objects, Properties, and Attributes<a class="headerlink" href="#a-note-on-objects-properties-and-attributes" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="autoapi/bento_meta/index.html#module-bento_meta" title="bento_meta"><code class="xref py py-class docutils literal notranslate"><span class="pre">bento_meta</span></code></a> creates a mapping between Neo4j nodes and Python
+objects. Of course, the objects have data associated with them,
+accessed via setters and getters. These object-associated data are
+referred to exclusively as <strong>attributes</strong> in the documentation.</p>
+<p>Thus, a <a class="reference internal" href="the_object_model.html#Node" title="Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> object has an attribute <code class="docutils literal notranslate"><span class="pre">props</span></code> (that is,
+properties), which is an associative array of <a class="reference internal" href="the_object_model.html#Property" title="Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a>
+objects. The <code class="docutils literal notranslate"><span class="pre">props</span></code> attribute is a representation of the
+<code class="docutils literal notranslate"><span class="pre">has_property</span></code> relationships between the metamodel node-type node
+to its metamodel property-type nodes.</p>
+<p>See <a class="reference internal" href="the_object_model.html#object-attributes"><span class="std std-ref">Object attributes</span></a> for more details.</p>
+</section>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mdb-principles.html" class="btn btn-neutral float-right" title="Metamodel Database (MDB) Principles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2023, FNLCR.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

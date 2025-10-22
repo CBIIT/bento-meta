@@ -1,0 +1,460 @@
+bento_meta.mdb.mdb_tools.mdb_tools
+==================================
+
+.. py:module:: bento_meta.mdb.mdb_tools.mdb_tools
+
+.. autoapi-nested-parse::
+
+   ToolsMDB: subclass of 'WriteableMDB' to support interactions with the MDB.
+
+   EntityValidator: validates that entities have required attributes.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb_tools.mdb_tools.log_ini_path
+   bento_meta.mdb.mdb_tools.mdb_tools.log_file_path
+   bento_meta.mdb.mdb_tools.mdb_tools.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb_tools.mdb_tools.ToolsMDB
+   bento_meta.mdb.mdb_tools.mdb_tools.EntityValidator
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   bento_meta.mdb.mdb_tools.mdb_tools._get_nlp_model
+
+
+Module Contents
+---------------
+
+.. py:data:: log_ini_path
+
+.. py:data:: log_file_path
+
+.. py:data:: logger
+
+.. py:class:: ToolsMDB(uri: str | None, user: str | None, password: str | None)
+
+   Bases: :py:obj:`bento_meta.mdb.writeable.WriteableMDB`
+
+
+   :class:`bento_meta.mdb.writeable.WriteableMDB` subclass with mdb-tools.
+
+
+   .. py:exception:: EntityNotUniqueError
+
+      Bases: :py:obj:`Exception`
+
+
+      Entity's attributes identify more than 1 property graph node in an MDB.
+
+
+
+   .. py:exception:: EntityNotFoundError
+
+      Bases: :py:obj:`Exception`
+
+
+      Entity's attributes fail to identify a property graph node in an MDB.
+
+
+
+   .. py:exception:: PatternNotUniqueError
+
+      Bases: :py:obj:`Exception`
+
+
+      Match pattern's attributes identify more than 1 triple in an MDB.
+
+
+
+   .. py:exception:: PatternNotFoundError
+
+      Bases: :py:obj:`Exception`
+
+
+      Match pattern's attributes fail to identify a triple in an MDB.
+
+
+
+   .. py:method:: _get_entity_count(entity: bento_meta.entity.Entity) -> list[neo4j.Record]
+
+      Return count of given entity found in an MDB.
+
+      - If count = 0, entity with given attributes not found in MDB.
+      - If count = 1, entity with given attributes is unique in MDB.
+      - If count > 1, more attributes needed to uniquely id entity in MDB.
+
+      :param entity: The entity to count.
+
+      :returns: List with count value.
+
+
+
+   .. py:method:: _get_pattern_count(pattern: minicypher.entities.T | minicypher.entities.G) -> list[neo4j.Record]
+
+      Return count of given match pattern (triple or path) found in an MDB.
+
+      Property graph triple: (n)-[r]->(m)
+      Path: set of overlapping triples
+
+      - If count = 0, pattern with given attributes not found in MDB.
+      - If count = 1, pattern with given attributes is unique in MDB.
+      - If count > 1, more attributes needed to uniquely id pattern in MDB.
+
+      :param pattern: The pattern (triple or path) to count.
+
+      :returns: List with count value.
+
+
+
+   .. py:method:: validate_entity_unique(entity: bento_meta.entity.Entity) -> None
+
+      Validate that the given entity occurs once (& only once) in an MDB.
+
+      Note: doesn't validate the entity itself because not all entity attributes
+      are necessarily required to locate an entity in the MDB.
+      (e.g. handle and model OR nanoid alone can identify a node)
+
+      :param entity: The entity to validate.
+
+      :raises EntityNotUniqueError: If entity attributes match multiple property
+          graph nodes in the MDB.
+      :raises EntityNotFoundError: If entity attributes don't match any in the MDB.
+
+
+
+   .. py:method:: validate_entities_unique(entities: collections.abc.Iterable[bento_meta.entity.Entity]) -> None
+
+      Run self.validate_entity_unique() over multiple entities.
+
+
+
+   .. py:method:: validate_pattern_unique(pattern: minicypher.entities.T | minicypher.entities.G) -> None
+
+      Validate that the given match pattern occurs once (& only once) in an MDB.
+
+      :param pattern: The pattern to validate.
+
+      :raises PatternNotUniqueError: If pattern attributes match multiple triples
+          in the MDB.
+      :raises PatternNotFoundError: If pattern attributes don't match any in the MDB.
+
+
+
+   .. py:method:: remove_entity_from_mdb(entity: bento_meta.entity.Entity) -> list[neo4j.Record]
+
+      Remove given Entity node from the database.
+
+      Accepts the following bento-meta Entities:
+          Concept, Node, Predicate, Property, Edge, Term
+
+      :param entity: The entity to remove.
+
+      :returns: List of Records from the transaction.
+
+
+
+   .. py:method:: add_entity_to_mdb(entity: bento_meta.entity.Entity, _commit: str | None = None) -> list[neo4j.Record]
+
+      Add given Entity node to MDB instance.
+
+      :param entity: The entity to add.
+      :param _commit: Optional commit string to tag the entity.
+
+      :returns: List of Records from the transaction.
+
+
+
+   .. py:method:: get_concept_nanoids_linked_to_entity(entity: bento_meta.entity.Entity, mapping_source: str | None = None) -> list[neo4j.Record]
+
+      Return list of concept nanoids linked to given entity.
+
+      The concept(s) have "represents" or "has_concept" relationships tagged with
+      the given mapping source. If no mapping source is provided, return all.
+
+      :param entity: The entity to get concepts for.
+      :param mapping_source: Optional mapping source to filter by.
+
+      :returns: List of concept nanoids.
+
+
+
+   .. py:method:: add_relationship_to_mdb(relationship_type: str, src_entity: bento_meta.entity.Entity, dst_entity: bento_meta.entity.Entity, _commit: str = '') -> list[neo4j.Record]
+
+      Add relationship between given entities in MDB.
+
+      :param relationship_type: The type of relationship to create.
+      :param src_entity: Source entity for the relationship.
+      :param dst_entity: Destination entity for the relationship.
+      :param _commit: Optional commit string to tag the relationship.
+
+      :returns: List of Records from the transaction.
+
+
+
+   .. py:method:: link_synonyms(entity_1: bento_meta.entity.Entity, entity_2: bento_meta.entity.Entity, mapping_source: str, _commit: str = '') -> None
+
+      Link two synonymous entities in the MDB via a Concept node.
+
+      Takes two synonymous Entities (as determined by user/SME) as bento-meta
+      objects and connects them to a Concept node via a 'represents' relationship.
+
+      Entities must both exist in the MDB instance and given entity attributes must
+      uniquely identify property graph nodes in the MDB.
+
+      :param entity_1: First entity to link.
+      :param entity_2: Second entity to link.
+      :param mapping_source: Source of the mapping relationship.
+      :param _commit: Optional commit string. If set, the _commit property of any node
+                      created is set to this value.
+
+
+
+   .. py:method:: get_entity_nanoid(entity: bento_meta.entity.Entity) -> list[neo4j.Record]
+
+      Take a unique entity in the MDB and return its nanoid.
+
+
+
+   .. py:method:: get_or_make_entity_nanoid(entity: bento_meta.entity.Entity) -> str
+
+      Obtain existing entity's nanoid or create one for new entity.
+
+
+
+   .. py:method:: get_term_nanoids(concept: bento_meta.objects.Concept, mapping_source: str = '') -> list[neo4j.Record]
+
+      Return list of term nanoids representing given concept.
+
+
+
+   .. py:method:: get_predicate_nanoids(concept: bento_meta.objects.Concept, mapping_source: str = '') -> list[neo4j.Record]
+
+      Return list of predicate nanoids with relationship to given concept.
+
+
+
+   .. py:method:: get_relationship_between_entities(src_entity: bento_meta.entity.Entity, dst_entity: bento_meta.entity.Entity) -> list[neo4j.Record]
+
+      Return relationship type between given entities.
+
+      Relationship pattern: (src)-[:rel_type]->(dst).
+
+
+
+   .. py:method:: link_concepts_via_predicate(subject_concept: bento_meta.objects.Concept, object_concept: bento_meta.objects.Concept, predicate: bento_meta.objects.Predicate, _commit: str = '') -> None
+
+      Link two synonymous Concepts via a Predicate.
+
+      This function takes two synonymous Concepts as bento-meta objects and links
+      them via a Predicate node and has_subject and has_object relationships.
+
+      :param subject_concept: The subject concept.
+      :param object_concept: The object concept.
+      :param predicate: The predicate linking them.
+      :param _commit: Optional commit string to tag created nodes.
+
+
+
+   .. py:method:: merge_two_concepts(concept_1: bento_meta.objects.Concept, concept_2: bento_meta.objects.Concept, mapping_source: str = '', _commit: str = '') -> None
+
+      Combine two synonymous Concepts into a single Concept.
+
+      This function takes two synonymous Concepts as bento-meta objects and
+      merges them into a single Concept along with any connected Terms and Predicates.
+
+      :param concept_1: First concept (will remain after merge).
+      :param concept_2: Second concept (will be deleted after merge).
+      :param mapping_source: Source of the mapping relationship.
+      :param _commit: Optional commit string to tag relationships.
+
+
+
+   .. py:method:: _get_all_terms() -> list[neo4j.Record]
+
+      Return list of all terms in an MDB.
+
+
+
+   .. py:method:: get_potential_term_synonyms(term: bento_meta.objects.Term, threshhold: float = 0.8) -> list[dict]
+
+      Return list of dicts representing potential synonymous Term nodes.
+
+      :param term: The term to find synonyms for.
+      :param threshhold: Similarity threshold (0-1) for considering terms synonymous.
+
+      :returns: List of dicts with value, origin_name, nanoid, similarity, valid_synonym.
+
+
+
+   .. py:method:: potential_synonyms_to_csv(input_data: list[dict], output_path: str) -> None
+
+      Write CSV with list of synonymous Terms as dicts to given output path.
+
+      :param input_data: List of dicts representing potential synonyms.
+      :param output_path: Path to write CSV file to.
+
+
+
+   .. py:method:: link_term_synonyms_csv(term: bento_meta.objects.Term, csv_path: str, mapping_source: str, _commit: str = '') -> None
+
+      Link Terms in a CSV of synonymous Terms to given Term via a Concept node.
+
+      :param term: The term to link synonyms to.
+      :param csv_path: Path to CSV file containing potential synonyms.
+      :param mapping_source: Source of the mapping relationship.
+      :param _commit: Optional commit string to tag relationships.
+
+
+
+   .. py:method:: get_property_synonyms_direct(entity: bento_meta.objects.Property, mapping_source: str = '') -> list[neo4j.Record]
+
+      Return list of properties linked by concept to given property.
+
+      :param entity: The property to get synonyms for.
+      :param mapping_source: Optional mapping source to filter by.
+
+      :returns: List of Records with property synonyms.
+
+
+
+   .. py:method:: _get_property_synonyms_direct_as_list(entity: bento_meta.objects.Property) -> list[bento_meta.objects.Property]
+
+      Convert results of read_txn_data-wrapped function with one Property to a list.
+
+      :param entity: The property to get synonyms for.
+
+      :returns: List of bento_meta.objects.Property entities.
+
+
+
+   .. py:method:: get_property_synonyms_all(entity: bento_meta.objects.Property) -> list[bento_meta.objects.Property]
+
+      Return list of properties linked by concept to given property or its synonyms.
+
+      Chains through synonyms of given property (and so on).
+
+      :param entity: The property to get all synonyms for.
+
+      :returns: List of Property entities that are synonyms.
+
+
+
+   .. py:method:: _get_property_parents_data(entity: bento_meta.objects.Property) -> list[neo4j.Record]
+
+      Get list of nodes/edges connected to given property.
+
+      Parents are Nodes or Edges via the "has_property" relationship.
+
+      :param entity: The property to get parents for.
+
+      :returns: List of Records with nodes and edges.
+
+
+
+   .. py:method:: get_property_parents(entity: bento_meta.objects.Property) -> list[bento_meta.objects.Node | bento_meta.objects.Edge]
+
+      Get parents of a property as a list of bento_meta Nodes or Edges.
+
+      :param entity: The property to get parents for.
+
+      :returns: List of Node or Edge entities.
+
+
+
+   .. py:method:: add_tag_to_mdb_entity(tag: bento_meta.objects.Tag, entity: bento_meta.entity.Entity) -> None
+
+      Add a tag to an existing entity in an MDB.
+
+      :param tag: The tag to add.
+      :param entity: The entity to tag.
+
+
+
+.. py:class:: EntityValidator
+
+   Class to validate that bento-meta entities have all required attributes.
+
+
+   .. py:attribute:: required_attrs_by_entity_type
+      :type:  ClassVar[dict[type[bento_meta.entity.Entity], list[str]]]
+
+
+   .. py:attribute:: valid_attrs
+      :type:  ClassVar[dict[tuple[type[bento_meta.entity.Entity], str], set[str]]]
+
+
+   .. py:exception:: MissingAttributeError
+
+      Bases: :py:obj:`Exception`
+
+
+      An entity doesn't have the attributes required for unique identification.
+
+
+
+   .. py:exception:: InvalidAttributeError
+
+      Bases: :py:obj:`Exception`
+
+
+      An entity attribute is invalid.
+
+
+
+   .. py:method:: validate_entity_has_attribute(entity: bento_meta.entity.Entity, attr_name: str) -> None
+      :staticmethod:
+
+
+      Validate the presence of an entity's attribute.
+
+
+
+   .. py:method:: _validate_entity_attribute(entity_type: type[bento_meta.entity.Entity], attr_name: str) -> None
+      :staticmethod:
+
+
+      Check that an entity attribute is in a set of valid attributes.
+
+
+
+   .. py:method:: validate_entity(entity: bento_meta.entity.Entity) -> None
+      :staticmethod:
+
+
+      Check if entity has all attributes required by MDB for its type.
+
+      Also checks validates all of those attributes are valid themselves if they
+      are entities or if they have a fixed set of possible values.
+
+      If looking for a unique identifier for the entity (i.e. nanoid), ensures
+      entity has all the required attributes for unique identification.
+
+      :param entity: The entity to validate.
+
+      :raises ValueError: If entity type not supported.
+      :raises MissingAttributeError: If required attribute missing.
+      :raises InvalidAttributeError: If attribute value invalid.
+
+
+
+.. py:function:: _get_nlp_model()
+
+   Install and import spacy & scispacy nlp model if any not already installed.
+
+

@@ -1,0 +1,78 @@
+bento_meta.mdb.loaders
+======================
+
+.. py:module:: bento_meta.mdb.loaders
+
+.. autoapi-nested-parse::
+
+   mdb.loaders: load models into an MDB instance consistently
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.mdb.loaders.MDFProtocol
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   bento_meta.mdb.loaders.load_mdf
+   bento_meta.mdb.loaders.load_model
+   bento_meta.mdb.loaders.load_model_statements
+   bento_meta.mdb.loaders._c_entity
+   bento_meta.mdb.loaders._tag_statements
+   bento_meta.mdb.loaders._prop_statements
+   bento_meta.mdb.loaders._annotate_statements
+
+
+Module Contents
+---------------
+
+.. py:class:: MDFProtocol
+
+   Bases: :py:obj:`Protocol`
+
+
+   Protocol defining the expected interface for MDF objects from bento-mdf package.
+
+   This protocol is used to provide type hints without creating a circular dependency,
+   since bento-mdf depends on bento-meta.
+
+
+   .. py:attribute:: model
+      :type:  bento_meta.model.Model
+
+
+.. py:function:: load_mdf(mdf: MDFProtocol, mdb: bento_meta.mdb.writeable.WriteableMDB, _commit: str | None = None) -> None
+
+   Load an MDF object into an MDB instance.
+
+
+.. py:function:: load_model(model: bento_meta.model.Model, mdb: bento_meta.mdb.writeable.WriteableMDB, _commit: str | None = None) -> None
+
+   Load a model object into an MDB instance.
+
+
+.. py:function:: load_model_statements(model: bento_meta.model.Model, _commit: str | None = None) -> list[minicypher.statement.Statement]
+
+   Create Cypher statements from a model to load it de novo into an MDB instance.
+
+   :param :class:`mdb.Model` model: Model instance for loading
+   :param str _commit: 'Commit string' for marking entities in DB. If set,
+       this will override _commit attributes already existing on Model entities.
+
+
+.. py:function:: _c_entity(ent: bento_meta.entity.Entity, model: bento_meta.model.Model | None, _commit: str | None = None) -> minicypher.entities.N
+
+.. py:function:: _tag_statements(ent: bento_meta.entity.Entity, c_ent: minicypher.entities.Entity, _commit: str | None = None) -> list[minicypher.statement.Statement]
+
+.. py:function:: _prop_statements(ent: bento_meta.entity.Entity, c_ent: minicypher.entities.Entity, model: bento_meta.model.Model | None, _commit: str | None = None) -> list[minicypher.statement.Statement]
+
+.. py:function:: _annotate_statements(ent: bento_meta.entity.Entity, c_ent: minicypher.entities.Entity, _commit: str | None = None) -> list[minicypher.statement.Statement]
+

@@ -1,0 +1,213 @@
+bento_meta.object_map
+=====================
+
+.. py:module:: bento_meta.object_map
+
+.. autoapi-nested-parse::
+
+   bento_meta.object_map
+   =====================
+
+   This module contains :class:`ObjectMap`, a class which provides the
+   machinery for mapping bento_meta objects to a Bento Metamodel Database
+   in Neo4j. Mostly not for human consumption. The ObjectMap:
+
+   * interprets the attribute specification (attspec) and map
+     specification (mapspec) associated with :class:`Entity` subclasses
+   * provides the :meth:`get` and :meth:`put` methods to subclasses, that
+     enable them to get and put themselves to the database
+   * generates appropriate
+    `Cypher <https://neo4j.com/docs/cypher-manual/current/>`
+    queries to do gets and puts
+    One ObjectMap instance should be generated for each Entity subclass (see, e.g.,
+    :class:`bento_meta.model.Model`)
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bento_meta.object_map.ObjectMap
+
+
+Module Contents
+---------------
+
+.. py:class:: ObjectMap(*, cls: type[bento_meta.entity.Entity] | None = None, drv: neo4j.Driver | None = None)
+
+   Machinery for mapping bento_meta objects to a Bento Metamodel Database in Neo4j.
+
+   Mostly not for human consumption.
+
+
+   .. py:attribute:: cache
+      :type:  ClassVar[dict]
+
+
+   .. py:attribute:: cls
+      :value: None
+
+
+
+   .. py:attribute:: maps
+
+
+   .. py:method:: clear_cache() -> None
+      :classmethod:
+
+
+      Clear the cache.
+
+
+
+   .. py:method:: cls_by_label(lbl: str) -> type[bento_meta.entity.Entity] | None
+      :classmethod:
+
+
+      Get the class by label.
+
+
+
+   .. py:method:: keys_by_cls_and_reln(qcls: type[bento_meta.entity.Entity], reln: str) -> tuple[str, str | None] | None
+      :classmethod:
+
+
+      Get the keys by class and relationship.
+
+
+
+   .. py:method:: _quote_val(value: str | float | None, *, single: bool | None = None) -> str | float | None
+      :classmethod:
+
+
+      Quote the value unless single is set.
+
+
+
+   .. py:method:: get_by_id(obj: bento_meta.entity.Entity, id: str, *, refresh: bool = False) -> bento_meta.entity.Entity | None
+
+      Get an entity given an id attribute value (not the Neo4j id).
+
+
+
+   .. py:method:: get_by_node_nanoid(obj: bento_meta.entity.Entity, nanoid: str, *, refresh: bool = False) -> bento_meta.entity.Entity | None
+
+      PROTOTYPE: Get an entity given an id attribute value (not the Neo4j id).
+
+
+
+   .. py:method:: get(obj: bento_meta.entity.Entity, *, refresh: bool = False) -> bento_meta.entity.Entity
+
+      Get the data for an object instance from the db and load the instance with it.
+
+
+
+   .. py:method:: put(obj: bento_meta.entity.Entity) -> bento_meta.entity.Entity
+
+      Put the object instance's attributes to the mapped data node in the database.
+
+
+
+   .. py:method:: rm(obj: bento_meta.entity.Entity, *, force: bool | int = False) -> Any | None
+
+      'Delete' the object's mapped node from the database.
+
+
+
+   .. py:method:: add(obj: bento_meta.entity.Entity, att: str, tgt: bento_meta.entity.Entity) -> Any
+
+      Create a link between an object instance and a target object in the database.
+
+      This represents adding an object-valued attribute to the object.
+
+      :param obj: The object instance to add attribute to.
+      :param att: The attribute name.
+      :param tgt: The target entity to link.
+
+      :returns: The Neo4j ID of the target, or None if not found.
+
+
+
+   .. py:method:: drop(obj: bento_meta.entity.Entity, att: str, tgt: bento_meta.entity.Entity, tx: neo4j.Transaction | None = None) -> Any
+
+      Remove an existing link between an object instance and a target object in the database.
+
+      This represents dropping an object-valued attribute from the object.
+
+      :param obj: The object instance to remove attribute from.
+      :param att: The attribute name.
+      :param tgt: The target entity to unlink.
+      :param tx: Optional transaction to use for the operation.
+
+      :returns: The result value, or None if not found.
+
+
+
+   .. py:method:: get_owners(obj: bento_meta.entity.Entity) -> list[tuple[bento_meta.entity.Entity, tuple[str, str | None] | None]]
+
+      Get the nodes which are linked to the object instance (the owners of the object).
+
+
+
+   .. py:method:: get_q(obj: bento_meta.entity.Entity) -> str
+
+      Get the query for an object.
+
+
+
+   .. py:method:: get_by_id_q() -> str
+
+      Get the query for an entity by its Neo4j id.
+
+
+
+   .. py:method:: get_by_node_nanoid_q() -> str
+
+      PROTOTYPE: Get the query for an entity given its nanoid.
+
+
+
+   .. py:method:: get_attr_q(obj: bento_meta.entity.Entity, att: str) -> str
+
+      Get the query for an attribute of an object.
+
+
+
+   .. py:method:: get_owners_q(obj: bento_meta.entity.Entity) -> str
+
+      Get the query for the owners of an object.
+
+
+
+   .. py:method:: put_q(obj: bento_meta.entity.Entity) -> list[str]
+
+      Get the query for putting an object.
+
+
+
+   .. py:method:: put_attr_q(obj: bento_meta.entity.Entity, att: str, values: bento_meta.entity.Entity | list[bento_meta.entity.Entity] | bento_meta.entity.CollValue) -> str | list[str]
+
+      Get the query for putting an attribute of an object.
+
+
+
+   .. py:method:: rm_q(obj: bento_meta.entity.Entity, *, detach: bool = False) -> str
+
+      Get the query for removing an object.
+
+
+
+   .. py:method:: rm_attr_q(obj: bento_meta.entity.Entity, att: str, values: list[bento_meta.entity.Entity] | None = None) -> str | list[str]
+
+      Get the query for removing an attribute of an object.
+
+
+
+   .. py:method:: _check_values_list(att: str, values: list[bento_meta.entity.Entity] | bento_meta.entity.CollValue) -> bool
+
+      Check if the values are a list of mapped Entity objects of the appropriate subclass for an attribute.
+
+
+
