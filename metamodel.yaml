@@ -3,16 +3,19 @@ Nodes:
     Props:
       - handle
       - model
+      - version
   relationship:
     Props:
       - handle
       - model
+      - version
       - multiplicity
       - is_required
   property:
     Props:
       - handle
       - model
+      - version
       - is_required
       - value_domain
       - units
@@ -39,20 +42,39 @@ Nodes:
       - origin_name
       - origin_id
       - origin_definition
+      - origin_version
   origin:
     Props:
       - name
+      - version
       - url
       - is_external
   model:
     Props:
       - handle
       - name
+      - version
+      - is_latest_version
       - repository
   tag:
     Props:
       - key
       - value
+  transform:
+    Props:
+      - handle
+      - name
+      - version
+      - source
+  tf_step:
+    Props:
+      - package
+      - entrypoint
+      - params_json
+      - input_type
+      - params_type
+      - output_type
+      
 Relationships:
   has_concept:
     Mul: many_to_one
@@ -173,6 +195,40 @@ Relationships:
       - Src: predicate
         Dst: concept
         Desc: The object concept of this predicate
+  value_as_tf_input:
+    Props:
+      - order
+      - key
+    Mul: many_to_one
+    Ends:
+      - Src: property
+        Dst: transform
+  tf_output_as_value:
+    Props:
+      - order
+      - key
+    Mul: one_to_many
+    Ends:
+      - Src: transform
+        Dst: property
+  first_tf_step:
+    Props: null
+    Mul: one_to_one
+    Ends:
+      - Src: transform
+        Dst: tf_step
+  last_tf_step:
+    Props: null
+    Mul: one_to_one
+    Ends:
+      - Src: transform
+        Dst: tf_step
+  next_tf_step:
+    Props: null
+    Mul: one_to_one
+    Ends:
+      - Src: tf_step
+        Dst: tf_step
 UniversalNodeProperties:
   mustHave:
     - nanoid
@@ -187,6 +243,15 @@ PropDefinitions:
       the name of the entity in local vocabulary; not necessarily the term
       per se. For a Relationship, the handle is the "relationship
       type" in a Neo4j representation
+  version:
+    Req: true
+    Type: string
+    Desc: |
+      Version string of the model that contains the entity (node, property, relationship)
+  is_latest_version:
+    Type: boolean
+    Desc: |
+      True if associated model/version is latest.
   desc:
     Type: string
     Desc:
@@ -211,7 +276,7 @@ PropDefinitions:
     Desc: model (handle) in which this entity participates 
   is_external:
     Type: boolean
-    Desc: if this Origin represents an external (to BIDS/CTOS) standard (property missing => false)
+    Desc: if this Origin represents an external (to BACS/CTOS) standard (property missing => false)
   repository:
     Type: url
     Desc: |
@@ -237,6 +302,10 @@ PropDefinitions:
     Type: string
     Desc: |
       The text definition of the Term as provided by the Origin authority
+  origin_version:
+    Type: string
+    Desc: |
+      The Origin authority's version of the Term
   multiplicity:
     Desc: |
       Descriptor of the number of these relationships that may exist between
@@ -274,4 +343,68 @@ PropDefinitions:
       - regexp
       - url
       - value_set
-  
+  transform.source:
+    Type: string
+    Desc: |
+      A short name or acronym indicating the source or authority for the transform
+  value_as_tf_input.order:
+    Type: integer
+    Desc: |
+      If a (source) property's value is an input to a transformation step (tf_step):
+      assuming the step's input object is a list, this property's value should
+      occupy the <order>th slot in that list.
+  tf_output_as_value.order:
+    Type: integer
+    Desc: |
+      If the output of a tf_step is a List, the <order>th entry in the output
+      list should be used as the (destination) property's value.
+  value_as_tf_input.key:
+    Type: string
+    Desc: |
+      If a (source) property's value is an input to a transformation step (tf_step):
+      assuming the step's input object is a dict or pymodel, this property's value should
+      occupy the input[key] slot of that object.
+  tf_output_as_value.key:
+    Type: string
+    Desc: |
+      If the output of a tf_step is a dict or pymodel, the value of output[key]
+      should be used as the (destination) property's value.
+  package:
+    Req: true
+    Type: string
+    Desc: |
+      Python package name@version, or GitHub repo URL, that exports the entrypoint
+      function.
+  entrypoint:
+    Req: true
+    Type: string
+    Desc: |
+      Fully qualified name of a function in the package that implements this
+      transformation step. Ex) bento_transforms.arith.days_to_years
+  params_json:
+    Type: string
+    Desc:
+      This should be a valid JSON string that conforms to the entrypoint's 'params'
+      argument type. If the params argument is typed by a Pydantic model, then
+      the JSON string should specify a JSON object (~ python dict) that can be
+      used as an argument to the constructor of that model.
+  input_type:
+    Type: string
+    Desc:
+      Python type or fully qualified Pydantic model class name corresponding to
+      the 'input' argument of the endpoint function.
+  params_type:
+    Type: string
+    Desc:
+      Python type or fully qualified Pydantic model class name corresponding to
+      the 'params' argument of the endpoint function.
+  output_type:
+    Type: string
+    Desc:
+      Python type or fully qualified Pydantic model class name corresponding to
+      the endpoint functions output type annotation.
+      
+      
+      
+
+      
