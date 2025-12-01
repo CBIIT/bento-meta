@@ -61,12 +61,28 @@ Nodes:
       - key
       - value
   transform:
+    Desc: |
+      A transform node connects one or more input properties and one or more output
+      properties. Transform nodes connect to a linked list of transform steps
+      (tf_steps) to indicate how to derive output property data values from input
+      property data values.
+      Convention: if a transform node does not connect to any tf_steps (via first_step
+      and last_step relationships), it is considered an identity transform, that copies
+      a single input value to a single output value. In this case, the transform
+      handle should be "identity".
     Props:
       - handle
       - name
       - version
       - source
   tf_step:
+    Desc: |
+      A tf_step (transform step) defines a Python package, entrypoint (function) in that
+      package, and a JSON object of parameter values to apply to input values to generate
+      output values.
+      The input_type, param_type, and output_type should be either Python types (valid
+      types from the 'typing' module or related modules such as 'enum') or references
+      to Pydantic models ("pymodels") in the package or in other codebases.
     Props:
       - package
       - entrypoint
@@ -196,6 +212,16 @@ Relationships:
         Dst: concept
         Desc: The object concept of this predicate
   value_as_tf_input:
+    Desc: |
+      :value_as_tf_input takes any model Property as source and a Transform as destination.
+      Its properties 'order' and 'key' are used to map the property value (at transformation
+      time) to the correct position in the input to the first transformation step.
+      If the input type of the first step is a list, use 'order' to indicate the position
+      (zero-based) of the value in the list. If the input type to the first step is a dict
+      or a pymodel, use 'key' to indicate which entry of the dict or pymodel the value should
+      occupy.
+      More than one Property can be connected to a single Transformation node using this
+      relationship. That is, more than one property can contribute a single transformation.
     Props:
       - order
       - key
@@ -204,6 +230,19 @@ Relationships:
       - Src: property
         Dst: transform
   tf_output_as_value:
+    Desc: |
+      :tf_output_as_value takes any Transform as source and a model Property as destination.
+      Its properties 'order' and 'key' are used to map the output values of the last
+      transformation step (at transformation time) to the correct
+      destination property value.
+      If the output type of the last step is a list, use 'order' to indicate the position
+      (zero-based) of the value in the list that should be used as the destination property
+      value. If the input type to the first step is a dict
+      or a pymodel, use 'key' to indicate which entry of the dict or pymodel should be
+      used as the destination value.
+      A single Transformation node can be connected to more than one Property using this
+      relationship. That is, a single transformation can populate multiple column in
+      transformed data.
     Props:
       - order
       - key
@@ -212,18 +251,30 @@ Relationships:
       - Src: transform
         Dst: property
   first_tf_step:
+    Desc: |
+      :first_tf_step indicates the first (and possibly only) transformation step to be
+      executed by a Transformation. The input of this first step will come directly from
+      source property values (mapped using :value_to_tf_input relationships).
     Props: null
     Mul: one_to_one
     Ends:
       - Src: transform
         Dst: tf_step
   last_tf_step:
+    Desc: |
+      :last_tf_step indicates the last (and possibly only) transformation step to be
+      executed by a Transformation. The output of this last step will become the destination
+      property values (mapped using :tf_output_to_value relationships).
     Props: null
     Mul: one_to_one
     Ends:
       - Src: transform
         Dst: tf_step
   next_tf_step:
+    Desc: |
+      If there are multiple steps to be executed to perform a Transformation, :next_tf_step
+      relationships will connect those steps in order. The output_type of the source
+      tf_step must be conformable to the input_type of the destination step.
     Props: null
     Mul: one_to_one
     Ends:
