@@ -4,11 +4,13 @@ bento_meta.tf_objects
 This module contains subclasses of :class:`Entity` that persist and organize
 the representation of data transformations between model Properties.
 """
-
 from __future__ import annotations
+
+import json
 from typing import TYPE_CHECKING
 from .entity import Entity
 from .objects import mergespec
+
 if TYPE_CHECKING:
     import neo4j
 
@@ -24,7 +26,6 @@ class Transform(Entity):
         "last_step": "object",
         "input_props": "collection",
         "output_props": "collection",
-        "steps": "collection", # needs a special load function
         }
     mapspec_ = {
         "label": "transform",
@@ -48,6 +49,15 @@ class Transform(Entity):
         """Initialize a `Transform` instance."""
         super().__init__(init=init)
 
+
+    @property
+    def steps(self):
+        ret = []
+        s = self.first_step
+        while s is not None:
+            ret.append(s)
+            s = s.next_step
+        return ret
 
 class TfStep(Entity):
     """
@@ -78,7 +88,18 @@ class TfStep(Entity):
             "next_step": {"rel": ":next_tf_step>", "end_cls": "TfStep"}
         },
     }
-
+    (attspec, _mapspec) = mergespec("TfSpec", attspec_, mapspec_)
+    
     def __init__(self, init: dict | neo4j.graph.Node | TfStep | None = None) -> None:
         """Initialize a `Transform` instance."""
         super().__init__(init=init)
+
+    @property
+    def params(self):
+        """
+        This property is the python object represented by the JSON string
+        contained in 'params_json' (if any)
+        """
+        if self.params_json is not None:
+            return json.loads(self.params_json)
+        return
