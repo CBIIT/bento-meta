@@ -37,7 +37,10 @@ from bento_meta.objects import (
     Term,
     ValueSet,
 )
-
+from bento_meta.tf_objects import (
+    Transform,
+    TfStep,
+    )
 
 class ObjectMap:
     """
@@ -87,6 +90,8 @@ class ObjectMap:
                 Predicate,
                 Origin,
                 Tag,
+                Transform,
+                TfStep,
             ):
                 for oatt in [x for x in o.attspec if o.attspec[x] == "object"]:
                     r = o.mapspec()["relationship"][oatt]["rel"]

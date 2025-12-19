@@ -66,6 +66,7 @@ class TfStep(Entity):
     """
     attspec_ = {
         "package": "simple",
+        "version": "simple",
         "entrypoint": "simple",
         "params_json": "simple",
         "input_type": "simple",
@@ -78,6 +79,7 @@ class TfStep(Entity):
         "key": "nanoid",
         "property": {
             "package": "package",
+            "version": "version",
             "entrypoint": "entrypoint",
             "params_json": "params_json",
             "input_type": "input_type",
@@ -95,7 +97,7 @@ class TfStep(Entity):
         super().__init__(init=init)
 
     @property
-    def params(self):
+    def params(self) -> dict | list:
         """
         This property is the python object represented by the JSON string
         contained in 'params_json' (if any)

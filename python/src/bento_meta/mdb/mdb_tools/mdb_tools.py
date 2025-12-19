@@ -26,7 +26,10 @@ from bento_meta.objects import (
     Term,
     ValueSet,
 )
-
+from bento_meta.tf_objects import (
+    Transform,
+    TfStep,
+)
 from minicypher.statement import Statement
 from minicypher.clauses import (
     As,
@@ -839,6 +842,9 @@ class EntityValidator:
         Predicate: ["handle", "subject", "object"],
         Tag: ["key", "value"],
         ValueSet: ["handle"],
+        Transform: ["handle", "first_step", "last_step", "input_props",
+                    "output_props"],
+        TfStep: ["package", "entrypoint"],
     }
 
     valid_attrs: Dict[Tuple[Type[Entity], str], Set[str]] = {
