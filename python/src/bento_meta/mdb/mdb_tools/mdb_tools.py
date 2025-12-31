@@ -43,7 +43,6 @@ from bento_meta.objects import (
     Term,
     ValueSet,
 )
-<<<<<<< HEAD
 from bento_meta.tf_objects import (
     Transform,
     TfStep,
@@ -62,11 +61,8 @@ from minicypher.clauses import (
 
 from minicypher.entities import N0, R0, G, N, P, R, T, _plain_var
 from minicypher.functions import count
-=======
-
 if TYPE_CHECKING:
     from neo4j import Record
->>>>>>> master
 
 # logging stuff
 log_ini_path = Path(__file__).parents[2].joinpath("logs/log.ini")
