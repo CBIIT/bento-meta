@@ -21,8 +21,6 @@ jobs:
       permissions:
         id-token: write
       runs-on: ubuntu-latest
-      with:
-        workdir: ./python
 
       steps:
         - name: Setup uv
