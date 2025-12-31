@@ -11,7 +11,7 @@ from neo4j import GraphDatabase
 from neo4j.exceptions import Neo4jError
 
 
-@pytest.mark.docker()
+@pytest.mark.docker
 def test_get(bento_neo4j):
     (b, h) = bento_neo4j
     drv = GraphDatabase.driver(b)
@@ -27,7 +27,7 @@ def test_get(bento_neo4j):
     assert n_id
     node = Node()
     node.neoid = n_id
-    node_map.get(node)
+    node_map.get(node, refresh=False)
     assert node.dirty == 0
     assert node.__dict__["concept"].dirty == -1  # before dget()
     assert node.concept.dirty == 0  # after dget()
@@ -45,7 +45,7 @@ def test_get(bento_neo4j):
     assert cncpt.terms[0] == concept.terms[0]
 
 
-@pytest.mark.docker()
+@pytest.mark.docker
 def test_put_rm(bento_neo4j):
     (b, h) = bento_neo4j
     drv = GraphDatabase.driver(b)
@@ -74,7 +74,7 @@ def test_put_rm(bento_neo4j):
         result = session.run("match (t:term {value:'quilm'}) return id(t)")
         t_id = result.single().value()
     assert t_id == quilm.neoid
-    term_map.rm(quilm, 1)
+    term_map.rm(quilm, force=1)
     with term_map.drv.session() as session:
         result = session.run("match (t:term {value:'quilm'}) return id(t)")
         assert result.single() == None
@@ -83,7 +83,7 @@ def test_put_rm(bento_neo4j):
     term_map.put(new_term)
     vs_map.add(vs, "terms", new_term)
     assert len(vs.terms) == 2
-    vs_map.get(vs, True)
+    vs_map.get(vs, refresh=True)
     assert len(vs.terms) == 3
     assert vs.terms["belpit"]
     old_term = vs.terms["ferb"]
