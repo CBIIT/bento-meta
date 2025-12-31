@@ -10,7 +10,7 @@ jobs:
         id-token: write
       uses: CBIIT/bento-workflows/.github/workflows/test-build.yml@v3.0.20
       with:
-        workdir: .
+        workdir: ./python
         versions: |
           ["3.10", "3.11","3.12","3.13"]
 
@@ -21,6 +21,8 @@ jobs:
       permissions:
         id-token: write
       runs-on: ubuntu-latest
+      with:
+        workdir: ./python
 
       steps:
         - name: Setup uv
