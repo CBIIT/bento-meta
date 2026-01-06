@@ -173,7 +173,7 @@ class MDB:
                     self.models[m["handle"]].append(m["version"])
                 else:
                     self.models[m["handle"]] = [m["version"]]
-                if m["is_latest"] and not self.latest_version.get(m["handle"]):
+                if m["is_latest_version"] and not self.latest_version.get(m["handle"]):
                     self.latest_version[m["handle"]] = m["version"]
             for hdl in self.models:
                 if not self.latest_version.get(hdl):
