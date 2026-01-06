@@ -10,30 +10,30 @@ from bento_meta.model import Model
 from bento_meta.object_map import ObjectMap
 from bento_meta.objects import Term
 
+from pdb import set_trace
 
 @pytest.mark.docker
-def test_get_model(bento_neo4j):
-    (b, h) = bento_neo4j
+def test_get_model(test_mdb):
+    (b, h) = test_mdb
     the_mdb = MDB(uri=b)
     assert the_mdb
     ObjectMap.clear_cache()
-    m = Model(handle="ICDC", mdb=the_mdb)
-    print(f"{m.nodes=}")
+    m = Model(handle="ICDC", version="1.0.0", mdb=the_mdb)
     m.dget(refresh=False)
 
     with m.drv.session() as session:
-        result = session.run('match (n:node) where n.model="ICDC" return count(n)')
+        result = session.run('match (n:node {model:"ICDC", version:"1.0.0"}) return count(n)')
         assert len(m.nodes) == result.single().value()
         result = session.run(
-            'match (n:relationship) where n.model="ICDC" return count(n)',
+            'match (n:relationship {model:"ICDC",version:"1.0.0"}) return count(n)',
         )
         assert len(m.edges) == result.single().value()
         result = session.run(
-            'match (p:property)<--(n:node) where p.model="ICDC" and  n.model="ICDC" return count(p)',
+            'match (p:property {model:"ICDC",version:"1.0.0"})<--(n:node {model:"ICDC", version:"1.0.0"}) return count(p)',
         )
         assert len(m.props) == result.single().value()
         result = session.run(
-            'match (s:node)<-[:has_src]-(e:relationship)-[:has_dst]->(d:node) where e.model="ICDC" return s,e,d',
+            'match (s:node)<-[:has_src]-(e:relationship)-[:has_dst]->(d:node) where e.model="ICDC" and e.version="1.0.0" return s,e,d',
         )
         for rec in result:
             (s, e, d) = (rec["s"], rec["e"], rec["d"])
@@ -43,7 +43,7 @@ def test_get_model(bento_neo4j):
             assert m.edges[triplet].dst.handle == d["handle"]
 
         result = session.run(
-            'match (n:node)-[:has_property]->(p:property) where (n.model="ICDC") return n, collect(p) as pp',
+            'match (n:node {model:"ICDC", version:"1.0.0"})-[:has_property]->(p:property) return n, collect(p) as pp',
         )
         for rec in result:
             for p in rec["pp"]:
@@ -53,7 +53,7 @@ def test_get_model(bento_neo4j):
                 assert m.nodes[rec["n"]["handle"]].props[p["handle"]].neoid == p.id
 
         result = session.run(
-            'match (t:term)<-[:has_term]-(v:value_set)<-[:has_value_set]-(p:property) where p.model="ICDC" return p, v, collect(t) as tt',
+            'match (t:term)<-[:has_term]-(v:value_set)<-[:has_value_set]-(p:property {model:"ICDC", version:"1.0.0"}) return p, v, collect(t) as tt',
         )
         for rec in result:
             (p, v, tt) = (rec["p"], rec["v"], rec["tt"])
@@ -62,21 +62,20 @@ def test_get_model(bento_neo4j):
             assert op
             assert set(op.values) == {t["value"] for t in tt}
 
-    print(f"{m.nodes=}")
-
 
 @pytest.mark.docker
-def test_put_model(bento_neo4j):
-    (b, h) = bento_neo4j
+def test_put_model(test_mdb):
+    (b, h) = test_mdb
     the_mdb = MDB(uri=b)
     assert the_mdb
     ObjectMap.clear_cache()
-    m = Model(handle="ICDC", mdb=the_mdb)
+    m = Model(handle="ICDC", version="1.0.0", mdb=the_mdb)
     m.dget(refresh=False)
-    prop = m.props[("sample", "sample_type")]
+    prop = m.props[("sample", "sample_preservation")]
     sample = m.nodes["sample"]
     edge = m.edges[("on_visit", "sample", "visit")]
     term = Term({"value": "electric_boogaloo"})
+    prop.dget()
     m.add_terms(prop, term)
     node = m.nodes["lab_exam"]
     m.dput()
@@ -92,9 +91,13 @@ def test_put_model(bento_neo4j):
         rec = result.single()
         assert rec["n"].id == node.neoid
 
-    term = m.props[("demographic", "sex")].terms["M"]
+    crdc = Model(handle="CRDC", version="TBD", mdb=the_mdb)
+    crdc.dget()
+    prop = crdc.props[("Diagnosis", "Tumor Grade")]
+    prop.dget()
+    term = prop.terms['Low Grade']
     assert term.concept
-    assert term.concept._id == "337c0e4f-506a-4f4e-95f6-07c3462b81ff"
+    assert term.concept.neoid == 465922
     concept = term.concept
     assert term in concept.belongs.values()
 
@@ -104,7 +107,7 @@ def test_put_model(bento_neo4j):
     # assert term not in concept.belongs.values()
     # assert ("concept", concept) in term.removed_entities
 
-    m.dput()
+    crdc.dput()
     with m.drv.session() as session:
         result = session.run(
             "match (t:term) where id(t)=$id return t",
@@ -128,7 +131,7 @@ def test_put_model(bento_neo4j):
         prop.model = None
         assert not prop.model
 
-    m.dput()
+    crdc.dput()
 
     with m.drv.session() as session:
         result = session.run(
