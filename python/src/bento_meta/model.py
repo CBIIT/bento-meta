@@ -568,9 +568,13 @@ class Model:
             ObjectMap.clear_cache()
         with self.drv.session() as session:
             result = session.run(
-                "match p = (s:node)<-[:has_src]-(r:relationship)-[:has_dst]->(d:node) "
-                "where s.model=$hndl and r.model=$hndl and d.model=$hndl return p",
-                {"hndl": self.handle},
+                """
+                match p = (s:node {model:$hndl, version:$vers})<-[:has_src]-
+                          (r:relationship {model:$hndl, version:$vers})-[:has_dst]->
+                          (d:node {model:$hndl, version:$vers})
+                return p
+                """,
+                {"hndl": self.handle, "vers": self.version},
             )
             for rec in result:
                 (ns, nr, nd) = rec["p"].nodes
@@ -585,14 +589,26 @@ class Model:
                 self.nodes[ns.handle] = ns
                 self.nodes[nd.handle] = nd
                 self.edges[nr.triplet] = nr
+            result = session.run(
+                """
+                match (n:node {model:$hndl, version:$vers})
+                where not (n)<--(:relationship)
+                return n
+                """,
+                {"hndl": self.handle, "vers": self.version})
+            for rec in result:
+                n = Node(rec["n"])
+                ObjectMap.cache[n.neoid] = n
+                self.nodes[n.handle] = n
 
         with self.drv.session() as session:
             result = session.run(
-                (
-                    "match (n:node)-[:has_property]->(p:property) where n.model=$hndl "
-                    "and p.model=$hndl return id(n), p"
-                ),
-                {"hndl": self.handle},
+                """
+                match (n:node {model:$hndl, version:$vers})-[:has_property]->
+                (p:property {model:$hndl, version:$vers})
+                return id(n), p
+                """,
+                {"hndl": self.handle, "vers":self.version},
             )
             for rec in result:
                 n = ObjectMap.cache.get(rec["id(n)"])
@@ -609,9 +625,12 @@ class Model:
                 p.dirty = -1
         with self.drv.session() as session:
             result = session.run(
-                "match (r:relationship)-[:has_property]->(p:property) "
-                "where r.model=$hndl and p.model=$hndl return id(r), p",
-                {"hndl": self.handle},
+                """
+                match (r:relationship {model:$hndl, version:$vers})-[:has_property]->
+                      (p:property {model:$hndl, version:$vers}) 
+                return id(r), p
+                """,
+                {"hndl": self.handle, "vers":self.version},
             )
             for rec in result:
                 e = ObjectMap.cache.get(rec["id(r)"])
