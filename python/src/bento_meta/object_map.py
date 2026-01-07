@@ -568,6 +568,7 @@ class ObjectMap:
             for pr in props:
                 maps.append(f"{pr}:$p{i}")
                 prms[f"p{i}"] = props[pr]
+                i = i + 1
             spec = ",".join(maps)
             return [
                 (f"CREATE (n:{self.cls.mapspec()['label']} {{{spec}}}) RETURN n,id(n)", prms),
