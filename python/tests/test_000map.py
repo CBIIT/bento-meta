@@ -82,13 +82,14 @@ def test_put_queries():
     n = Node({"handle": "test", "model": "test_model", "_commit": 1})
     qry = m.put_q(n)
     assert qry == [
-        'CREATE (n:node {_commit:1,handle:"test",model:"test_model"}) RETURN n,id(n)',
+        ('CREATE (n:node {_commit:$p0,handle:$p1,model:$p2}) RETURN n,id(n)',
+         {"p0": 1, "p1": "test", "p2": "test_model"})
     ]
     n.neoid = 2
     stmts = m.put_q(n)
-    assert (
-        stmts[0]
-        == 'MATCH (n:node) WHERE id(n)=2 SET n._commit=1,n.handle="test",n.model="test_model" RETURN n,id(n)'
+    assert stmts[0] == (
+        'MATCH (n:node) WHERE id(n)=2 SET n._commit=$p0,n.handle=$p1,n.model=$p2 RETURN n,id(n)',
+        {"p0": 1, "p1": "test", "p2": "test_model"}
     )
     assert (
         len(stmts[1:])
@@ -97,7 +98,7 @@ def test_put_queries():
     for s in stmts[1:]:
         assert re.match(
             "^MATCH \\(n:node\\) WHERE id\\(n\\)=2 REMOVE n.[a-z_]+ RETURN n,id\\(n\\)$",
-            s,
+            s[0],
         )
     n.neoid = None
     with pytest.raises(ArgError, match="object must be mapped"):
@@ -210,16 +211,21 @@ def test_put_then_rm_queries():
     m = ObjectMap(cls=Node)
     n = Node({"handle": "test_", "model": "test_model_", "_commit": 1})
     qry = m.put_q(n)
-    assert qry == [
-        'CREATE (n:node {_commit:1,handle:"test_",model:"test_model_"}) RETURN n,id(n)',
-    ]
+    assert qry == [(
+        'CREATE (n:node {_commit:$p0,handle:$p1,model:$p2}) RETURN n,id(n)',
+        {"p0": 1, "p1": "test_", "p2": "test_model_"}
+    )]
 
     # manually set neoid
     n.neoid = 2
     stmts = m.put_q(n)
     assert (
         stmts[0]
-        == 'MATCH (n:node) WHERE id(n)=2 SET n._commit=1,n.handle="test_",n.model="test_model_" RETURN n,id(n)'
+        == (
+            'MATCH (n:node) WHERE id(n)=2 SET n._commit=$p0,n.handle=$p1,n.model=$p2 RETURN n,id(n)',
+            {"p0": 1, "p1": "test_", "p2": "test_model_"}
+        )
+            
     )
     assert (
         len(stmts[1:])
@@ -228,7 +234,7 @@ def test_put_then_rm_queries():
     for s in stmts[1:]:
         assert re.match(
             "^MATCH \\(n:node\\) WHERE id\\(n\\)=2 REMOVE n.[a-z_]+ RETURN n,id\\(n\\)$",
-            s,
+            s[0],
         )
 
     n.neoid = None
