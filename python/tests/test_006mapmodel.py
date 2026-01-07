@@ -9,7 +9,7 @@ from bento_meta.mdb import MDB
 from bento_meta.model import Model
 from bento_meta.object_map import ObjectMap
 from bento_meta.objects import Term
-
+from copy import deepcopy
 from pdb import set_trace
 
 @pytest.mark.docker
@@ -153,6 +153,7 @@ def test_put_model(test_mdb):
 
     prop.model = "ICDC"
     at_enrollment = m.edges[("at_enrollment", "prior_surgery", "enrollment")]
+    at_enrollment_cpy = deepcopy(at_enrollment)
     prior_surgery = m.nodes["prior_surgery"]
     with m.drv.session() as session:
         result = session.run(
@@ -180,3 +181,4 @@ def test_put_model(test_mdb):
         )
         s = result.single()
         assert s
+

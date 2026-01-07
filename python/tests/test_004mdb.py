@@ -46,7 +46,7 @@ def test_rd_txns(test_mdb):
     result = mdb.get_nodes_by_model("CTDC","1.19.0")
     assert len(result) == 18
     result = mdb.get_model_nodes_edges("ICDC")
-    assert len(result) == 40
+    assert len(result) == 40 
     result = mdb.get_node_edges_by_node_id("qJKDxq") # ICDC visit node
     assert len([x for x in result if x["near_type"] == "has_dst"]) == 6
     assert len([x for x in result if x["near_type"] == "has_src"]) == 3

@@ -74,6 +74,9 @@ include = ["logs/log.ini"]
 packages = ["src/bento_meta"]
 sources = ["src"]
 
+[tool.pytest.ini_options]
+addoptions = "-s -k 'local or (not cidc)'"
+
 [tool.semantic_release]
 version_variable = "pyproject.toml:version"
 branch = "master"

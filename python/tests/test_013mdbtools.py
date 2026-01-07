@@ -74,16 +74,16 @@ class TestToolsMDB:
     ]
 
     @pytest.mark.dumb
-    def test_tools_mdb(self, mdb) -> None:
+    def test_tools_mdb(self, test_mdb) -> None:
         """Test the ToolsMDB class by initializing an instance and asserting its existence."""
-        (b, h) = mdb
+        (b, h) = test_mdb
         mdb = ToolsMDB(uri=b, user="neo4j", password="neo4j1")
         assert mdb
 
     @pytest.fixture
-    def tools_mdb(self, mdb) -> ToolsMDB:
+    def tools_mdb(self, test_mdb) -> ToolsMDB:
         """Fixture that provides an instance of ToolsMDB for testing."""
-        (b, h) = mdb
+        (b, h) = test_mdb
         return ToolsMDB(uri=b, user="neo4j", password="neo4j1")
 
     def test_add_entity_to_mdb(self, tools_mdb) -> None:
