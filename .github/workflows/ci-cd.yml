@@ -8,7 +8,7 @@ jobs:
         packages: read
         contents: read
         id-token: write
-      uses: CBIIT/bento-workflows/.github/workflows/test-build.yml@v3.0.22
+      uses: CBIIT/bento-workflows/.github/workflows/test-build.yml@v3.0.23
       with:
         workdir: ./python
         versions: |
