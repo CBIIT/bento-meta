@@ -1,6 +1,6 @@
 [project]
 name = "bento-meta"
-version = "0.3.0"
+version = "0.3.1"
 description = "Python drivers for Bento Metamodel Database"
 authors = [
   { name="Mark A. Jensen", email = "mark.jensen@nih.gov"},
@@ -59,7 +59,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-include = ["logs/log.ini"]
+include = ["src", "logs/log.ini"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bento_meta"]
