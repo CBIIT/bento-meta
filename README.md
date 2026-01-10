@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/CBIIT/bento-meta.svg?branch=master)](https://travis-ci.org/CBIIT/bento-meta)
+![Build Status](https://github.com/CBIIT/bento-meta/workflows/ci-cd.yml/badge.svg)
 
 # Bento Meta DB 
 
