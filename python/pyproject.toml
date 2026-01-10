@@ -23,6 +23,7 @@ dependencies = [
     "requests>=2.32.4,<3.0.0",
     "tqdm>=4.64.1,<5.0.0",
     "setuptools>=80.9.0,<81.0.0",
+    "liquichange>=0.2.1,<0.3.0",
     "tornado>=6.5.1,<7.0.0",
     "cryptography>=45.0.3,<46.0.0",
     "certifi>=2025.4.26",
@@ -32,7 +33,7 @@ dependencies = [
     "typing-extensions>=4.15.0",
 ]
 
-
+[project.optional-dependencies]
 dev = [
     "pytest>=7.2.0,<8.0.0",
     "pytest-docker>=3.1.1,<4.0.0",
