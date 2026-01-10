@@ -1,5 +1,5 @@
 import sys
-
+import json
 sys.path.insert(0, ".")
 sys.path.insert(0, "..")
 from bento_meta.entity import Entity
@@ -14,10 +14,15 @@ from bento_meta.objects import (
     Term,
     ValueSet,
 )
+from bento_meta.tf_objects import (
+    Transform,
+    TfStep,
+)
 
 
 def test_create_objects():
-    for cls in [Node, Property, Edge, Term, ValueSet, Concept, Origin, Tag]:
+    for cls in [Node, Property, Edge, Term, ValueSet,
+                Concept, Origin, Tag, Transform, TfStep]:
         n = cls()
         assert n
         assert isinstance(n, Entity)
@@ -49,9 +54,66 @@ def test_init_and_link_objects():
     assert of_sample.src.concept.terms[("sample", None, None, None)].value == "sample"
     assert of_sample.src.annotations[("sample", None, None, None)].value == "sample"
     pred = Predicate({"subject": concept, "object": other_concept, "handle": "isa"})
-    assert type(pred.subject) == Concept
-    assert type(pred.object) == Concept
+    assert isinstance(pred.subject, Concept)
+    assert isinstance(pred.object, Concept)
 
+
+def test_init_and_link_tf_objects():
+    p_src = Property({
+        "handle": "from_prop",
+        "model": "test1",
+        "version": "1.0",
+        "value_domain": "integer",
+        "nanoid": "ooga"
+        })
+    p_dst = Property({
+        "handle": "to_prop",
+        "model": "test2",
+        "version": "1.1",
+        "value_domain": "string",
+        "nanoid":"BooGA"
+        })
+    trans = Transform({
+        "handle": "test_transform",
+        "desc": "it's a test",
+        "version": "Q32",
+        "source": "human",
+        "input_props": {1:p_src},
+        "output_props": {2:p_dst}
+        })
+    assert isinstance(trans, Transform)
+    assert trans.source == "human"
+    assert trans.desc == "it's a test"
+
+    tfstep1 = TfStep({
+        "package": "bento-transforms@1.0.1",
+        "entrypoint": "bento_transforms.arith.days_to_years",
+        "params_json": '{"divisor":365}',
+        })
+    assert isinstance(tfstep1, TfStep)
+    assert tfstep1.params_json == '{"divisor":365}'
+    assert tfstep1.params["divisor"] == 365
+
+    tfstep2 = TfStep({
+        "package": "bento-transforms@1.0.1",
+        "entrypoint": "bento_transforms.format",
+        "params_json": '{"format_string": "%s years"}'
+    })
+
+    tfstep3 = TfStep({
+        "package": "bento-transforms@1.0.1",
+        "entrypoint": "bento_transforms.to_lang",
+        "params_json": '{"language": "Klingon"}'
+    })
+
+    tfstep1.next_step = tfstep2
+    tfstep2.next_step = tfstep3
+    trans.first_step = tfstep1
+    trans.last_step = tfstep3
+
+    assert trans.steps == [tfstep1, tfstep2, tfstep3]
+    
+        
 
 def test_tags_on_objects():
     nodeTag = Tag({"key": "name", "value": "Neddy"})
@@ -60,6 +122,8 @@ def test_tags_on_objects():
     conceptTag2 = Tag({"key": "aka", "value": "Jehoshaphat"})
     termTag = Tag({"key": "name", "value": "Termy"})
     propTag = Tag({"key": "name", "value": "Puppy"})
+    transTag = Tag({"key": "name", "value": "Cissy"})
+    stepTag = Tag({"key": "name", "value":"Steppy"})
 
     case = Node({"model": "test", "handle": "case"})
     of_sample = Edge({"model": "test", "handle": "of_sample"})
@@ -80,11 +144,24 @@ def test_tags_on_objects():
     concept.tags[conceptTag2.key] = conceptTag2
     sample.props["this"].tags["name"] = propTag
 
+    trans = Transform({
+        "handle": "test_transform",
+        "desc": "it's a test",
+        "version": "Q32",
+        "source": "human",
+        })
+    tfstep1 = TfStep({
+        "package": "bento-transforms@1.0.1",
+        "entrypoint": "bento_transforms.arith.days_to_years",
+        "params_json": '{"divisor":365}',
+        })
+    trans.tags[transTag.key] = transTag
+    tfstep1.tags[stepTag.key] = stepTag
     names = [
         x.tags["name"].value
-        for x in [case, of_sample, term, concept, sample.props["this"]]
+        for x in [case, of_sample, term, concept, sample.props["this"], trans, tfstep1]
     ]
-    assert names == ["Neddy", "Robby", "Termy", "Catty", "Puppy"]
+    assert names == ["Neddy", "Robby", "Termy", "Catty", "Puppy", "Cissy", "Steppy"]
     assert concept.tags["aka"].value == "Jehoshaphat"
 
 

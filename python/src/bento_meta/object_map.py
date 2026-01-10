@@ -41,8 +41,12 @@ from bento_meta.objects import (
     Term,
     ValueSet,
 )
+from bento_meta.tf_objects import (
+    Transform,
+    TfStep,
+    )
 
-
+from pdb import set_trace
 class ObjectMap:
     """
     Machinery for mapping bento_meta objects to a Bento Metamodel Database in Neo4j.
@@ -113,6 +117,8 @@ class ObjectMap:
                 Predicate,
                 Origin,
                 Tag,
+                Transform,
+                TfStep,
             ):
                 for oatt in [x for x in o.attspec if o.attspec[x] == "object"]:
                     r = o.mapspec()["relationship"][oatt]["rel"]
@@ -280,7 +286,7 @@ class ObjectMap:
             result = None
             with session.begin_transaction() as tx:
                 for qry in self.put_q(obj):
-                    result = tx.run(cast("LiteralString", qry))
+                    result = tx.run(cast("LiteralString", qry[0]), qry[1])
                 if result is None:
                     msg = "no result from put_q"
                     raise RuntimeError(msg)
@@ -304,7 +310,7 @@ class ObjectMap:
                             continue
                         # put val as a node
                         for qry in ObjectMap(cls=type(val), drv=self.drv).put_q(val):
-                            result = tx.run(cast("LiteralString", qry))
+                            result = tx.run(cast("LiteralString", qry[0]),qry[1])
                         val.neoid = result.single().value("id(n)")
                         if val.neoid is None:
                             msg = (
@@ -535,27 +541,38 @@ class ObjectMap:
                 props[self.cls.mapspec()["property"][pr]] = getattr(obj, pr)
         stmts = []
         if obj.neoid is not None:
-            set_clause = "SET " + ",".join(
-                [f"n.{pr}={ObjectMap._quote_val(props[pr])}" for pr in props],
-            )
+            i = 0
+            prms = {}
+            assigns = []
+            for pr in props:
+                assigns.append(f"n.{pr}=$p{i}")
+                prms[f"p{i}"] = props[pr]
+                i = i + 1
+            set_clause = "SET " + ",".join(assigns)
             stmts.append(
-                f"MATCH (n:{self.cls.mapspec()['label']}) WHERE id(n)={obj.neoid} "
-                f"{set_clause} RETURN n,id(n)",
+                (f"MATCH (n:{self.cls.mapspec()['label']}) WHERE id(n)={obj.neoid} "
+                 f"{set_clause} RETURN n,id(n)", prms)
             )
-            stmts.extend(
-                [
-                    (
-                        f"MATCH (n:{self.cls.mapspec()['label']}) WHERE id(n)="
-                        f"{obj.neoid} REMOVE n.{pr} RETURN n,id(n)"
-                    )
-                    for pr in null_props
-                ],
-            )
+            rmstmts = []
+            for pr in null_props:
+                rmstmts.append(
+                    ((f"MATCH (n:{self.cls.mapspec()['label']}) WHERE id(n)="
+                      f"{obj.neoid} REMOVE n.{pr} RETURN n,id(n)"), {})
+                )
+            stmts.extend(rmstmts)
             return stmts
-        spec = ",".join([f"{pr}:{ObjectMap._quote_val(props[pr])}" for pr in props])
-        return [
-            f"CREATE (n:{self.cls.mapspec()['label']} {{{spec}}}) RETURN n,id(n)",
-        ]
+        else:
+            i = 0
+            prms = {}
+            maps = []
+            for pr in props:
+                maps.append(f"{pr}:$p{i}")
+                prms[f"p{i}"] = props[pr]
+                i = i + 1
+            spec = ",".join(maps)
+            return [
+                (f"CREATE (n:{self.cls.mapspec()['label']} {{{spec}}}) RETURN n,id(n)", prms),
+            ]
 
     def put_attr_q(
         self,
@@ -705,7 +722,7 @@ class ObjectMap:
         if isinstance(end_cls, str):
             end_cls = {end_cls}
         cls_set = tuple([eval(x) for x in end_cls])
-        print(f"{cls_set=}")
-        print(f"{v=}")
+        # print(f"{cls_set=}")
+        # print(f"{v=}")
         chk = [isinstance(x, cls_set) for x in v]
         return True in chk

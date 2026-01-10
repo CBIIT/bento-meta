@@ -41,10 +41,11 @@ If you are proposing a feature:
 Ready to contribute? Here's how to set up `bento-meta` for local development.
 
 1. Download a copy of `bento-meta` locally.
-2. Install `bento-meta` using `poetry`:
+2. Install `bento-meta` using `uv`:
 
     ```console
-    $ poetry install
+    uv venv
+    uv pip install -e .[dev]
     ```
 
 3. Use `git` (or similar) to create a branch for local development and make your changes:

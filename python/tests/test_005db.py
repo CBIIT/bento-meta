@@ -9,11 +9,11 @@ from bento_meta.object_map import ObjectMap
 from bento_meta.objects import Concept, Node, Property, Term, ValueSet
 from neo4j import GraphDatabase
 from neo4j.exceptions import Neo4jError
-
+from pdb import set_trace
 
 @pytest.mark.docker
-def test_get(bento_neo4j):
-    (b, h) = bento_neo4j
+def test_get(test_mdb):
+    (b, h) = test_mdb
     drv = GraphDatabase.driver(b)
     assert drv
     node_map = ObjectMap(cls=Node, drv=drv)
@@ -22,32 +22,32 @@ def test_get(bento_neo4j):
     Property.object_map = ObjectMap(cls=Property, drv=drv)
     n_id = None
     with node_map.drv.session() as session:
-        result = session.run("match (a:node) return id(a) limit 1")
+        result = session.run("match (a:node) where id(a) = 100453 return id(a) limit 1")
         n_id = result.single().value()
-    assert n_id
+    assert n_id == 100453
     node = Node()
     node.neoid = n_id
     node_map.get(node, refresh=False)
     assert node.dirty == 0
     assert node.__dict__["concept"].dirty == -1  # before dget()
     assert node.concept.dirty == 0  # after dget()
-    assert node.concept._id == "a5b87a02-1eb3-4ec9-881d-f4479ab917ac"
-    assert len(node.props) == 3
-    assert node.props.data["site_short_name"].dirty == -1  # before dget()
-    assert node.props["site_short_name"].dirty == 0  # after dget()
-    assert node.props["site_short_name"].model == "ICDC"
+    assert node.concept.nanoid == "NfoVKj"
+    assert len(node.props) == 39
+    assert node.props.data["AcquisitionMethodType"].dirty == -1  # before dget()
+    assert node.props["AcquisitionMethodType"].dirty == 0  # after dget()
+    assert node.props["AcquisitionMethodType"].model == "HTAN"
     concept = node.concept
     assert concept.belongs[(id(node), "concept")] == node
     owners = node_map.get_owners(node)
-    assert len(owners) == 1
+    assert len(owners) == 22
     cncpt = Concept()
-    Concept.object_map.get_by_id(cncpt, "a5b87a02-1eb3-4ec9-881d-f4479ab917ac")
+    Concept.object_map.get_by_id(cncpt, 100455)
     assert cncpt.terms[0] == concept.terms[0]
 
 
 @pytest.mark.docker
-def test_put_rm(bento_neo4j):
-    (b, h) = bento_neo4j
+def test_put_rm(test_mdb):
+    (b, h) = test_mdb
     drv = GraphDatabase.driver(b)
     vs_map = ObjectMap(cls=ValueSet, drv=drv)
     term_map = ObjectMap(cls=Term, drv=drv)

@@ -456,7 +456,8 @@ class Tag(Entity):
         "label": "tag",
         "key": "key",
         "property": {"key": "key", "value": "value"},
-        "relationship": {"_parent": {"rel": "<:has_tag", "end_cls": "Entity"}},
+        "relationship": {"_parent": {"rel": "<:has_tag",
+                                     "end_cls": ["Node", "Edge", "Property", "ValueSet","Concept","Predicate","Transform","TfStep"]}},
     }
     (attspec, _mapspec) = mergespec("Tag", attspec_, mapspec_)
 

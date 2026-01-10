@@ -3,11 +3,45 @@ name: ci-cd
 on: [push, pull_request]
 
 jobs:
-    ci-cd:
-      uses: CBIIT/bento-workflows/.github/workflows/ci-cd.yml@24a75ede6370fcdf8a4792e53f17607138e127db
+    test-build:
+      permissions:
+        packages: read
+        contents: read
+        id-token: write
+      uses: CBIIT/bento-workflows/.github/workflows/test-build.yml@v3.0.23
       with:
         workdir: ./python
         versions: |
-          ["3.10","3.11","3.12","3.13"]
-        pkg_name: bento-meta
-      secrets: inherit
+          ["3.10", "3.11","3.12","3.13"]
+
+    test-publish-install:
+      # TODO: fix publishing
+      if: false
+      needs: test-build
+      permissions:
+        id-token: write
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Setup uv
+          uses: astral-sh/setup-uv@v7
+          with:
+            python-version: 3.11
+
+        - name: Download build artifact
+          uses: actions/download-artifact@v5
+          with:
+            artifact-ids: ${{ needs.test-build.outputs.build-artifact-id }}
+            path: dist
+
+        - name: Publish package to testpypi
+          run: |
+            uv publish  --trusted-publishing always -v \
+              --publish-url https://test.pypi.org/legacy \
+              --check-url https://test.pypi.org/simple
+          
+        - name: Test install from testpypi
+          run: |
+            uv pip install --index-url https://test.pypi.org/simple/ \
+                           --extra-index-url https://test.pypi.org/simple \
+                           bento-meta
