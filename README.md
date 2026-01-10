@@ -1,4 +1,4 @@
-![Build Status](https://github.com/CBIIT/bento-meta/workflows/ci-cd.yml/badge.svg)
+![Build Status](https://github.com/CBIIT/bento-meta/actions/workflows/ci-cd.yml/badge.svg)
 
 # Bento Meta DB 
 
