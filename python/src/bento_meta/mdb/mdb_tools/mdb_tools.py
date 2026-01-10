@@ -1081,22 +1081,3 @@ class EntityValidator:
         ):
             logger.exception("Error validating entity")
             raise
-
-
-def _get_nlp_model():
-    """Install and import spacy & scispacy nlp model if any not already installed."""
-    model_name = "en_ner_bionlp13cg_md"
-    model_url = "https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.1/en_ner_bionlp13cg_md-0.5.1.tar.gz"
-
-    try:
-        if not find_spec("spacy"):  # ensure spacy is installed
-            check_call([executable, "-m", "pip", "install", "spacy"])
-        import spacy
-
-        if not find_spec(model_name):  # ensure model is installed
-            check_call([executable, "-m", "pip", "install", model_url])
-        nlp = spacy.load(model_url)
-        return nlp
-    except Exception:
-        logger.exception("Error getting NLP model")
-        raise
