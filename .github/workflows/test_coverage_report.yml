@@ -1,0 +1,73 @@
+name: Run Tests with Coverage
+
+on:
+  pull_request:
+    branches:
+      - main
+      - '*.*.*'
+  push:
+    branches:
+      - main
+      - '*.*.*'
+
+jobs:
+  test-coverage:
+    name: Run Tests and Report Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+      contents: read
+    defaults:
+      run:
+        working-directory: ./python
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv and set up Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.11"
+
+      - name: Create venv and install
+        run: |
+          uv venv
+          uv pip install -e .[dev]
+
+      - name: Authenticate to registry and pull test MDB
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+          docker pull ghcr.io/cbiit/test-mdb-amd:neo4.4
+
+      - name: Write compose config, start docker, run tests with coverage
+        run: |
+          cat << EOF > compose-mdb.yml
+          services:
+            test-mdb:
+              image: 'ghcr.io/cbiit/test-mdb-amd:neo4.4'
+              ports:
+                - "7474:7474"
+                - "7687:7687"
+              healthcheck:
+                test:
+                  - "CMD"
+                  - "wget"
+                  - "http://localhost:7474"
+                interval: 15s
+                timeout: 30s
+                retries: 5
+          EOF
+          docker compose -f compose-mdb.yml up -d --wait --wait-timeout 180
+          export NEO4J_MDB_URI=bolt://localhost:7687 NEO4J_MDB_USER=neo4j1 \
+                 NEO4J_MDB_PASS=neo4j
+          echo Response: `curl http://localhost:7474`
+          uv run pytest -s -k cicd --cov=bento_meta --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: unit-tests
+          parallel: false
+        continue-on-error: true
+
