@@ -61,7 +61,7 @@ jobs:
           export NEO4J_MDB_URI=bolt://localhost:7687 NEO4J_MDB_USER=neo4j1 \
                  NEO4J_MDB_PASS=neo4j
           echo Response: `curl http://localhost:7474`
-          uv run pytest -s -k cicd --cov=bento_meta --cov-report=xml --cov-report=term-missing
+          uv run pytest -s --cov=bento_meta --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2
