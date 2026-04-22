@@ -8,7 +8,7 @@ jobs:
         packages: read
         contents: read
         id-token: write
-      uses: CBIIT/bento-workflows/.github/workflows/test-build.yml@DATATEAM-538/test-workflow-cleanup
+      uses: CBIIT/bento-workflows/.github/workflows/test-build.yml@main
       with:
         workdir: ./python
         versions: |
