@@ -282,6 +282,7 @@ class Term(Entity):
         "origin_version": "simple",
         "origin_definition": "simple",
         "origin_name": "simple",
+        "value_set": "object",
         "concept": "object",
         "origin": "object",
     }
@@ -306,6 +307,7 @@ class Term(Entity):
         "relationship": {
             "concept": {"rel": ":represents>", "end_cls": "Concept"},
             "origin": {"rel": ":has_origin>", "end_cls": "Origin"},
+            "value_set": {"rel": ":specifies_value_set", "end_cls": "ValueSet"},
             "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
     }
@@ -315,6 +317,12 @@ class Term(Entity):
         """Initialize a `Term` instance."""
         super().__init__(init=init)
 
+    @property
+    def terms(self) -> list[Term] | None:
+        """Return the `Term` objects of `Property` with a ``value_set`` domain."""
+        if self.value_set:
+            return self.value_set.terms
+        return None
 
 # for ValueSet - updating terms prop should dirty the connected Property
 # (from Bento::Meta), signal need to refresh. Engineer so this happens
@@ -333,6 +341,7 @@ class ValueSet(Entity):
         "path": "simple",
         "prop": "object",
         "origin": "object",
+        "edp_term": "object",
         "terms": "collection",
     }
     mapspec_: ClassVar[
@@ -348,6 +357,7 @@ class ValueSet(Entity):
         "relationship": {
             "prop": {"rel": "<:has_value_set", "end_cls": "Property"},
             "terms": {"rel": ":has_term>", "end_cls": "Term"},
+            "edp_term": {"rel": "<:specifies_value_set", "end_cls": "Term"},
             "origin": {"rel": ":has_origin>", "end_cls": "Origin"},
             "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
