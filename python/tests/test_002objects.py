@@ -251,3 +251,5 @@ def test_edp_related_updates() -> None:
     assert vs.edp_term is None
     assert t1.terms is None
     
+    p = Property({"handle":"blerf", "model":"test", "version":"1.0", "is_extended":True})
+    assert p.is_extended
