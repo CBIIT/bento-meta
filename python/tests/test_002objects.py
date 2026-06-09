@@ -236,19 +236,19 @@ def test_edp_related_updates() -> None:
     vs.terms["Neoplasm, malignant"] = t1
     vs.terms["Squamous cell carcinoma, keratinizing, NOS"] = t2
     vs.terms["Glomus tumor, NOS"] = t3
-    vs.edp_term = edp
+    vs.edp_terms[edp.handle] = edp
     edp.value_set = vs
 
     assert len(edp.terms) == 3
     assert edp.terms == vs.terms
-    assert vs.edp_term == edp
+    assert vs.edp_terms == {edp.handle: edp}
 
     # ensure you can reference the attributes and get back None
     # (instead of exception)
     # when appropriate (ie, value set is not an edp valueset,
     # term is not an edp term
     vs = ValueSet({"handle": "not_an_edp_valueset"})
-    assert vs.edp_term is None
+    assert not vs.edp_terms 
     assert t1.terms is None
     
     p = Property({"handle":"blerf", "model":"test", "version":"1.0", "is_extended":True})

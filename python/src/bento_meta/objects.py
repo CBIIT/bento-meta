@@ -343,7 +343,7 @@ class ValueSet(Entity):
         "path": "simple",
         "prop": "object",
         "origin": "object",
-        "edp_term": "object",
+        "edp_terms": "collection",
         "terms": "collection",
     }
     mapspec_: ClassVar[
@@ -359,7 +359,7 @@ class ValueSet(Entity):
         "relationship": {
             "prop": {"rel": "<:has_value_set", "end_cls": "Property"},
             "terms": {"rel": ":has_term>", "end_cls": "Term"},
-            "edp_term": {"rel": "<:specifies_value_set", "end_cls": "Term"},
+            "edp_terms": {"rel": "<:specifies_value_set", "end_cls": "Term"},
             "origin": {"rel": ":has_origin>", "end_cls": "Origin"},
             "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
