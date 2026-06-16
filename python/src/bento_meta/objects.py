@@ -136,6 +136,7 @@ class Property(Entity):
         "is_nullable": "simple",
         "is_deprecated": "simple",
         "is_strict": "simple",
+        "is_extended": "simple",
         "concept": "object",
         "value_set": "object",
         "_parent_handle": "simple",
@@ -154,6 +155,7 @@ class Property(Entity):
             "units": "units",
             "item_domain": "item_domain",
             "is_required": "is_required",
+            "is_extended": "is_extended",
             "is_key": "is_key",
             "is_nullable": "is_nullable",
             "is_deprecated": "is_deprecated",
@@ -282,6 +284,7 @@ class Term(Entity):
         "origin_version": "simple",
         "origin_definition": "simple",
         "origin_name": "simple",
+        "value_set": "object",
         "concept": "object",
         "origin": "object",
     }
@@ -306,6 +309,7 @@ class Term(Entity):
         "relationship": {
             "concept": {"rel": ":represents>", "end_cls": "Concept"},
             "origin": {"rel": ":has_origin>", "end_cls": "Origin"},
+            "value_set": {"rel": ":specifies_value_set", "end_cls": "ValueSet"},
             "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },
     }
@@ -315,6 +319,12 @@ class Term(Entity):
         """Initialize a `Term` instance."""
         super().__init__(init=init)
 
+    @property
+    def terms(self) -> list[Term] | None:
+        """Return the `Term` objects of `Property` with a ``value_set`` domain."""
+        if self.value_set:
+            return self.value_set.terms
+        return None
 
 # for ValueSet - updating terms prop should dirty the connected Property
 # (from Bento::Meta), signal need to refresh. Engineer so this happens
@@ -333,6 +343,7 @@ class ValueSet(Entity):
         "path": "simple",
         "prop": "object",
         "origin": "object",
+        "edp_terms": "collection",
         "terms": "collection",
     }
     mapspec_: ClassVar[
@@ -348,6 +359,7 @@ class ValueSet(Entity):
         "relationship": {
             "prop": {"rel": "<:has_value_set", "end_cls": "Property"},
             "terms": {"rel": ":has_term>", "end_cls": "Term"},
+            "edp_terms": {"rel": "<:specifies_value_set", "end_cls": "Term"},
             "origin": {"rel": ":has_origin>", "end_cls": "Origin"},
             "tags": {"rel": ":has_tag>", "end_cls": "Tag"},
         },

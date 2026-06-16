@@ -213,3 +213,43 @@ def test_get_key_prop() -> None:
     assert n.get_key_prop() == pk1
     n.props[pk2.handle] = pk2
     assert n.get_key_prop() == [pk1, pk2]
+
+def test_edp_related_updates() -> None:
+    """Test that an EDP term can have a valueset"""
+    vs = ValueSet({"handle": "icd_o_3_morphology"})
+    edp = Term({"origin_name": "CRDC",
+                "value": "ICD-O-3 Morphology v3.2",
+                "origin_id": "CRDC00001",
+                "origin_version": "1"})
+    t1 = Term({"value": "Neoplasm, malignant",
+               "origin_name": "ICDO3",
+               "origin_version": "3.2",
+               "origin_id": "8000/6"})
+    t2 = Term({"value": "Squamous cell carcinoma, keratinizing, NOS",
+               "origin_name": "ICDO3",
+               "origin_version": "3.2",
+               "origin_id": "8071/3"})
+    t3 = Term({"value": "Glomus tumor, NOS",
+               "origin_name": "ICDO3",
+               "origin_version": "3.2",
+               "origin_id": "8711/0"})
+    vs.terms["Neoplasm, malignant"] = t1
+    vs.terms["Squamous cell carcinoma, keratinizing, NOS"] = t2
+    vs.terms["Glomus tumor, NOS"] = t3
+    vs.edp_terms[edp.handle] = edp
+    edp.value_set = vs
+
+    assert len(edp.terms) == 3
+    assert edp.terms == vs.terms
+    assert vs.edp_terms == {edp.handle: edp}
+
+    # ensure you can reference the attributes and get back None
+    # (instead of exception)
+    # when appropriate (ie, value set is not an edp valueset,
+    # term is not an edp term
+    vs = ValueSet({"handle": "not_an_edp_valueset"})
+    assert not vs.edp_terms 
+    assert t1.terms is None
+    
+    p = Property({"handle":"blerf", "model":"test", "version":"1.0", "is_extended":True})
+    assert p.is_extended

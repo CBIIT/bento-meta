@@ -155,10 +155,16 @@ Relationships:
       - Src: relationship
         Dst: property
   has_value_set:
-    Mul: one_to_one
+    Mul: many_to_one
     Props: null
     Ends:
       - Src: property
+        Dst: value_set
+  specifies_value_set:
+    Mul: many_to_one
+    Props: null
+    Ends:
+      - Src: term
         Dst: value_set
   has_term:
     Mul: one_to_many
