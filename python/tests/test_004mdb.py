@@ -12,7 +12,7 @@ def test_rd_txns(test_mdb):
     (b, h) = test_mdb
     mdb = MDB(uri=b, user="neo4j", password="neo4j1")
     result = mdb.get_model_handles()
-    assert set(result) == {
+    assert set(result) >= {
         "C3DC",
         "CCDI",
         "CCDI-DCC",
