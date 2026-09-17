@@ -261,7 +261,7 @@ class Model:
 
     def add_terms(self, prop: Property, *terms: list[Term | str]) -> None:
         """
-        Add a list of Term and/or strings to a Property.
+        Add a list of Term and/or strings to a Property (via its ValueSet).
 
         Property must have a value domain of value_set or enum.
         Term instances are created for strings; Term.value and Term.handle
@@ -304,6 +304,52 @@ class Model:
             )
             self.terms[full_term_key] = term
 
+    def add_edp_term(self, prop: Property, *term: list[Term]) -> None:
+        """
+        Add an EDP Term to a Property (via its ValueSet)
+
+        Property must have a value domain of value_set or enum.
+        
+
+        Args:
+            prop: Property to modify.
+            *term: EDP Term(s) to add.
+        """
+        if not isinstance(prop, Property):
+            msg = "arg1 must be Property"
+            raise ArgError(msg)
+        if not re.match("value_set|enum", prop.value_domain):
+            msg = "Property value domain is not value_set or enum, can't add terms"
+            raise AttributeError(msg)
+        if not prop.value_set:
+            warn(
+                "(add_edp_term) Creating ValueSet object for Property " + prop.handle,
+                stacklevel=2,
+            )
+            prop.value_set = ValueSet({"prop": prop, "_id": str(uuid4())})
+            prop.value_set.handle = self.handle + prop.value_set._id[0:8]  # noqa: SLF001
+        if isinstance(term, Term):
+            terms = [term]
+        else:
+            terms = term
+            
+        for item in terms:
+            if isinstance(item, Term):
+                term = item
+            else:
+                msg = "add_edp_term() encountered arg that was not a Term object"
+                raise ArgError(msg)
+#######
+            tm_key = term.handle if term.handle else term.value
+            prop.value_set.edp_terms[tm_key] = term
+            full_term_key = (
+                tm_key,
+                term.origin_name,
+                term.origin_id,
+                term.origin_version,
+            )
+            self.terms[full_term_key] = term
+            
     def rm_node(self, node: Node) -> Node | None:
         """
         Remove a Node from the Model instance.

@@ -1,6 +1,6 @@
 [project]
 name = "bento-meta"
-version = "0.3.2"
+version = "0.3.3b1"
 description = "Python drivers for Bento Metamodel Database"
 authors = [
   { name="Mark A. Jensen", email = "mark.jensen@nih.gov"},
