@@ -242,7 +242,9 @@ def test_edp_related_updates() -> None:
     assert len(edp.terms) == 3
     assert edp.terms == vs.terms
     assert vs.edp_terms == {edp.handle: edp}
-
+    
+    p = Property({'handle':'frelb','value_domain':'value_set','value_set':vs})
+    assert p.edp_terms == vs.edp_terms
     # ensure you can reference the attributes and get back None
     # (instead of exception)
     # when appropriate (ie, value set is not an edp valueset,

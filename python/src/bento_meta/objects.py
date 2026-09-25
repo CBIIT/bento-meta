@@ -192,6 +192,13 @@ class Property(Entity):
         return None
 
     @property
+    def edp_terms(self) -> list[Term] | None:
+        """Return the 'Term' objects representing EDPs from the Property's ValueSet"""
+        if self.value_set:
+            return self.value_set.edp_terms
+        return None
+    
+    @property
     def values(self) -> list[str] | None:
         """
         Return Property's term values as a list of str if it has a value_set domain.
