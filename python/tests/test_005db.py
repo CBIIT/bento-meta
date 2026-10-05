@@ -22,9 +22,8 @@ def test_get(test_mdb):
     Property.object_map = ObjectMap(cls=Property, drv=drv)
     n_id = None
     with node_map.drv.session() as session:
-        result = session.run("match (a:node) where id(a) = 100453 return id(a) limit 1")
+        result = session.run("match (a:node) where a.nanoid = 'VTUKex' return id(a) limit 1")
         n_id = result.single().value()
-    assert n_id == 100453
     node = Node()
     node.neoid = n_id
     node_map.get(node, refresh=False)
@@ -41,7 +40,7 @@ def test_get(test_mdb):
     owners = node_map.get_owners(node)
     assert len(owners) == 22
     cncpt = Concept()
-    Concept.object_map.get_by_id(cncpt, 100455)
+    Concept.object_map.get_by_id(cncpt, concept._id)
     assert cncpt.terms[0] == concept.terms[0]
 
 
@@ -51,7 +50,7 @@ def test_put_rm(test_mdb):
     drv = GraphDatabase.driver(b)
     vs_map = ObjectMap(cls=ValueSet, drv=drv)
     term_map = ObjectMap(cls=Term, drv=drv)
-    vs = ValueSet({"_id": "narb"})
+    vs = ValueSet({"nanoid": "narbBB"})
     terms = [Term({"value": x}) for x in ["quilm", "ferb", "narquit"]]
     vs.terms = terms
     assert vs.terms["ferb"].value == "ferb"
@@ -59,24 +58,25 @@ def test_put_rm(test_mdb):
     rt = []
     with vs_map.drv.session() as session:
         result = session.run(
-            "match (v:value_set)-[:has_term]->(t:term) where v.id='narb' return t order by t.value",
+            "match (v:value_set)-[:has_term]->(t:term) where v.nanoid='narbBB' return t order by t.value",
         )
         for rec in result:
             rt.append(rec["t"]["value"])
     assert set(rt) == set(["ferb", "narquit", "quilm"])
     quilm = vs.terms["quilm"]
+    q_id = quilm.neoid
     del vs.terms["quilm"]
     assert len(vs.terms) == 2
     with pytest.raises(Neo4jError, match=".*Cannot delete"):
         term_map.rm(quilm)
-    t_id = None
+
     with term_map.drv.session() as session:
         result = session.run("match (t:term {value:'quilm'}) return id(t)")
         t_id = result.single().value()
-    assert t_id == quilm.neoid
+    assert t_id == q_id
     term_map.rm(quilm, force=1)
     with term_map.drv.session() as session:
-        result = session.run("match (t:term {value:'quilm'}) return id(t)")
+        result = session.run("match (t:term {value:'quilm'}) return t.nanoid")
         assert result.single() == None
 
     new_term = Term({"value": "belpit"})

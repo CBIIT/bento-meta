@@ -662,33 +662,32 @@ class Model:
                           (r:relationship {model:$hndl, version:$vers})-[:has_dst]->
                           (d:node {model:$hndl, version:$vers})
                 return p
+                union match p = (n:node {model:$hndl, version:$vers})
+                  where not (n)<--(:relationship)
+                return p
                 """,
                 {"hndl": self.handle, "vers": self.version},
             )
             for rec in result:
-                (ns, nr, nd) = rec["p"].nodes
-                ns = Node(ns)
-                nr = Edge(nr)
-                nd = Node(nd)
-                ObjectMap.cache[ns.neoid] = ns
-                ObjectMap.cache[nr.neoid] = nr
-                ObjectMap.cache[nd.neoid] = nd
-                nr.src = ns
-                nr.dst = nd
-                self.nodes[ns.handle] = ns
-                self.nodes[nd.handle] = nd
-                self.edges[nr.triplet] = nr
-            result = session.run(
-                """
-                match (n:node {model:$hndl, version:$vers})
-                where not (n)<--(:relationship)
-                return n
-                """,
-                {"hndl": self.handle, "vers": self.version})
-            for rec in result:
-                n = Node(rec["n"])
-                ObjectMap.cache[n.neoid] = n
-                self.nodes[n.handle] = n
+                nn = rec["p"].nodes
+                if len(nn) == 3:
+                    ns = Node(nn[0])
+                    nr = Edge(nn[1])
+                    nd = Node(nn[2])
+                    ObjectMap.cache[ns.neoid] = ns
+                    ObjectMap.cache[nr.neoid] = nr
+                    ObjectMap.cache[nd.neoid] = nd
+                    nr.src = ns
+                    nr.dst = nd
+                    self.nodes[ns.handle] = ns
+                    self.nodes[nd.handle] = nd
+                    self.edges[nr.triplet] = nr
+                elif len(nn) == 1:
+                    nod = Node(nn[0])
+                    ObjectMap.cache[nod.neoid] = nod
+                    self.nodes[nod.handle] = nod
+                else:
+                    pass
 
         with self.drv.session() as session:
             result = session.run(

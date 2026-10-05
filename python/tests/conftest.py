@@ -40,51 +40,6 @@ def test_mdb(request):
     return (bolt_url, http_url)
 
 
-# @pytest.fixture(scope="session")
-# def bento_neo4j(docker_services, docker_ip):
-#     bolt_port = docker_services.port_for("bento-neo4j", 7687)
-#     http_port = docker_services.port_for("bento-neo4j", 7474)
-#     bolt_url = f"bolt://{docker_ip}:{bolt_port}"
-#     http_url = f"http://{docker_ip}:{http_port}"
-#     sleep(wait)
-#     docker_services.wait_until_responsive(
-#         timeout=15.0,
-#         pause=1.0,
-#         check=lambda: is_responsive(http_url),
-#     )
-#     return (bolt_url, http_url)
-
-
-# @pytest.fixture(scope="session")
-# def mdb(docker_services, docker_ip):
-#     bolt_port = docker_services.port_for("mdb", 7687)
-#     http_port = docker_services.port_for("mdb", 7474)
-#     bolt_url = f"bolt://{docker_ip}:{bolt_port}"
-#     http_url = f"http://{docker_ip}:{http_port}"
-#     sleep(wait)
-#     docker_services.wait_until_responsive(
-#         timeout=30.0,
-#         pause=0.5,
-#         check=lambda: is_responsive(http_url),
-#     )
-#     return (bolt_url, http_url)
-
-
-# @pytest.fixture(scope="session")
-# def mdb_versioned(docker_services, docker_ip):
-#     bolt_port = docker_services.port_for("mdb-versioned", 7687)
-#     http_port = docker_services.port_for("mdb-versioned", 7474)
-#     bolt_url = f"bolt://{docker_ip}:{bolt_port}"
-#     http_url = f"http://{docker_ip}:{http_port}"
-#     sleep(wait)
-#     docker_services.wait_until_responsive(
-#         timeout=30.0,
-#         pause=1.0,
-#         check=lambda: is_responsive(http_url),
-#     )
-#     return (bolt_url, http_url)
-
-
 @pytest.fixture(scope="session")
 def docker_compose_project_name():
     return "bento-meta-test"
