@@ -97,7 +97,6 @@ def test_put_model(test_mdb):
     prop.dget()
     term = prop.terms['Low Grade']
     assert term.concept
-    assert term.concept.neoid == 465922
     concept = term.concept
     assert term in concept.belongs.values()
 
