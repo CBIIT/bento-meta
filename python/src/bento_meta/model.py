@@ -261,7 +261,7 @@ class Model:
 
     def add_terms(self, prop: Property, *terms: list[Term | str]) -> None:
         """
-        Add a list of Term and/or strings to a Property.
+        Add a list of Term and/or strings to a Property (via its ValueSet).
 
         Property must have a value domain of value_set or enum.
         Term instances are created for strings; Term.value and Term.handle
@@ -304,6 +304,98 @@ class Model:
             )
             self.terms[full_term_key] = term
 
+    def rm_term(self, term: Term) -> None:
+        """Not implemented."""
+        if not isinstance(term, Term):
+            msg = "arg must be a Term object"
+            raise ArgError(msg)
+
+    def add_edp_term(self, prop: Property, *terms: Term) -> None:
+        """
+        Add an EDP Term to a Property (via its ValueSet)
+
+        Property must have a value domain of value_set or enum.
+
+        Args:
+            prop: Property to modify.
+            *term: EDP Term(s) to add.
+        """
+        if not isinstance(prop, Property):
+            msg = "arg1 must be Property"
+            raise ArgError(msg)
+        if not re.match("value_set|enum", prop.value_domain):
+            msg = "Property value domain is not value_set or enum, can't add EDP terms"
+            raise AttributeError(msg)
+        if not prop.value_set:
+            warn(
+                "(add_edp_term) Creating ValueSet object for Property " + prop.handle,
+                stacklevel=2,
+            )
+            prop.value_set = ValueSet({"prop": prop, "_id": str(uuid4())})
+            prop.value_set.handle = self.handle + prop.value_set._id[0:8]  # noqa: SLF001
+            
+        for item in terms:
+            if isinstance(item, Term):
+                term = item
+            else:
+                msg = "add_edp_term() encountered arg that was not a Term object"
+                raise ArgError(msg)
+            tm_key = term.handle if term.handle else term.value
+            if prop.value_set.edp_terms.get(tm_key) is not None:
+                warn(f"Term {term} is replacing Term {prop.value_set.edp_terms[tm_key]} with identical handle")
+            prop.value_set.edp_terms[tm_key] = term
+            full_term_key = (
+                tm_key,
+                term.origin_name,
+                term.origin_id,
+                term.origin_version,
+            )
+            self.terms[full_term_key] = term
+
+    def rm_term(self, prop: Property, *terms: Term, attr: str = "terms") -> None:
+        """
+        Remove a term from a Property (via its ValueSet)
+
+        prop: Property; must have a value domain of value_set.
+        attr: ValueSet collection attribute to remove from (either "terms" or "edp_terms")
+              (default: "terms")
+
+        If the Property's ValueSet collection (vs.terms or vs.edp_terms) contains a
+        Term in the arguments, that term is removed from the collection.
+        Otherwise, no action is taken for the Term.
+        If after deletion, the Term is no longer involved in any collection in the Model
+        (ascertained from term.belongs), it is also removed from model.terms.
+        """
+        if not isinstance(prop, Property):
+            msg = "arg1 must be Property"
+            raise ArgError(msg)
+        if not re.match("value_set|enum", prop.value_domain):
+            msg = "Property value domain is not value_set or enum, can't add EDP terms"
+            raise AttributeError(msg)
+        if prop.value_set is None:
+            return # silently
+
+        if getattr(prop.value_set, attr) is None or len(getattr(prop.value_set, attr)) == 0:
+            return # silently
+
+        for term in terms:
+            if not isinstance(term, Term):
+                msg = "rm_term() encountered arg that was not a Term object"
+                raise ArgError(msg)
+
+            tm_key = term.handle if term.handle else term.value
+            if getattr(prop.value_set, attr).get(tm_key) is not None:
+                del getattr(prop.value_set, attr)[tm_key]
+                if len(term.belongs) == 0:
+                    full_term_key = (
+                        tm_key,
+                        term.origin_name,
+                        term.origin_id,
+                        term.origin_version,
+                    )
+                    del self.terms[full_term_key]
+        return
+
     def rm_node(self, node: Node) -> Node | None:
         """
         Remove a Node from the Model instance.
@@ -336,6 +428,9 @@ class Model:
         self.removed_entities.append(node)
         return node
 
+    def rm_edp_term(self, prop: Property, *terms: Term):
+        return self.rm_term(prop, *terms, attr="edp_terms")
+        
     def rm_edge(self, edge: Edge) -> Edge | None:
         """
         Remove an Edge instance from the Model instance.
@@ -393,12 +488,6 @@ class Model:
             k.append(key)
             del self.props[tuple(k)]
         self.removed_entities.append(prop)
-
-    def rm_term(self, term: Term) -> None:
-        """Not implemented."""
-        if not isinstance(term, Term):
-            msg = "arg must be a Term object"
-            raise ArgError(msg)
 
     def assign_edge_end(
         self,
@@ -573,33 +662,32 @@ class Model:
                           (r:relationship {model:$hndl, version:$vers})-[:has_dst]->
                           (d:node {model:$hndl, version:$vers})
                 return p
+                union match p = (n:node {model:$hndl, version:$vers})
+                  where not (n)<--(:relationship)
+                return p
                 """,
                 {"hndl": self.handle, "vers": self.version},
             )
             for rec in result:
-                (ns, nr, nd) = rec["p"].nodes
-                ns = Node(ns)
-                nr = Edge(nr)
-                nd = Node(nd)
-                ObjectMap.cache[ns.neoid] = ns
-                ObjectMap.cache[nr.neoid] = nr
-                ObjectMap.cache[nd.neoid] = nd
-                nr.src = ns
-                nr.dst = nd
-                self.nodes[ns.handle] = ns
-                self.nodes[nd.handle] = nd
-                self.edges[nr.triplet] = nr
-            result = session.run(
-                """
-                match (n:node {model:$hndl, version:$vers})
-                where not (n)<--(:relationship)
-                return n
-                """,
-                {"hndl": self.handle, "vers": self.version})
-            for rec in result:
-                n = Node(rec["n"])
-                ObjectMap.cache[n.neoid] = n
-                self.nodes[n.handle] = n
+                nn = rec["p"].nodes
+                if len(nn) == 3:
+                    ns = Node(nn[0])
+                    nr = Edge(nn[1])
+                    nd = Node(nn[2])
+                    ObjectMap.cache[ns.neoid] = ns
+                    ObjectMap.cache[nr.neoid] = nr
+                    ObjectMap.cache[nd.neoid] = nd
+                    nr.src = ns
+                    nr.dst = nd
+                    self.nodes[ns.handle] = ns
+                    self.nodes[nd.handle] = nd
+                    self.edges[nr.triplet] = nr
+                elif len(nn) == 1:
+                    nod = Node(nn[0])
+                    ObjectMap.cache[nod.neoid] = nod
+                    self.nodes[nod.handle] = nod
+                else:
+                    pass
 
         with self.drv.session() as session:
             result = session.run(

@@ -7,6 +7,7 @@ import pytest
 from bento_meta.model import ArgError, Model
 from bento_meta.objects import Edge, Node, Property, Term
 
+from pdb import set_trace
 
 def test_init_model():
     with pytest.raises(ArgError, match=".*requires arg 'handle'"):
@@ -74,3 +75,42 @@ def test_create_model():
     assert ("CRS", "Marilyn", None, None) in model.terms
     assert ("case", "CTOS", None, None) in model.terms
     assert dx.value_set in tm.belongs.values()
+    model.rm_term(dx, tm)
+    assert {x.value for x in dx.terms.values()} == {
+        "rockin_pneumonia",
+        "fungusamongus",
+    }
+    
+
+    edp_primary_sites = Term({"handle":"primary_sites",
+                              "value":"Official List of Primary Sites",
+                              "origin_name":"CRDC",
+                              "origin_version":"1",
+                              "origin_id":"CRDC00100"})
+    edp_addl_sites = Term({"handle":"moreprimary_sites",
+                              "value":"Extra List of Primary Sites",
+                              "origin_name":"CRDC",
+                              "origin_version":"1",
+                              "origin_id":"CRDC00101"})
+    primary_site = Property({"handle":"primary_site", "value_domain":"value_set"})
+    model.add_prop(sample, primary_site)
+    model.add_edp_term(primary_site, edp_primary_sites)
+    assert primary_site.value_set
+    assert list(primary_site.value_set.edp_terms.values())[0] == edp_primary_sites
+    model.add_edp_term(primary_site, edp_addl_sites)
+    assert len(primary_site.value_set.edp_terms.values()) == 2
+    assert list(primary_site.value_set.edp_terms.values())[1] == edp_addl_sites
+    secondary_site = Property({"handle":"secondary_site", "value_domain":"value_set"})
+    model.add_prop(sample, secondary_site)
+    model.add_edp_term(secondary_site, edp_addl_sites, edp_primary_sites)
+    assert secondary_site.value_set
+    assert list(secondary_site.value_set.edp_terms.values())[0] == edp_addl_sites
+    assert list(primary_site.value_set.edp_terms.values())[1] == edp_addl_sites
+    model.rm_edp_term(secondary_site, edp_addl_sites)
+    assert list(secondary_site.value_set.edp_terms.values())[0] == edp_primary_sites
+    with pytest.warns(Warning):
+        model.add_edp_term(secondary_site, edp_primary_sites)
+    assert "moreprimary_sites" in [x.handle for x in model.terms.values()]
+    model.rm_edp_term(primary_site, edp_addl_sites)
+    assert len(edp_addl_sites.belongs) == 0
+    assert "moreprimary_sites" not in [x.handle for x in model.terms.values()]
