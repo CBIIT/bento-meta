@@ -16,6 +16,12 @@ from copy import deepcopy
 from typing import TYPE_CHECKING, Any, ClassVar
 from warnings import warn
 
+from bento_meta.composition import (
+    CompositionOp,
+    VSComposition,
+    VSCompositionStep,
+)
+
 from bento_meta.entity import Entity
 
 if TYPE_CHECKING:
@@ -336,6 +342,7 @@ class Term(Entity):
 # for ValueSet - updating terms prop should dirty the connected Property
 # (from Bento::Meta), signal need to refresh. Engineer so this happens
 # here (__setattr__ override), not in Entity
+
 class ValueSet(Entity):
     """
     Subclass that models an enumerated set of Property values.
@@ -372,6 +379,7 @@ class ValueSet(Entity):
         },
     }
     (attspec, _mapspec) = mergespec("ValueSet", attspec_, mapspec_)
+    pvt_attr: ClassVar[list[str]] = [*Entity.pvt_attr, "composition"]
 
     def __init__(self, init: dict | neo4j.graph.Node | ValueSet | None = None) -> None:
         """Initialize a `ValueSet` instance."""
