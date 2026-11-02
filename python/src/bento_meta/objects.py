@@ -13,10 +13,14 @@ import sys
 
 sys.path.append("..")
 from copy import deepcopy
-from dataclasses import dataclass, field
-from enum import Enum
 from typing import TYPE_CHECKING, Any, ClassVar
 from warnings import warn
+
+from bento_meta.composition import (
+    CompositionOp,
+    VSComposition,
+    VSCompositionStep,
+)
 
 from bento_meta.entity import Entity
 
@@ -338,25 +342,6 @@ class Term(Entity):
 # for ValueSet - updating terms prop should dirty the connected Property
 # (from Bento::Meta), signal need to refresh. Engineer so this happens
 # here (__setattr__ override), not in Entity
-
-class CompositionOperator(str, Enum):
-    """Supported value-set composition operations."""
-
-    UNION = "union"
-
-@dataclass(frozen=True)
-class EDPCompositionOperand:
-    """One union operand referencing an exact EDP version."""
-
-    operator: CompositionOperator
-    edp: Term
-
-
-@dataclass
-class ValueSetComposition:
-    """A value-set composition recipe."""
-
-    operands: list[EDPCompositionOperand] = field(default_factory=list)
 
 class ValueSet(Entity):
     """
