@@ -14,9 +14,13 @@ from bento_meta.objects import (
     Tag,
     Term,
     ValueSet,
+)
+from bento_meta.cmp_objects import (
     VSComposition,
+    CompositionOp,
     VSCompositionStep,
 )
+
 from bento_meta.tf_objects import (
     Transform,
     TfStep,
