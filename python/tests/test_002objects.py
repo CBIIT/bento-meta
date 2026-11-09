@@ -272,7 +272,7 @@ def test_value_set_holds_ordered_union_composition() -> None:
             VSCompositionStep(value_set=first),
             VSCompositionStep(
                 value_set=second,
-                op=CompositionOp.UNION,
+                operator=CompositionOp.UNION,
             ),
         ]
     )
@@ -283,10 +283,10 @@ def test_value_set_holds_ordered_union_composition() -> None:
     assert value_set.composition is composition
     assert len(value_set.composition.steps) == 2
 
-    assert value_set.composition.steps[0].op is CompositionOp.UNION
+    assert value_set.composition.steps[0].operator is CompositionOp.UNION
     assert value_set.composition.steps[0].value_set is first
 
-    assert value_set.composition.steps[1].op is CompositionOp.UNION
+    assert value_set.composition.steps[1].operator is CompositionOp.UNION
     assert value_set.composition.steps[1].value_set is second
 
 def test_value_set_has_no_composition_by_default():

@@ -13,8 +13,8 @@ class CompositionOp(str, Enum):
 class VSCompositionStep:
     """One union operand referencing an exact EDP version."""
 
-    operator: CompositionOperator
     value_set: ValueSet
+    operator: CompositionOperator = CompositionOp.UNION
 
 
 @dataclass
