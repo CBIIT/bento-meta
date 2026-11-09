@@ -4,6 +4,7 @@ sys.path.insert(0, ".")
 sys.path.insert(0, "..")
 from bento_meta.entity import Entity
 from bento_meta.objects import (
+    CompositionOp,
     Concept,
     Edge,
     Node,
@@ -14,6 +15,12 @@ from bento_meta.objects import (
     Term,
     ValueSet,
 )
+from bento_meta.cmp_objects import (
+    VSComposition,
+    CompositionOp,
+    VSCompositionStep,
+)
+
 from bento_meta.tf_objects import (
     Transform,
     TfStep,
@@ -255,3 +262,48 @@ def test_edp_related_updates() -> None:
     
     p = Property({"handle":"blerf", "model":"test", "version":"1.0", "is_extended":True})
     assert p.is_extended
+
+def test_value_set_holds_ordered_union_composition() -> None:
+    first = ValueSet({"handle": "first"})
+    second = ValueSet({"handle": "second"})
+
+    composition = VSComposition(
+        steps=[
+            VSCompositionStep(value_set=first),
+            VSCompositionStep(
+                value_set=second,
+                operator=CompositionOp.UNION,
+            ),
+        ]
+    )
+
+    value_set = ValueSet()
+    value_set.composition = composition
+
+    assert value_set.composition is composition
+    assert len(value_set.composition.steps) == 2
+
+    assert value_set.composition.steps[0].operator is CompositionOp.UNION
+    assert value_set.composition.steps[0].value_set is first
+
+    assert value_set.composition.steps[1].operator is CompositionOp.UNION
+    assert value_set.composition.steps[1].value_set is second
+
+def test_value_set_has_no_composition_by_default():
+    assert ValueSet().composition is None
+
+def test_value_set_composition_preserves_step_order() -> None:
+    first = ValueSet({"handle": "first"})
+    second = ValueSet({"handle": "second"})
+
+    composition = VSComposition(
+        steps=[
+            VSCompositionStep(value_set=first),
+            VSCompositionStep(value_set=second),
+        ]
+    )
+
+    assert [step.value_set.handle for step in composition.steps] == [
+        "first",
+        "second",
+    ]
