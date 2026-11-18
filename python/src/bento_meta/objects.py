@@ -16,11 +16,6 @@ from copy import deepcopy
 from typing import TYPE_CHECKING, Any, ClassVar
 from warnings import warn
 
-from bento_meta.composition import (
-    CompositionOp,
-    VSComposition,
-    VSCompositionStep,
-)
 
 from bento_meta.entity import Entity
 

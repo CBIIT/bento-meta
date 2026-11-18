@@ -14,7 +14,7 @@ class VSCompositionStep:
     """One union operand referencing an exact EDP version."""
 
     value_set: ValueSet
-    operator: CompositionOperator = CompositionOp.UNION
+    operator: CompositionOp = CompositionOp.UNION
 
 
 @dataclass

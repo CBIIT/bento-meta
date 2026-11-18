@@ -4,7 +4,6 @@ sys.path.insert(0, ".")
 sys.path.insert(0, "..")
 from bento_meta.entity import Entity
 from bento_meta.objects import (
-    CompositionOp,
     Concept,
     Edge,
     Node,
