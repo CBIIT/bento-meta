@@ -1,9 +1,11 @@
 import sys
 import json
+import pytest
 sys.path.insert(0, ".")
 sys.path.insert(0, "..")
 from bento_meta.entity import Entity
 from bento_meta.objects import (
+    Model,
     Concept,
     Edge,
     Node,
@@ -39,6 +41,7 @@ def test_init_and_link_objects():
     assert case
     assert case.model == "test"
     assert case.handle == "case"
+    assert case.annotations is None
     sample = Node({"model": "test", "handle": "sample"})
     assert sample
     of_sample = Edge({"model": "test", "handle": "of_sample"})
@@ -90,6 +93,12 @@ def test_init_and_link_tf_objects():
     assert isinstance(trans, Transform)
     assert trans.source == "human"
     assert trans.desc == "it's a test"
+
+    tfstep0 = TfStep({
+        "package": "bento-transforms@1.0.1",
+        "entrypoint": "bento_transforms.arith.days_to_years",
+        })
+    assert tfstep0.params is None
 
     tfstep1 = TfStep({
         "package": "bento-transforms@1.0.1",
@@ -172,8 +181,14 @@ def test_tags_on_objects():
 
 
 def test_some_object_methods():
+    m = Model({"handle":"MODEL"})
+    assert m
     p = Property({"handle": "complaint"})
     assert p
+    assert p.annotations is None
+    assert p.terms is None
+    assert p.values is None
+    assert p.edp_terms is None
     t = Term({"value": "halitosis"})
     assert t
     u = Term({"value": "ptomaine"})
@@ -195,8 +210,11 @@ def test_some_object_methods():
     assert s
     d = Node({"handle": "cohort"})
     assert d
+    bad = Edge({"handle": "member_of", "src": s})
+    assert bad.triplet is None
     e = Edge({"handle": "member_of", "src": s, "dst": d})
     assert e
+    assert e.annotations is None
     assert e.triplet == ("member_of", "case", "cohort")
     # test get_label() method
     assert p.get_label() == "property"
@@ -212,6 +230,8 @@ def test_get_key_prop() -> None:
     pk2 = Property({"handle": "minor_key", "is_key": True})
     nk1 = Property({"handle": "keyless", "is_key": False})
     n = Node({"handle": "lock", "model": "test"})
+    with pytest.warns(Warning):
+        n.get_key_prop()
     assert n.get_key_prop() is None
     n.props[pk1.handle] = pk1
     assert n.get_key_prop() == pk1
